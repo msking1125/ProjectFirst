@@ -47,20 +47,23 @@ public class Enemy : MonoBehaviour
             gameObject.SetActive(false);
         }
     }
-public void Init(Transform arkTarget)
-{
-    target = arkTarget;
-    currentHP = maxHP;
 
-    // ✅ 스폰되자마자 등록
-    EnemyManager.Instance.Register(this);
-}
+    public void Init(Transform arkTarget)
+    {
+        target = arkTarget;
+        currentHP = maxHP;
 
-private void OnDisable()
-{
-    // ✅ 죽거나 비활성화될 때 해제
-    if (EnemyManager.Instance != null)
-        EnemyManager.Instance.Unregister(this);
-}
+        if (EnemyManager.Instance != null)
+        {
+            EnemyManager.Instance.Register(this);
+        }
+    }
 
+    private void OnDisable()
+    {
+        if (EnemyManager.Instance != null)
+        {
+            EnemyManager.Instance.Unregister(this);
+        }
+    }
 }

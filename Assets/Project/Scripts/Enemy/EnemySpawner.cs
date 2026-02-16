@@ -76,7 +76,17 @@ public class EnemySpawner : MonoBehaviour
             Debug.LogError("[EnemySpawner] spawnPoints가 비어있습니다. SpawnPoints를 연결하세요.");
             return false;
         }
-        return true;
+
+        for (int i = 0; i < spawnPoints.Length; i++)
+        {
+            if (spawnPoints[i] != null)
+            {
+                return true;
+            }
+        }
+
+        Debug.LogError("[EnemySpawner] spawnPoints에 유효한 Transform이 없습니다.");
+        return false;
     }
 
     /// <summary>
@@ -84,15 +94,25 @@ public class EnemySpawner : MonoBehaviour
     /// </summary>
     private void SpawnEnemy()
     {
-        // 랜덤 스폰 위치 선정
-        int idx = Random.Range(0, spawnPoints.Length);
-        Transform spawnPoint = spawnPoints[idx];
-
-        if (spawnPoint == null)
+        // 유효한 스폰 포인트만 후보로 사용
+        List<Transform> validSpawnPoints = new List<Transform>();
+        foreach (Transform point in spawnPoints)
         {
-            Debug.LogWarning($"[EnemySpawner] spawnPoints[{idx}]가 비어있어 스폰하지 못했습니다.");
+            if (point != null)
+            {
+                validSpawnPoints.Add(point);
+            }
+        }
+
+        if (validSpawnPoints.Count == 0)
+        {
+            Debug.LogError("[EnemySpawner] spawnPoints에 유효한 Transform이 없습니다.");
             return;
         }
+
+        // 랜덤 스폰 위치 선정
+        int idx = Random.Range(0, validSpawnPoints.Count);
+        Transform spawnPoint = validSpawnPoints[idx];
 
         // 적 생성
         GameObject enemyObj = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);

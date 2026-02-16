@@ -9,6 +9,7 @@ public class Agent : MonoBehaviour
     public float attackRate = 1f;
 
     private float timer;
+    private bool hasLoggedMissingManager;
 
     void Update()
     {
@@ -32,21 +33,18 @@ public class Agent : MonoBehaviour
 
     Enemy FindClosestEnemy()
     {
-        Enemy[] enemies = GameObject.FindObjectsOfType<Enemy>();
-
-        float minDist = range;
-        Enemy closest = null;
-
-        foreach (var e in enemies)
+        EnemyManager manager = EnemyManager.Instance;
+        if (manager == null)
         {
-            float dist = Vector3.Distance(transform.position, e.transform.position);
-            if (dist < minDist)
+            if (!hasLoggedMissingManager)
             {
-                minDist = dist;
-                closest = e;
+                Debug.LogError("[Agent] EnemyManager.Instance가 없어 타겟을 탐색할 수 없습니다.");
+                hasLoggedMissingManager = true;
             }
+
+            return null;
         }
 
-        return closest;
+        return manager.GetClosest(transform.position, range);
     }
 }
