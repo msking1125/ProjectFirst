@@ -151,15 +151,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e65f008c7072164e8a8c80348f70a14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 6625581550472697319, guid: b50c9244563d27848b31b5207e55f78a,
-    type: 3}
+  enemyPool: {fileID: 1054668061}
   arkTarget: {fileID: 1112038666}
   spawnPoints:
   - {fileID: 5017798058210304687}
   - {fileID: 5017798058210304686}
   - {fileID: 5017798058210304685}
   - {fileID: 5017798058210304684}
-  spawnInterval: 2
+  spawnInterval: 1
 --- !u!4 &34045173
 Transform:
   m_ObjectHideFlags: 0
@@ -431,6 +430,54 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.51, y: 20.77, z: 2.47}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1054668060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1054668062}
+  - component: {fileID: 1054668061}
+  m_Layer: 0
+  m_Name: EnemyPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1054668061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054668060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1228e0decc64ac7b4dc5f22ed356dfd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 2949128697757491358, guid: b50c9244563d27848b31b5207e55f78a,
+    type: 3}
+  initialCapacity: 50
+  allowExpand: 1
+--- !u!4 &1054668062
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054668060}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.9771457, y: -0.81537336, z: 1.320021}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -888,7 +935,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b375a83ed534faa468ab726a013de9e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activeEnemies: []
+  activeEnemies:
+  - {fileID: 2949128697757491358, guid: b50c9244563d27848b31b5207e55f78a, type: 3}
+  - {fileID: 2949128697757491358, guid: 8f9dddd2b069e2144b93fb0f41d34add, type: 3}
+  - {fileID: 2949128697757491358, guid: 8e499e6665eea7748a4153b327601882, type: 3}
 --- !u!4 &2026752306
 Transform:
   m_ObjectHideFlags: 0
@@ -1111,3 +1161,4 @@ SceneRoots:
   - {fileID: 2026752306}
   - {fileID: 2119815888778033251}
   - {fileID: 5017798058210304683}
+  - {fileID: 1054668062}
