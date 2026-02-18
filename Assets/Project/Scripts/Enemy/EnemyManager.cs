@@ -9,16 +9,45 @@ public class EnemyManager : MonoBehaviour
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogError("[EnemyManager] 중복 Instance가 감지되었습니다.");
+            return;
+        }
+
         Instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     public void Register(Enemy enemy)
     {
-        activeEnemies.Add(enemy);
+        if (enemy == null)
+        {
+            Debug.LogError("[EnemyManager] null Enemy를 Register하려고 했습니다.");
+            return;
+        }
+
+        if (!activeEnemies.Contains(enemy))
+        {
+            activeEnemies.Add(enemy);
+        }
     }
 
     public void Unregister(Enemy enemy)
     {
+        if (enemy == null)
+        {
+            Debug.LogError("[EnemyManager] null Enemy를 Unregister하려고 했습니다.");
+            return;
+        }
+
         activeEnemies.Remove(enemy);
     }
 
@@ -27,8 +56,15 @@ public class EnemyManager : MonoBehaviour
         float min = range;
         Enemy closest = null;
 
-        foreach (var e in activeEnemies)
+        for (int i = activeEnemies.Count - 1; i >= 0; i--)
         {
+            Enemy e = activeEnemies[i];
+            if (e == null || !e.gameObject.activeInHierarchy)
+            {
+                activeEnemies.RemoveAt(i);
+                continue;
+            }
+
             float d = Vector3.Distance(pos, e.transform.position);
             if (d < min)
             {
@@ -36,6 +72,7 @@ public class EnemyManager : MonoBehaviour
                 closest = e;
             }
         }
+
         return closest;
     }
 }
