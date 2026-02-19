@@ -18,6 +18,14 @@ public class EnemyManager : MonoBehaviour
         Instance = this;
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
     public void Register(Enemy enemy)
     {
         if (enemy == null)

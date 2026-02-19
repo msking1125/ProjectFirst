@@ -20,10 +20,11 @@ public class EnemyPool : MonoBehaviour
     [Min(1)]
     public int initialCapacity = 20;
 
-    [Tooltip("풀에서 확장 생성이 허용되는지 여부")]
+    [Tooltip("풀이 비어 있을 때 자동 확장을 허용할지 여부")]
     public bool allowExpand = true;
 
     private readonly Queue<Enemy> pool = new Queue<Enemy>();
+    private readonly HashSet<Enemy> pooledSet = new HashSet<Enemy>();
 
     void Awake()
     {
@@ -80,10 +81,20 @@ public class EnemyPool : MonoBehaviour
             return null;
         }
 
+        if (target == null)
+        {
+            Debug.LogError("[EnemyPool] target이 null이라 Get을 수행할 수 없습니다.");
+            return null;
+        }
+
         Enemy enemy = null;
         while (pool.Count > 0 && enemy == null)
         {
             enemy = pool.Dequeue();
+            if (enemy != null)
+            {
+                pooledSet.Remove(enemy);
+            }
         }
 
         if (enemy == null)
@@ -102,6 +113,7 @@ public class EnemyPool : MonoBehaviour
             }
         }
 
+        enemy.transform.SetParent(null);
         enemy.transform.SetPositionAndRotation(position, rotation);
         enemy.gameObject.SetActive(true);
         enemy.Init(target);
@@ -116,6 +128,12 @@ public class EnemyPool : MonoBehaviour
             return;
         }
 
+        if (pooledSet.Contains(enemy) || enemy.IsInPool())
+        {
+            Debug.LogError("[EnemyPool] 동일 Enemy가 중복으로 Return 되었습니다.");
+            return;
+        }
+
         enemy.ResetForPool();
         enemy.transform.SetParent(transform);
 
@@ -125,5 +143,11 @@ public class EnemyPool : MonoBehaviour
         }
 
         pool.Enqueue(enemy);
+        pooledSet.Add(enemy);
+    }
+
+    public int GetPooledCount()
+    {
+        return pool.Count;
     }
 }

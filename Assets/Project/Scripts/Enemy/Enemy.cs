@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 /// <summary>
 /// Enemy 클래스는 Ark를 향해 이동하고, 피해를 입으면 풀로 반환됩니다.
@@ -15,6 +16,17 @@ public class Enemy : MonoBehaviour
     private EnemyPool ownerPool;
 
     private bool isAlive;
+    private bool isRegistered;
+    private bool isInPool;
+
+    private Rigidbody cachedRigidbody;
+    private NavMeshAgent cachedNavMeshAgent;
+
+    void Awake()
+    {
+        cachedRigidbody = GetComponent<Rigidbody>();
+        cachedNavMeshAgent = GetComponent<NavMeshAgent>();
+    }
 
     void Update()
     {
@@ -40,9 +52,16 @@ public class Enemy : MonoBehaviour
             return;
         }
 
+        if (ownerPool == null)
+        {
+            Debug.LogError("[Enemy] Init 실패: ownerPool이 설정되지 않았습니다.");
+            return;
+        }
+
         target = arkTarget;
         currentHP = maxHP;
         isAlive = true;
+        isInPool = false;
 
         if (EnemyManager.Instance == null)
         {
@@ -51,6 +70,7 @@ public class Enemy : MonoBehaviour
         }
 
         EnemyManager.Instance.Register(this);
+        isRegistered = true;
     }
 
     public void TakeDamage(float dmg)
@@ -63,7 +83,7 @@ public class Enemy : MonoBehaviour
         currentHP -= dmg;
         if (currentHP <= 0f)
         {
-            Die();
+            ReturnToPool();
         }
     }
 
@@ -82,11 +102,19 @@ public class Enemy : MonoBehaviour
         isAlive = false;
         currentHP = maxHP;
         target = null;
+        isInPool = true;
+
+        if (isRegistered)
+        {
+            isRegistered = false;
+        }
+
+        ResetMotion();
     }
 
-    private void Die()
+    public bool IsInPool()
     {
-        ReturnToPool();
+        return isInPool;
     }
 
     private void ReturnToPool()
@@ -98,14 +126,45 @@ public class Enemy : MonoBehaviour
             return;
         }
 
+        if (isInPool)
+        {
+            Debug.LogError("[Enemy] 이미 풀에 반환된 Enemy를 중복 Return 하려고 했습니다.");
+            return;
+        }
+
         ownerPool.Return(this);
+    }
+
+    private void ResetMotion()
+    {
+        if (cachedRigidbody != null)
+        {
+            cachedRigidbody.velocity = Vector3.zero;
+            cachedRigidbody.angularVelocity = Vector3.zero;
+        }
+
+        if (cachedNavMeshAgent != null)
+        {
+            cachedNavMeshAgent.ResetPath();
+            cachedNavMeshAgent.velocity = Vector3.zero;
+        }
     }
 
     private void OnDisable()
     {
-        if (EnemyManager.Instance != null)
+        if (!isRegistered)
         {
-            EnemyManager.Instance.Unregister(this);
+            return;
         }
+
+        if (EnemyManager.Instance == null)
+        {
+            Debug.LogError("[Enemy] EnemyManager.Instance가 없어 Unregister할 수 없습니다.");
+            isRegistered = false;
+            return;
+        }
+
+        EnemyManager.Instance.Unregister(this);
+        isRegistered = false;
     }
 }

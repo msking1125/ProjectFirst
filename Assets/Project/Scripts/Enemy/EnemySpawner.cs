@@ -22,10 +22,14 @@ public class EnemySpawner : MonoBehaviour
 
     [Header("Spawn Option")]
     [Tooltip("스폰 주기(초)를 설정하세요.")]
-    [Min(0.1f)]
+    [Min(0.01f)]
     public float spawnInterval = 2f;
 
     private float spawnTimer;
+
+    private bool loggedMissingPool;
+    private bool loggedMissingTarget;
+    private bool loggedMissingSpawnPoints;
 
     void Awake()
     {
@@ -37,7 +41,10 @@ public class EnemySpawner : MonoBehaviour
 
     void Update()
     {
-        if (!IsSpawnerReady()) return;
+        if (!IsSpawnerReady())
+        {
+            return;
+        }
 
         spawnTimer += Time.deltaTime;
         if (spawnTimer >= spawnInterval)
@@ -51,19 +58,38 @@ public class EnemySpawner : MonoBehaviour
     {
         if (enemyPool == null)
         {
-            Debug.LogError("[EnemySpawner] enemyPool이 할당되지 않았습니다.");
+            if (!loggedMissingPool)
+            {
+                Debug.LogError("[EnemySpawner] enemyPool이 할당되지 않았습니다.");
+                loggedMissingPool = true;
+            }
+
             return false;
         }
+
+        loggedMissingPool = false;
 
         if (arkTarget == null)
         {
-            Debug.LogError("[EnemySpawner] arkTarget이 할당되지 않았습니다.");
+            if (!loggedMissingTarget)
+            {
+                Debug.LogError("[EnemySpawner] arkTarget이 할당되지 않았습니다.");
+                loggedMissingTarget = true;
+            }
+
             return false;
         }
 
+        loggedMissingTarget = false;
+
         if (spawnPoints == null || spawnPoints.Length == 0)
         {
-            Debug.LogError("[EnemySpawner] spawnPoints가 비어있습니다. SpawnPoints를 연결하세요.");
+            if (!loggedMissingSpawnPoints)
+            {
+                Debug.LogError("[EnemySpawner] spawnPoints가 비어있습니다. SpawnPoints를 연결하세요.");
+                loggedMissingSpawnPoints = true;
+            }
+
             return false;
         }
 
@@ -71,11 +97,17 @@ public class EnemySpawner : MonoBehaviour
         {
             if (spawnPoints[i] != null)
             {
+                loggedMissingSpawnPoints = false;
                 return true;
             }
         }
 
-        Debug.LogError("[EnemySpawner] spawnPoints에 유효한 Transform이 없습니다.");
+        if (!loggedMissingSpawnPoints)
+        {
+            Debug.LogError("[EnemySpawner] spawnPoints에 유효한 Transform이 없습니다.");
+            loggedMissingSpawnPoints = true;
+        }
+
         return false;
     }
 

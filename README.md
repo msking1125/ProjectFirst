@@ -119,3 +119,20 @@ Assets/
 5. 플레이 테스트 후 DPS/HP 밸런스 1차 조정
 
 원하시면 다음 단계로, 제가 **Unity C# 스크립트 뼈대(Spawner, Tower, Save, OfflineReward)** 를 바로 만들어드릴게요.
+
+---
+
+## Enemy Pooling 테스트 절차 (Unity Play Mode)
+
+아래 절차로 **300마리 스폰** 상황에서 풀 재사용/안정성을 확인할 수 있습니다.
+
+1. `Battle_Test` 씬(또는 실제 전투 씬)에 `EnemyPool` 컴포넌트를 가진 오브젝트를 추가합니다.
+2. `EnemyPool.enemyPrefab`에 `Enemy01` 프리팹을 연결합니다.
+3. `EnemyPool.initialCapacity`를 `60`~`100`으로 설정하고 `allowExpand=true`로 둡니다.
+4. `EnemySpawner.enemyPool`에 위 `EnemyPool`을 연결하고, `arkTarget`/`spawnPoints`를 모두 지정합니다.
+5. 빠른 부하 테스트를 위해 `EnemySpawner.spawnInterval = 0.03`~`0.05`로 설정합니다.
+6. Play 실행 후 콘솔 에러가 없는지 확인합니다.
+7. Hierarchy의 `Enemy(Clone)` 개수가 웨이브 진행 중 계속 선형 증가하지 않고, 일정 범위 안에서 재사용되는지 확인합니다.
+8. 적이 사망할 때 `Destroy`가 아니라 `Return`으로 회수되어 다시 스폰되는지 확인합니다.
+9. 전투 중 Agent 타겟팅이 정상인지(`EnemyManager.activeEnemies`가 등록/해제되는지) 확인합니다.
+10. 300마리 이상 누적 스폰 후에도 이동/공격/사망 루프가 깨지지 않는지 최종 확인합니다.
