@@ -124,4 +124,20 @@ MonoBehaviour:
   maxHP: 10
   attackDamage: 43
   defaultMonsterId: slime
+  eliteHpScale: 1.5
+  eliteAtkScale: 1.3
+  eliteDefScale: 1.2
+  eliteSpeedScale: 1.1
+  bossHpScale: 3
+  bossAtkScale: 2
+  bossDefScale: 1.8
+  bossSpeedScale: 1.2
+  damageTextPrefab: {fileID: 100003, guid: d42c06a5e4064ac4ba546c1a6e510536, type: 3}
+  damageTextAnchor: {fileID: 0}
+  colorRenderer: {fileID: 0}
+  shakeDuration: 0.18
+  shakeStrength: 0.2
+  postProcessVolume: {fileID: 0}
+  critMotionBlurIntensity: 0.85
+  critMotionBlurDuration: 0.12
   arriveDistance: 0.6

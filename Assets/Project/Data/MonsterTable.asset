@@ -14,23 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rows:
   - id: slime
+    grade: 0
+    prefab: {fileID: 6625581550472697319, guid: b50c9244563d27848b31b5207e55f78a, type: 3}
     hp: 50
     atk: 8
     def: 2
     critChance: 0.05
-    critMul: 1.5
+    critMultiplier: 1.5
     moveSpeed: 2.5
-  - id: tank
+  - id: slime
+    grade: 1
+    prefab: {fileID: 6625581550472697319, guid: 8f9dddd2b069e2144b93fb0f41d34add, type: 3}
+    hp: 90
+    atk: 12
+    def: 5
+    critChance: 0.12
+    critMultiplier: 1.8
+    moveSpeed: 2.8
+  - id: slime
+    grade: 2
+    prefab: {fileID: 6625581550472697319, guid: 8e499e6665eea7748a4153b327601882, type: 3}
     hp: 200
-    atk: 10
-    def: 8
-    critChance: 0.02
-    critMul: 1.4
-    moveSpeed: 1.6
-  - id: fast
-    hp: 70
-    atk: 6
-    def: 1
-    critChance: 0.08
-    critMul: 1.6
-    moveSpeed: 3.5
+    atk: 22
+    def: 10
+    critChance: 0.2
+    critMultiplier: 2
+    moveSpeed: 2.2

@@ -44,6 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff32609351ebe848a91e53c556b5468, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agentId: agent
+  agentStatsTable: {fileID: 11400000, guid: 64efefee72ed4c8b8b69955242052912, type: 2}
   range: 8
   attackDamage: 3
   attackRate: 1
@@ -125,6 +127,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff32609351ebe848a91e53c556b5468, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agentId: agent
+  agentStatsTable: {fileID: 11400000, guid: 64efefee72ed4c8b8b69955242052912, type: 2}
   range: 8
   attackDamage: 3
   attackRate: 1
@@ -172,6 +176,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff32609351ebe848a91e53c556b5468, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agentId: agent
+  agentStatsTable: {fileID: 11400000, guid: 64efefee72ed4c8b8b69955242052912, type: 2}
   range: 8
   attackDamage: 3
   attackRate: 1

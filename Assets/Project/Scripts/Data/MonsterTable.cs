@@ -35,6 +35,41 @@ public class MonsterTable : ScriptableObject
         return index.TryGetValue(id, out MonsterRow row) ? row : null;
     }
 
+    public MonsterRow GetByIdAndGrade(string id, MonsterGrade grade)
+    {
+        MonsterRow baseRow = GetById(id);
+        if (baseRow == null)
+        {
+            return null;
+        }
+
+        if (baseRow.grade == grade)
+        {
+            return baseRow;
+        }
+
+        if (rows == null)
+        {
+            return baseRow;
+        }
+
+        for (int i = 0; i < rows.Count; i++)
+        {
+            MonsterRow row = rows[i];
+            if (row == null)
+            {
+                continue;
+            }
+
+            if (row.grade == grade && row.id == baseRow.id)
+            {
+                return row;
+            }
+        }
+
+        return baseRow;
+    }
+
     private void RebuildIndex()
     {
         index.Clear();

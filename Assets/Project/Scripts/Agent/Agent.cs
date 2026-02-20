@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
+    [SerializeField] private string agentId = "agent";
+    [SerializeField] private AgentStatsTable agentStatsTable;
     public float range = 5f;
     public float attackRate = 1f;
 
@@ -16,7 +18,11 @@ public class Agent : MonoBehaviour
 
     private void Awake()
     {
-        if (stats.atk <= 0f)
+        if (agentStatsTable != null)
+        {
+            stats = agentStatsTable.GetStats(agentId);
+        }
+        else if (stats.atk <= 0f)
         {
             stats.atk = Mathf.Max(1f, attackDamage);
         }
@@ -44,12 +50,13 @@ public class Agent : MonoBehaviour
         }
 
         float damage = Mathf.Max(1f, stats.atk - target.Defense);
-        if (Random.value < Mathf.Clamp01(stats.critChance))
+        bool isCrit = Random.value < Mathf.Clamp01(stats.critChance);
+        if (isCrit)
         {
             damage *= Mathf.Max(1f, stats.critMultiplier);
         }
 
-        target.TakeDamage(Mathf.RoundToInt(damage));
+        target.TakeDamage(Mathf.RoundToInt(damage), isCrit);
     }
 
     Enemy FindClosestEnemy()
