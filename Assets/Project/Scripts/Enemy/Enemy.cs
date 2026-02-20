@@ -10,6 +10,11 @@ public class Enemy : MonoBehaviour
     [Header("Enemy Stats")]
     public float moveSpeed = 2f;
     public float maxHP = 10f;
+    public float attackDamage = 1f;
+
+    private float baseMoveSpeed;
+    private float baseMaxHP;
+    private float baseAttackDamage;
 
     private float currentHP;
     private Transform target;
@@ -26,6 +31,10 @@ public class Enemy : MonoBehaviour
     {
         cachedRigidbody = GetComponent<Rigidbody>();
         cachedNavMeshAgent = GetComponent<NavMeshAgent>();
+
+        baseMoveSpeed = moveSpeed;
+        baseMaxHP = maxHP;
+        baseAttackDamage = attackDamage;
     }
 
     void Update()
@@ -100,6 +109,9 @@ public class Enemy : MonoBehaviour
     public void ResetForPool()
     {
         isAlive = false;
+        moveSpeed = baseMoveSpeed;
+        maxHP = baseMaxHP;
+        attackDamage = baseAttackDamage;
         currentHP = maxHP;
         target = null;
         isInPool = true;
@@ -152,8 +164,6 @@ public class Enemy : MonoBehaviour
 
     private void OnDisable()
     {
-        // OnReturnedToPool에서 이미 Unregister를 처리하므로,
-        // 풀로 반환되는 경우가 아닌 다른 이유로 비활성화될 때만 처리
         if (isInPool)
         {
             return;
@@ -166,7 +176,6 @@ public class Enemy : MonoBehaviour
 
         if (EnemyManager.Instance == null)
         {
-            // 씬 언로드 등으로 Manager가 먼저 파괴된 경우 정상 동작
             isRegistered = false;
             return;
         }
@@ -174,21 +183,28 @@ public class Enemy : MonoBehaviour
         EnemyManager.Instance.Unregister(this);
         isRegistered = false;
     }
+
     public void OnSpawnedFromPool(Transform arkTarget)
     {
+        OnSpawnedFromPool(arkTarget, 1f, 1f, 1f);
+    }
+
+    public void OnSpawnedFromPool(Transform arkTarget, float hpMul, float speedMul, float damageMul)
+    {
+        moveSpeed = baseMoveSpeed * Mathf.Max(0f, speedMul);
+        maxHP = baseMaxHP * Mathf.Max(0f, hpMul);
+        attackDamage = baseAttackDamage * Mathf.Max(0f, damageMul);
         Init(arkTarget);
     }
 
     public void OnReturnedToPool()
     {
-        // EnemyManager에서 해제
         if (isRegistered && EnemyManager.Instance != null)
         {
             EnemyManager.Instance.Unregister(this);
             isRegistered = false;
         }
 
-        // 상태 초기화
         ResetForPool();
     }
 }

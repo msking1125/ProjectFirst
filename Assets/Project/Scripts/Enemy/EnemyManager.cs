@@ -51,6 +51,25 @@ public class EnemyManager : MonoBehaviour
         activeEnemies.Remove(enemy);
     }
 
+    public int GetAliveCount()
+    {
+        int alive = 0;
+
+        for (int i = activeEnemies.Count - 1; i >= 0; i--)
+        {
+            Enemy e = activeEnemies[i];
+            if (e == null || !e.gameObject.activeInHierarchy)
+            {
+                activeEnemies.RemoveAt(i);
+                continue;
+            }
+
+            alive++;
+        }
+
+        return alive;
+    }
+
     public Enemy GetClosest(Vector3 pos, float range)
     {
         float min = range;

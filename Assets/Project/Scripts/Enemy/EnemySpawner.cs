@@ -3,7 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// EnemySpawner
-/// - spawnInterval(초)마다 spawnPoints 중 임의 위치에서 EnemyPool.Get으로 적 생성
+/// - 기본적으로 spawnInterval(초)마다 spawnPoints 중 임의 위치에서 EnemyPool.Get으로 적 생성
+/// - WaveManager가 설정하면 해당 웨이브 spawnCount / spawnInterval / 스탯 배수를 사용
 /// </summary>
 [AddComponentMenu("Enemy/Enemy Spawner")]
 public class EnemySpawner : MonoBehaviour
@@ -26,10 +27,18 @@ public class EnemySpawner : MonoBehaviour
     public float spawnInterval = 2f;
 
     private float spawnTimer;
+    private int waveSpawnCount;
+    private int spawnedCount;
+    private float enemyHpMul = 1f;
+    private float enemySpeedMul = 1f;
+    private float enemyDamageMul = 1f;
+    private bool useWaveConfig;
 
     private bool loggedMissingPool;
     private bool loggedMissingTarget;
     private bool loggedMissingSpawnPoints;
+
+    public bool IsWaveSpawnCompleted => useWaveConfig && spawnedCount >= waveSpawnCount;
 
     void Awake()
     {
@@ -46,12 +55,33 @@ public class EnemySpawner : MonoBehaviour
             return;
         }
 
+        if (useWaveConfig && IsWaveSpawnCompleted)
+        {
+            return;
+        }
+
         spawnTimer += Time.deltaTime;
         if (spawnTimer >= spawnInterval)
         {
             SpawnEnemy();
             spawnTimer = 0f;
         }
+    }
+
+    public void ConfigureWave(int spawnCount, float interval, float hpMul, float speedMul, float damageMul)
+    {
+        waveSpawnCount = Mathf.Max(0, spawnCount);
+        spawnInterval = Mathf.Max(0.01f, interval);
+        enemyHpMul = Mathf.Max(0f, hpMul);
+        enemySpeedMul = Mathf.Max(0f, speedMul);
+        enemyDamageMul = Mathf.Max(0f, damageMul);
+        useWaveConfig = true;
+    }
+
+    public void BeginWave()
+    {
+        spawnTimer = 0f;
+        spawnedCount = 0;
     }
 
     private bool IsSpawnerReady()
@@ -131,10 +161,16 @@ public class EnemySpawner : MonoBehaviour
         int idx = Random.Range(0, validSpawnPoints.Count);
         Transform spawnPoint = validSpawnPoints[idx];
 
-        Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget);
+        Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, enemyHpMul, enemySpeedMul, enemyDamageMul);
         if (enemy == null)
         {
             Debug.LogError("[EnemySpawner] EnemyPool.Get 실패로 적 스폰에 실패했습니다.");
+            return;
+        }
+
+        if (useWaveConfig)
+        {
+            spawnedCount++;
         }
     }
 }

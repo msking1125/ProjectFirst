@@ -57,6 +57,11 @@ public class EnemyPool : MonoBehaviour
 
     public Enemy Get(Vector3 pos, Quaternion rot, Transform arkTarget)
     {
+        return Get(pos, rot, arkTarget, 1f, 1f, 1f);
+    }
+
+    public Enemy Get(Vector3 pos, Quaternion rot, Transform arkTarget, float hpMul, float speedMul, float damageMul)
+    {
         if (enemyPrefab == null)
         {
             Debug.LogError("EnemyPool: enemyPrefab is null.", this);
@@ -74,14 +79,14 @@ public class EnemyPool : MonoBehaviour
         t.SetParent(null);
         t.SetPositionAndRotation(pos, rot);
         e.gameObject.SetActive(true);
-        e.OnSpawnedFromPool(arkTarget); // 초기화 훅
+        e.OnSpawnedFromPool(arkTarget, hpMul, speedMul, damageMul);
         return e;
     }
 
     public void Return(Enemy e)
     {
         if (e == null) return;
-        e.OnReturnedToPool(); // 정리 훅
+        e.OnReturnedToPool();
         e.gameObject.SetActive(false);
         e.transform.SetParent(poolRoot);
         pool.Enqueue(e);
