@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -122,7 +123,8 @@ public class WaveManager : MonoBehaviour
             row.spawnInterval,
             row.enemyHpMul,
             row.enemySpeedMul,
-            row.enemyDamageMul);
+            row.enemyDamageMul,
+            string.IsNullOrWhiteSpace(row.enemyId) ? "slime" : row.enemyId);
 
         enemySpawner.BeginWave();
         waveInProgress = true;

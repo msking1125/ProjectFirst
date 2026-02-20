@@ -1,15 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
     public float range = 5f;
-    public float attackDamage = 3f;
     public float attackRate = 1f;
+
+    [Header("Legacy")]
+    public float attackDamage = 3f;
+
+    [Header("Combat Stats")]
+    [SerializeField] private CombatStats stats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
 
     private float timer;
     private bool hasLoggedMissingManager;
+
+    private void Awake()
+    {
+        if (stats.atk <= 0f)
+        {
+            stats.atk = Mathf.Max(1f, attackDamage);
+        }
+
+        stats = stats.Sanitized();
+    }
 
     void Update()
     {
@@ -25,10 +38,18 @@ public class Agent : MonoBehaviour
     void Attack()
     {
         Enemy target = FindClosestEnemy();
-        if (target != null)
+        if (target == null)
         {
-            target.TakeDamage(attackDamage);
+            return;
         }
+
+        float damage = Mathf.Max(1f, stats.atk - target.Defense);
+        if (Random.value < Mathf.Clamp01(stats.critChance))
+        {
+            damage *= Mathf.Max(1f, stats.critMultiplier);
+        }
+
+        target.TakeDamage(Mathf.RoundToInt(damage));
     }
 
     Enemy FindClosestEnemy()

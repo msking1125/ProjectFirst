@@ -57,10 +57,10 @@ public class EnemyPool : MonoBehaviour
 
     public Enemy Get(Vector3 pos, Quaternion rot, Transform arkTarget)
     {
-        return Get(pos, rot, arkTarget, 1f, 1f, 1f);
+        return Get(pos, rot, arkTarget, null, "slime", 1f, 1f, 1f);
     }
 
-    public Enemy Get(Vector3 pos, Quaternion rot, Transform arkTarget, float hpMul, float speedMul, float damageMul)
+    public Enemy Get(Vector3 pos, Quaternion rot, Transform arkTarget, MonsterTable monsterTable, string enemyId, float hpMul, float speedMul, float damageMul)
     {
         if (enemyPrefab == null)
         {
@@ -79,7 +79,7 @@ public class EnemyPool : MonoBehaviour
         t.SetParent(null);
         t.SetPositionAndRotation(pos, rot);
         e.gameObject.SetActive(true);
-        e.OnSpawnedFromPool(arkTarget, hpMul, speedMul, damageMul);
+        e.OnSpawnedFromPool(arkTarget, monsterTable, enemyId, hpMul, speedMul, damageMul);
         return e;
     }
 

@@ -1,0 +1,4 @@
+id,hp,atk,def,critChance,critMul,moveSpeed
+slime,50,8,2,0.05,1.5,2.5
+tank,200,10,8,0.02,1.4,1.6
+fast,70,6,1,0.08,1.6,3.5

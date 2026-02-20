@@ -12,4 +12,5 @@ public class WaveRow
     public int eliteEvery;
     public bool boss;
     public int rewardGold;
+    public string enemyId = "slime";
 }

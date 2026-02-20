@@ -8,19 +8,21 @@ using UnityEngine;
 
 public static class WaveTableImporter
 {
-    private const string CsvPath = "Assets/Project/Data/wave.csv";
+    private const string CsvPathLower = "Assets/Project/Data/wave.csv";
+    private const string CsvPathUpper = "Assets/Project/Data/Wave.csv";
     private const string AssetPath = "Assets/Project/Data/WaveTable.asset";
 
     [MenuItem("Tools/Game/Import Wave CSV")]
     public static void Import()
     {
-        if (!File.Exists(CsvPath))
+        string csvPath = ResolveCsvPath();
+        if (string.IsNullOrEmpty(csvPath))
         {
-            Debug.LogError($"Wave CSV not found at: {CsvPath}");
+            Debug.LogError($"Wave CSV not found at: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
-        var lines = File.ReadAllLines(CsvPath);
+        var lines = File.ReadAllLines(csvPath);
         if (lines.Length < 2)
         {
             Debug.LogError("Wave CSV has no data rows.");
@@ -64,6 +66,8 @@ public static class WaveTableImporter
             row.eliteEvery = ParseInt(cols[idx("eliteEvery")]);
             row.boss = ParseInt(cols[idx("boss")]) != 0;
             row.rewardGold = ParseInt(cols[idx("rewardGold")]);
+            int enemyIdIdx = idx("enemyId");
+            row.enemyId = enemyIdIdx >= 0 ? ReadCell(cols, enemyIdIdx, "slime") : "slime";
 
             table.wave.Add(row);
         }
@@ -73,6 +77,20 @@ public static class WaveTableImporter
         AssetDatabase.Refresh();
 
         Debug.Log($"Imported {table.wave.Count} wave into {AssetPath}");
+    }
+
+
+    private static string ResolveCsvPath()
+    {
+        if (File.Exists(CsvPathLower)) return CsvPathLower;
+        if (File.Exists(CsvPathUpper)) return CsvPathUpper;
+        return null;
+    }
+
+    private static string ReadCell(string[] cols, int index, string fallback = "")
+    {
+        if (cols == null || index < 0 || index >= cols.Length) return fallback;
+        return string.IsNullOrWhiteSpace(cols[index]) ? fallback : cols[index];
     }
 
     private static int ParseInt(string s) => int.TryParse(s, out var v) ? v : 0;

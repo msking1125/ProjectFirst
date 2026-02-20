@@ -21,6 +21,9 @@ public class EnemySpawner : MonoBehaviour
     [Tooltip("적이 생성될 위치들의 Transform 배열을 등록하세요.")]
     public Transform[] spawnPoints;
 
+    [Header("Monster Data")]
+    [SerializeField] private MonsterTable monsterTable;
+
     [Header("Spawn Option")]
     [Tooltip("스폰 주기(초)를 설정하세요.")]
     [Min(0.01f)]
@@ -33,6 +36,7 @@ public class EnemySpawner : MonoBehaviour
     private float enemySpeedMul = 1f;
     private float enemyDamageMul = 1f;
     private bool useWaveConfig;
+    private string currentEnemyId = "slime";
 
     private bool loggedMissingPool;
     private bool loggedMissingTarget;
@@ -68,13 +72,14 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    public void ConfigureWave(int spawnCount, float interval, float hpMul, float speedMul, float damageMul)
+    public void ConfigureWave(int spawnCount, float interval, float hpMul, float speedMul, float damageMul, string enemyId = "slime")
     {
         waveSpawnCount = Mathf.Max(0, spawnCount);
         spawnInterval = Mathf.Max(0.01f, interval);
         enemyHpMul = Mathf.Max(0f, hpMul);
         enemySpeedMul = Mathf.Max(0f, speedMul);
         enemyDamageMul = Mathf.Max(0f, damageMul);
+        currentEnemyId = string.IsNullOrWhiteSpace(enemyId) ? "slime" : enemyId;
         useWaveConfig = true;
     }
 
@@ -161,7 +166,7 @@ public class EnemySpawner : MonoBehaviour
         int idx = Random.Range(0, validSpawnPoints.Count);
         Transform spawnPoint = validSpawnPoints[idx];
 
-        Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, enemyHpMul, enemySpeedMul, enemyDamageMul);
+        Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, enemyHpMul, enemySpeedMul, enemyDamageMul);
         if (enemy == null)
         {
             Debug.LogError("[EnemySpawner] EnemyPool.Get 실패로 적 스폰에 실패했습니다.");

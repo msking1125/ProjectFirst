@@ -11,13 +11,14 @@ public class Enemy : MonoBehaviour
     public float moveSpeed = 2f;
     public float maxHP = 10f;
     public float attackDamage = 1f;
+    [SerializeField] private string defaultMonsterId = "slime";
 
     [Header("Attack")]
     [SerializeField] private float arriveDistance = 0.6f;
 
     private float baseMoveSpeed;
-    private float baseMaxHP;
-    private float baseAttackDamage;
+    private CombatStats baseCombatStats;
+    private CombatStats currentCombatStats;
 
     private float currentHP;
     private Transform target;
@@ -31,14 +32,16 @@ public class Enemy : MonoBehaviour
     private Rigidbody cachedRigidbody;
     private NavMeshAgent cachedNavMeshAgent;
 
+    public float Defense => currentCombatStats.def;
+
     void Awake()
     {
         cachedRigidbody = GetComponent<Rigidbody>();
         cachedNavMeshAgent = GetComponent<NavMeshAgent>();
 
         baseMoveSpeed = moveSpeed;
-        baseMaxHP = maxHP;
-        baseAttackDamage = attackDamage;
+        baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
+        currentCombatStats = baseCombatStats;
     }
 
     void Update()
@@ -79,7 +82,7 @@ public class Enemy : MonoBehaviour
 
         target = arkTarget;
         targetBaseHealth = target.GetComponent<BaseHealth>();
-        currentHP = maxHP;
+        currentHP = currentCombatStats.hp;
         isAlive = true;
         isInPool = false;
 
@@ -93,18 +96,23 @@ public class Enemy : MonoBehaviour
         isRegistered = true;
     }
 
-    public void TakeDamage(float dmg)
+    public void TakeDamage(int dmg)
     {
         if (!isAlive)
         {
             return;
         }
 
-        currentHP -= dmg;
+        currentHP -= Mathf.Max(0, dmg);
         if (currentHP <= 0f)
         {
             ReturnToPool();
         }
+    }
+
+    public void TakeDamage(float dmg)
+    {
+        TakeDamage(Mathf.RoundToInt(dmg));
     }
 
     public void Despawn()
@@ -121,9 +129,10 @@ public class Enemy : MonoBehaviour
     {
         isAlive = false;
         moveSpeed = baseMoveSpeed;
-        maxHP = baseMaxHP;
-        attackDamage = baseAttackDamage;
-        currentHP = maxHP;
+        currentCombatStats = baseCombatStats;
+        maxHP = currentCombatStats.hp;
+        attackDamage = currentCombatStats.atk;
+        currentHP = currentCombatStats.hp;
         target = null;
         targetBaseHealth = null;
         isInPool = true;
@@ -168,7 +177,7 @@ public class Enemy : MonoBehaviour
 
         if (targetBaseHealth != null)
         {
-            targetBaseHealth.TakeDamage(attackDamage);
+            targetBaseHealth.TakeDamage(Mathf.Max(0f, currentCombatStats.atk));
         }
 
         ReturnToPool();
@@ -213,14 +222,23 @@ public class Enemy : MonoBehaviour
 
     public void OnSpawnedFromPool(Transform arkTarget)
     {
-        OnSpawnedFromPool(arkTarget, 1f, 1f, 1f);
+        OnSpawnedFromPool(arkTarget, null, defaultMonsterId, 1f, 1f, 1f);
     }
 
-    public void OnSpawnedFromPool(Transform arkTarget, float hpMul, float speedMul, float damageMul)
+    public void OnSpawnedFromPool(Transform arkTarget, MonsterTable monsterTable, string enemyId, float hpMul, float speedMul, float damageMul)
     {
+        ApplyMonsterBase(monsterTable, enemyId);
+
         moveSpeed = baseMoveSpeed * Mathf.Max(0f, speedMul);
-        maxHP = baseMaxHP * Mathf.Max(0f, hpMul);
-        attackDamage = baseAttackDamage * Mathf.Max(0f, damageMul);
+        currentCombatStats = new CombatStats(
+            baseCombatStats.hp * Mathf.Max(0f, hpMul),
+            baseCombatStats.atk * Mathf.Max(0f, damageMul),
+            baseCombatStats.def,
+            baseCombatStats.critChance,
+            baseCombatStats.critMultiplier);
+
+        maxHP = currentCombatStats.hp;
+        attackDamage = currentCombatStats.atk;
         Init(arkTarget);
     }
 
@@ -233,5 +251,34 @@ public class Enemy : MonoBehaviour
         }
 
         ResetForPool();
+    }
+
+    private void ApplyMonsterBase(MonsterTable monsterTable, string enemyId)
+    {
+        baseMoveSpeed = moveSpeed;
+        baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
+
+        if (monsterTable == null)
+        {
+            return;
+        }
+
+        string id = string.IsNullOrWhiteSpace(enemyId) ? defaultMonsterId : enemyId;
+        MonsterRow row = monsterTable.GetById(id);
+        if (row == null)
+        {
+            row = monsterTable.GetById(defaultMonsterId);
+        }
+
+        if (row == null)
+        {
+            return;
+        }
+
+        baseCombatStats = row.ToCombatStats().Sanitized();
+        if (row.moveSpeed > 0f)
+        {
+            baseMoveSpeed = row.moveSpeed;
+        }
     }
 }
