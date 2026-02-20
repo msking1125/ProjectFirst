@@ -22,21 +22,3 @@ MonoBehaviour:
     eliteEvery: 0
     boss: 0
     rewardGold: 50
-  - wave: 2
-    spawnCount: 12
-    spawnInterval: 1.1
-    enemyHpMul: 1.1
-    enemySpeedMul: 1
-    enemyDamageMul: 1
-    eliteEvery: 0
-    boss: 0
-    rewardGold: 60
-  - wave: 3
-    spawnCount: 15
-    spawnInterval: 1
-    enemyHpMul: 1.2
-    enemySpeedMul: 1.05
-    enemyDamageMul: 1.05
-    eliteEvery: 5
-    boss: 0
-    rewardGold: 70
