@@ -152,6 +152,13 @@ public class Enemy : MonoBehaviour
 
     private void OnDisable()
     {
+        // OnReturnedToPool에서 이미 Unregister를 처리하므로,
+        // 풀로 반환되는 경우가 아닌 다른 이유로 비활성화될 때만 처리
+        if (isInPool)
+        {
+            return;
+        }
+
         if (!isRegistered)
         {
             return;
@@ -159,12 +166,29 @@ public class Enemy : MonoBehaviour
 
         if (EnemyManager.Instance == null)
         {
-            Debug.LogError("[Enemy] EnemyManager.Instance가 없어 Unregister할 수 없습니다.");
+            // 씬 언로드 등으로 Manager가 먼저 파괴된 경우 정상 동작
             isRegistered = false;
             return;
         }
 
         EnemyManager.Instance.Unregister(this);
         isRegistered = false;
+    }
+    public void OnSpawnedFromPool(Transform arkTarget)
+    {
+        Init(arkTarget);
+    }
+
+    public void OnReturnedToPool()
+    {
+        // EnemyManager에서 해제
+        if (isRegistered && EnemyManager.Instance != null)
+        {
+            EnemyManager.Instance.Unregister(this);
+            isRegistered = false;
+        }
+
+        // 상태 초기화
+        ResetForPool();
     }
 }
