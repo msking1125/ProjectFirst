@@ -1,23 +1,51 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using Sirenix.OdinInspector;
 
-/// <summary>
-/// Enemy 클래스는 Ark를 향해 이동하고, 피해를 입으면 풀로 반환됩니다.
-/// EnemyManager에 자신을 등록/해제하여 활성 적 리스트를 관리합니다.
-/// </summary>
+public struct WaveMultipliers
+{
+    public float hp;
+    public float speed;
+    public float damage;
+
+    public static WaveMultipliers Default => new WaveMultipliers { hp = 1f, speed = 1f, damage = 1f };
+}
+
 public class Enemy : MonoBehaviour
 {
-    [ShowInInspector, ReadOnly]
-    private float CurrentHP => currentHP;
+    [ShowInInspector, ReadOnly] private float CurrentHP => currentHP;
+    [ShowInInspector, ReadOnly] private CombatStats Stats => currentCombatStats;
 
-    [ShowInInspector, ReadOnly]
-    private CombatStats Stats => currentCombatStats;
     [Header("Enemy Stats")]
     public float moveSpeed = 2f;
     public float maxHP = 10f;
     public float attackDamage = 1f;
     [SerializeField] private string defaultMonsterId = "slime";
+
+    [Header("Grade Scale")]
+    [SerializeField] private float eliteHpScale = 1.5f;
+    [SerializeField] private float eliteAtkScale = 1.3f;
+    [SerializeField] private float eliteDefScale = 1.2f;
+    [SerializeField] private float eliteSpeedScale = 1.1f;
+    [SerializeField] private float bossHpScale = 3f;
+    [SerializeField] private float bossAtkScale = 2f;
+    [SerializeField] private float bossDefScale = 1.8f;
+    [SerializeField] private float bossSpeedScale = 1.2f;
+
+    [Header("Damage Feedback")]
+    [SerializeField] private DamageText damageTextPrefab;
+    [SerializeField] private Transform damageTextAnchor;
+    [SerializeField] private Renderer colorRenderer;
+    [SerializeField] private float shakeDuration = 0.18f;
+    [SerializeField] private float shakeStrength = 0.2f;
+
+    [Header("Motion Blur")]
+    [SerializeField] private Volume postProcessVolume;
+    [SerializeField] private float critMotionBlurIntensity = 0.85f;
+    [SerializeField] private float critMotionBlurDuration = 0.12f;
 
     [Header("Attack")]
     [SerializeField] private float arriveDistance = 0.6f;
@@ -25,18 +53,18 @@ public class Enemy : MonoBehaviour
     private float baseMoveSpeed;
     private CombatStats baseCombatStats;
     private CombatStats currentCombatStats;
-
     private float currentHP;
     private Transform target;
     private EnemyPool ownerPool;
     private BaseHealth targetBaseHealth;
-
     private bool isAlive;
     private bool isRegistered;
     private bool isInPool;
-
     private Rigidbody cachedRigidbody;
     private NavMeshAgent cachedNavMeshAgent;
+    private MotionBlur cachedMotionBlur;
+    private float baseMotionBlur;
+    private Sequence feedbackSequence;
 
     public float Defense => currentCombatStats.def;
 
@@ -44,6 +72,8 @@ public class Enemy : MonoBehaviour
     {
         cachedRigidbody = GetComponent<Rigidbody>();
         cachedNavMeshAgent = GetComponent<NavMeshAgent>();
+        ResolveRenderer();
+        ResolveMotionBlur();
 
         baseMoveSpeed = moveSpeed;
         baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
@@ -67,24 +97,18 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void SetPool(EnemyPool pool)
-    {
-        ownerPool = pool;
-    }
+    public void SetPool(EnemyPool pool) => ownerPool = pool;
 
-    public void Init(Transform arkTarget)
+    public void Init(Transform arkTarget, string monsterId, MonsterGrade grade, WaveMultipliers waveMultipliers, MonsterTable monsterTable)
     {
-        if (arkTarget == null)
+        if (arkTarget == null || ownerPool == null)
         {
-            Debug.LogError("[Enemy] Init 실패: arkTarget이 null 입니다.");
             return;
         }
 
-        if (ownerPool == null)
-        {
-            Debug.LogError("[Enemy] Init 실패: ownerPool이 설정되지 않았습니다.");
-            return;
-        }
+        ApplyMonsterBase(monsterTable, monsterId);
+        ApplyGradeScale(grade);
+        ApplyWaveMultipliers(waveMultipliers);
 
         target = arkTarget;
         targetBaseHealth = target.GetComponent<BaseHealth>();
@@ -92,86 +116,149 @@ public class Enemy : MonoBehaviour
         isAlive = true;
         isInPool = false;
 
-        if (EnemyManager.Instance == null)
+        if (EnemyManager.Instance != null)
         {
-            Debug.LogError("[Enemy] EnemyManager.Instance가 없어 Register할 수 없습니다.");
-            return;
+            EnemyManager.Instance.Register(this);
+            isRegistered = true;
         }
-
-        EnemyManager.Instance.Register(this);
-        isRegistered = true;
     }
 
-    public void TakeDamage(int dmg)
+    public void TakeDamage(int dmg, bool isCrit)
     {
         if (!isAlive)
         {
             return;
         }
 
-        currentHP -= Mathf.Max(0, dmg);
+        int finalDamage = Mathf.Max(0, dmg);
+        currentHP -= finalDamage;
+
+        SpawnDamageText(finalDamage, isCrit);
+        PlayHitFeedback(isCrit);
+
         if (currentHP <= 0f)
         {
             ReturnToPool();
         }
     }
 
-    public void TakeDamage(float dmg)
-    {
-        TakeDamage(Mathf.RoundToInt(dmg));
-    }
+    public void TakeDamage(int dmg) => TakeDamage(dmg, false);
+
+    public void TakeDamage(float dmg) => TakeDamage(Mathf.RoundToInt(dmg), false);
 
     public void Despawn()
     {
-        if (!isAlive)
+        if (isAlive)
         {
-            return;
+            ReturnToPool();
         }
-
-        ReturnToPool();
     }
 
     public void ResetForPool()
     {
         isAlive = false;
-        moveSpeed = baseMoveSpeed;
-        currentCombatStats = baseCombatStats;
-        maxHP = currentCombatStats.hp;
-        attackDamage = currentCombatStats.atk;
-        currentHP = currentCombatStats.hp;
         target = null;
         targetBaseHealth = null;
         isInPool = true;
-
-        if (isRegistered)
-        {
-            isRegistered = false;
-        }
-
+        feedbackSequence?.Kill();
+        transform.DOKill();
         ResetMotion();
     }
 
-    public bool IsInPool()
+    public bool IsInPool() => isInPool;
+
+    public void OnSpawnedFromPool(Transform arkTarget, MonsterTable monsterTable, string enemyId, MonsterGrade grade, WaveMultipliers multipliers)
     {
-        return isInPool;
+        Init(arkTarget, enemyId, grade, multipliers, monsterTable);
+    }
+
+    public void OnReturnedToPool()
+    {
+        if (isRegistered && EnemyManager.Instance != null)
+        {
+            EnemyManager.Instance.Unregister(this);
+            isRegistered = false;
+        }
+
+        ResetForPool();
     }
 
     private void ReturnToPool()
     {
-        if (ownerPool == null)
+        if (ownerPool != null && !isInPool)
         {
-            Debug.LogError("[Enemy] ownerPool이 없어 Return 할 수 없습니다. 비활성화 처리만 수행합니다.");
-            gameObject.SetActive(false);
+            ownerPool.Return(this);
+        }
+    }
+
+    private void ApplyMonsterBase(MonsterTable monsterTable, string enemyId)
+    {
+        baseMoveSpeed = moveSpeed;
+        baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
+
+        if (monsterTable == null)
+        {
             return;
         }
 
-        if (isInPool)
+        string id = string.IsNullOrWhiteSpace(enemyId) ? defaultMonsterId : enemyId;
+        MonsterRow row = monsterTable.GetById(id) ?? monsterTable.GetById(defaultMonsterId);
+        if (row == null)
         {
-            Debug.LogError("[Enemy] 이미 풀에 반환된 Enemy를 중복 Return 하려고 했습니다.");
             return;
         }
 
-        ownerPool.Return(this);
+        baseCombatStats = row.ToCombatStats().Sanitized();
+        if (row.moveSpeed > 0f)
+        {
+            baseMoveSpeed = row.moveSpeed;
+        }
+    }
+
+    private void ApplyGradeScale(MonsterGrade grade)
+    {
+        float hpScale = 1f;
+        float atkScale = 1f;
+        float defScale = 1f;
+        float speedScale = 1f;
+
+        if (grade == MonsterGrade.Elite)
+        {
+            hpScale = eliteHpScale;
+            atkScale = eliteAtkScale;
+            defScale = eliteDefScale;
+            speedScale = eliteSpeedScale;
+        }
+        else if (grade == MonsterGrade.Boss)
+        {
+            hpScale = bossHpScale;
+            atkScale = bossAtkScale;
+            defScale = bossDefScale;
+            speedScale = bossSpeedScale;
+        }
+
+        currentCombatStats = new CombatStats(
+            baseCombatStats.hp * Mathf.Max(0f, hpScale),
+            baseCombatStats.atk * Mathf.Max(0f, atkScale),
+            baseCombatStats.def * Mathf.Max(0f, defScale),
+            baseCombatStats.critChance,
+            baseCombatStats.critMultiplier).Sanitized();
+
+        moveSpeed = baseMoveSpeed * Mathf.Max(0f, speedScale);
+    }
+
+    private void ApplyWaveMultipliers(WaveMultipliers multipliers)
+    {
+        moveSpeed *= Mathf.Max(0f, multipliers.speed);
+        currentCombatStats = new CombatStats(
+            currentCombatStats.hp * Mathf.Max(0f, multipliers.hp),
+            currentCombatStats.atk * Mathf.Max(0f, multipliers.damage),
+            currentCombatStats.def,
+            currentCombatStats.critChance,
+            currentCombatStats.critMultiplier).Sanitized();
+
+        maxHP = currentCombatStats.hp;
+        attackDamage = currentCombatStats.atk;
     }
 
     private void AttackBaseAndDespawn()
@@ -187,6 +274,76 @@ public class Enemy : MonoBehaviour
         }
 
         ReturnToPool();
+    }
+
+    private void SpawnDamageText(int damage, bool isCrit)
+    {
+        if (damageTextPrefab == null)
+        {
+            return;
+        }
+
+        Vector3 spawnPos = damageTextAnchor != null ? damageTextAnchor.position : transform.position + Vector3.up * 1.5f;
+        DamageText text = Instantiate(damageTextPrefab, spawnPos, Quaternion.identity);
+        if (text != null)
+        {
+            text.Init(damage, isCrit);
+        }
+    }
+
+    private void PlayHitFeedback(bool isCrit)
+    {
+        transform.DOShakePosition(shakeDuration, shakeStrength, 15, 30f, false, true);
+
+        if (!isCrit)
+        {
+            return;
+        }
+
+        if (colorRenderer != null && colorRenderer.material != null)
+        {
+            Color baseColor = colorRenderer.material.color;
+            colorRenderer.material.DOColor(Color.red, 0.08f).OnComplete(() => colorRenderer.material.DOColor(baseColor, 0.12f));
+        }
+
+        transform.DOPunchScale(Vector3.one * 0.2f, 0.2f, 6);
+        TriggerCritMotionBlur();
+    }
+
+    private void ResolveRenderer()
+    {
+        if (colorRenderer == null)
+        {
+            colorRenderer = GetComponentInChildren<Renderer>();
+        }
+    }
+
+    private void ResolveMotionBlur()
+    {
+        if (postProcessVolume == null)
+        {
+            postProcessVolume = FindFirstObjectByType<Volume>();
+        }
+
+        if (postProcessVolume != null && postProcessVolume.profile != null)
+        {
+            postProcessVolume.profile.TryGet(out cachedMotionBlur);
+            if (cachedMotionBlur != null)
+            {
+                baseMotionBlur = cachedMotionBlur.intensity.value;
+            }
+        }
+    }
+
+    private void TriggerCritMotionBlur()
+    {
+        if (cachedMotionBlur == null)
+        {
+            return;
+        }
+
+        DOTween.To(() => cachedMotionBlur.intensity.value, x => cachedMotionBlur.intensity.value = x, critMotionBlurIntensity, critMotionBlurDuration * 0.5f)
+            .OnComplete(() => DOTween.To(() => cachedMotionBlur.intensity.value, x => cachedMotionBlur.intensity.value = x, baseMotionBlur, critMotionBlurDuration));
     }
 
     private void ResetMotion()
@@ -206,85 +363,10 @@ public class Enemy : MonoBehaviour
 
     private void OnDisable()
     {
-        if (isInPool)
-        {
-            return;
-        }
-
-        if (!isRegistered)
-        {
-            return;
-        }
-
-        if (EnemyManager.Instance == null)
-        {
-            isRegistered = false;
-            return;
-        }
-
-        EnemyManager.Instance.Unregister(this);
-        isRegistered = false;
-    }
-
-    public void OnSpawnedFromPool(Transform arkTarget)
-    {
-        OnSpawnedFromPool(arkTarget, null, defaultMonsterId, 1f, 1f, 1f);
-    }
-
-    public void OnSpawnedFromPool(Transform arkTarget, MonsterTable monsterTable, string enemyId, float hpMul, float speedMul, float damageMul)
-    {
-        ApplyMonsterBase(monsterTable, enemyId);
-
-        moveSpeed = baseMoveSpeed * Mathf.Max(0f, speedMul);
-        currentCombatStats = new CombatStats(
-            baseCombatStats.hp * Mathf.Max(0f, hpMul),
-            baseCombatStats.atk * Mathf.Max(0f, damageMul),
-            baseCombatStats.def,
-            baseCombatStats.critChance,
-            baseCombatStats.critMultiplier);
-
-        maxHP = currentCombatStats.hp;
-        attackDamage = currentCombatStats.atk;
-        Init(arkTarget);
-    }
-
-    public void OnReturnedToPool()
-    {
-        if (isRegistered && EnemyManager.Instance != null)
+        if (!isInPool && isRegistered && EnemyManager.Instance != null)
         {
             EnemyManager.Instance.Unregister(this);
             isRegistered = false;
-        }
-
-        ResetForPool();
-    }
-
-    private void ApplyMonsterBase(MonsterTable monsterTable, string enemyId)
-    {
-        baseMoveSpeed = moveSpeed;
-        baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
-
-        if (monsterTable == null)
-        {
-            return;
-        }
-
-        string id = string.IsNullOrWhiteSpace(enemyId) ? defaultMonsterId : enemyId;
-        MonsterRow row = monsterTable.GetById(id);
-        if (row == null)
-        {
-            row = monsterTable.GetById(defaultMonsterId);
-        }
-
-        if (row == null)
-        {
-            return;
-        }
-
-        baseCombatStats = row.ToCombatStats().Sanitized();
-        if (row.moveSpeed > 0f)
-        {
-            baseMoveSpeed = row.moveSpeed;
         }
     }
 }

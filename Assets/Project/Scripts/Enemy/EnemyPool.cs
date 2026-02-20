@@ -9,69 +9,85 @@ public class EnemyPool : MonoBehaviour
     [SerializeField] private int initialSize = 30;
     [SerializeField] private Transform poolRoot;
 
-    private readonly Queue<Enemy> pool = new();
+    private readonly Dictionary<Enemy, Enemy> instanceToSourcePrefab = new();
+    private readonly Dictionary<Enemy, Queue<Enemy>> poolsByPrefab = new();
 
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Debug.LogWarning("EnemyPool: 중복 Instance가 감지되었습니다. 기존 Instance를 유지합니다.");
             Destroy(this);
             return;
         }
+
         Instance = this;
+        if (poolRoot == null)
+        {
+            poolRoot = transform;
+        }
 
-        if (poolRoot == null) poolRoot = transform;
-
-        WarmUp();
+        WarmUp(enemyPrefab, initialSize);
     }
 
-    private void WarmUp()
+    private void WarmUp(Enemy prefab, int count)
     {
-        if (enemyPrefab == null)
+        if (prefab == null)
         {
-            Debug.LogError("EnemyPool: enemyPrefab is null.", this);
             return;
         }
 
-        for (int i = 0; i < initialSize; i++)
+        for (int i = 0; i < count; i++)
         {
-            CreateOne();
+            CreateOne(prefab);
         }
     }
 
-    private Enemy CreateOne()
+    private Enemy CreateOne(Enemy sourcePrefab)
     {
-        if (enemyPrefab == null)
+        if (sourcePrefab == null)
         {
-            Debug.LogError("EnemyPool: enemyPrefab is null.", this);
             return null;
         }
 
-        Enemy e = Instantiate(enemyPrefab, poolRoot);
+        Enemy e = Instantiate(sourcePrefab, poolRoot);
         e.SetPool(this);
         e.gameObject.SetActive(false);
-        pool.Enqueue(e);
+        instanceToSourcePrefab[e] = sourcePrefab;
+
+        Queue<Enemy> queue = GetQueue(sourcePrefab);
+        queue.Enqueue(e);
         return e;
     }
 
-    public Enemy Get(Vector3 pos, Quaternion rot, Transform arkTarget)
+    private Queue<Enemy> GetQueue(Enemy prefab)
     {
-        return Get(pos, rot, arkTarget, null, "slime", 1f, 1f, 1f);
+        if (!poolsByPrefab.TryGetValue(prefab, out Queue<Enemy> queue))
+        {
+            queue = new Queue<Enemy>();
+            poolsByPrefab[prefab] = queue;
+        }
+
+        return queue;
     }
 
-    public Enemy Get(Vector3 pos, Quaternion rot, Transform arkTarget, MonsterTable monsterTable, string enemyId, float hpMul, float speedMul, float damageMul)
+    public Enemy Get(Vector3 pos, Quaternion rot, Transform arkTarget, MonsterTable monsterTable, string enemyId, MonsterGrade grade, WaveMultipliers multipliers)
     {
-        if (enemyPrefab == null)
+        Enemy sourcePrefab = enemyPrefab;
+        MonsterRow row = monsterTable != null ? monsterTable.GetByIdAndGrade(enemyId, grade) : null;
+        if (row != null && row.prefab != null)
         {
-            Debug.LogError("EnemyPool: enemyPrefab is null.", this);
+            sourcePrefab = row.prefab.GetComponent<Enemy>();
+        }
+
+        if (sourcePrefab == null)
+        {
             return null;
         }
 
-        Enemy e = pool.Count > 0 ? pool.Dequeue() : CreateOne();
+        Queue<Enemy> queue = GetQueue(sourcePrefab);
+        Enemy e = queue.Count > 0 ? queue.Dequeue() : CreateOne(sourcePrefab);
         if (e == null)
         {
-            Debug.LogError("EnemyPool: Enemy 생성 실패.", this);
             return null;
         }
 
@@ -79,16 +95,22 @@ public class EnemyPool : MonoBehaviour
         t.SetParent(null);
         t.SetPositionAndRotation(pos, rot);
         e.gameObject.SetActive(true);
-        e.OnSpawnedFromPool(arkTarget, monsterTable, enemyId, hpMul, speedMul, damageMul);
+        e.OnSpawnedFromPool(arkTarget, monsterTable, enemyId, grade, multipliers);
         return e;
     }
 
     public void Return(Enemy e)
     {
-        if (e == null) return;
+        if (e == null)
+        {
+            return;
+        }
+
         e.OnReturnedToPool();
         e.gameObject.SetActive(false);
         e.transform.SetParent(poolRoot);
-        pool.Enqueue(e);
+
+        Enemy sourcePrefab = instanceToSourcePrefab.ContainsKey(e) ? instanceToSourcePrefab[e] : enemyPrefab;
+        GetQueue(sourcePrefab).Enqueue(e);
     }
 }

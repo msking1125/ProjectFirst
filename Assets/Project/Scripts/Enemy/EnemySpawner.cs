@@ -35,6 +35,8 @@ public class EnemySpawner : MonoBehaviour
     private float enemyHpMul = 1f;
     private float enemySpeedMul = 1f;
     private float enemyDamageMul = 1f;
+    private int eliteEvery;
+    private bool bossWave;
     private bool useWaveConfig;
     private string currentEnemyId = "slime";
 
@@ -72,13 +74,15 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    public void ConfigureWave(int spawnCount, float interval, float hpMul, float speedMul, float damageMul, string enemyId = "slime")
+    public void ConfigureWave(int spawnCount, float interval, float hpMul, float speedMul, float damageMul, int eliteEveryCount, bool isBossWave, string enemyId = "slime")
     {
         waveSpawnCount = Mathf.Max(0, spawnCount);
         spawnInterval = Mathf.Max(0.01f, interval);
         enemyHpMul = Mathf.Max(0f, hpMul);
         enemySpeedMul = Mathf.Max(0f, speedMul);
         enemyDamageMul = Mathf.Max(0f, damageMul);
+        eliteEvery = Mathf.Max(0, eliteEveryCount);
+        bossWave = isBossWave;
         currentEnemyId = string.IsNullOrWhiteSpace(enemyId) ? "slime" : enemyId;
         useWaveConfig = true;
     }
@@ -166,7 +170,9 @@ public class EnemySpawner : MonoBehaviour
         int idx = Random.Range(0, validSpawnPoints.Count);
         Transform spawnPoint = validSpawnPoints[idx];
 
-        Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, enemyHpMul, enemySpeedMul, enemyDamageMul);
+        MonsterGrade grade = ResolveGrade();
+        WaveMultipliers multipliers = new WaveMultipliers { hp = enemyHpMul, speed = enemySpeedMul, damage = enemyDamageMul };
+        Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, grade, multipliers);
         if (enemy == null)
         {
             Debug.LogError("[EnemySpawner] EnemyPool.Get 실패로 적 스폰에 실패했습니다.");
@@ -177,5 +183,20 @@ public class EnemySpawner : MonoBehaviour
         {
             spawnedCount++;
         }
+    }
+
+    private MonsterGrade ResolveGrade()
+    {
+        if (bossWave)
+        {
+            return MonsterGrade.Boss;
+        }
+
+        if (eliteEvery > 0 && (spawnedCount + 1) % eliteEvery == 0)
+        {
+            return MonsterGrade.Elite;
+        }
+
+        return MonsterGrade.Normal;
     }
 }
