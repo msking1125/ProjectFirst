@@ -16,6 +16,9 @@ public struct WaveMultipliers
 
 public class Enemy : MonoBehaviour
 {
+    private static readonly int BaseColorPropertyId = Shader.PropertyToID("_BaseColor");
+    private static readonly int ColorPropertyId = Shader.PropertyToID("_Color");
+
     [ShowInInspector, ReadOnly] private float CurrentHP => currentHP;
     [ShowInInspector, ReadOnly] private CombatStats Stats => currentCombatStats;
 
@@ -65,6 +68,10 @@ public class Enemy : MonoBehaviour
     private MotionBlur cachedMotionBlur;
     private float baseMotionBlur;
     private Sequence feedbackSequence;
+    private Tween colorFeedbackTween;
+    private MaterialPropertyBlock colorPropertyBlock;
+    private int hitColorPropertyId = -1;
+    private Color baseHitColor = Color.white;
 
     public float Defense => currentCombatStats.def;
 
@@ -161,6 +168,8 @@ public class Enemy : MonoBehaviour
         targetBaseHealth = null;
         isInPool = true;
         feedbackSequence?.Kill();
+        colorFeedbackTween?.Kill();
+        RestoreBaseHitColor();
         transform.DOKill();
         ResetMotion();
     }
@@ -300,10 +309,9 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        if (colorRenderer != null && colorRenderer.material != null)
+        if (colorRenderer != null)
         {
-            Color baseColor = colorRenderer.material.color;
-            colorRenderer.material.DOColor(Color.red, 0.08f).OnComplete(() => colorRenderer.material.DOColor(baseColor, 0.12f));
+            PlayCritColorFeedback();
         }
 
         transform.DOPunchScale(Vector3.one * 0.2f, 0.2f, 6);
@@ -316,6 +324,82 @@ public class Enemy : MonoBehaviour
         {
             colorRenderer = GetComponentInChildren<Renderer>();
         }
+
+        if (colorRenderer == null)
+        {
+            hitColorPropertyId = -1;
+            return;
+        }
+
+        Material sharedMaterial = colorRenderer.sharedMaterial;
+        if (sharedMaterial == null)
+        {
+            hitColorPropertyId = -1;
+            return;
+        }
+
+        if (sharedMaterial.HasProperty(BaseColorPropertyId))
+        {
+            hitColorPropertyId = BaseColorPropertyId;
+        }
+        else if (sharedMaterial.HasProperty(ColorPropertyId))
+        {
+            hitColorPropertyId = ColorPropertyId;
+        }
+        else
+        {
+            hitColorPropertyId = -1;
+            return;
+        }
+
+        baseHitColor = sharedMaterial.GetColor(hitColorPropertyId);
+        colorPropertyBlock = new MaterialPropertyBlock();
+        colorRenderer.GetPropertyBlock(colorPropertyBlock);
+        colorPropertyBlock.SetColor(hitColorPropertyId, baseHitColor);
+        colorRenderer.SetPropertyBlock(colorPropertyBlock);
+    }
+
+    private void PlayCritColorFeedback()
+    {
+        if (colorRenderer == null || hitColorPropertyId < 0)
+        {
+            return;
+        }
+
+        if (colorPropertyBlock == null)
+        {
+            colorPropertyBlock = new MaterialPropertyBlock();
+        }
+
+        colorFeedbackTween?.Kill();
+
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(DOTween.To(() => 0f,
+            value => SetRendererHitColor(Color.Lerp(baseHitColor, Color.red, value)),
+            1f,
+            0.08f));
+        sequence.Append(DOTween.To(() => 0f,
+            value => SetRendererHitColor(Color.Lerp(Color.red, baseHitColor, value)),
+            1f,
+            0.12f));
+        colorFeedbackTween = sequence;
+    }
+
+    private void SetRendererHitColor(Color color)
+    {
+        if (colorRenderer == null || hitColorPropertyId < 0)
+        {
+            return;
+        }
+
+        colorRenderer.GetPropertyBlock(colorPropertyBlock);
+        colorPropertyBlock.SetColor(hitColorPropertyId, color);
+        colorRenderer.SetPropertyBlock(colorPropertyBlock);
+    }
+
+    private void RestoreBaseHitColor()
+    {
+        SetRendererHitColor(baseHitColor);
     }
 
     private void ResolveMotionBlur()
