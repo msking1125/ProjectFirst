@@ -124,6 +124,8 @@ public class WaveManager : MonoBehaviour
             row.enemyHpMul,
             row.enemySpeedMul,
             row.enemyDamageMul,
+            row.eliteEvery,
+            row.boss,
             string.IsNullOrWhiteSpace(row.enemyId) ? "slime" : row.enemyId);
 
         enemySpawner.BeginWave();

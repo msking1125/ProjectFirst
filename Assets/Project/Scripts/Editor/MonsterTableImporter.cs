@@ -41,7 +41,7 @@ public static class MonsterTableImporter
         string[] header = lines[0].Split(',').Select(h => h.Trim()).ToArray();
         int idx(string name) => Array.IndexOf(header, name);
 
-        string[] required = { "id", "hp", "atk", "def", "critChance", "critMul" };
+        string[] required = { "id", "hp", "atk", "def", "critChance" };
         foreach (string r in required)
         {
             if (idx(r) < 0)
@@ -51,7 +51,14 @@ public static class MonsterTableImporter
             }
         }
 
+        int critMultiplierIdx = idx("critMultiplier");
+        if (critMultiplierIdx < 0)
+        {
+            critMultiplierIdx = idx("critMul");
+        }
+
         int moveSpeedIdx = idx("moveSpeed");
+        int gradeIdx = idx("grade");
 
         for (int i = 1; i < lines.Length; i++)
         {
@@ -68,8 +75,17 @@ public static class MonsterTableImporter
                 atk = ParseFloat(ReadCell(cols, idx("atk"))),
                 def = ParseFloat(ReadCell(cols, idx("def"))),
                 critChance = Mathf.Clamp01(ParseFloat(ReadCell(cols, idx("critChance")))),
-                critMul = Mathf.Max(1f, ParseFloat(ReadCell(cols, idx("critMul"))))
+                critMultiplier = Mathf.Max(1f, ParseFloat(ReadCell(cols, critMultiplierIdx)))
             };
+
+            if (gradeIdx >= 0)
+            {
+                string gradeRaw = ReadCell(cols, gradeIdx);
+                if (Enum.TryParse(gradeRaw, true, out MonsterGrade grade))
+                {
+                    row.grade = grade;
+                }
+            }
 
             if (moveSpeedIdx >= 0)
             {
