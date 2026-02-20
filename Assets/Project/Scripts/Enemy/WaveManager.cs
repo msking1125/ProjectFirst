@@ -8,7 +8,8 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private WaveTable waveTable;
     [SerializeField] private EnemySpawner enemySpawner;
     [SerializeField] private EnemyManager enemyManager;
-    [SerializeField] private MonoBehaviour gameManager;
+    [SerializeField] private BattleGameManager gameManager;
+    [SerializeField] private bool endVictoryIfGameManagerMissing = true;
 
     [Header("UI")]
     [SerializeField] private TMP_Text waveText;
@@ -30,6 +31,11 @@ public class WaveManager : MonoBehaviour
         if (enemyManager == null)
         {
             enemyManager = EnemyManager.Instance != null ? EnemyManager.Instance : FindFirstObjectByType<EnemyManager>();
+        }
+
+        if (gameManager == null)
+        {
+            gameManager = BattleGameManager.Instance != null ? BattleGameManager.Instance : FindFirstObjectByType<BattleGameManager>();
         }
     }
 
@@ -127,13 +133,19 @@ public class WaveManager : MonoBehaviour
     {
         if (gameManager == null)
         {
-            Debug.LogWarning("[WaveManager] gameManager 참조가 없어 승리 콜백을 생략했습니다.");
+            gameManager = BattleGameManager.Instance != null ? BattleGameManager.Instance : FindFirstObjectByType<BattleGameManager>();
+        }
+
+        if (gameManager != null)
+        {
+            gameManager.HandleVictory();
             return;
         }
 
-        gameManager.SendMessage("Victory", SendMessageOptions.DontRequireReceiver);
-        gameManager.SendMessage("OnVictory", SendMessageOptions.DontRequireReceiver);
-        gameManager.SendMessage("GameClear", SendMessageOptions.DontRequireReceiver);
+        if (endVictoryIfGameManagerMissing)
+        {
+            BattleGameManager.EndVictoryFallback();
+        }
     }
 
     private int GetAliveEnemyCount()

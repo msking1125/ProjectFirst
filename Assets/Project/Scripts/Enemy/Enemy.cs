@@ -12,6 +12,9 @@ public class Enemy : MonoBehaviour
     public float maxHP = 10f;
     public float attackDamage = 1f;
 
+    [Header("Attack")]
+    [SerializeField] private float arriveDistance = 0.6f;
+
     private float baseMoveSpeed;
     private float baseMaxHP;
     private float baseAttackDamage;
@@ -19,6 +22,7 @@ public class Enemy : MonoBehaviour
     private float currentHP;
     private Transform target;
     private EnemyPool ownerPool;
+    private BaseHealth targetBaseHealth;
 
     private bool isAlive;
     private bool isRegistered;
@@ -46,6 +50,12 @@ public class Enemy : MonoBehaviour
 
         Vector3 dir = (target.position - transform.position).normalized;
         transform.position += dir * moveSpeed * Time.deltaTime;
+
+        float sqrDistance = (target.position - transform.position).sqrMagnitude;
+        if (sqrDistance <= arriveDistance * arriveDistance)
+        {
+            AttackBaseAndDespawn();
+        }
     }
 
     public void SetPool(EnemyPool pool)
@@ -68,6 +78,7 @@ public class Enemy : MonoBehaviour
         }
 
         target = arkTarget;
+        targetBaseHealth = target.GetComponent<BaseHealth>();
         currentHP = maxHP;
         isAlive = true;
         isInPool = false;
@@ -114,6 +125,7 @@ public class Enemy : MonoBehaviour
         attackDamage = baseAttackDamage;
         currentHP = maxHP;
         target = null;
+        targetBaseHealth = null;
         isInPool = true;
 
         if (isRegistered)
@@ -145,6 +157,21 @@ public class Enemy : MonoBehaviour
         }
 
         ownerPool.Return(this);
+    }
+
+    private void AttackBaseAndDespawn()
+    {
+        if (targetBaseHealth == null && target != null)
+        {
+            targetBaseHealth = target.GetComponent<BaseHealth>();
+        }
+
+        if (targetBaseHealth != null)
+        {
+            targetBaseHealth.TakeDamage(attackDamage);
+        }
+
+        ReturnToPool();
     }
 
     private void ResetMotion()
