@@ -32,7 +32,8 @@ Transform:
   m_LocalPosition: {x: 30, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4358160650864039365}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &365972793390231225
@@ -133,7 +134,7 @@ MonoBehaviour:
   bossDefScale: 1.8
   bossSpeedScale: 1.2
   damageTextPrefab: {fileID: 100003, guid: d42c06a5e4064ac4ba546c1a6e510536, type: 3}
-  damageTextAnchor: {fileID: 0}
+  damageTextAnchor: {fileID: 4358160650864039365}
   colorRenderer: {fileID: 0}
   shakeDuration: 0.18
   shakeStrength: 0.2
@@ -141,3 +142,34 @@ MonoBehaviour:
   critMotionBlurIntensity: 0.85
   critMotionBlurDuration: 0.12
   arriveDistance: 0.6
+--- !u!1 &7951723602704431626
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4358160650864039365}
+  m_Layer: 0
+  m_Name: DamageTextAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4358160650864039365
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7951723602704431626}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5417291267982870612}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
