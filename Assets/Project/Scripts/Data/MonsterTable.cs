@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 [CreateAssetMenu(menuName = "Game/Monster Table")]
 public class MonsterTable : ScriptableObject
 {
+    [TableList]
     public List<MonsterRow> rows = new();
 
     private readonly Dictionary<string, MonsterRow> index = new();

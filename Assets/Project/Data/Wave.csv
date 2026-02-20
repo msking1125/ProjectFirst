@@ -1,4 +1,4 @@
 ﻿wave,spawnCount,spawnInterval,enemyHpMul,enemySpeedMul,enemyDamageMul,eliteEvery,boss,rewardGold,enemyId
 1,10,1.2,1,1,1,0,0,50,slime
-2,12,1.1,1.1,1,1,0,0,60,slime
-3,15,1,1.2,1.05,1.05,5,0,70,slime
+2,12,1.1,1.1,1,1,0,0,60,tank
+3,15,1,1.2,1.05,1.05,5,0,70,fast

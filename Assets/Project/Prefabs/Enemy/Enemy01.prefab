@@ -123,4 +123,5 @@ MonoBehaviour:
   moveSpeed: 2
   maxHP: 10
   attackDamage: 21
+  defaultMonsterId: slime
   arriveDistance: 0.6

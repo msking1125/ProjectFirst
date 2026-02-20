@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using Sirenix.OdinInspector;
 
 /// <summary>
 /// Enemy 클래스는 Ark를 향해 이동하고, 피해를 입으면 풀로 반환됩니다.
@@ -7,6 +8,11 @@ using UnityEngine.AI;
 /// </summary>
 public class Enemy : MonoBehaviour
 {
+    [ShowInInspector, ReadOnly]
+    private float CurrentHP => currentHP;
+
+    [ShowInInspector, ReadOnly]
+    private CombatStats Stats => currentCombatStats;
     [Header("Enemy Stats")]
     public float moveSpeed = 2f;
     public float maxHP = 10f;

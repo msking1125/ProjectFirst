@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 837c5556a6104ec9870ff727a222eee2, type: 3}
+  m_Name: MonsterTable
+  m_EditorClassIdentifier: 
+  rows:
+  - id: slime
+    hp: 50
+    atk: 8
+    def: 2
+    critChance: 0.05
+    critMul: 1.5
+    moveSpeed: 2.5
+  - id: tank
+    hp: 200
+    atk: 10
+    def: 8
+    critChance: 0.02
+    critMul: 1.4
+    moveSpeed: 1.6
+  - id: fast
+    hp: 70
+    atk: 6
+    def: 1
+    critChance: 0.08
+    critMul: 1.6
+    moveSpeed: 3.5

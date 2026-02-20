@@ -226,6 +226,7 @@ MonoBehaviour:
   - {fileID: 5017798058210304686}
   - {fileID: 5017798058210304685}
   - {fileID: 5017798058210304684}
+  monsterTable: {fileID: 0}
   spawnInterval: 1
 --- !u!4 &34045173
 Transform:
@@ -1871,6 +1872,11 @@ PrefabInstance:
         type: 3}
       propertyPath: attackDamage
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6737435149655013798, guid: 30655e303fad03e4b96e8b373bded6cf,
+        type: 3}
+      propertyPath: stats.critChance
+      value: 0.3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
