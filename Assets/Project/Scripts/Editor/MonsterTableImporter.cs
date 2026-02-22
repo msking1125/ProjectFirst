@@ -59,6 +59,7 @@ public static class MonsterTableImporter
 
         int moveSpeedIdx = idx("moveSpeed");
         int gradeIdx = idx("grade");
+        int elementIdx = idx("element");
 
         for (int i = 1; i < lines.Length; i++)
         {
@@ -90,6 +91,19 @@ public static class MonsterTableImporter
             if (moveSpeedIdx >= 0)
             {
                 row.moveSpeed = ParseFloat(ReadCell(cols, moveSpeedIdx));
+            }
+
+            if (elementIdx >= 0)
+            {
+                string elementRaw = ReadCell(cols, elementIdx);
+                if (Enum.TryParse(elementRaw, true, out ElementType element))
+                {
+                    row.element = element;
+                }
+                else
+                {
+                    row.element = ElementType.Reason;
+                }
             }
 
             table.rows.Add(row);

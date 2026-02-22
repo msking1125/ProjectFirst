@@ -13,6 +13,7 @@ public class MonsterRow
     [Range(0f, 1f)] public float critChance;
     [Min(1f)] public float critMultiplier = 1f;
     public float moveSpeed = -1f;
+    public ElementType element = ElementType.Reason;
 
     public CombatStats ToCombatStats()
     {

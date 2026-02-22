@@ -55,9 +55,6 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float critMotionBlurIntensity = 0.85f;
     [SerializeField] private float critMotionBlurDuration = 0.12f;
 
-    [Header("Attack")]
-    [SerializeField] private float arriveDistance = 0.6f;
-
     [Header("Animation")]
     [SerializeField] private bool useDeathReturnDelay = true;
     [SerializeField, Min(0f)] private float deathReturnDelay = 0.45f;
@@ -68,7 +65,6 @@ public class Enemy : MonoBehaviour
     private float currentHP;
     private Transform target;
     private EnemyPool ownerPool;
-    private BaseHealth targetBaseHealth;
     private bool isAlive;
     private bool isRegistered;
     private bool isInPool;
@@ -90,6 +86,10 @@ public class Enemy : MonoBehaviour
     private bool isDeathReturning;
     private bool hasMonsterRunState;
     private bool hasPlayedRunFallback;
+    private bool hasHitBarrier;
+
+    public ElementType Element => currentElement;
+    private ElementType currentElement = ElementType.Reason;
 
     public float Defense => currentCombatStats.def;
 
@@ -103,6 +103,7 @@ public class Enemy : MonoBehaviour
 
         baseMoveSpeed = moveSpeed;
         baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
+        currentElement = ElementType.Reason;
         currentCombatStats = baseCombatStats;
     }
 
@@ -114,15 +115,18 @@ public class Enemy : MonoBehaviour
         }
 
         Vector3 dir = (target.position - transform.position).normalized;
-        transform.position += dir * moveSpeed * Time.deltaTime;
+        Vector3 nextPos = transform.position + dir * moveSpeed * Time.deltaTime;
+
+        if (cachedRigidbody != null && cachedRigidbody.isKinematic && cachedRigidbody.gameObject.activeInHierarchy)
+        {
+            cachedRigidbody.MovePosition(nextPos);
+        }
+        else
+        {
+            transform.position = nextPos;
+        }
 
         UpdateMovementAnimation(moveSpeed);
-
-        float sqrDistance = (target.position - transform.position).sqrMagnitude;
-        if (sqrDistance <= arriveDistance * arriveDistance)
-        {
-            AttackBaseAndDespawn();
-        }
     }
 
     public void SetPool(EnemyPool pool) => ownerPool = pool;
@@ -139,12 +143,11 @@ public class Enemy : MonoBehaviour
         ApplyWaveMultipliers(waveMultipliers);
 
         target = arkTarget;
-        targetBaseHealth = target.GetComponent<BaseHealth>();
         currentHP = currentCombatStats.hp;
         isAlive = true;
         isInPool = false;
         isDeathReturning = false;
-
+        hasHitBarrier = false;
 
         if (EnemyManager.Instance != null)
         {
@@ -189,7 +192,6 @@ public class Enemy : MonoBehaviour
     {
         isAlive = false;
         target = null;
-        targetBaseHealth = null;
         isInPool = true;
         feedbackSequence?.Kill();
         colorFeedbackTween?.Kill();
@@ -231,6 +233,7 @@ public class Enemy : MonoBehaviour
     {
         baseMoveSpeed = moveSpeed;
         baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
+        currentElement = ElementType.Reason;
 
         if (monsterTable == null)
         {
@@ -245,6 +248,7 @@ public class Enemy : MonoBehaviour
         }
 
         baseCombatStats = row.ToCombatStats().Sanitized();
+        currentElement = row.element;
         if (row.moveSpeed > 0f)
         {
             baseMoveSpeed = row.moveSpeed;
@@ -295,21 +299,6 @@ public class Enemy : MonoBehaviour
 
         maxHP = currentCombatStats.hp;
         attackDamage = currentCombatStats.atk;
-    }
-
-    private void AttackBaseAndDespawn()
-    {
-        if (targetBaseHealth == null && target != null)
-        {
-            targetBaseHealth = target.GetComponent<BaseHealth>();
-        }
-
-        if (targetBaseHealth != null)
-        {
-            targetBaseHealth.TakeDamage(Mathf.Max(0f, currentCombatStats.atk));
-        }
-
-        ReturnToPool();
     }
 
     private void HandleDeath()
@@ -489,14 +478,64 @@ public class Enemy : MonoBehaviour
 
         if (cachedRigidbody != null)
         {
-            cachedRigidbody.velocity = Vector3.zero;
-            cachedRigidbody.angularVelocity = Vector3.zero;
+            if (!cachedRigidbody.isKinematic)
+            {
+                cachedRigidbody.velocity = Vector3.zero;
+                cachedRigidbody.angularVelocity = Vector3.zero;
+            }
         }
 
         if (cachedNavMeshAgent != null)
         {
             cachedNavMeshAgent.ResetPath();
             cachedNavMeshAgent.velocity = Vector3.zero;
+        }
+    }
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!isAlive || hasHitBarrier)
+        {
+            return;
+        }
+
+        if (other == null)
+        {
+            return;
+        }
+
+        Transform otherRoot = other.transform.root;
+        Transform targetRoot = target != null ? target.root : null;
+        if (targetRoot != null && otherRoot != targetRoot)
+        {
+            return;
+        }
+
+        BaseHealth barrierHealth = other.GetComponent<BaseHealth>();
+        if (barrierHealth == null)
+        {
+            barrierHealth = other.GetComponentInParent<BaseHealth>();
+        }
+
+        if (barrierHealth == null)
+        {
+            return;
+        }
+
+        hasHitBarrier = true;
+        barrierHealth.TakeDamage(Mathf.Max(0f, currentCombatStats.atk));
+
+        if (!useDeathReturnDelay || deathReturnDelay <= 0f)
+        {
+            ReturnToPool();
+            return;
+        }
+
+        if (!isDeathReturning)
+        {
+            isDeathReturning = true;
+            Invoke(nameof(ReturnToPoolAfterDeathDelay), Mathf.Clamp(deathReturnDelay, 0.3f, 0.6f));
         }
     }
 

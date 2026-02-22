@@ -12,6 +12,7 @@ public class Agent : MonoBehaviour
 
     [Header("Combat Stats")]
     [SerializeField] private CombatStats stats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
+    [SerializeField] private ElementType element = ElementType.Reason;
 
     private float timer;
     private bool hasLoggedMissingManager;
@@ -21,6 +22,7 @@ public class Agent : MonoBehaviour
         if (agentStatsTable != null)
         {
             stats = agentStatsTable.GetStats(agentId);
+            element = agentStatsTable.GetElement(agentId);
         }
         else if (stats.atk <= 0f)
         {
@@ -54,6 +56,11 @@ public class Agent : MonoBehaviour
         if (isCrit)
         {
             damage *= Mathf.Max(1f, stats.critMultiplier);
+        }
+
+        if (ElementRules.HasAdvantage(element, target.Element))
+        {
+            damage *= ElementRules.AdvantageMultiplier;
         }
 
         target.TakeDamage(Mathf.RoundToInt(damage), isCrit);
