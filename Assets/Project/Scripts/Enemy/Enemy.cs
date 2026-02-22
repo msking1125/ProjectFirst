@@ -18,6 +18,12 @@ public class Enemy : MonoBehaviour
 {
     private static readonly int BaseColorPropertyId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorPropertyId = Shader.PropertyToID("_Color");
+    private static readonly int SpeedParamId = Animator.StringToHash("Speed");
+    private static readonly int IsMovingParamId = Animator.StringToHash("IsMoving");
+    private static readonly int HitTriggerId = Animator.StringToHash("Hit");
+    private static readonly int DieTriggerId = Animator.StringToHash("Die");
+    private static readonly int IdleStateId = Animator.StringToHash("Idle");
+    private static readonly int RunStateId = Animator.StringToHash("Run");
 
     [ShowInInspector, ReadOnly] private float CurrentHP => currentHP;
     [ShowInInspector, ReadOnly] private CombatStats Stats => currentCombatStats;
@@ -53,6 +59,10 @@ public class Enemy : MonoBehaviour
     [Header("Attack")]
     [SerializeField] private float arriveDistance = 0.6f;
 
+    [Header("Animation")]
+    [SerializeField] private bool useDeathReturnDelay = true;
+    [SerializeField, Min(0f)] private float deathReturnDelay = 0.45f;
+
     private float baseMoveSpeed;
     private CombatStats baseCombatStats;
     private CombatStats currentCombatStats;
@@ -72,6 +82,17 @@ public class Enemy : MonoBehaviour
     private MaterialPropertyBlock colorPropertyBlock;
     private int hitColorPropertyId = -1;
     private Color baseHitColor = Color.white;
+    private Animator cachedAnimator;
+    private bool hasSpeedParam;
+    private bool hasIsMovingParam;
+    private bool hasHitTrigger;
+    private bool hasDieTrigger;
+    private bool hasRunState;
+    private bool hasIdleState;
+    private bool hasWarnedAnimatorMissing;
+    private bool isDeathReturning;
+    private bool hasFallbackMoveState;
+    private bool fallbackMoveState;
 
     public float Defense => currentCombatStats.def;
 
@@ -81,6 +102,7 @@ public class Enemy : MonoBehaviour
         cachedNavMeshAgent = GetComponent<NavMeshAgent>();
         ResolveRenderer();
         ResolveMotionBlur();
+        ResolveAnimator();
 
         baseMoveSpeed = moveSpeed;
         baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
@@ -96,6 +118,8 @@ public class Enemy : MonoBehaviour
 
         Vector3 dir = (target.position - transform.position).normalized;
         transform.position += dir * moveSpeed * Time.deltaTime;
+
+        UpdateMovementAnimation(moveSpeed);
 
         float sqrDistance = (target.position - transform.position).sqrMagnitude;
         if (sqrDistance <= arriveDistance * arriveDistance)
@@ -122,6 +146,9 @@ public class Enemy : MonoBehaviour
         currentHP = currentCombatStats.hp;
         isAlive = true;
         isInPool = false;
+        isDeathReturning = false;
+
+        InitializeAnimatorOnSpawn();
 
         if (EnemyManager.Instance != null)
         {
@@ -142,10 +169,11 @@ public class Enemy : MonoBehaviour
 
         SpawnDamageText(finalDamage, isCrit);
         PlayHitFeedback(isCrit);
+        TrySetAnimatorTrigger(HitTriggerId, hasHitTrigger);
 
         if (currentHP <= 0f)
         {
-            ReturnToPool();
+            HandleDeath();
         }
     }
 
@@ -171,6 +199,7 @@ public class Enemy : MonoBehaviour
         colorFeedbackTween?.Kill();
         RestoreBaseHitColor();
         transform.DOKill();
+        isDeathReturning = false;
         ResetMotion();
     }
 
@@ -282,6 +311,32 @@ public class Enemy : MonoBehaviour
             targetBaseHealth.TakeDamage(Mathf.Max(0f, currentCombatStats.atk));
         }
 
+        ReturnToPool();
+    }
+
+    private void HandleDeath()
+    {
+        if (!isAlive || isDeathReturning)
+        {
+            return;
+        }
+
+        isAlive = false;
+        TrySetAnimatorTrigger(DieTriggerId, hasDieTrigger);
+
+        if (!useDeathReturnDelay || deathReturnDelay <= 0f)
+        {
+            ReturnToPool();
+            return;
+        }
+
+        isDeathReturning = true;
+        Invoke(nameof(ReturnToPoolAfterDeathDelay), Mathf.Clamp(deathReturnDelay, 0.3f, 0.6f));
+    }
+
+    private void ReturnToPoolAfterDeathDelay()
+    {
+        isDeathReturning = false;
         ReturnToPool();
     }
 
@@ -432,6 +487,8 @@ public class Enemy : MonoBehaviour
 
     private void ResetMotion()
     {
+        CancelInvoke(nameof(ReturnToPoolAfterDeathDelay));
+
         if (cachedRigidbody != null)
         {
             cachedRigidbody.velocity = Vector3.zero;
@@ -452,5 +509,124 @@ public class Enemy : MonoBehaviour
             EnemyManager.Instance.Unregister(this);
             isRegistered = false;
         }
+    }
+
+    private void ResolveAnimator()
+    {
+        if (cachedAnimator == null)
+        {
+            cachedAnimator = GetComponentInChildren<Animator>(true);
+        }
+
+        if (cachedAnimator == null)
+        {
+            if (!hasWarnedAnimatorMissing)
+            {
+                Debug.LogWarning($"[Enemy] Animator not found on '{name}'. Animation sync will be skipped.", this);
+                hasWarnedAnimatorMissing = true;
+            }
+
+            return;
+        }
+
+        hasSpeedParam = HasAnimatorParameter("Speed", AnimatorControllerParameterType.Float);
+        hasIsMovingParam = HasAnimatorParameter("IsMoving", AnimatorControllerParameterType.Bool);
+        hasHitTrigger = HasAnimatorParameter("Hit", AnimatorControllerParameterType.Trigger);
+        hasDieTrigger = HasAnimatorParameter("Die", AnimatorControllerParameterType.Trigger);
+        hasRunState = cachedAnimator.HasState(0, RunStateId);
+        hasIdleState = cachedAnimator.HasState(0, IdleStateId);
+    }
+
+    private bool HasAnimatorParameter(string parameterName, AnimatorControllerParameterType parameterType)
+    {
+        if (cachedAnimator == null)
+        {
+            return false;
+        }
+
+        foreach (AnimatorControllerParameter parameter in cachedAnimator.parameters)
+        {
+            if (parameter.name == parameterName && parameter.type == parameterType)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void InitializeAnimatorOnSpawn()
+    {
+        ResolveAnimator();
+        if (cachedAnimator == null)
+        {
+            return;
+        }
+
+        cachedAnimator.Rebind();
+        cachedAnimator.Update(0f);
+        hasFallbackMoveState = false;
+
+        if (hasRunState)
+        {
+            cachedAnimator.Play(RunStateId, 0, 0f);
+            cachedAnimator.Update(0f);
+        }
+        else if (hasIdleState)
+        {
+            cachedAnimator.Play(IdleStateId, 0, 0f);
+            cachedAnimator.Update(0f);
+        }
+    }
+
+    private void UpdateMovementAnimation(float speedValue)
+    {
+        if (cachedAnimator == null)
+        {
+            return;
+        }
+
+        bool isMoving = speedValue > 0.01f;
+
+        if (hasSpeedParam)
+        {
+            cachedAnimator.SetFloat(SpeedParamId, speedValue);
+        }
+
+        if (hasIsMovingParam)
+        {
+            cachedAnimator.SetBool(IsMovingParamId, isMoving);
+        }
+
+        if (!hasSpeedParam && !hasIsMovingParam)
+        {
+            if (hasFallbackMoveState && fallbackMoveState == isMoving)
+            {
+                return;
+            }
+
+            if (isMoving && hasRunState)
+            {
+                cachedAnimator.Play(RunStateId, 0, 0f);
+                hasFallbackMoveState = true;
+                fallbackMoveState = true;
+            }
+            else if (!isMoving && hasIdleState)
+            {
+                cachedAnimator.Play(IdleStateId, 0, 0f);
+                hasFallbackMoveState = true;
+                fallbackMoveState = false;
+            }
+        }
+    }
+
+    private void TrySetAnimatorTrigger(int triggerId, bool hasTrigger)
+    {
+        if (cachedAnimator == null || !hasTrigger)
+        {
+            return;
+        }
+
+        cachedAnimator.SetTrigger(triggerId);
     }
 }
