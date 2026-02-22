@@ -18,12 +18,11 @@ public class Enemy : MonoBehaviour
 {
     private static readonly int BaseColorPropertyId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorPropertyId = Shader.PropertyToID("_Color");
+    private const string MonsterRunStateName = "Monster_run";
     private static readonly int SpeedParamId = Animator.StringToHash("Speed");
     private static readonly int IsMovingParamId = Animator.StringToHash("IsMoving");
     private static readonly int HitTriggerId = Animator.StringToHash("Hit");
     private static readonly int DieTriggerId = Animator.StringToHash("Die");
-    private static readonly int IdleStateId = Animator.StringToHash("Idle");
-    private static readonly int RunStateId = Animator.StringToHash("Run");
 
     [ShowInInspector, ReadOnly] private float CurrentHP => currentHP;
     [ShowInInspector, ReadOnly] private CombatStats Stats => currentCombatStats;
@@ -87,12 +86,10 @@ public class Enemy : MonoBehaviour
     private bool hasIsMovingParam;
     private bool hasHitTrigger;
     private bool hasDieTrigger;
-    private bool hasRunState;
-    private bool hasIdleState;
     private bool hasWarnedAnimatorMissing;
     private bool isDeathReturning;
-    private bool hasFallbackMoveState;
-    private bool fallbackMoveState;
+    private bool hasMonsterRunState;
+    private bool hasPlayedRunFallback;
 
     public float Defense => currentCombatStats.def;
 
@@ -148,7 +145,6 @@ public class Enemy : MonoBehaviour
         isInPool = false;
         isDeathReturning = false;
 
-        InitializeAnimatorOnSpawn();
 
         if (EnemyManager.Instance != null)
         {
@@ -207,6 +203,8 @@ public class Enemy : MonoBehaviour
 
     public void OnSpawnedFromPool(Transform arkTarget, MonsterTable monsterTable, string enemyId, MonsterGrade grade, WaveMultipliers multipliers)
     {
+        CancelInvoke(nameof(ReturnToPoolAfterDeathDelay));
+        InitializeAnimatorOnSpawn();
         Init(arkTarget, enemyId, grade, multipliers, monsterTable);
     }
 
@@ -533,8 +531,7 @@ public class Enemy : MonoBehaviour
         hasIsMovingParam = HasAnimatorParameter("IsMoving", AnimatorControllerParameterType.Bool);
         hasHitTrigger = HasAnimatorParameter("Hit", AnimatorControllerParameterType.Trigger);
         hasDieTrigger = HasAnimatorParameter("Die", AnimatorControllerParameterType.Trigger);
-        hasRunState = cachedAnimator.HasState(0, RunStateId);
-        hasIdleState = cachedAnimator.HasState(0, IdleStateId);
+        hasMonsterRunState = cachedAnimator.HasState(0, Animator.StringToHash(MonsterRunStateName));
     }
 
     private bool HasAnimatorParameter(string parameterName, AnimatorControllerParameterType parameterType)
@@ -565,18 +562,9 @@ public class Enemy : MonoBehaviour
 
         cachedAnimator.Rebind();
         cachedAnimator.Update(0f);
-        hasFallbackMoveState = false;
-
-        if (hasRunState)
-        {
-            cachedAnimator.Play(RunStateId, 0, 0f);
-            cachedAnimator.Update(0f);
-        }
-        else if (hasIdleState)
-        {
-            cachedAnimator.Play(IdleStateId, 0, 0f);
-            cachedAnimator.Update(0f);
-        }
+        cachedAnimator.Play(MonsterRunStateName, 0, 0f);
+        cachedAnimator.Update(0f);
+        hasPlayedRunFallback = false;
     }
 
     private void UpdateMovementAnimation(float speedValue)
@@ -600,23 +588,19 @@ public class Enemy : MonoBehaviour
 
         if (!hasSpeedParam && !hasIsMovingParam)
         {
-            if (hasFallbackMoveState && fallbackMoveState == isMoving)
+            if (!isMoving)
+            {
+                hasPlayedRunFallback = false;
+                return;
+            }
+
+            if (hasPlayedRunFallback || !hasMonsterRunState)
             {
                 return;
             }
 
-            if (isMoving && hasRunState)
-            {
-                cachedAnimator.Play(RunStateId, 0, 0f);
-                hasFallbackMoveState = true;
-                fallbackMoveState = true;
-            }
-            else if (!isMoving && hasIdleState)
-            {
-                cachedAnimator.Play(IdleStateId, 0, 0f);
-                hasFallbackMoveState = true;
-                fallbackMoveState = false;
-            }
+            cachedAnimator.Play(MonsterRunStateName, 0, 0f);
+            hasPlayedRunFallback = true;
         }
     }
 
