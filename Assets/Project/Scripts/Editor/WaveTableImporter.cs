@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,16 +31,17 @@ public static class WaveTableImporter
             return;
         }
 
-        var table = AssetDatabase.LoadAssetAtPath<WaveTable>(AssetPath) ?? ScriptableObject.CreateInstance<WaveTable>();
-        if (AssetDatabase.LoadAssetAtPath<WaveTable>(AssetPath) == null)
+        WaveTable table = AssetDatabase.LoadAssetAtPath<WaveTable>(AssetPath);
+        if (table == null)
+        {
+            table = ScriptableObject.CreateInstance<WaveTable>();
             AssetDatabase.CreateAsset(table, AssetPath);
+        }
 
         table.wave.Clear();
 
-        var header = lines[0].Split(',');
+        var header = lines[0].Split(',').Select(h => h.Trim()).ToArray();
         int colCount = header.Length;
-        for (int h = 0; h < colCount; ++h)
-            header[h] = header[h].Trim();
 
         // 인덱스 캐싱
         int waveIdx = Array.IndexOf(header, "wave");
@@ -55,12 +57,14 @@ public static class WaveTableImporter
         int monsterIdIdx = Array.IndexOf(header, "monsterId");
 
         // 필수 컬럼 존재 체크
-        if (waveIdx < 0 || spawnCountIdx < 0 || spawnIntervalIdx < 0 ||
-            enemyHpMulIdx < 0 || enemySpeedMulIdx < 0 || enemyDamageMulIdx < 0 ||
-            eliteEveryIdx < 0 || bossIdx < 0 || rewardGoldIdx < 0)
+        string[] required = { "wave", "spawnCount", "spawnInterval", "enemyHpMul", "enemySpeedMul", "enemyDamageMul", "eliteEvery", "boss", "rewardGold" };
+        foreach (var col in required)
         {
-            Debug.LogError("Missing required columns in CSV.");
-            return;
+            if (Array.IndexOf(header, col) < 0)
+            {
+                Debug.LogError($"Missing required column in CSV: '{col}'.");
+                return;
+            }
         }
 
         for (int i = 1, n = lines.Length; i < n; ++i)
@@ -70,23 +74,24 @@ public static class WaveTableImporter
             var cols = line.Split(',');
             if (cols.Length < colCount)
             {
-                Debug.LogWarning($"Skipping incomplete row at line {i+1} (expected {colCount} columns, got {cols.Length}).");
+                Debug.LogWarning($"Skipping incomplete row at line {i + 1} (expected {colCount} columns, got {cols.Length}).");
                 continue;
             }
+
             for (int c = 0; c < colCount; ++c)
                 cols[c] = cols[c].Trim();
 
             WaveRow row = new WaveRow
             {
-                wave = ParseInt(cols[waveIdx]),
-                spawnCount = ParseInt(cols[spawnCountIdx]),
-                spawnInterval = ParseFloat(cols[spawnIntervalIdx]),
-                enemyHpMul = ParseFloat(cols[enemyHpMulIdx]),
-                enemySpeedMul = ParseFloat(cols[enemySpeedMulIdx]),
-                enemyDamageMul = ParseFloat(cols[enemyDamageMulIdx]),
-                eliteEvery = ParseInt(cols[eliteEveryIdx]),
-                boss = ParseInt(cols[bossIdx]) != 0,
-                rewardGold = ParseInt(cols[rewardGoldIdx]),
+                wave = ParseInt(SafeGet(cols, waveIdx)),
+                spawnCount = ParseInt(SafeGet(cols, spawnCountIdx)),
+                spawnInterval = ParseFloat(SafeGet(cols, spawnIntervalIdx)),
+                enemyHpMul = ParseFloat(SafeGet(cols, enemyHpMulIdx)),
+                enemySpeedMul = ParseFloat(SafeGet(cols, enemySpeedMulIdx)),
+                enemyDamageMul = ParseFloat(SafeGet(cols, enemyDamageMulIdx)),
+                eliteEvery = ParseInt(SafeGet(cols, eliteEveryIdx)),
+                boss = ParseInt(SafeGet(cols, bossIdx)) != 0,
+                rewardGold = ParseInt(SafeGet(cols, rewardGoldIdx)),
                 enemyId = ResolvePreferredId(cols, enemyIdIdx, monsterIdIdx),
                 monsterId = ReadIdCell(cols, monsterIdIdx)
             };
@@ -97,9 +102,15 @@ public static class WaveTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"Imported {table.wave.Count} wave into {AssetPath}");
+        Debug.Log($"Imported {table.wave.Count} wave{(table.wave.Count == 1 ? "" : "s")} into {AssetPath}");
     }
 
+    private static string SafeGet(string[] cols, int index)
+    {
+        if (cols == null || index < 0 || index >= cols.Length)
+            return string.Empty;
+        return cols[index].Trim();
+    }
 
     private static string ResolvePreferredId(string[] cols, int enemyIdIdx, int monsterIdIdx)
     {
@@ -120,7 +131,7 @@ public static class WaveTableImporter
 
     private static string ReadIdCell(string[] cols, int index)
     {
-        if (index < 0 || cols == null || index >= cols.Length)
+        if (cols == null || index < 0 || index >= cols.Length)
         {
             return string.Empty;
         }
@@ -130,13 +141,22 @@ public static class WaveTableImporter
 
     private static int ParseInt(string s)
     {
+        if (string.IsNullOrWhiteSpace(s))
+            return 0;
         int v;
-        return int.TryParse(s, out v) ? v : 0;
+        // Try parsing with InvariantCulture (for possible CSV differences)
+        if (int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out v))
+            return v;
+        if (int.TryParse(s, out v))
+            return v;
+        return 0;
     }
 
     private static float ParseFloat(string s)
     {
-        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float v)) return v;
+        if (string.IsNullOrWhiteSpace(s))
+            return 0f;
+        if (float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out float v)) return v;
         if (float.TryParse(s, out v)) return v;
         return 0f;
     }
