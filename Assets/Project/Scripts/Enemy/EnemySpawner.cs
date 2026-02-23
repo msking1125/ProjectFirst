@@ -172,6 +172,14 @@ public class EnemySpawner : MonoBehaviour
 
         MonsterGrade grade = ResolveGrade();
         WaveMultipliers multipliers = new WaveMultipliers { hp = enemyHpMul, speed = enemySpeedMul, damage = enemyDamageMul };
+
+        MonsterRow row = monsterTable != null ? monsterTable.GetByIdAndGrade(currentEnemyId, grade) : null;
+        GameObject prefabOverride = row != null ? row.prefab : null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        string prefabOverrideName = prefabOverride != null ? prefabOverride.name : "null";
+        string defaultPrefabName = enemyPool != null && enemyPool.DefaultEnemyPrefab != null ? enemyPool.DefaultEnemyPrefab.name : "null";
+        Debug.Log($"[EnemySpawner] Spawn request. monsterId='{currentEnemyId}', grade='{grade}', prefabOverride='{prefabOverrideName}', defaultPrefab='{defaultPrefabName}'");
+#endif
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, grade, multipliers);
         if (enemy == null)
         {
