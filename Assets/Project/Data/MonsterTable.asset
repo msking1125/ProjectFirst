@@ -15,7 +15,7 @@ MonoBehaviour:
   rows:
   - id: 1
     grade: 0
-    name: Slime1
+    name: Slime
     prefab: {fileID: 1996877023500070189, guid: 554e914b023986b44be1e734ace93455,
       type: 3}
     hp: 50
@@ -27,7 +27,7 @@ MonoBehaviour:
     element: 1
   - id: 2
     grade: 1
-    name: Slime2
+    name: Tank
     prefab: {fileID: 1996877023500070189, guid: 554e914b023986b44be1e734ace93455,
       type: 3}
     hp: 200
@@ -39,7 +39,7 @@ MonoBehaviour:
     element: 0
   - id: 3
     grade: 2
-    name: Slime3
+    name: Fast
     prefab: {fileID: 1996877023500070189, guid: 554e914b023986b44be1e734ace93455,
       type: 3}
     hp: 70
