@@ -5,6 +5,8 @@ using UnityEngine;
 [AddComponentMenu("Enemy/Wave Manager")]
 public class WaveManager : MonoBehaviour
 {
+    private const string DefaultMonsterId = "1";
+
     [Header("References")]
     [SerializeField] private WaveTable waveTable;
     [SerializeField] private EnemySpawner enemySpawner;
@@ -126,11 +128,22 @@ public class WaveManager : MonoBehaviour
             row.enemyDamageMul,
             row.eliteEvery,
             row.boss,
-            string.IsNullOrWhiteSpace(row.enemyId) ? "slime" : row.enemyId);
+            ResolveWaveMonsterId(row));
 
         enemySpawner.BeginWave();
         waveInProgress = true;
         RefreshUI();
+    }
+
+    private string ResolveWaveMonsterId(WaveRow row)
+    {
+        if (row == null)
+        {
+            return DefaultMonsterId;
+        }
+
+        string resolved = row.GetMonsterIdOrFallback();
+        return string.IsNullOrWhiteSpace(resolved) ? DefaultMonsterId : resolved.Trim();
     }
 
     private void NotifyVictory()

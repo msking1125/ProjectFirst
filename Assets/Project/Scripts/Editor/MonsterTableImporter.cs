@@ -86,32 +86,28 @@ public static class MonsterTableImporter
                 }
             }
 
-            string gradeRaw = ReadCell(cols, gradeIdx);
-            MonsterGrade rowGrade = MonsterGrade.Normal;
-            if (Enum.TryParse(gradeRaw, true, out MonsterGrade grade))
-            {
-                rowGrade = grade;
-            }
-            else
-            {
-                Debug.LogWarning($"[MonsterTableImporter] Failed to parse grade for id '{id}'. raw='{gradeRaw}'. fallback=Normal");
-            }
-
-            string prefabName = ReadCell(cols, prefabIdx);
-            GameObject prefabAsset = ResolvePrefab(prefabName, id);
-
             MonsterRow row = new MonsterRow
             {
                 id = id,
-                grade = rowGrade,
                 name = name,
                 hp = ParseFloat(ReadCell(cols, hpIdx)),
                 atk = ParseFloat(ReadCell(cols, atkIdx)),
                 def = ParseFloat(ReadCell(cols, defIdx)),
                 critChance = Mathf.Clamp01(ParseFloat(ReadCell(cols, critChanceIdx))),
                 critMultiplier = critMultiplierValue,
-                prefab = prefabAsset
+                prefab = ResolvePrefab(ReadCell(cols, prefabIdx), id)
             };
+
+            string gradeRaw = ReadCell(cols, gradeIdx);
+            if (TryParseEnumInsensitive(gradeRaw, out MonsterGrade grade))
+            {
+                row.grade = grade;
+            }
+            else
+            {
+                Debug.LogWarning($"[MonsterTableImporter] Failed to parse grade for id '{id}'. raw='{gradeRaw}'. fallback=Normal");
+                row.grade = MonsterGrade.Normal;
+            }
 
             string moveSpeedRaw = ReadCell(cols, moveSpeedIdx);
             if (TryParseFloat(moveSpeedRaw, out float moveSpeedValue))
@@ -124,7 +120,7 @@ public static class MonsterTableImporter
             }
 
             string elementRaw = ReadCell(cols, elementIdx);
-            if (Enum.TryParse(elementRaw, true, out ElementType element))
+            if (TryParseEnumInsensitive(elementRaw, out ElementType element))
             {
                 row.element = element;
             }
@@ -135,15 +131,6 @@ public static class MonsterTableImporter
             }
 
             table.rows.Add(row);
-
-            if (prefabAsset != null)
-            {
-                Debug.Log($"[MonsterTableImporter] Row imported. id='{id}', grade='{row.grade}', prefabName='{prefabName}', prefabAsset='{prefabAsset.name}'");
-            }
-            else
-            {
-                Debug.LogWarning($"[MonsterTableImporter] Row imported with missing prefab. id='{id}', grade='{row.grade}', prefabName='{prefabName}', prefabAsset='null'");
-            }
         }
 
         EditorUtility.SetDirty(table);
@@ -183,6 +170,33 @@ public static class MonsterTableImporter
         return false;
     }
 
+    private static bool TryParseEnumInsensitive<TEnum>(string raw, out TEnum value) where TEnum : struct, Enum
+    {
+        string normalized = string.IsNullOrWhiteSpace(raw) ? string.Empty : raw.Trim();
+        if (Enum.TryParse(normalized, true, out value))
+        {
+            return true;
+        }
+
+        string compact = normalized.Replace(" ", string.Empty).Replace("_", string.Empty);
+        if (!string.IsNullOrEmpty(compact))
+        {
+            string[] names = Enum.GetNames(typeof(TEnum));
+            for (int i = 0; i < names.Length; i++)
+            {
+                string candidate = names[i].Replace("_", string.Empty);
+                if (string.Equals(candidate, compact, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = (TEnum)Enum.Parse(typeof(TEnum), names[i]);
+                    return true;
+                }
+            }
+        }
+
+        value = default;
+        return false;
+    }
+
     private static GameObject ResolvePrefab(string prefabName, string id)
     {
         if (string.IsNullOrWhiteSpace(prefabName))
@@ -190,28 +204,11 @@ public static class MonsterTableImporter
             return null;
         }
 
-        string[] guids = AssetDatabase.FindAssets($"{prefabName} t:Prefab");
-        string prefabPath = null;
-
-        for (int i = 0; i < guids.Length; i++)
-        {
-            string candidatePath = AssetDatabase.GUIDToAssetPath(guids[i]);
-            if (candidatePath.StartsWith($"{PrefabDirectory}/", StringComparison.OrdinalIgnoreCase))
-            {
-                prefabPath = candidatePath;
-                break;
-            }
-
-            if (prefabPath == null)
-            {
-                prefabPath = candidatePath;
-            }
-        }
-
-        GameObject prefab = string.IsNullOrWhiteSpace(prefabPath) ? null : AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        string prefabPath = $"{PrefabDirectory}/{prefabName}.prefab";
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
         if (prefab == null)
         {
-            Debug.LogWarning($"[MonsterTableImporter] Prefab not found for {prefabName} (id='{id}')");
+            Debug.LogWarning($"[MonsterTableImporter] Missing prefab for id '{id}'. expected='{prefabPath}'");
         }
 
         return prefab;

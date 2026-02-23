@@ -226,8 +226,9 @@ MonoBehaviour:
   - {fileID: 5017798058210304686}
   - {fileID: 5017798058210304685}
   - {fileID: 5017798058210304684}
-  monsterTable: {fileID: 0}
+  monsterTable: {fileID: 11400000, guid: d34bf551d405e8b4d9b90151ceb6e88f, type: 2}
   spawnInterval: 1
+  defaultMonsterId: 1
 --- !u!4 &34045173
 Transform:
   m_ObjectHideFlags: 0
