@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f62baeceae02e5a4086af06ca21f1fb5, type: 3}
+  m_Name: SkillTable
+  m_EditorClassIdentifier: 
+  rows:
+  - id: skill_fire_burst
+    name: Fire Burst
+    element: 0
+    coefficient: 1.5
+    cooldown: 8
+    range: 9999
+  - id: skill_mind_break
+    name: Mind Break
+    element: 2
+    coefficient: 1.2
+    cooldown: 6
+    range: 9999
+  - id: skill_wave_crash
+    name: Wave Crash
+    element: 1
+    coefficient: 1.8
+    cooldown: 10
+    range: 9999
+  - id: skill_arc_shot
+    name: Arc Shot
+    element: 0
+    coefficient: 1.1
+    cooldown: 4
+    range: 9999
+  - id: skill_focus_beam
+    name: Focus Beam
+    element: 2
+    coefficient: 1.7
+    cooldown: 9
+    range: 9999
