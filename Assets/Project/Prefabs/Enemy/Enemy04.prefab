@@ -371,8 +371,7 @@ MonoBehaviour:
   bossDefScale: 1.8
   bossSpeedScale: 1.2
   damageTextPrefab: {fileID: 100003, guid: d42c06a5e4064ac4ba546c1a6e510536, type: 3}
-  damageTextAnchor: {fileID: 4358160650864039365, guid: b50c9244563d27848b31b5207e55f78a,
-    type: 3}
+  damageTextAnchor: {fileID: 8559034267249014076}
   colorRenderer: {fileID: 0}
   shakeDuration: 0.18
   shakeStrength: 0.2
@@ -381,6 +380,7 @@ MonoBehaviour:
   critMotionBlurDuration: 0.12
   useDeathReturnDelay: 1
   deathReturnDelay: 0.45
+  logSpawnAppliedMonsterData: 0
 --- !u!136 &408215320255906840
 CapsuleCollider:
   m_ObjectHideFlags: 0

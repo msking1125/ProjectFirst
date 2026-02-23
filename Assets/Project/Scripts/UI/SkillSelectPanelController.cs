@@ -23,8 +23,6 @@ public class SkillSelectPanelController : MonoBehaviour
     private void Awake()
     {
         AutoBind();
-        WarnIfMissingBindings();
-
         BindButtons();
 
         if (panelRoot != null)
