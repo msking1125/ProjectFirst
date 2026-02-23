@@ -48,6 +48,7 @@ public class EnemySpawner : MonoBehaviour
     private bool loggedMissingPool;
     private bool loggedMissingTarget;
     private bool loggedMissingSpawnPoints;
+    private bool loggedMissingMonsterTable;
 
     public bool IsWaveSpawnCompleted => useWaveConfig && spawnedCount >= waveSpawnCount;
 
@@ -127,6 +128,19 @@ public class EnemySpawner : MonoBehaviour
         }
 
         loggedMissingTarget = false;
+
+        if (monsterTable == null)
+        {
+            if (!loggedMissingMonsterTable)
+            {
+                Debug.LogError("[EnemySpawner] monsterTable이 할당되지 않았습니다. 'Monster Data' 섹션에 MonsterTable 에셋을 연결하세요.");
+                loggedMissingMonsterTable = true;
+            }
+
+            return false;
+        }
+
+        loggedMissingMonsterTable = false;
 
         if (spawnPoints == null || spawnPoints.Length == 0)
         {
