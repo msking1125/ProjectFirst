@@ -1550,6 +1550,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1561228425 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2774961375278810344, guid: 7dcc70dbb996246439bdcee7bb9af80b,
+    type: 3}
+  m_PrefabInstance: {fileID: 2897921023371036341}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1893870565 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 09c7ee762f06ff3469ff87e8611285e3,
@@ -2285,6 +2297,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8221247996105493881, guid: 7dcc70dbb996246439bdcee7bb9af80b,
+        type: 3}
+      propertyPath: dimImage
+      value: 
+      objectReference: {fileID: 1561228425}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2378,7 +2395,7 @@ PrefabInstance:
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Pick0
+      value: CastSlot1
       objectReference: {fileID: 0}
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
@@ -2543,7 +2560,7 @@ PrefabInstance:
     - target: {fileID: 4711336451828954196, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Pick1
+      value: CastSlot2
       objectReference: {fileID: 0}
     - target: {fileID: 4711336451828954196, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
@@ -2583,7 +2600,7 @@ PrefabInstance:
     - target: {fileID: 6480393007082137178, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Pick2
+      value: CastSlot3
       objectReference: {fileID: 0}
     - target: {fileID: 6480393007082137178, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}

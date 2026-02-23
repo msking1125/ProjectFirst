@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public class SkillBarController : MonoBehaviour
     [SerializeField] private TMP_Text slotTxt3;
     [SerializeField] private bool enableSlotsOnStartForTest = true;
 
+
     private readonly SkillRow[] equippedSkills = new SkillRow[3];
     private SkillSystem skillSystem;
 
@@ -25,6 +27,31 @@ public class SkillBarController : MonoBehaviour
         }
 
         Refresh();
+    }
+
+    private void Start()
+    {
+        List<string> missingFields = null;
+        void CheckField(string fieldName, UnityEngine.Object obj)
+        {
+            if (obj == null)
+            {
+                missingFields ??= new List<string>();
+                missingFields.Add(fieldName);
+            }
+        }
+
+        CheckField(nameof(slotBtn1), slotBtn1);
+        CheckField(nameof(slotBtn2), slotBtn2);
+        CheckField(nameof(slotBtn3), slotBtn3);
+        CheckField(nameof(slotTxt1), slotTxt1);
+        CheckField(nameof(slotTxt2), slotTxt2);
+        CheckField(nameof(slotTxt3), slotTxt3);
+
+        if (missingFields != null)
+        {
+            Debug.LogWarning($"[SkillBarController] Missing serialized references: {string.Join(", ", missingFields)}", this);
+        }
     }
 
     public void Configure(Button button1, Button button2, Button button3, TMP_Text text1, TMP_Text text2, TMP_Text text3)

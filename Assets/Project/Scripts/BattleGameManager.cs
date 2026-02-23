@@ -34,6 +34,11 @@ public class BattleGameManager : MonoBehaviour
     [SerializeField] private TMP_Text statusText;
     [SerializeField] private SkillBarController skillBarController;
     [SerializeField] private SkillSelectPanelController skillSelectPanelController;
+    [SerializeField] private BattleHUD battleHudPrefab;
+    [SerializeField] private BattleHUD battleHudInstance;
+    [SerializeField] private SkillBarController skillBarPrefab;
+    [SerializeField] private SkillSelectPanelController skillSelectPanelPrefab;
+    
 
     [Header("Result UI")]
     [SerializeField] private GameObject resultPanel;
@@ -232,6 +237,35 @@ public class BattleGameManager : MonoBehaviour
 
     private void EnsureHUD()
     {
+        // 1) BattleHUD 프리팹/인스턴스를 우선 사용
+        if (battleHudInstance == null)
+        {
+            battleHudInstance = FindFirstObjectByType<BattleHUD>();
+        }
+
+        if (battleHudInstance == null && battleHudPrefab != null)
+        {
+            battleHudInstance = Instantiate(battleHudPrefab);
+        }
+
+        if (battleHudInstance != null)
+        {
+            targetCanvas = battleHudInstance.Canvas;
+            statusText = battleHudInstance.StatusText;
+            skillBarController = battleHudInstance.SkillBarController;
+            skillSelectPanelController = battleHudInstance.SkillSelectPanelController;
+            resultPanel = battleHudInstance.ResultPanel;
+            resultText = battleHudInstance.ResultText;
+
+            if (skillBarController != null)
+            {
+                skillBarController.Setup(skillSystem);
+            }
+
+            return;
+        }
+
+        // 2) BattleHUD가 없으면 이전과 같은 방식으로 동적 생성 (레거시 경로)
         if (targetCanvas == null)
         {
             targetCanvas = FindFirstObjectByType<Canvas>();
@@ -255,7 +289,10 @@ public class BattleGameManager : MonoBehaviour
             CreateDefaultSkillBar();
         }
 
-        skillBarController.Setup(skillSystem);
+        if (skillBarController != null)
+        {
+            skillBarController.Setup(skillSystem);
+        }
 
         if (skillSelectPanelController == null)
         {
@@ -333,6 +370,23 @@ public class BattleGameManager : MonoBehaviour
 
     private void EnsureResultUI()
     {
+        // BattleHUD가 있다면 그 안의 ResultPanel/ResultText를 사용
+        if (battleHudInstance != null)
+        {
+            if (resultPanel == null)
+            {
+                resultPanel = battleHudInstance.ResultPanel;
+            }
+
+            if (resultText == null)
+            {
+                resultText = battleHudInstance.ResultText;
+            }
+
+            return;
+        }
+
+        // BattleHUD가 없으면 이전 방식대로 동적 생성
         if (resultPanel == null)
         {
             resultPanel = new GameObject("ResultPanel", typeof(RectTransform), typeof(Image));

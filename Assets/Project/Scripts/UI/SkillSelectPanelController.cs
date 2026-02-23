@@ -35,6 +35,33 @@ public class SkillSelectPanelController : MonoBehaviour
         SetDimRaycast(false);
     }
 
+    private void Start()
+    {
+        List<string> missingFields = null;
+        void CheckField(string fieldName, UnityEngine.Object obj)
+        {
+            if (obj == null)
+            {
+                missingFields ??= new List<string>();
+                missingFields.Add(fieldName);
+            }
+        }
+
+        CheckField(nameof(panelRoot), panelRoot);
+        CheckField(nameof(optionBtn1), optionBtn1);
+        CheckField(nameof(optionBtn2), optionBtn2);
+        CheckField(nameof(optionBtn3), optionBtn3);
+        CheckField(nameof(optionTxt1), optionTxt1);
+        CheckField(nameof(optionTxt2), optionTxt2);
+        CheckField(nameof(optionTxt3), optionTxt3);
+        CheckField(nameof(dimImage), dimImage);
+
+        if (missingFields != null)
+        {
+            Debug.LogWarning($"[SkillSelectPanelController] Missing serialized references: {string.Join(", ", missingFields)}", this);
+        }
+    }
+
     public void Configure(GameObject root, Button button1, Button button2, Button button3, TMP_Text text1, TMP_Text text2, TMP_Text text3)
     {
         panelRoot = root;
@@ -78,6 +105,7 @@ public class SkillSelectPanelController : MonoBehaviour
         BindOption(2, optionBtn3, optionTxt3);
 
         if (panelRoot != null)
+        
         {
             panelRoot.SetActive(currentOptions.Count > 0);
         }
