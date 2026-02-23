@@ -16,6 +16,9 @@ public class Agent : MonoBehaviour
     [SerializeField] private CombatStats stats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
     [SerializeField] private ElementType element = ElementType.Reason;
 
+    [Header("Debug")]
+    [SerializeField] private bool logElementDamage;
+
     private float timer;
     private bool hasLoggedMissingManager;
 
@@ -59,19 +62,23 @@ public class Agent : MonoBehaviour
             return;
         }
 
-        float damage = Mathf.Max(1f, stats.atk - target.Defense);
+        float baseDmg = Mathf.Max(1f, stats.atk - target.Defense);
         bool isCrit = Random.value < Mathf.Clamp01(stats.critChance);
-        if (isCrit)
-        {
-            damage *= Mathf.Max(1f, stats.critMultiplier);
-        }
+        float critAppliedDmg = isCrit
+            ? baseDmg * Mathf.Max(1f, stats.critMultiplier)
+            : baseDmg;
 
-        if (ElementRules.HasAdvantage(element, target.Element))
-        {
-            damage *= ElementRules.AdvantageMultiplier;
-        }
+        float elementMultiplier = ElementRules.GetMultiplier(element, target.Element);
+        int finalDmg = Mathf.RoundToInt(critAppliedDmg * elementMultiplier);
 
-        target.TakeDamage(Mathf.RoundToInt(damage), isCrit);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (logElementDamage)
+        {
+            Debug.Log($"[Agent] DamageCalc attackerElement={element} defenderElement={target.Element} multiplier={elementMultiplier:F1} finalDmg={finalDmg}", this);
+        }
+#endif
+
+        target.TakeDamage(finalDmg, isCrit);
     }
 
     Enemy FindClosestEnemy()
