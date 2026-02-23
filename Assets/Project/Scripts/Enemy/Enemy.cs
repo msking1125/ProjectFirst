@@ -91,6 +91,9 @@ public class Enemy : MonoBehaviour
     private bool hasPlayedRunFallback;
     private bool hasHitBarrier;
     private string appliedMonsterId = string.Empty;
+    private string appliedMoveSpeedSource = "default";
+
+    private bool UsesRigidbodyMovement => cachedRigidbody != null && cachedRigidbody.isKinematic && cachedRigidbody.gameObject.activeInHierarchy;
 
     public ElementType Element => currentElement;
     private ElementType currentElement = ElementType.Reason;
@@ -101,6 +104,7 @@ public class Enemy : MonoBehaviour
     {
         cachedRigidbody = GetComponent<Rigidbody>();
         cachedNavMeshAgent = GetComponent<NavMeshAgent>();
+        ConfigureNavMeshAgentGuard();
         ResolveRenderer();
         ResolveMotionBlur();
         ResolveAnimator();
@@ -109,6 +113,7 @@ public class Enemy : MonoBehaviour
         baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
         currentElement = ElementType.Reason;
         appliedMonsterId = defaultMonsterId;
+        appliedMoveSpeedSource = "default";
         currentCombatStats = baseCombatStats;
     }
 
@@ -119,19 +124,39 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        Vector3 dir = (target.position - transform.position).normalized;
-        Vector3 nextPos = transform.position + dir * moveSpeed * Time.deltaTime;
-
-        if (cachedRigidbody != null && cachedRigidbody.isKinematic && cachedRigidbody.gameObject.activeInHierarchy)
+        if (!UsesRigidbodyMovement)
         {
-            cachedRigidbody.MovePosition(nextPos);
-        }
-        else
-        {
-            transform.position = nextPos;
+            MoveByTransform(Time.deltaTime);
         }
 
         UpdateMovementAnimation(moveSpeed);
+    }
+
+    private void FixedUpdate()
+    {
+        if (!isAlive || target == null)
+        {
+            return;
+        }
+
+        if (UsesRigidbodyMovement)
+        {
+            MoveByRigidbody(Time.fixedDeltaTime);
+        }
+    }
+
+    private void MoveByTransform(float dt)
+    {
+        Vector3 dir = (target.position - transform.position).normalized;
+        Vector3 nextPos = transform.position + dir * moveSpeed * dt;
+        transform.position = nextPos;
+    }
+
+    private void MoveByRigidbody(float fixedDt)
+    {
+        Vector3 dir = (target.position - transform.position).normalized;
+        Vector3 nextPos = transform.position + dir * moveSpeed * fixedDt;
+        cachedRigidbody.MovePosition(nextPos);
     }
 
     public void SetPool(EnemyPool pool) => ownerPool = pool;
@@ -151,7 +176,7 @@ public class Enemy : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (logSpawnAppliedMonsterData)
         {
-            Debug.Log($"[Enemy] SpawnApplied id='{appliedMonsterId}' grade='{grade}' moveSpeed={moveSpeed:F2} element={currentElement}", this);
+            Debug.Log($"[Enemy] SpawnApplied id='{appliedMonsterId}' grade='{grade}' moveSpeed={moveSpeed:F2} element={currentElement} speedSource={appliedMoveSpeedSource}", this);
         }
 #endif
 
@@ -234,6 +259,19 @@ public class Enemy : MonoBehaviour
         ResetForPool();
     }
 
+    private void ConfigureNavMeshAgentGuard()
+    {
+        if (cachedNavMeshAgent == null)
+        {
+            return;
+        }
+
+        if (cachedRigidbody != null)
+        {
+            cachedNavMeshAgent.enabled = false;
+        }
+    }
+
     private void ReturnToPool()
     {
         if (ownerPool != null && !isInPool)
@@ -248,6 +286,7 @@ public class Enemy : MonoBehaviour
         baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
         currentElement = ElementType.Reason;
         appliedMonsterId = defaultMonsterId;
+        appliedMoveSpeedSource = "default";
 
         if (monsterTable == null)
         {
@@ -270,6 +309,7 @@ public class Enemy : MonoBehaviour
         if (row.moveSpeed > 0f)
         {
             baseMoveSpeed = row.moveSpeed;
+            appliedMoveSpeedSource = $"table:{row.id}";
         }
     }
 
