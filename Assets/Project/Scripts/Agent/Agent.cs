@@ -4,7 +4,7 @@ public class Agent : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] private string agentId = "agent01";
-    [SerializeField] private AgentStatsTable agentStatsTable;
+    [SerializeField] private AgentTable agentTable;
 
     public float range = 5f;
     public float attackRate = 1f;
@@ -18,9 +18,11 @@ public class Agent : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private bool logElementDamage;
+    [SerializeField] private bool logElementAdvantageOnce = true;
 
     private float timer;
     private bool hasLoggedMissingManager;
+    private bool hasLoggedElementAdvantage;
 
     private void Awake()
     {
@@ -29,10 +31,10 @@ public class Agent : MonoBehaviour
 
     private void ApplyStatsFromTable()
     {
-        if (agentStatsTable != null)
+        if (agentTable != null)
         {
-            stats = agentStatsTable.GetStats(agentId);
-            element = agentStatsTable.GetElement(agentId);
+            stats = agentTable.GetStats(agentId);
+            element = agentTable.GetElement(agentId);
         }
         else if (stats.atk <= 0f)
         {
@@ -72,9 +74,11 @@ public class Agent : MonoBehaviour
         int finalDmg = Mathf.RoundToInt(critAppliedDmg * elementMultiplier);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (logElementDamage)
+        if (logElementDamage && (!logElementAdvantageOnce || !hasLoggedElementAdvantage))
         {
-            Debug.Log($"[Agent] DamageCalc attackerElement={element} defenderElement={target.Element} multiplier={elementMultiplier:F1} finalDmg={finalDmg}", this);
+            bool hasAdvantage = ElementRules.HasAdvantage(element, target.Element);
+            Debug.Log($"[Agent] DamageCalc attackerElement={element} defenderElement={target.Element} advantageApplied={hasAdvantage} multiplier={elementMultiplier:F1} finalDmg={finalDmg}", this);
+            hasLoggedElementAdvantage = true;
         }
 #endif
 

@@ -62,6 +62,8 @@ public class Enemy : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private bool logSpawnAppliedMonsterData;
 
+    private const float MinimumMoveSpeed = 0.5f;
+
     private float baseMoveSpeed;
     private CombatStats baseCombatStats;
     private CombatStats currentCombatStats;
@@ -92,6 +94,7 @@ public class Enemy : MonoBehaviour
     private bool hasHitBarrier;
     private string appliedMonsterId = string.Empty;
     private string appliedMoveSpeedSource = "default";
+    private bool hasLoggedMoveSpeedForSpawn;
 
     private bool UsesRigidbodyMovement => cachedRigidbody != null && cachedRigidbody.isKinematic && cachedRigidbody.gameObject.activeInHierarchy;
 
@@ -169,14 +172,16 @@ public class Enemy : MonoBehaviour
         }
 
         string resolvedMonsterId = string.IsNullOrWhiteSpace(monsterId) ? defaultMonsterId : monsterId;
+        hasLoggedMoveSpeedForSpawn = false;
         ApplyMonsterBase(monsterTable, resolvedMonsterId, grade);
         ApplyGradeScale(grade);
         ApplyWaveMultipliers(waveMultipliers);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (logSpawnAppliedMonsterData)
+        if (logSpawnAppliedMonsterData && !hasLoggedMoveSpeedForSpawn)
         {
-            Debug.Log($"[Enemy] SpawnApplied id='{appliedMonsterId}' grade='{grade}' moveSpeed={moveSpeed:F2} element={currentElement} speedSource={appliedMoveSpeedSource}", this);
+            Debug.Log($"[Enemy] SpawnApplied name='{gameObject.name}' id='{appliedMonsterId}' grade='{grade}' finalMoveSpeed={moveSpeed:F2} element={currentElement} speedSource={appliedMoveSpeedSource}", this);
+            hasLoggedMoveSpeedForSpawn = true;
         }
 #endif
 
@@ -348,6 +353,7 @@ public class Enemy : MonoBehaviour
     private void ApplyWaveMultipliers(WaveMultipliers multipliers)
     {
         moveSpeed *= Mathf.Max(0f, multipliers.speed);
+        moveSpeed = Mathf.Max(MinimumMoveSpeed, moveSpeed);
         currentCombatStats = new CombatStats(
             currentCombatStats.hp * Mathf.Max(0f, multipliers.hp),
             currentCombatStats.atk * Mathf.Max(0f, multipliers.damage),

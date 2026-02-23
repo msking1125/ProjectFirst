@@ -8,21 +8,24 @@ using UnityEngine;
 
 public static class MonsterTableImporter
 {
-    private const string CsvPathLower = "Assets/Project/Data/monsters.csv";
-    private const string CsvPathUpper = "Assets/Project/Data/Monsters.csv";
+    private const string CsvPath = "Assets/Project/Data/monsters.csv";
     private const string AssetPath = "Assets/Project/Data/MonsterTable.asset";
+    private const string PrefabDirectory = "Assets/Project/Prefabs/Enemy";
+    private static readonly string[] RequiredColumns =
+    {
+        "id", "grade", "name", "hp", "atk", "def", "critChance", "critMultiplier", "moveSpeed", "element", "prefab"
+    };
 
     [MenuItem("Tools/Game/Import Monster CSV")]
     public static void Import()
     {
-        string csvPath = ResolveCsvPath();
-        if (string.IsNullOrEmpty(csvPath))
+        if (!File.Exists(CsvPath))
         {
-            Debug.LogError($"Monster CSV not found at: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"Monster CSV not found at: {CsvPath}");
             return;
         }
 
-        string[] lines = File.ReadAllLines(csvPath);
+        string[] lines = File.ReadAllLines(CsvPath);
         if (lines.Length < 2)
         {
             Debug.LogError("Monster CSV has no data rows.");
@@ -41,8 +44,7 @@ public static class MonsterTableImporter
         string[] header = lines[0].Split(',').Select(h => h.Trim()).ToArray();
         int idx(string name) => Array.IndexOf(header, name);
 
-        string[] requiredColumns = { "id", "hp", "atk", "def", "critChance" };
-        foreach (var col in requiredColumns)
+        foreach (string col in RequiredColumns)
         {
             if (idx(col) < 0)
             {
@@ -51,11 +53,17 @@ public static class MonsterTableImporter
             }
         }
 
+        int idIdx = idx("id");
         int nameIdx = idx("name");
+        int hpIdx = idx("hp");
+        int atkIdx = idx("atk");
+        int defIdx = idx("def");
+        int critChanceIdx = idx("critChance");
         int critMultiplierIdx = idx("critMultiplier");
         int moveSpeedIdx = idx("moveSpeed");
         int gradeIdx = idx("grade");
         int elementIdx = idx("element");
+        int prefabIdx = idx("prefab");
 
         for (int i = 1; i < lines.Length; i++)
         {
@@ -63,7 +71,7 @@ public static class MonsterTableImporter
                 continue;
 
             string[] cols = lines[i].Split(',').Select(c => c.Trim()).ToArray();
-            string id = ReadCell(cols, idx("id"));
+            string id = ReadCell(cols, idIdx);
             string name = ReadCell(cols, nameIdx);
 
             // Parse critMultiplier: Remove all non-numeric, non-dot, non-minus chars (e.g., "x2", "2배", "x1.5", "2.5" etc.)
@@ -82,47 +90,44 @@ public static class MonsterTableImporter
             {
                 id = id,
                 name = name,
-                hp = ParseFloat(ReadCell(cols, idx("hp"))),
-                atk = ParseFloat(ReadCell(cols, idx("atk"))),
-                def = ParseFloat(ReadCell(cols, idx("def"))),
-                critChance = Mathf.Clamp01(ParseFloat(ReadCell(cols, idx("critChance")))),
-                critMultiplier = critMultiplierValue
+                hp = ParseFloat(ReadCell(cols, hpIdx)),
+                atk = ParseFloat(ReadCell(cols, atkIdx)),
+                def = ParseFloat(ReadCell(cols, defIdx)),
+                critChance = Mathf.Clamp01(ParseFloat(ReadCell(cols, critChanceIdx))),
+                critMultiplier = critMultiplierValue,
+                prefab = ResolvePrefab(ReadCell(cols, prefabIdx), id)
             };
 
-            if (gradeIdx >= 0)
+            string gradeRaw = ReadCell(cols, gradeIdx);
+            if (Enum.TryParse(gradeRaw, true, out MonsterGrade grade))
             {
-                string gradeRaw = ReadCell(cols, gradeIdx);
-                if (Enum.TryParse(gradeRaw, true, out MonsterGrade grade))
-                {
-                    row.grade = grade;
-                }
+                row.grade = grade;
+            }
+            else
+            {
+                Debug.LogWarning($"[MonsterTableImporter] Failed to parse grade for id '{id}'. raw='{gradeRaw}'. fallback=Normal");
+                row.grade = MonsterGrade.Normal;
             }
 
-            if (moveSpeedIdx >= 0)
+            string moveSpeedRaw = ReadCell(cols, moveSpeedIdx);
+            if (TryParseFloat(moveSpeedRaw, out float moveSpeedValue))
             {
-                string moveSpeedRaw = ReadCell(cols, moveSpeedIdx);
-                if (TryParseFloat(moveSpeedRaw, out float moveSpeedValue))
-                {
-                    row.moveSpeed = moveSpeedValue;
-                }
-                else if (!string.IsNullOrWhiteSpace(moveSpeedRaw))
-                {
-                    Debug.LogWarning($"[MonsterTableImporter] Failed to parse moveSpeed for id '{id}'. raw='{moveSpeedRaw}'");
-                }
+                row.moveSpeed = moveSpeedValue;
+            }
+            else if (!string.IsNullOrWhiteSpace(moveSpeedRaw))
+            {
+                Debug.LogWarning($"[MonsterTableImporter] Failed to parse moveSpeed for id '{id}'. raw='{moveSpeedRaw}'");
             }
 
-            if (elementIdx >= 0)
+            string elementRaw = ReadCell(cols, elementIdx);
+            if (Enum.TryParse(elementRaw, true, out ElementType element))
             {
-                string elementRaw = ReadCell(cols, elementIdx);
-                if (Enum.TryParse(elementRaw, true, out ElementType element))
-                {
-                    row.element = element;
-                }
-                else
-                {
-                    Debug.LogWarning($"[MonsterTableImporter] Failed to parse element for id '{id}'. raw='{elementRaw}'");
-                    row.element = ElementType.Reason;
-                }
+                row.element = element;
+            }
+            else
+            {
+                Debug.LogWarning($"[MonsterTableImporter] Failed to parse element for id '{id}'. raw='{elementRaw}'. fallback=Reason");
+                row.element = ElementType.Reason;
             }
 
             table.rows.Add(row);
@@ -135,13 +140,10 @@ public static class MonsterTableImporter
         Debug.Log($"Imported {table.rows.Count} monsters into {AssetPath}");
     }
 
-    private static string ResolveCsvPath()
+    [MenuItem("Assets/Import CSV/Monster Table", false, 2000)]
+    private static void ImportFromAssetsMenu()
     {
-        if (File.Exists(CsvPathLower))
-            return CsvPathLower;
-        if (File.Exists(CsvPathUpper))
-            return CsvPathUpper;
-        return null;
+        Import();
     }
 
     private static string ReadCell(string[] cols, int index)
@@ -166,6 +168,23 @@ public static class MonsterTableImporter
             return true;
         v = 0f;
         return false;
+    }
+
+    private static GameObject ResolvePrefab(string prefabName, string id)
+    {
+        if (string.IsNullOrWhiteSpace(prefabName))
+        {
+            return null;
+        }
+
+        string prefabPath = $"{PrefabDirectory}/{prefabName}.prefab";
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[MonsterTableImporter] Missing prefab for id '{id}'. expected='{prefabPath}'");
+        }
+
+        return prefab;
     }
 }
 #endif
