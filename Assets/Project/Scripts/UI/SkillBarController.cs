@@ -46,6 +46,19 @@ public class SkillBarController : MonoBehaviour
         }
     }
 
+    public void Configure(Button button1, Button button2, Button button3, TMP_Text text1, TMP_Text text2, TMP_Text text3)
+    {
+        slotBtn1 = button1;
+        slotBtn2 = button2;
+        slotBtn3 = button3;
+        slotTxt1 = text1;
+        slotTxt2 = text2;
+        slotTxt3 = text3;
+
+        BindButtons();
+        Refresh();
+    }
+
     public void Setup(SkillSystem system)
     {
         skillSystem = system;

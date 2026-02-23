@@ -38,7 +38,6 @@ public class BattleGameManager : MonoBehaviour
     [SerializeField] private BattleHUD battleHudInstance;
     [SerializeField] private SkillBarController skillBarPrefab;
     [SerializeField] private SkillSelectPanelController skillSelectPanelPrefab;
-    
 
     [Header("Result UI")]
     [SerializeField] private GameObject resultPanel;
@@ -153,7 +152,12 @@ public class BattleGameManager : MonoBehaviour
         runSession.Reset();
         if (playerAgent == null)
         {
+            // FindFirstObjectByType<T>() is Unity 2022.2+, fallback for lower versions.
+#if UNITY_2022_2_OR_NEWER
             playerAgent = FindFirstObjectByType<Agent>();
+#else
+            playerAgent = GameObject.FindObjectOfType<Agent>();
+#endif
         }
 
         skillSystem = new SkillSystem(skillTable, playerAgent);
@@ -167,7 +171,13 @@ public class BattleGameManager : MonoBehaviour
             return;
         }
 
-        MonsterRow row = monsterTable.GetByIdAndGrade(monsterId, grade) ?? monsterTable.GetById(monsterId);
+        MonsterRow row = null;
+        if (monsterTable != null)
+        {
+            row = monsterTable.GetByIdAndGrade(monsterId, grade);
+            if (row == null)
+                row = monsterTable.GetById(monsterId);
+        }
         if (row == null)
         {
             return;
@@ -191,7 +201,7 @@ public class BattleGameManager : MonoBehaviour
         }
 
         List<SkillRow> candidates = skillSystem.GetRandomCandidates(3);
-        if (candidates.Count <= 0)
+        if (candidates == null || candidates.Count <= 0)
         {
             return;
         }
@@ -218,6 +228,7 @@ public class BattleGameManager : MonoBehaviour
         SetResultUI(true, message);
     }
 
+
     private void EnsureBaseHealth()
     {
         if (baseHealth != null)
@@ -226,13 +237,17 @@ public class BattleGameManager : MonoBehaviour
             return;
         }
 
-        GameObject baseObject = GameObject.Find(baseObjectName) ?? GameObject.Find("Base");
+        GameObject baseObject = GameObject.Find(baseObjectName);
+        if (baseObject == null)
+            baseObject = GameObject.Find("Base");
         if (baseObject == null)
         {
             return;
         }
 
-        baseHealth = baseObject.GetComponent<BaseHealth>() ?? baseObject.AddComponent<BaseHealth>();
+        baseHealth = baseObject.GetComponent<BaseHealth>();
+        if (baseHealth == null)
+            baseHealth = baseObject.AddComponent<BaseHealth>();
         baseHealth.BindGameManager(this);
     }
 
@@ -241,7 +256,11 @@ public class BattleGameManager : MonoBehaviour
         // 1) BattleHUD 프리팹/인스턴스를 우선 사용
         if (battleHudInstance == null)
         {
+#if UNITY_2022_2_OR_NEWER
             battleHudInstance = FindFirstObjectByType<BattleHUD>();
+#else
+            battleHudInstance = GameObject.FindObjectOfType<BattleHUD>();
+#endif
         }
 
         if (battleHudInstance == null && battleHudPrefab != null)
@@ -269,7 +288,11 @@ public class BattleGameManager : MonoBehaviour
         // 2) BattleHUD가 없으면 이전과 같은 방식으로 동적 생성 (레거시 경로)
         if (targetCanvas == null)
         {
+#if UNITY_2022_2_OR_NEWER
             targetCanvas = FindFirstObjectByType<Canvas>();
+#else
+            targetCanvas = GameObject.FindObjectOfType<Canvas>();
+#endif
         }
 
         if (targetCanvas == null)
@@ -408,7 +431,14 @@ public class BattleGameManager : MonoBehaviour
         }
         else if (resultText == null)
         {
+            // .NET 4.x에서 resultPanel이 null이 아닐 때 하위에서 TMP_Text 찾기
+#if UNITY_2022_2_OR_NEWER
             resultText = resultPanel.GetComponentInChildren<TMP_Text>(true);
+#else
+            TMP_Text[] children = resultPanel.GetComponentsInChildren<TMP_Text>(true);
+            if (children != null && children.Length > 0)
+                resultText = children[0];
+#endif
         }
     }
 

@@ -250,6 +250,65 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2119815888778033251}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &110781534
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 110781536}
+  - component: {fileID: 110781535}
+  m_Layer: 0
+  m_Name: BattleGameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &110781535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110781534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f95c50c45b534cef81e0f272681381b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseHealth: {fileID: 1112038667}
+  baseObjectName: Ark_Base
+  monsterTable: {fileID: 11400000, guid: d34bf551d405e8b4d9b90151ceb6e88f, type: 2}
+  skillTable: {fileID: 11400000, guid: 519161c05be1ebf4b98228abf28e2d96, type: 2}
+  playerAgent: {fileID: 1868366109}
+  targetCanvas: {fileID: 404325890}
+  statusText: {fileID: 0}
+  skillBarController: {fileID: 3971674745986000917}
+  skillSelectPanelController: {fileID: 2897921023371036348}
+  battleHudPrefab: {fileID: 0}
+  battleHudInstance: {fileID: 0}
+  skillBarPrefab: {fileID: 3971674745986000917}
+  skillSelectPanelPrefab: {fileID: 2897921023371036348}
+  resultPanel: {fileID: 0}
+  titleSceneName: Title
+--- !u!4 &110781536
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110781534}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 15.064146, y: 0.67412496, z: 4.044722}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &139693750 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2649832269133162220, guid: 228c0596941a77a4ea7c27d1402d8fc7,
@@ -1562,6 +1621,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1868366109 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6737435149655013798, guid: 30655e303fad03e4b96e8b373bded6cf,
+    type: 3}
+  m_PrefabInstance: {fileID: 2119815888778033251}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff32609351ebe848a91e53c556b5468, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1893870565 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 09c7ee762f06ff3469ff87e8611285e3,
@@ -2768,3 +2839,4 @@ SceneRoots:
   - {fileID: 221309680}
   - {fileID: 404325891}
   - {fileID: 31644602}
+  - {fileID: 110781536}
