@@ -1,0 +1,6 @@
+id,name,element,coefficient,cooldown,range
+skill_fire_burst,Fire Burst,Passion,1.5,8,9999
+skill_mind_break,Mind Break,Reason,1.2,6,9999
+skill_wave_crash,Wave Crash,Intuition,1.8,10,9999
+skill_arc_shot,Arc Shot,Passion,1.1,4,9999
+skill_focus_beam,Focus Beam,Reason,1.7,9,9999

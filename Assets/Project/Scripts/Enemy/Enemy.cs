@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
@@ -16,6 +17,7 @@ public struct WaveMultipliers
 
 public class Enemy : MonoBehaviour
 {
+    public static event Action<string, MonsterGrade> EnemyKilled;
     private static readonly int BaseColorPropertyId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorPropertyId = Shader.PropertyToID("_Color");
     private const string MonsterRunStateName = "Monster_run";
@@ -93,6 +95,7 @@ public class Enemy : MonoBehaviour
     private bool hasPlayedRunFallback;
     private bool hasHitBarrier;
     private string appliedMonsterId = string.Empty;
+    private MonsterGrade appliedMonsterGrade = MonsterGrade.Normal;
     private string appliedMoveSpeedSource = "default";
     private bool hasLoggedMoveSpeedForSpawn;
 
@@ -102,6 +105,7 @@ public class Enemy : MonoBehaviour
     private ElementType currentElement = ElementType.Reason;
 
     public float Defense => currentCombatStats.def;
+    public bool IsAlive => isAlive;
 
     void Awake()
     {
@@ -184,6 +188,8 @@ public class Enemy : MonoBehaviour
             hasLoggedMoveSpeedForSpawn = true;
         }
 #endif
+
+        appliedMonsterGrade = grade;
 
         target = arkTarget;
         currentHP = currentCombatStats.hp;
@@ -373,6 +379,7 @@ public class Enemy : MonoBehaviour
         }
 
         isAlive = false;
+        EnemyKilled?.Invoke(appliedMonsterId, appliedMonsterGrade);
         TrySetAnimatorTrigger(DieTriggerId, hasDieTrigger);
 
         if (!useDeathReturnDelay || deathReturnDelay <= 0f)

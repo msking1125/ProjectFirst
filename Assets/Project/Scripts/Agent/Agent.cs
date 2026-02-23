@@ -20,6 +20,9 @@ public class Agent : MonoBehaviour
     [SerializeField] private bool logElementDamage;
     [SerializeField] private bool logElementAdvantageOnce = true;
 
+    public float AttackPower => stats.atk;
+    public ElementType Element => element;
+
     private float timer;
     private bool hasLoggedMissingManager;
     private bool hasLoggedElementAdvantage;

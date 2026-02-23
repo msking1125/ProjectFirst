@@ -14,7 +14,7 @@ public static class MonsterTableImporter
     private const string PrefabDirectory = "Assets/Project/Prefabs/Enemy";
     private static readonly string[] RequiredColumns =
     {
-        "id", "grade", "name", "hp", "atk", "def", "critChance", "critMultiplier", "moveSpeed", "element", "prefab"
+        "id", "grade", "name", "hp", "atk", "def", "critChance", "critMultiplier", "moveSpeed", "element", "prefab", "expReward", "goldReward"
     };
 
     [MenuItem("Tools/Game/Import Monster CSV")]
@@ -67,6 +67,8 @@ public static class MonsterTableImporter
         int gradeIdx = idx("grade");
         int elementIdx = idx("element");
         int prefabIdx = idx("prefab");
+        int expRewardIdx = idx("expReward");
+        int goldRewardIdx = idx("goldReward");
 
         for (int i = 1; i < lines.Length; i++)
         {
@@ -106,7 +108,9 @@ public static class MonsterTableImporter
                 critChance = Mathf.Clamp01(ParseFloat(SafeGet(cols, critChanceIdx))),
                 critMultiplier = critMultiplierValue,
                 // If prefabName is missing, ResolvePrefab returns null and logs warning
-                prefab = ResolvePrefab(SafeGet(cols, prefabIdx), id)
+                prefab = ResolvePrefab(SafeGet(cols, prefabIdx), id),
+                expReward = Mathf.Max(0, Mathf.RoundToInt(ParseFloat(SafeGet(cols, expRewardIdx)))),
+                goldReward = Mathf.Max(0, Mathf.RoundToInt(ParseFloat(SafeGet(cols, goldRewardIdx))))
             };
 
             string gradeRaw = SafeGet(cols, gradeIdx);

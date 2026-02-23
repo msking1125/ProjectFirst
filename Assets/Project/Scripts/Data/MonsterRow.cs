@@ -18,6 +18,8 @@ public class MonsterRow
     public float critMultiplier = 1f;
     public float moveSpeed = -1f;
     public ElementType element = ElementType.Reason;
+    public int expReward;
+    public int goldReward;
 
     public CombatStats ToCombatStats()
     {
