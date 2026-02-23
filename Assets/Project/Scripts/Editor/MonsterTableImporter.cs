@@ -51,6 +51,7 @@ public static class MonsterTableImporter
             }
         }
 
+        int nameIdx = idx("name");
         int critMultiplierIdx = idx("critMultiplier");
         if (critMultiplierIdx < 0)
         {
@@ -70,13 +71,15 @@ public static class MonsterTableImporter
 
             string[] cols = lines[i].Split(',').Select(c => c.Trim()).ToArray();
             string id = ReadCell(cols, idx("id"));
+            string name = ReadCell(cols, nameIdx);
             MonsterRow row = new MonsterRow
             {
                 id = id,
+                name = name,
                 hp = ParseFloat(ReadCell(cols, idx("hp"))),
                 atk = ParseFloat(ReadCell(cols, idx("atk"))),
                 def = ParseFloat(ReadCell(cols, idx("def"))),
-                critChance = Mathf.Clamp01(ParseFloat(ReadCell(cols, idx("critChance"))),
+                critChance = Mathf.Clamp01(ParseFloat(ReadCell(cols, idx("critChance")))),
                 critMultiplier = Mathf.Max(1f, ParseFloat(ReadCell(cols, critMultiplierIdx)))
             };
 
