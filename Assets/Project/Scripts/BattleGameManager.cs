@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// BattleGameManager: 전투 게임의 주요 상태 및 UI를 관리하는 싱글턴 클래스.
+/// </summary>
 public class BattleGameManager : MonoBehaviour
 {
     public static BattleGameManager Instance { get; private set; }
@@ -11,10 +14,7 @@ public class BattleGameManager : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoCreate()
     {
-        if (Instance != null)
-        {
-            return;
-        }
+        if (Instance != null) return;
 
         GameObject managerObject = new GameObject("BattleGameManager");
         managerObject.AddComponent<BattleGameManager>();
@@ -53,6 +53,7 @@ public class BattleGameManager : MonoBehaviour
 
     private void Awake()
     {
+        // 싱글턴 중복 방지
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -97,6 +98,9 @@ public class BattleGameManager : MonoBehaviour
 
     public void HandleDefeat() => EndGame("Defeat");
 
+    /// <summary>
+    /// (예외 상황에서) 인스턴스가 없으면 새로 생성 후 승리 처리 (씬 전환 없이도 작동하기 위해)
+    /// </summary>
     public static void EndVictoryFallback()
     {
         BattleGameManager manager = Instance;
@@ -109,6 +113,9 @@ public class BattleGameManager : MonoBehaviour
         manager.HandleVictory();
     }
 
+    /// <summary>
+    /// 기지가 파괴됐을 때 호출, 인스턴스 없을 시 자동 생성해 패배 처리
+    /// </summary>
     public static void ReportBaseDestroyed()
     {
         if (Instance == null)
@@ -123,13 +130,19 @@ public class BattleGameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 현재 씬을 다시 로드 (재시작)
+    /// </summary>
     public void Restart()
     {
         Time.timeScale = 1f;
-        Scene activeScene = SceneManager.GetActiveScene();
+        var activeScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(activeScene.name);
     }
 
+    /// <summary>
+    /// 타이틀 씬으로 돌아가기
+    /// </summary>
     public void BackToTitle()
     {
         Time.timeScale = 1f;
@@ -138,10 +151,12 @@ public class BattleGameManager : MonoBehaviour
             SceneManager.LoadScene(titleSceneName);
             return;
         }
-
         SceneManager.LoadScene("Battle_Test");
     }
 
+    /// <summary>
+    /// 런(게임 진행) 세션 초기화 및 SkillSystem 등 연결
+    /// </summary>
     private void InitializeRunSession()
     {
         if (runSession == null)
@@ -150,9 +165,10 @@ public class BattleGameManager : MonoBehaviour
         }
 
         runSession.Reset();
+
+        // 플레이어 Agent를 할당 (없으면 씬에서 탐색)
         if (playerAgent == null)
         {
-            // FindFirstObjectByType<T>() is Unity 2022.2+, fallback for lower versions.
 #if UNITY_2022_2_OR_NEWER
             playerAgent = FindFirstObjectByType<Agent>();
 #else
@@ -161,50 +177,42 @@ public class BattleGameManager : MonoBehaviour
         }
 
         skillSystem = new SkillSystem(skillTable, playerAgent);
+        runSession.OnReachedSkillPickLevel -= HandleReachedSkillPickLevel; // 중복 방지
         runSession.OnReachedSkillPickLevel += HandleReachedSkillPickLevel;
     }
 
+    /// <summary>
+    /// 적 처치시 골드/경험치 지급, 상태 UI 새로고침
+    /// </summary>
     private void HandleEnemyKilled(string monsterId, MonsterGrade grade)
     {
-        if (gameEnded || runSession == null || monsterTable == null)
-        {
-            return;
-        }
+        if (gameEnded || runSession == null || monsterTable == null) return;
 
-        MonsterRow row = null;
-        if (monsterTable != null)
-        {
-            row = monsterTable.GetByIdAndGrade(monsterId, grade);
-            if (row == null)
-                row = monsterTable.GetById(monsterId);
-        }
-        if (row == null)
-        {
-            return;
-        }
+        MonsterRow row = monsterTable.GetByIdAndGrade(monsterId, grade) ?? monsterTable.GetById(monsterId);
+        if (row == null) return;
 
         runSession.AddGold(row.goldReward);
         runSession.AddExp(row.expReward);
         RefreshStatusUI();
     }
 
+    /// <summary>
+    /// 레벨업 시 스킬 선택 패널 표시
+    /// </summary>
     private void HandleReachedSkillPickLevel(int level)
     {
         OpenSkillSelectPanel();
     }
 
+    /// <summary>
+    /// 스킬 선택 UI 생성 및 핸들러 연결
+    /// </summary>
     private void OpenSkillSelectPanel()
     {
-        if (skillSystem == null || skillSelectPanelController == null)
-        {
-            return;
-        }
+        if (skillSystem == null || skillSelectPanelController == null) return;
 
         List<SkillRow> candidates = skillSystem.GetRandomCandidates(3);
-        if (candidates == null || candidates.Count <= 0)
-        {
-            return;
-        }
+        if (candidates == null || candidates.Count == 0) return;
 
         skillSelectPanelController.ShowOptions(candidates, selectedSkill =>
         {
@@ -216,19 +224,20 @@ public class BattleGameManager : MonoBehaviour
         });
     }
 
+    /// <summary>
+    /// 게임 종료 처리 및 결과 UI 활성화
+    /// </summary>
     private void EndGame(string message)
     {
-        if (gameEnded)
-        {
-            return;
-        }
-
+        if (gameEnded) return;
         gameEnded = true;
         Time.timeScale = 0f;
         SetResultUI(true, message);
     }
 
-
+    /// <summary>
+    /// BaseHealth 오브젝트를 씬에서 찾아 연결, 없으면 새로 생성
+    /// </summary>
     private void EnsureBaseHealth()
     {
         if (baseHealth != null)
@@ -241,9 +250,7 @@ public class BattleGameManager : MonoBehaviour
         if (baseObject == null)
             baseObject = GameObject.Find("Base");
         if (baseObject == null)
-        {
             return;
-        }
 
         baseHealth = baseObject.GetComponent<BaseHealth>();
         if (baseHealth == null)
@@ -251,9 +258,12 @@ public class BattleGameManager : MonoBehaviour
         baseHealth.BindGameManager(this);
     }
 
+    /// <summary>
+    /// HUD 오브젝트 생성 및 연결. 프리팹 우선, 없으면 동적 생성.
+    /// </summary>
     private void EnsureHUD()
     {
-        // 1) BattleHUD 프리팹/인스턴스를 우선 사용
+        // 1) BattleHUD 프리팹/인스턴스 우선
         if (battleHudInstance == null)
         {
 #if UNITY_2022_2_OR_NEWER
@@ -270,6 +280,7 @@ public class BattleGameManager : MonoBehaviour
 
         if (battleHudInstance != null)
         {
+            // BattleHUD에서 전부 받아 옴
             targetCanvas = battleHudInstance.Canvas;
             statusText = battleHudInstance.StatusText;
             skillBarController = battleHudInstance.SkillBarController;
@@ -281,11 +292,10 @@ public class BattleGameManager : MonoBehaviour
             {
                 skillBarController.Setup(skillSystem);
             }
-
             return;
         }
 
-        // 2) BattleHUD가 없으면 이전과 같은 방식으로 동적 생성 (레거시 경로)
+        // 2) BattleHUD가 없으면 직접 생성
         if (targetCanvas == null)
         {
 #if UNITY_2022_2_OR_NEWER
@@ -312,18 +322,19 @@ public class BattleGameManager : MonoBehaviour
         {
             CreateDefaultSkillBar();
         }
-
         if (skillBarController != null)
         {
             skillBarController.Setup(skillSystem);
         }
-
         if (skillSelectPanelController == null)
         {
             CreateDefaultSkillSelectPanel();
         }
     }
 
+    /// <summary>
+    /// 기본 스킬바 오브젝트 생성 및 연결
+    /// </summary>
     private void CreateDefaultSkillBar()
     {
         GameObject barObject = new GameObject("SkillBar", typeof(RectTransform), typeof(SkillBarController));
@@ -359,6 +370,9 @@ public class BattleGameManager : MonoBehaviour
         skillBarController.Configure(slotButtons[0], slotButtons[1], slotButtons[2], slotLabels[0], slotLabels[1], slotLabels[2]);
     }
 
+    /// <summary>
+    /// 기본 스킬 선택 패널 생성
+    /// </summary>
     private void CreateDefaultSkillSelectPanel()
     {
         GameObject panelObject = new GameObject("SkillSelectPanel", typeof(RectTransform), typeof(Image), typeof(SkillSelectPanelController));
@@ -392,9 +406,12 @@ public class BattleGameManager : MonoBehaviour
         skillSelectPanelController.Configure(panelObject, optionButtons[0], optionButtons[1], optionButtons[2], optionLabels[0], optionLabels[1], optionLabels[2]);
     }
 
+    /// <summary>
+    /// 결과 패널 및 텍스트 연결/생성
+    /// </summary>
     private void EnsureResultUI()
     {
-        // BattleHUD가 있다면 그 안의 ResultPanel/ResultText를 사용
+        // BattleHUD 내장 경우 우선 사용
         if (battleHudInstance != null)
         {
             if (resultPanel == null)
@@ -406,11 +423,10 @@ public class BattleGameManager : MonoBehaviour
             {
                 resultText = battleHudInstance.ResultText;
             }
-
             return;
         }
 
-        // BattleHUD가 없으면 이전 방식대로 동적 생성
+        // 없으면 동적으로 생성
         if (resultPanel == null)
         {
             resultPanel = new GameObject("ResultPanel", typeof(RectTransform), typeof(Image));
@@ -431,7 +447,6 @@ public class BattleGameManager : MonoBehaviour
         }
         else if (resultText == null)
         {
-            // .NET 4.x에서 resultPanel이 null이 아닐 때 하위에서 TMP_Text 찾기
 #if UNITY_2022_2_OR_NEWER
             resultText = resultPanel.GetComponentInChildren<TMP_Text>(true);
 #else
@@ -442,6 +457,9 @@ public class BattleGameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 텍스트 객체 생성 헬퍼
+    /// </summary>
     private TMP_Text CreateText(string objectName, Transform parent, float width, Vector2 pos, float fontSize)
     {
         GameObject textObject = new GameObject(objectName, typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -458,6 +476,9 @@ public class BattleGameManager : MonoBehaviour
         return text;
     }
 
+    /// <summary>
+    /// 버튼 객체 생성 헬퍼
+    /// </summary>
     private void CreateButton(string objectName, string label, Vector2 pos, UnityEngine.Events.UnityAction onClick)
     {
         GameObject buttonObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(Button));
@@ -475,16 +496,19 @@ public class BattleGameManager : MonoBehaviour
         buttonText.text = label;
     }
 
+    /// <summary>
+    /// 플레이어 진행 상태 UI 새로고침
+    /// </summary>
     private void RefreshStatusUI()
     {
-        if (statusText == null || runSession == null)
-        {
-            return;
-        }
+        if (statusText == null || runSession == null) return;
 
         statusText.text = $"Lv {runSession.Level}  EXP {runSession.Exp}/{runSession.ExpToNextLevel}\nGold {runSession.Gold}";
     }
 
+    /// <summary>
+    /// 결과 UI 활성화 및 메시지 표시
+    /// </summary>
     private void SetResultUI(bool active, string message)
     {
         if (resultPanel != null)
