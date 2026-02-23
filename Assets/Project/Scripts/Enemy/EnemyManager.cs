@@ -6,6 +6,7 @@ public class EnemyManager : MonoBehaviour
     public static EnemyManager Instance;
 
     public List<Enemy> activeEnemies = new List<Enemy>();
+    private readonly List<Enemy> aliveCache = new List<Enemy>();
 
     void Awake()
     {
@@ -93,5 +94,28 @@ public class EnemyManager : MonoBehaviour
         }
 
         return closest;
+    }
+
+    public IReadOnlyList<Enemy> GetAliveEnemies()
+    {
+        aliveCache.Clear();
+
+        for (int i = activeEnemies.Count - 1; i >= 0; i--)
+        {
+            Enemy enemy = activeEnemies[i];
+            if (enemy == null || !enemy.gameObject.activeInHierarchy || !enemy.IsAlive)
+            {
+                if (enemy == null || !enemy.gameObject.activeInHierarchy)
+                {
+                    activeEnemies.RemoveAt(i);
+                }
+
+                continue;
+            }
+
+            aliveCache.Add(enemy);
+        }
+
+        return aliveCache;
     }
 }

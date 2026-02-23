@@ -9,6 +9,7 @@ public class RunSession
     private readonly HashSet<string> ownedSkillIds = new HashSet<string>();
 
     public IReadOnlyCollection<string> OwnedSkillIds => ownedSkillIds;
+    public int ExpToNextLevel => GetRequiredExpForNextLevel();
 
     public void Reset()
     {

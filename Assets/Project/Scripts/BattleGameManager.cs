@@ -32,8 +32,8 @@ public class BattleGameManager : MonoBehaviour
     [Header("HUD")]
     [SerializeField] private Canvas targetCanvas;
     [SerializeField] private TMP_Text statusText;
-    [SerializeField] private SkillButtonSlot skillButtonSlot;
-    [SerializeField] private SkillSelectPanel skillSelectPanel;
+    [SerializeField] private SkillBarController skillBarController;
+    [SerializeField] private SkillSelectPanelController skillSelectPanelController;
 
     [Header("Result UI")]
     [SerializeField] private GameObject resultPanel;
@@ -178,7 +178,7 @@ public class BattleGameManager : MonoBehaviour
 
     private void OpenSkillSelectPanel()
     {
-        if (skillSystem == null || skillSelectPanel == null)
+        if (skillSystem == null || skillSelectPanelController == null)
         {
             return;
         }
@@ -189,11 +189,11 @@ public class BattleGameManager : MonoBehaviour
             return;
         }
 
-        skillSelectPanel.Open(candidates, selectedSkill =>
+        skillSelectPanelController.ShowOptions(candidates, selectedSkill =>
         {
-            if (skillSystem.TryAcquireSkill(selectedSkill) && skillButtonSlot != null)
+            if (skillSystem.TryAcquireSkill(selectedSkill) && skillBarController != null)
             {
-                skillButtonSlot.Equip(selectedSkill);
+                skillBarController.EquipToNextEmpty(selectedSkill);
             }
 
             RefreshStatusUI();
@@ -250,38 +250,57 @@ public class BattleGameManager : MonoBehaviour
             statusText.alignment = TextAlignmentOptions.Left;
         }
 
-        if (skillButtonSlot == null)
+        if (skillBarController == null)
         {
-            GameObject buttonObject = new GameObject("SkillButton", typeof(RectTransform), typeof(Image), typeof(Button), typeof(SkillButtonSlot));
-            buttonObject.transform.SetParent(targetCanvas.transform, false);
-            RectTransform rect = buttonObject.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(1f, 0f);
-            rect.anchorMax = new Vector2(1f, 0f);
-            rect.pivot = new Vector2(1f, 0f);
-            rect.anchoredPosition = new Vector2(-20f, 20f);
-            rect.sizeDelta = new Vector2(220f, 68f);
-
-            TMP_Text buttonLabel = CreateText("SkillButtonLabel", buttonObject.transform, 40f, Vector2.zero, 24f);
-            buttonLabel.alignment = TextAlignmentOptions.Center;
-
-            skillButtonSlot = buttonObject.GetComponent<SkillButtonSlot>();
-            skillButtonSlot.Configure(buttonObject.GetComponent<Button>(), buttonLabel);
-            skillButtonSlot.Setup(skillSystem);
-        }
-        else
-        {
-            skillButtonSlot.Setup(skillSystem);
+            CreateDefaultSkillBar();
         }
 
-        if (skillSelectPanel == null)
+        skillBarController.Setup(skillSystem);
+
+        if (skillSelectPanelController == null)
         {
             CreateDefaultSkillSelectPanel();
         }
     }
 
+    private void CreateDefaultSkillBar()
+    {
+        GameObject barObject = new GameObject("SkillBar", typeof(RectTransform), typeof(SkillBarController));
+        barObject.transform.SetParent(targetCanvas.transform, false);
+
+        RectTransform barRect = barObject.GetComponent<RectTransform>();
+        barRect.anchorMin = new Vector2(1f, 0f);
+        barRect.anchorMax = new Vector2(1f, 0f);
+        barRect.pivot = new Vector2(1f, 0f);
+        barRect.anchoredPosition = new Vector2(-20f, 20f);
+        barRect.sizeDelta = new Vector2(740f, 90f);
+
+        Button[] slotButtons = new Button[3];
+        TMP_Text[] slotLabels = new TMP_Text[3];
+        for (int i = 0; i < 3; i++)
+        {
+            GameObject slotObject = new GameObject($"SkillSlot_{i}", typeof(RectTransform), typeof(Image), typeof(Button));
+            slotObject.transform.SetParent(barObject.transform, false);
+
+            RectTransform slotRect = slotObject.GetComponent<RectTransform>();
+            slotRect.anchorMin = new Vector2(0f, 0f);
+            slotRect.anchorMax = new Vector2(0f, 0f);
+            slotRect.pivot = new Vector2(0f, 0f);
+            slotRect.anchoredPosition = new Vector2(i * 240f, 0f);
+            slotRect.sizeDelta = new Vector2(220f, 68f);
+
+            slotButtons[i] = slotObject.GetComponent<Button>();
+            slotLabels[i] = CreateText($"SkillSlotLabel_{i}", slotObject.transform, 40f, Vector2.zero, 24f);
+            slotLabels[i].alignment = TextAlignmentOptions.Center;
+        }
+
+        skillBarController = barObject.GetComponent<SkillBarController>();
+        skillBarController.Configure(slotButtons[0], slotButtons[1], slotButtons[2], slotLabels[0], slotLabels[1], slotLabels[2]);
+    }
+
     private void CreateDefaultSkillSelectPanel()
     {
-        GameObject panelObject = new GameObject("SkillSelectPanel", typeof(RectTransform), typeof(Image), typeof(SkillSelectPanel));
+        GameObject panelObject = new GameObject("SkillSelectPanel", typeof(RectTransform), typeof(Image), typeof(SkillSelectPanelController));
         panelObject.transform.SetParent(targetCanvas.transform, false);
         RectTransform panelRect = panelObject.GetComponent<RectTransform>();
         panelRect.anchorMin = new Vector2(0.5f, 0.5f);
@@ -308,8 +327,8 @@ public class BattleGameManager : MonoBehaviour
             optionLabels[i].alignment = TextAlignmentOptions.Center;
         }
 
-        skillSelectPanel = panelObject.GetComponent<SkillSelectPanel>();
-        skillSelectPanel.Configure(panelObject, optionButtons, optionLabels);
+        skillSelectPanelController = panelObject.GetComponent<SkillSelectPanelController>();
+        skillSelectPanelController.Configure(panelObject, optionButtons[0], optionButtons[1], optionButtons[2], optionLabels[0], optionLabels[1], optionLabels[2]);
     }
 
     private void EnsureResultUI()
@@ -378,7 +397,7 @@ public class BattleGameManager : MonoBehaviour
             return;
         }
 
-        statusText.text = $"Lv {runSession.Level}  EXP {runSession.CurrentExp}/{runSession.GetRequiredExpForNextLevel()}\nGold {runSession.Gold}";
+        statusText.text = $"Lv {runSession.Level}  EXP {runSession.CurrentExp}/{runSession.ExpToNextLevel}\nGold {runSession.Gold}";
     }
 
     private void SetResultUI(bool active, string message)

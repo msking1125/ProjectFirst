@@ -64,13 +64,10 @@ public class SkillSystem
             return false;
         }
 
-        for (int i = enemyManager.activeEnemies.Count - 1; i >= 0; i--)
+        IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
+        for (int i = 0; i < aliveEnemies.Count; i++)
         {
-            Enemy enemy = enemyManager.activeEnemies[i];
-            if (enemy == null || !enemy.gameObject.activeInHierarchy || !enemy.IsAlive)
-            {
-                continue;
-            }
+            Enemy enemy = aliveEnemies[i];
 
             float elementMultiplier = ElementRules.GetMultiplier(skill.element, enemy.Element);
             int finalDamage = Mathf.RoundToInt(baseSkillDamage * elementMultiplier);
