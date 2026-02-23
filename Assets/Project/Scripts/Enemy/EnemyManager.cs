@@ -53,18 +53,23 @@ public class EnemyManager : MonoBehaviour
 
     public int GetAliveCount()
     {
-        int alive = 0;
+        return GetAliveEnemies().Count;
+    }
+
+    public List<Enemy> GetAliveEnemies()
+    {
+        List<Enemy> alive = new List<Enemy>();
 
         for (int i = activeEnemies.Count - 1; i >= 0; i--)
         {
             Enemy e = activeEnemies[i];
-            if (e == null || !e.gameObject.activeInHierarchy)
+            if (e == null || !e.gameObject.activeInHierarchy || !e.IsAlive)
             {
                 activeEnemies.RemoveAt(i);
                 continue;
             }
 
-            alive++;
+            alive.Add(e);
         }
 
         return alive;
@@ -78,7 +83,7 @@ public class EnemyManager : MonoBehaviour
         for (int i = activeEnemies.Count - 1; i >= 0; i--)
         {
             Enemy e = activeEnemies[i];
-            if (e == null || !e.gameObject.activeInHierarchy)
+            if (e == null || !e.gameObject.activeInHierarchy || !e.IsAlive)
             {
                 activeEnemies.RemoveAt(i);
                 continue;

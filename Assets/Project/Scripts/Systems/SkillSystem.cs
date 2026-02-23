@@ -57,23 +57,25 @@ public class SkillSystem
             return false;
         }
 
-        int baseSkillDamage = Mathf.RoundToInt(playerAgent.AttackPower * skill.coefficient);
         EnemyManager enemyManager = EnemyManager.Instance;
         if (enemyManager == null)
         {
             return false;
         }
 
-        for (int i = enemyManager.activeEnemies.Count - 1; i >= 0; i--)
+        int baseDamage = Mathf.RoundToInt(playerAgent.AttackPower * skill.coefficient);
+        IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
+
+        for (int i = 0; i < aliveEnemies.Count; i++)
         {
-            Enemy enemy = enemyManager.activeEnemies[i];
-            if (enemy == null || !enemy.gameObject.activeInHierarchy || !enemy.IsAlive)
+            Enemy enemy = aliveEnemies[i];
+            if (enemy == null)
             {
                 continue;
             }
 
-            float elementMultiplier = ElementRules.GetMultiplier(skill.element, enemy.Element);
-            int finalDamage = Mathf.RoundToInt(baseSkillDamage * elementMultiplier);
+            float damageMultiplier = ElementRules.HasAdvantage(skill.element, enemy.Element) ? 1.5f : 1f;
+            int finalDamage = Mathf.RoundToInt(baseDamage * damageMultiplier);
             enemy.TakeDamage(finalDamage, false);
         }
 
