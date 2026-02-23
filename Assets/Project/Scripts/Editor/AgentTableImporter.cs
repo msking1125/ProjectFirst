@@ -12,7 +12,7 @@ public static class AgentTableImporter
     private const string AssetPath = "Assets/Project/Data/AgentTable.asset";
     private static readonly string[] RequiredColumns =
     {
-        "id", "name", "hp", "atk", "def", "critChance", "critMultiplier", "element"
+        "id", "name", "hp", "def", "critChance", "critMultiplier", "element"
     };
 
     [MenuItem("Tools/Game/Import Agent CSV")]
@@ -56,10 +56,20 @@ public static class AgentTableImporter
         int nameIdx = idx("name");
         int hpIdx = idx("hp");
         int atkIdx = idx("atk");
+        if (atkIdx < 0)
+        {
+            atkIdx = idx("baseAtk");
+        }
         int defIdx = idx("def");
         int critChanceIdx = idx("critChance");
         int critMultiplierIdx = idx("critMultiplier");
         int elementIdx = idx("element");
+
+        if (atkIdx < 0)
+        {
+            Debug.LogError("Missing column: atk (or baseAtk)");
+            return;
+        }
 
         for (int i = 1; i < lines.Length; i++)
         {

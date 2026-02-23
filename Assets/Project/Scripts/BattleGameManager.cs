@@ -83,6 +83,11 @@ public class BattleGameManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (runSession != null)
+        {
+            runSession.OnReachedSkillPickLevel -= HandleReachedSkillPickLevel;
+        }
+
         if (Instance == this)
         {
             Instance = null;
@@ -151,7 +156,8 @@ public class BattleGameManager : MonoBehaviour
             playerAgent = FindFirstObjectByType<Agent>();
         }
 
-        skillSystem = new SkillSystem(runSession, skillTable, playerAgent);
+        skillSystem = new SkillSystem(skillTable, playerAgent);
+        runSession.OnReachedSkillPickLevel += HandleReachedSkillPickLevel;
     }
 
     private void HandleEnemyKilled(string monsterId, MonsterGrade grade)
@@ -168,17 +174,13 @@ public class BattleGameManager : MonoBehaviour
         }
 
         runSession.AddGold(row.goldReward);
-        int levelUps = runSession.AddExperience(row.expReward);
+        runSession.AddExp(row.expReward);
         RefreshStatusUI();
+    }
 
-        for (int i = 0; i < levelUps; i++)
-        {
-            int reachedLevel = runSession.Level - levelUps + i + 1;
-            if (reachedLevel % 3 == 0)
-            {
-                OpenSkillSelectPanel();
-            }
-        }
+    private void HandleReachedSkillPickLevel(int level)
+    {
+        OpenSkillSelectPanel();
     }
 
     private void OpenSkillSelectPanel()
@@ -196,12 +198,11 @@ public class BattleGameManager : MonoBehaviour
 
         skillSelectPanelController.ShowOptions(candidates, selectedSkill =>
         {
-            if (skillSystem.TryAcquireSkill(selectedSkill) && skillBarController != null)
+            int equippedSlot = skillSystem.EquipToFirstEmpty(selectedSkill);
+            if (equippedSlot >= 0 && skillBarController != null)
             {
-                skillBarController.EquipToNextEmpty(selectedSkill);
+                skillBarController.SetSlot(equippedSlot, selectedSkill);
             }
-
-            RefreshStatusUI();
         });
     }
 
@@ -451,7 +452,7 @@ public class BattleGameManager : MonoBehaviour
             return;
         }
 
-        statusText.text = $"Lv {runSession.Level}  EXP {runSession.CurrentExp}/{runSession.ExpToNextLevel}\nGold {runSession.Gold}";
+        statusText.text = $"Lv {runSession.Level}  EXP {runSession.Exp}/{runSession.ExpToNextLevel}\nGold {runSession.Gold}";
     }
 
     private void SetResultUI(bool active, string message)

@@ -18,7 +18,7 @@ public static class SkillTableImporter
     // 필수 컬럼 명시 (헤더 일치 검사에 사용)
     private static readonly string[] RequiredColumns =
     {
-        "id", "name", "element", "coefficient", "cooldown", "range"
+        "id", "name", "element", "coefficient", "range"
     };
 
     /// <summary>

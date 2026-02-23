@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public enum ElementType
 {
     Passion,
@@ -7,7 +5,7 @@ public enum ElementType
     Reason
 }
 
-public static class ElementRules
+public static class ElementTypeHelper
 {
     public const float AdvantageMultiplier = 1.5f;
     public const float NeutralMultiplier = 1f;
@@ -22,5 +20,21 @@ public static class ElementRules
     public static float GetMultiplier(ElementType attacker, ElementType defender)
     {
         return HasAdvantage(attacker, defender) ? AdvantageMultiplier : NeutralMultiplier;
+    }
+}
+
+public static class ElementRules
+{
+    public const float AdvantageMultiplier = ElementTypeHelper.AdvantageMultiplier;
+    public const float NeutralMultiplier = ElementTypeHelper.NeutralMultiplier;
+
+    public static bool HasAdvantage(ElementType attacker, ElementType defender)
+    {
+        return ElementTypeHelper.HasAdvantage(attacker, defender);
+    }
+
+    public static float GetMultiplier(ElementType attacker, ElementType defender)
+    {
+        return ElementTypeHelper.GetMultiplier(attacker, defender);
     }
 }
