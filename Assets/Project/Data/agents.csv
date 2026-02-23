@@ -1,4 +1,0 @@
-id,name,hp,atk,def,critChance,critMultiplier,element
-agent01,Agent 1,120,5,2,0.15,1.75,Passion
-agent02,Agent 2,100,6,1,0.2,1.6,Intuition
-agent03,Agent 3,140,4,3,0.1,2.0,Reason
