@@ -42,11 +42,11 @@ public static class MonsterTableImporter
         int idx(string name) => Array.IndexOf(header, name);
 
         string[] required = { "id", "hp", "atk", "def", "critChance" };
-        foreach (string r in required)
+        foreach (string requiredColumn in required)
         {
-            if (idx(r) < 0)
+            if (idx(requiredColumn) < 0)
             {
-                Debug.LogError($"Missing column: {r}");
+                Debug.LogError($"Missing column: {requiredColumn}");
                 return;
             }
         }
@@ -69,13 +69,14 @@ public static class MonsterTableImporter
             }
 
             string[] cols = lines[i].Split(',').Select(c => c.Trim()).ToArray();
+            string id = ReadCell(cols, idx("id"));
             MonsterRow row = new MonsterRow
             {
-                id = ReadCell(cols, idx("id")),
+                id = id,
                 hp = ParseFloat(ReadCell(cols, idx("hp"))),
                 atk = ParseFloat(ReadCell(cols, idx("atk"))),
                 def = ParseFloat(ReadCell(cols, idx("def"))),
-                critChance = Mathf.Clamp01(ParseFloat(ReadCell(cols, idx("critChance")))),
+                critChance = Mathf.Clamp01(ParseFloat(ReadCell(cols, idx("critChance"))),
                 critMultiplier = Mathf.Max(1f, ParseFloat(ReadCell(cols, critMultiplierIdx)))
             };
 
@@ -90,7 +91,15 @@ public static class MonsterTableImporter
 
             if (moveSpeedIdx >= 0)
             {
-                row.moveSpeed = ParseFloat(ReadCell(cols, moveSpeedIdx));
+                string moveSpeedRaw = ReadCell(cols, moveSpeedIdx);
+                if (TryParseFloat(moveSpeedRaw, out float moveSpeedValue))
+                {
+                    row.moveSpeed = moveSpeedValue;
+                }
+                else
+                {
+                    Debug.LogWarning($"[MonsterTableImporter] Failed to parse moveSpeed for id '{id}'. raw='{moveSpeedRaw}'");
+                }
             }
 
             if (elementIdx >= 0)
@@ -102,6 +111,7 @@ public static class MonsterTableImporter
                 }
                 else
                 {
+                    Debug.LogWarning($"[MonsterTableImporter] Failed to parse element for id '{id}'. raw='{elementRaw}'");
                     row.element = ElementType.Reason;
                 }
             }
@@ -143,17 +153,28 @@ public static class MonsterTableImporter
 
     private static float ParseFloat(string s)
     {
-        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float v))
-        {
-            return v;
-        }
-
-        if (float.TryParse(s, out v))
+        if (TryParseFloat(s, out float v))
         {
             return v;
         }
 
         return 0f;
+    }
+
+    private static bool TryParseFloat(string s, out float v)
+    {
+        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out v))
+        {
+            return true;
+        }
+
+        if (float.TryParse(s, out v))
+        {
+            return true;
+        }
+
+        v = 0f;
+        return false;
     }
 }
 #endif

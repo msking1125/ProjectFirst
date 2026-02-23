@@ -59,6 +59,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] private bool useDeathReturnDelay = true;
     [SerializeField, Min(0f)] private float deathReturnDelay = 0.45f;
 
+    [Header("Debug")]
+    [SerializeField] private bool logSpawnAppliedMonsterData;
+
     private float baseMoveSpeed;
     private CombatStats baseCombatStats;
     private CombatStats currentCombatStats;
@@ -87,6 +90,7 @@ public class Enemy : MonoBehaviour
     private bool hasMonsterRunState;
     private bool hasPlayedRunFallback;
     private bool hasHitBarrier;
+    private string appliedMonsterId = string.Empty;
 
     public ElementType Element => currentElement;
     private ElementType currentElement = ElementType.Reason;
@@ -104,6 +108,7 @@ public class Enemy : MonoBehaviour
         baseMoveSpeed = moveSpeed;
         baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
         currentElement = ElementType.Reason;
+        appliedMonsterId = defaultMonsterId;
         currentCombatStats = baseCombatStats;
     }
 
@@ -138,9 +143,17 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        ApplyMonsterBase(monsterTable, monsterId);
+        string resolvedMonsterId = string.IsNullOrWhiteSpace(monsterId) ? defaultMonsterId : monsterId;
+        ApplyMonsterBase(monsterTable, resolvedMonsterId, grade);
         ApplyGradeScale(grade);
         ApplyWaveMultipliers(waveMultipliers);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (logSpawnAppliedMonsterData)
+        {
+            Debug.Log($"[Enemy] SpawnApplied id='{appliedMonsterId}' grade='{grade}' moveSpeed={moveSpeed:F2} element={currentElement}", this);
+        }
+#endif
 
         target = arkTarget;
         currentHP = currentCombatStats.hp;
@@ -229,11 +242,12 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void ApplyMonsterBase(MonsterTable monsterTable, string enemyId)
+    private void ApplyMonsterBase(MonsterTable monsterTable, string enemyId, MonsterGrade grade)
     {
         baseMoveSpeed = moveSpeed;
         baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
         currentElement = ElementType.Reason;
+        appliedMonsterId = defaultMonsterId;
 
         if (monsterTable == null)
         {
@@ -241,7 +255,10 @@ public class Enemy : MonoBehaviour
         }
 
         string id = string.IsNullOrWhiteSpace(enemyId) ? defaultMonsterId : enemyId;
-        MonsterRow row = monsterTable.GetById(id) ?? monsterTable.GetById(defaultMonsterId);
+        MonsterRow row = monsterTable.GetByIdAndGrade(id, grade)
+                         ?? monsterTable.GetByIdAndGrade(defaultMonsterId, grade)
+                         ?? monsterTable.GetById(id)
+                         ?? monsterTable.GetById(defaultMonsterId);
         if (row == null)
         {
             return;
@@ -249,6 +266,7 @@ public class Enemy : MonoBehaviour
 
         baseCombatStats = row.ToCombatStats().Sanitized();
         currentElement = row.element;
+        appliedMonsterId = row.id;
         if (row.moveSpeed > 0f)
         {
             baseMoveSpeed = row.moveSpeed;
