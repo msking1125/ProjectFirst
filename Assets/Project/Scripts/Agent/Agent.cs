@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
-    [SerializeField] private string agentId = "agent";
+    [Header("Data")]
+    [SerializeField] private string agentId = "agent01";
     [SerializeField] private AgentStatsTable agentStatsTable;
+
     public float range = 5f;
     public float attackRate = 1f;
 
@@ -19,6 +21,11 @@ public class Agent : MonoBehaviour
 
     private void Awake()
     {
+        ApplyStatsFromTable();
+    }
+
+    private void ApplyStatsFromTable()
+    {
         if (agentStatsTable != null)
         {
             stats = agentStatsTable.GetStats(agentId);
@@ -30,6 +37,7 @@ public class Agent : MonoBehaviour
         }
 
         stats = stats.Sanitized();
+        attackDamage = stats.atk;
     }
 
     void Update()
