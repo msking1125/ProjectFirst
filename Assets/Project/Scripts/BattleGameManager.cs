@@ -287,15 +287,55 @@ public class BattleGameManager : MonoBehaviour
             skillSelectPanelController = battleHudInstance.SkillSelectPanelController;
             resultPanel = battleHudInstance.ResultPanel;
             resultText = battleHudInstance.ResultText;
-
-            if (skillBarController != null)
-            {
-                skillBarController.Setup(skillSystem);
-            }
-            return;
         }
 
-        // 2) BattleHUD가 없으면 직접 생성
+        SetupHudIfNeeded();
+
+        if (skillBarController != null)
+        {
+            skillBarController.Setup(skillSystem);
+        }
+    }
+
+    private void SetupHudIfNeeded()
+    {
+        GameObject searchRoot = battleHudInstance != null
+            ? battleHudInstance.gameObject
+            : targetCanvas != null
+                ? targetCanvas.gameObject
+                : null;
+
+        if (searchRoot != null)
+        {
+            SkillSelectPanelController[] selectPanels = searchRoot.GetComponentsInChildren<SkillSelectPanelController>(true);
+            if (selectPanels != null && selectPanels.Length > 0 && skillSelectPanelController == null)
+            {
+                skillSelectPanelController = selectPanels[0];
+            }
+            WarnDuplicateControllers("SkillSelectPanelController", selectPanels);
+
+            SkillBarController[] skillBars = searchRoot.GetComponentsInChildren<SkillBarController>(true);
+            if (skillBars != null && skillBars.Length > 0 && skillBarController == null)
+            {
+                skillBarController = skillBars[0];
+            }
+            WarnDuplicateControllers("SkillBarController", skillBars);
+
+            if (statusText == null)
+            {
+                TMP_Text[] texts = searchRoot.GetComponentsInChildren<TMP_Text>(true);
+                foreach (TMP_Text text in texts)
+                {
+                    if (text != null && text.name.Contains("RunStatusText"))
+                    {
+                        statusText = text;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // BattleHUD가 없으면 직접 생성
         if (targetCanvas == null)
         {
 #if UNITY_2022_2_OR_NEWER
@@ -322,14 +362,30 @@ public class BattleGameManager : MonoBehaviour
         {
             CreateDefaultSkillBar();
         }
-        if (skillBarController != null)
-        {
-            skillBarController.Setup(skillSystem);
-        }
+
         if (skillSelectPanelController == null)
         {
             CreateDefaultSkillSelectPanel();
         }
+    }
+
+    private void WarnDuplicateControllers<T>(string typeName, T[] controllers) where T : Component
+    {
+        if (controllers == null || controllers.Length < 2)
+        {
+            return;
+        }
+
+        List<string> names = new List<string>(controllers.Length);
+        foreach (T controller in controllers)
+        {
+            if (controller != null)
+            {
+                names.Add(controller.name);
+            }
+        }
+
+        Debug.LogWarning($"[BattleGameManager] Found {controllers.Length} {typeName} instances in HUD hierarchy: {string.Join(", ", names)}", this);
     }
 
     /// <summary>

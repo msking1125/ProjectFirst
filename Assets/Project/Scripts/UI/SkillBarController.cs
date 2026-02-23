@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class SkillBarController : MonoBehaviour
 {
+    [SerializeField] private bool enableSlotsOnStartForTest;
     [SerializeField] private Button slotBtn1;
     [SerializeField] private Button slotBtn2;
     [SerializeField] private Button slotBtn3;
@@ -76,13 +77,32 @@ public class SkillBarController : MonoBehaviour
         Refresh();
     }
 
-    public void CastSlot1() => CastSlot(0);
-    public void CastSlot2() => CastSlot(1);
-    public void CastSlot3() => CastSlot(2);
+    public void CastSlot1()
+    {
+        Debug.Log("CastSlot1", this);
+        CastSlot(0);
+    }
+
+    public void CastSlot2()
+    {
+        Debug.Log("CastSlot2", this);
+        CastSlot(1);
+    }
+
+    public void CastSlot3()
+    {
+        Debug.Log("CastSlot3", this);
+        CastSlot(2);
+    }
 
     private void CastSlot(int index)
     {
         if (skillSystem == null)
+        {
+            return;
+        }
+
+        if (index < 0 || index >= slotSkills.Length || slotSkills[index] == null)
         {
             return;
         }
@@ -103,7 +123,10 @@ public class SkillBarController : MonoBehaviour
 
         if (button != null)
         {
-            button.interactable = skillSystem != null && skill != null;
+            bool hasSkillSystem = skillSystem != null;
+            button.interactable = enableSlotsOnStartForTest
+                ? hasSkillSystem
+                : hasSkillSystem && skill != null;
         }
 
         if (text != null)
