@@ -13,6 +13,7 @@ public class SkillSelectPanelController : MonoBehaviour
     [SerializeField] private TMP_Text optionTxt1;
     [SerializeField] private TMP_Text optionTxt2;
     [SerializeField] private TMP_Text optionTxt3;
+    [SerializeField] private Image dimImage;
 
     private readonly List<SkillRow> currentOptions = new List<SkillRow>(3);
     private Action<SkillRow> onPicked;
@@ -30,6 +31,8 @@ public class SkillSelectPanelController : MonoBehaviour
         {
             panelRoot.SetActive(false);
         }
+
+        SetDimRaycast(false);
     }
 
     public void Configure(GameObject root, Button button1, Button button2, Button button3, TMP_Text text1, TMP_Text text2, TMP_Text text3)
@@ -48,10 +51,14 @@ public class SkillSelectPanelController : MonoBehaviour
         {
             panelRoot.SetActive(false);
         }
+
+        SetDimRaycast(false);
     }
 
     public void ShowOptions(List<SkillRow> candidates, Action<SkillRow> onSelected)
     {
+        BindButtons();
+
         currentOptions.Clear();
         onPicked = onSelected;
 
@@ -74,6 +81,8 @@ public class SkillSelectPanelController : MonoBehaviour
         {
             panelRoot.SetActive(currentOptions.Count > 0);
         }
+
+        SetDimRaycast(currentOptions.Count > 0);
 
         if (currentOptions.Count > 0)
         {
@@ -114,6 +123,8 @@ public class SkillSelectPanelController : MonoBehaviour
             panelRoot.SetActive(false);
         }
 
+        SetDimRaycast(false);
+
         Time.timeScale = 1f;
         onPicked?.Invoke(selected);
 
@@ -145,13 +156,52 @@ public class SkillSelectPanelController : MonoBehaviour
     [ContextMenu("Show Dummy Options For Test")]
     public void ShowDummyOptionsForTest()
     {
-        var dummyOptions = new List<SkillRow>
+        if (panelRoot != null)
         {
-            new SkillRow { id = "test_1", name = "Dummy Skill 1" },
-            new SkillRow { id = "test_2", name = "Dummy Skill 2" },
-            new SkillRow { id = "test_3", name = "Dummy Skill 3" },
-        };
+            panelRoot.gameObject.SetActive(true);
+        }
 
-        ShowOptions(dummyOptions, null);
+        SetDimRaycast(true);
+
+        currentOptions.Clear();
+        onPicked = null;
+
+        SetDummyOption(optionBtn1, optionTxt1, "Skill 1", "Option1 clicked");
+        SetDummyOption(optionBtn2, optionTxt2, "Skill 2", "Option2 clicked");
+        SetDummyOption(optionBtn3, optionTxt3, "Skill 3", "Option3 clicked");
+    }
+
+    private void SetDummyOption(Button button, TMP_Text text, string label, string logMessage)
+    {
+        if (button != null)
+        {
+            button.gameObject.SetActive(true);
+            button.interactable = true;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() =>
+            {
+                Debug.Log(logMessage);
+
+                if (panelRoot != null)
+                {
+                    panelRoot.SetActive(false);
+                }
+
+                SetDimRaycast(false);
+            });
+        }
+
+        if (text != null)
+        {
+            text.text = label;
+        }
+    }
+
+    private void SetDimRaycast(bool isEnabled)
+    {
+        if (dimImage != null)
+        {
+            dimImage.raycastTarget = isEnabled;
+        }
     }
 }

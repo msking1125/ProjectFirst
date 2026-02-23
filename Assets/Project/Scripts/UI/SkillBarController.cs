@@ -10,6 +10,7 @@ public class SkillBarController : MonoBehaviour
     [SerializeField] private TMP_Text slotTxt1;
     [SerializeField] private TMP_Text slotTxt2;
     [SerializeField] private TMP_Text slotTxt3;
+    [SerializeField] private bool enableSlotsOnStartForTest = true;
 
     private readonly SkillRow[] equippedSkills = new SkillRow[3];
     private SkillSystem skillSystem;
@@ -17,6 +18,11 @@ public class SkillBarController : MonoBehaviour
     private void Awake()
     {
         BindButtons();
+
+        if (enableSlotsOnStartForTest)
+        {
+            EnableSlotsForTest();
+        }
 
         Refresh();
     }
@@ -31,6 +37,12 @@ public class SkillBarController : MonoBehaviour
         slotTxt3 = text3;
 
         BindButtons();
+
+        if (enableSlotsOnStartForTest)
+        {
+            EnableSlotsForTest();
+        }
+
         Refresh();
     }
 
@@ -70,16 +82,36 @@ public class SkillBarController : MonoBehaviour
     public void Pick0()
     {
         Debug.Log("[SkillBarController] Slot 1 button clicked.");
-        CastSlot(0);
+        CastSlot1();
     }
+
     public void Pick1()
     {
         Debug.Log("[SkillBarController] Slot 2 button clicked.");
-        CastSlot(1);
+        CastSlot2();
     }
+
     public void Pick2()
     {
         Debug.Log("[SkillBarController] Slot 3 button clicked.");
+        CastSlot3();
+    }
+
+    public void CastSlot1()
+    {
+        Debug.Log("[SkillBar] CastSlot1");
+        CastSlot(0);
+    }
+
+    public void CastSlot2()
+    {
+        Debug.Log("[SkillBar] CastSlot2");
+        CastSlot(1);
+    }
+
+    public void CastSlot3()
+    {
+        Debug.Log("[SkillBar] CastSlot3");
         CastSlot(2);
     }
 
@@ -121,7 +153,7 @@ public class SkillBarController : MonoBehaviour
         {
             if (!available)
             {
-                text.text = $"Skill {index + 1}";
+                text.text = enableSlotsOnStartForTest ? "EMPTY" : $"Skill {index + 1}";
                 return;
             }
 
@@ -148,6 +180,27 @@ public class SkillBarController : MonoBehaviour
         {
             slotBtn3.onClick.RemoveListener(Pick2);
             slotBtn3.onClick.AddListener(Pick2);
+        }
+    }
+
+    private void EnableSlotsForTest()
+    {
+        EnableSlot(slotBtn1, slotTxt1);
+        EnableSlot(slotBtn2, slotTxt2);
+        EnableSlot(slotBtn3, slotTxt3);
+    }
+
+    private void EnableSlot(Button button, TMP_Text text)
+    {
+        if (button != null)
+        {
+            button.gameObject.SetActive(true);
+            button.interactable = true;
+        }
+
+        if (text != null)
+        {
+            text.text = "EMPTY";
         }
     }
 }
