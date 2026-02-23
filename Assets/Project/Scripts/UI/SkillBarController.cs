@@ -67,9 +67,21 @@ public class SkillBarController : MonoBehaviour
         return true;
     }
 
-    public void Pick0() => CastSlot(0);
-    public void Pick1() => CastSlot(1);
-    public void Pick2() => CastSlot(2);
+    public void Pick0()
+    {
+        Debug.Log("[SkillBarController] Slot 1 button clicked.");
+        CastSlot(0);
+    }
+    public void Pick1()
+    {
+        Debug.Log("[SkillBarController] Slot 2 button clicked.");
+        CastSlot(1);
+    }
+    public void Pick2()
+    {
+        Debug.Log("[SkillBarController] Slot 3 button clicked.");
+        CastSlot(2);
+    }
 
     private void CastSlot(int index)
     {

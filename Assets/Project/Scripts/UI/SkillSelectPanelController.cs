@@ -141,4 +141,17 @@ public class SkillSelectPanelController : MonoBehaviour
             optionBtn3.onClick.AddListener(Pick2);
         }
     }
+
+    [ContextMenu("Show Dummy Options For Test")]
+    public void ShowDummyOptionsForTest()
+    {
+        var dummyOptions = new List<SkillRow>
+        {
+            new SkillRow { id = "test_1", name = "Dummy Skill 1" },
+            new SkillRow { id = "test_2", name = "Dummy Skill 2" },
+            new SkillRow { id = "test_3", name = "Dummy Skill 3" },
+        };
+
+        ShowOptions(dummyOptions, null);
+    }
 }
