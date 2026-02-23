@@ -18,11 +18,29 @@ MonoBehaviour:
     def: 0
     critChance: 0.1
     critMultiplier: 1.5
+  defaultElement: 2
   rows:
-  - id: agent
-    stats:
-      hp: 120
-      atk: 6
-      def: 2
-      critChance: 0.2
-      critMultiplier: 1.7
+  - id: agent01
+    name: Agent 1
+    hp: 120
+    atk: 5
+    def: 2
+    critChance: 0.15
+    critMultiplier: 1.75
+    element: 0
+  - id: agent02
+    name: Agent 2
+    hp: 100
+    atk: 6
+    def: 1
+    critChance: 0.2
+    critMultiplier: 1.6
+    element: 1
+  - id: agent03
+    name: Agent 3
+    hp: 140
+    atk: 4
+    def: 3
+    critChance: 0.1
+    critMultiplier: 2
+    element: 2

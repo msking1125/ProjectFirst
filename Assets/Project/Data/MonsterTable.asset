@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MonsterTable
   m_EditorClassIdentifier: 
   rows:
-  - id: 1
+  - id: slime
     grade: 0
     name: Slime
     prefab: {fileID: 0}
@@ -21,28 +21,28 @@ MonoBehaviour:
     atk: 8
     def: 2
     critChance: 0.05
-    critMultiplier: 1.5
+    critMultiplier: 1
     moveSpeed: 2.5
     element: 1
-  - id: 2
-    grade: 1
+  - id: tank
+    grade: 0
     name: Tank
     prefab: {fileID: 0}
     hp: 200
     atk: 10
     def: 8
     critChance: 0.02
-    critMultiplier: 1.4
+    critMultiplier: 1
     moveSpeed: 1.6
     element: 0
-  - id: 3
-    grade: 2
+  - id: fast
+    grade: 0
     name: Fast
     prefab: {fileID: 0}
     hp: 70
     atk: 6
     def: 1
     critChance: 0.08
-    critMultiplier: 1.6
+    critMultiplier: 1
     moveSpeed: 3.5
     element: 2

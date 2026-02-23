@@ -1,4 +1,4 @@
-id,grade,name,hp,atk,def,critChance,critMultiplier,moveSpeed,element,prefab
-1,normal,Slime,50,8,2,0.05,1.5,2.5,Intuition,Enemy01
-2,Elite,Tank,200,10,8,0.02,1.4,1.6,Passion,Enemy02
-3,Boss,Fast,70,6,1,0.08,1.6,3.5,Reason,Enemy03
+id,name,hp,atk,def,critChance,critMultiplier,moveSpeed,element,prefab
+slime,Slime,50,8,2,0.05,1.5,2.5,Intuition,Enemy01
+tank,Tank,200,10,8,0.02,1.4,1.6,Passion,Enemy02
+fast,Fast,70,6,1,0.08,1.6,3.5,Reason,Enemy03
