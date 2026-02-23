@@ -12,6 +12,8 @@ public class EnemyPool : MonoBehaviour
     private readonly Dictionary<Enemy, Enemy> instanceToSourcePrefab = new();
     private readonly Dictionary<Enemy, Queue<Enemy>> poolsByPrefab = new();
 
+    public Enemy DefaultEnemyPrefab => enemyPrefab;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -83,6 +85,12 @@ public class EnemyPool : MonoBehaviour
         {
             return null;
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        string prefabOverrideName = row != null && row.prefab != null ? row.prefab.name : "null";
+        string defaultPrefabName = enemyPrefab != null ? enemyPrefab.name : "null";
+        Debug.Log($"[EnemyPool] Spawning. monsterId='{enemyId}', grade='{grade}', prefabOverride='{prefabOverrideName}', defaultPrefab='{defaultPrefabName}', sourcePrefab='{sourcePrefab.name}'");
+#endif
 
         Queue<Enemy> queue = GetQueue(sourcePrefab);
         Enemy e = queue.Count > 0 ? queue.Dequeue() : CreateOne(sourcePrefab);
