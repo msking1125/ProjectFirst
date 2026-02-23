@@ -9,6 +9,7 @@ public class SkillButtonSlot : MonoBehaviour
 
     private SkillRow equippedSkill;
     private SkillSystem skillSystem;
+    private int slotIndex = -1;
 
     private void Awake()
     {
@@ -25,30 +26,10 @@ public class SkillButtonSlot : MonoBehaviour
         Refresh();
     }
 
-    private void Update()
-    {
-        if (equippedSkill != null)
-        {
-            Refresh();
-        }
-    }
-
-    public void Configure(Button targetButton, TMP_Text targetLabel)
-    {
-        button = targetButton;
-        label = targetLabel;
-        if (button != null)
-        {
-            button.onClick.RemoveListener(OnClick);
-            button.onClick.AddListener(OnClick);
-        }
-
-        Refresh();
-    }
-
-    public void Setup(SkillSystem system)
+    public void Setup(SkillSystem system, int index)
     {
         skillSystem = system;
+        slotIndex = index;
         Refresh();
     }
 
@@ -60,36 +41,24 @@ public class SkillButtonSlot : MonoBehaviour
 
     private void OnClick()
     {
-        if (equippedSkill == null || skillSystem == null)
+        if (skillSystem == null || slotIndex < 0)
         {
             return;
         }
 
-        skillSystem.Cast(equippedSkill);
-        Refresh();
+        skillSystem.Cast(slotIndex);
     }
 
     private void Refresh()
     {
-        bool active = equippedSkill != null && skillSystem != null;
         if (button != null)
         {
-            button.interactable = active && skillSystem.IsSkillReady(equippedSkill);
+            button.interactable = equippedSkill != null && skillSystem != null;
         }
 
         if (label != null)
         {
-            if (!active)
-            {
-                label.text = "Skill";
-            }
-            else
-            {
-                float remaining = skillSystem.GetRemainingCooldown(equippedSkill);
-                label.text = remaining <= 0f
-                    ? equippedSkill.name
-                    : $"{equippedSkill.name} ({remaining:F1}s)";
-            }
+            label.text = equippedSkill != null ? equippedSkill.name : "Skill";
         }
     }
 }

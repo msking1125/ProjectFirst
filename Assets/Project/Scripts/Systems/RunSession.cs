@@ -1,28 +1,26 @@
-using System.Collections.Generic;
+using System;
 
 public class RunSession
 {
-    public int Level { get; private set; }
-    public int CurrentExp { get; private set; }
+    public int Level { get; private set; } = 1;
+    public int Exp { get; private set; }
     public int Gold { get; private set; }
 
-    private readonly HashSet<string> ownedSkillIds = new HashSet<string>();
+    public int ExpToNextLevel => GetRequiredExpForLevel(Level);
 
-    public IReadOnlyCollection<string> OwnedSkillIds => ownedSkillIds;
-    public int ExpToNextLevel => GetRequiredExpForNextLevel();
+    public event Action<int> OnLevelChanged;
+    public event Action<int> OnReachedSkillPickLevel;
 
     public void Reset()
     {
         Level = 1;
-        CurrentExp = 0;
+        Exp = 0;
         Gold = 0;
-        ownedSkillIds.Clear();
     }
 
-    public int GetRequiredExpForNextLevel()
+    public int GetRequiredExpForLevel(int level)
     {
-        // Simple progression formula.
-        return 10 + (Level - 1) * 5;
+        return 10 + Math.Max(0, level - 1) * 5;
     }
 
     public int AddGold(int amount)
@@ -31,33 +29,24 @@ public class RunSession
         return Gold;
     }
 
-    public int AddExperience(int amount)
+    public int AddExp(int amount)
     {
-        CurrentExp += amount > 0 ? amount : 0;
+        Exp += amount > 0 ? amount : 0;
 
         int levelUps = 0;
-        while (CurrentExp >= GetRequiredExpForNextLevel())
+        while (Exp >= GetRequiredExpForLevel(Level))
         {
-            CurrentExp -= GetRequiredExpForNextLevel();
+            Exp -= GetRequiredExpForLevel(Level);
             Level++;
             levelUps++;
+
+            OnLevelChanged?.Invoke(Level);
+            if (Level % 3 == 0)
+            {
+                OnReachedSkillPickLevel?.Invoke(Level);
+            }
         }
 
         return levelUps;
-    }
-
-    public bool TryAddSkill(string skillId)
-    {
-        if (string.IsNullOrWhiteSpace(skillId))
-        {
-            return false;
-        }
-
-        return ownedSkillIds.Add(skillId.Trim());
-    }
-
-    public bool HasSkill(string skillId)
-    {
-        return !string.IsNullOrWhiteSpace(skillId) && ownedSkillIds.Contains(skillId.Trim());
     }
 }

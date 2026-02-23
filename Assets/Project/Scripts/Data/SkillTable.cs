@@ -8,6 +8,8 @@ public class SkillTable : ScriptableObject
     private readonly Dictionary<string, SkillRow> index = new Dictionary<string, SkillRow>();
 
     public IReadOnlyList<SkillRow> Rows => rows;
+    public IReadOnlyList<SkillRow> AllSkills => rows;
+    public IReadOnlyDictionary<string, SkillRow> Index => index;
 
     private void OnEnable() => RebuildIndex();
     private void OnValidate() => RebuildIndex();
