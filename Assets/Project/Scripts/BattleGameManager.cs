@@ -32,8 +32,11 @@ public class BattleGameManager : MonoBehaviour
     [Header("HUD")]
     [SerializeField] private Canvas targetCanvas;
     [SerializeField] private TMP_Text statusText;
-    [SerializeField] private SkillButtonSlot skillButtonSlot;
-    [SerializeField] private SkillSelectPanel skillSelectPanel;
+    [SerializeField] private TMP_Text levelText;
+    [SerializeField] private TMP_Text expText;
+    [SerializeField] private TMP_Text goldText;
+    [SerializeField] private SkillBarController skillBarController;
+    [SerializeField] private SkillSelectPanelController skillSelectPanelController;
 
     [Header("Result UI")]
     [SerializeField] private GameObject resultPanel;
@@ -178,7 +181,7 @@ public class BattleGameManager : MonoBehaviour
 
     private void OpenSkillSelectPanel()
     {
-        if (skillSystem == null || skillSelectPanel == null)
+        if (skillSystem == null || skillSelectPanelController == null)
         {
             return;
         }
@@ -189,11 +192,16 @@ public class BattleGameManager : MonoBehaviour
             return;
         }
 
-        skillSelectPanel.Open(candidates, selectedSkill =>
+        skillSelectPanelController.ShowOptions(candidates, selectedSkill =>
         {
-            if (skillSystem.TryAcquireSkill(selectedSkill) && skillButtonSlot != null)
+            if (!skillSystem.TryAcquireSkill(selectedSkill))
             {
-                skillButtonSlot.Equip(selectedSkill);
+                return;
+            }
+
+            if (skillBarController != null)
+            {
+                skillBarController.EquipToFirstEmptySlot(selectedSkill);
             }
 
             RefreshStatusUI();
@@ -250,66 +258,20 @@ public class BattleGameManager : MonoBehaviour
             statusText.alignment = TextAlignmentOptions.Left;
         }
 
-        if (skillButtonSlot == null)
+        if (skillBarController == null)
         {
-            GameObject buttonObject = new GameObject("SkillButton", typeof(RectTransform), typeof(Image), typeof(Button), typeof(SkillButtonSlot));
-            buttonObject.transform.SetParent(targetCanvas.transform, false);
-            RectTransform rect = buttonObject.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(1f, 0f);
-            rect.anchorMax = new Vector2(1f, 0f);
-            rect.pivot = new Vector2(1f, 0f);
-            rect.anchoredPosition = new Vector2(-20f, 20f);
-            rect.sizeDelta = new Vector2(220f, 68f);
-
-            TMP_Text buttonLabel = CreateText("SkillButtonLabel", buttonObject.transform, 40f, Vector2.zero, 24f);
-            buttonLabel.alignment = TextAlignmentOptions.Center;
-
-            skillButtonSlot = buttonObject.GetComponent<SkillButtonSlot>();
-            skillButtonSlot.Configure(buttonObject.GetComponent<Button>(), buttonLabel);
-            skillButtonSlot.Setup(skillSystem);
-        }
-        else
-        {
-            skillButtonSlot.Setup(skillSystem);
+            skillBarController = FindFirstObjectByType<SkillBarController>();
         }
 
-        if (skillSelectPanel == null)
+        if (skillSelectPanelController == null)
         {
-            CreateDefaultSkillSelectPanel();
-        }
-    }
-
-    private void CreateDefaultSkillSelectPanel()
-    {
-        GameObject panelObject = new GameObject("SkillSelectPanel", typeof(RectTransform), typeof(Image), typeof(SkillSelectPanel));
-        panelObject.transform.SetParent(targetCanvas.transform, false);
-        RectTransform panelRect = panelObject.GetComponent<RectTransform>();
-        panelRect.anchorMin = new Vector2(0.5f, 0.5f);
-        panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-        panelRect.pivot = new Vector2(0.5f, 0.5f);
-        panelRect.sizeDelta = new Vector2(640f, 240f);
-
-        Image panelImage = panelObject.GetComponent<Image>();
-        panelImage.color = new Color(0f, 0f, 0f, 0.86f);
-
-        Button[] optionButtons = new Button[3];
-        TMP_Text[] optionLabels = new TMP_Text[3];
-        for (int i = 0; i < 3; i++)
-        {
-            GameObject option = new GameObject($"Option_{i}", typeof(RectTransform), typeof(Image), typeof(Button));
-            option.transform.SetParent(panelObject.transform, false);
-
-            RectTransform rect = option.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(180f, 120f);
-            rect.anchoredPosition = new Vector2(-210f + (210f * i), 0f);
-
-            optionButtons[i] = option.GetComponent<Button>();
-            optionLabels[i] = CreateText($"OptionLabel_{i}", option.transform, 24f, Vector2.zero, 24f);
-            optionLabels[i].alignment = TextAlignmentOptions.Center;
+            skillSelectPanelController = FindFirstObjectByType<SkillSelectPanelController>();
         }
 
-        skillSelectPanel = panelObject.GetComponent<SkillSelectPanel>();
-        skillSelectPanel.Configure(panelObject, optionButtons, optionLabels);
+        if (skillBarController != null)
+        {
+            skillBarController.Setup(skillSystem);
+        }
     }
 
     private void EnsureResultUI()
@@ -373,12 +335,34 @@ public class BattleGameManager : MonoBehaviour
 
     private void RefreshStatusUI()
     {
-        if (statusText == null || runSession == null)
+        if (runSession == null)
         {
             return;
         }
 
-        statusText.text = $"Lv {runSession.Level}  EXP {runSession.CurrentExp}/{runSession.GetRequiredExpForNextLevel()}\nGold {runSession.Gold}";
+        string levelValue = $"Lv {runSession.Level}";
+        string expValue = $"EXP {runSession.CurrentExp}/{runSession.GetRequiredExpForNextLevel()}";
+        string goldValue = $"Gold {runSession.Gold}";
+
+        if (statusText != null)
+        {
+            statusText.text = $"{levelValue}  {expValue}\n{goldValue}";
+        }
+
+        if (levelText != null)
+        {
+            levelText.text = levelValue;
+        }
+
+        if (expText != null)
+        {
+            expText.text = expValue;
+        }
+
+        if (goldText != null)
+        {
+            goldText.text = goldValue;
+        }
     }
 
     private void SetResultUI(bool active, string message)
