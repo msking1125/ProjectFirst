@@ -7,6 +7,8 @@ using UnityEngine;
 
 public static class WaveTableImporter
 {
+    private const string DefaultMonsterId = "1";
+
     private const string CsvPathLower = "Assets/Project/Data/wave.csv";
     private const string CsvPathUpper = "Assets/Project/Data/Wave.csv";
     private const string AssetPath = "Assets/Project/Data/WaveTable.asset";
@@ -50,6 +52,7 @@ public static class WaveTableImporter
         int bossIdx = Array.IndexOf(header, "boss");
         int rewardGoldIdx = Array.IndexOf(header, "rewardGold");
         int enemyIdIdx = Array.IndexOf(header, "enemyId");
+        int monsterIdIdx = Array.IndexOf(header, "monsterId");
 
         // 필수 컬럼 존재 체크
         if (waveIdx < 0 || spawnCountIdx < 0 || spawnIntervalIdx < 0 ||
@@ -84,7 +87,8 @@ public static class WaveTableImporter
                 eliteEvery = ParseInt(cols[eliteEveryIdx]),
                 boss = ParseInt(cols[bossIdx]) != 0,
                 rewardGold = ParseInt(cols[rewardGoldIdx]),
-                enemyId = (enemyIdIdx >= 0 && enemyIdIdx < cols.Length && !string.IsNullOrWhiteSpace(cols[enemyIdIdx])) ? cols[enemyIdIdx] : "slime"
+                enemyId = ResolvePreferredId(cols, enemyIdIdx, monsterIdIdx),
+                monsterId = ReadIdCell(cols, monsterIdIdx)
             };
             table.wave.Add(row);
         }
@@ -94,6 +98,34 @@ public static class WaveTableImporter
         AssetDatabase.Refresh();
 
         Debug.Log($"Imported {table.wave.Count} wave into {AssetPath}");
+    }
+
+
+    private static string ResolvePreferredId(string[] cols, int enemyIdIdx, int monsterIdIdx)
+    {
+        string enemyId = ReadIdCell(cols, enemyIdIdx);
+        if (!string.IsNullOrWhiteSpace(enemyId))
+        {
+            return enemyId;
+        }
+
+        string monsterId = ReadIdCell(cols, monsterIdIdx);
+        if (!string.IsNullOrWhiteSpace(monsterId))
+        {
+            return monsterId;
+        }
+
+        return DefaultMonsterId;
+    }
+
+    private static string ReadIdCell(string[] cols, int index)
+    {
+        if (index < 0 || cols == null || index >= cols.Length)
+        {
+            return string.Empty;
+        }
+
+        return cols[index].Trim();
     }
 
     private static int ParseInt(string s)

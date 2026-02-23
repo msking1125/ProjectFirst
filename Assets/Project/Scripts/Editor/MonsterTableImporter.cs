@@ -99,7 +99,7 @@ public static class MonsterTableImporter
             };
 
             string gradeRaw = ReadCell(cols, gradeIdx);
-            if (Enum.TryParse(gradeRaw, true, out MonsterGrade grade))
+            if (TryParseEnumInsensitive(gradeRaw, out MonsterGrade grade))
             {
                 row.grade = grade;
             }
@@ -120,7 +120,7 @@ public static class MonsterTableImporter
             }
 
             string elementRaw = ReadCell(cols, elementIdx);
-            if (Enum.TryParse(elementRaw, true, out ElementType element))
+            if (TryParseEnumInsensitive(elementRaw, out ElementType element))
             {
                 row.element = element;
             }
@@ -167,6 +167,33 @@ public static class MonsterTableImporter
         if (float.TryParse(s, out v))
             return true;
         v = 0f;
+        return false;
+    }
+
+    private static bool TryParseEnumInsensitive<TEnum>(string raw, out TEnum value) where TEnum : struct, Enum
+    {
+        string normalized = string.IsNullOrWhiteSpace(raw) ? string.Empty : raw.Trim();
+        if (Enum.TryParse(normalized, true, out value))
+        {
+            return true;
+        }
+
+        string compact = normalized.Replace(" ", string.Empty).Replace("_", string.Empty);
+        if (!string.IsNullOrEmpty(compact))
+        {
+            string[] names = Enum.GetNames(typeof(TEnum));
+            for (int i = 0; i < names.Length; i++)
+            {
+                string candidate = names[i].Replace("_", string.Empty);
+                if (string.Equals(candidate, compact, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = (TEnum)Enum.Parse(typeof(TEnum), names[i]);
+                    return true;
+                }
+            }
+        }
+
+        value = default;
         return false;
     }
 

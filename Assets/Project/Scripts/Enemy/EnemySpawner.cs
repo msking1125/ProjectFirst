@@ -9,6 +9,8 @@ using UnityEngine;
 [AddComponentMenu("Enemy/Enemy Spawner")]
 public class EnemySpawner : MonoBehaviour
 {
+    private const string DefaultMonsterId = "1";
+
     [Header("Enemy Pool (필수)")]
     [Tooltip("EnemyPool 컴포넌트를 연결하세요.")]
     public EnemyPool enemyPool;
@@ -38,7 +40,10 @@ public class EnemySpawner : MonoBehaviour
     private int eliteEvery;
     private bool bossWave;
     private bool useWaveConfig;
-    private string currentEnemyId = "slime";
+    [SerializeField] private string defaultMonsterId = DefaultMonsterId;
+
+    private string currentEnemyId = DefaultMonsterId;
+    private string lastConfiguredEnemyId = string.Empty;
 
     private bool loggedMissingPool;
     private bool loggedMissingTarget;
@@ -74,7 +79,7 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    public void ConfigureWave(int spawnCount, float interval, float hpMul, float speedMul, float damageMul, int eliteEveryCount, bool isBossWave, string enemyId = "slime")
+    public void ConfigureWave(int spawnCount, float interval, float hpMul, float speedMul, float damageMul, int eliteEveryCount, bool isBossWave, string enemyId = DefaultMonsterId)
     {
         waveSpawnCount = Mathf.Max(0, spawnCount);
         spawnInterval = Mathf.Max(0.01f, interval);
@@ -83,7 +88,9 @@ public class EnemySpawner : MonoBehaviour
         enemyDamageMul = Mathf.Max(0f, damageMul);
         eliteEvery = Mathf.Max(0, eliteEveryCount);
         bossWave = isBossWave;
-        currentEnemyId = string.IsNullOrWhiteSpace(enemyId) ? "slime" : enemyId;
+        defaultMonsterId = string.IsNullOrWhiteSpace(defaultMonsterId) ? DefaultMonsterId : defaultMonsterId;
+        lastConfiguredEnemyId = enemyId;
+        currentEnemyId = ResolveMonsterIdOrFallback(enemyId, defaultMonsterId);
         useWaveConfig = true;
     }
 
@@ -172,6 +179,10 @@ public class EnemySpawner : MonoBehaviour
 
         MonsterGrade grade = ResolveGrade();
         WaveMultipliers multipliers = new WaveMultipliers { hp = enemyHpMul, speed = enemySpeedMul, damage = enemyDamageMul };
+
+        string enemyIdSource = string.IsNullOrWhiteSpace(lastConfiguredEnemyId) ? "fallback(defaultMonsterId)" : "waveRow(enemyId/monsterId)";
+        Debug.Log($"[EnemySpawner] 이번 스폰 enemyId='{currentEnemyId}' (source={enemyIdSource}, waveValue='{lastConfiguredEnemyId}', fallback='{defaultMonsterId}')");
+
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, grade, multipliers);
         if (enemy == null)
         {
@@ -183,6 +194,25 @@ public class EnemySpawner : MonoBehaviour
         {
             spawnedCount++;
         }
+    }
+
+
+    private string ResolveMonsterIdOrFallback(string waveMonsterId, string fallbackMonsterId)
+    {
+        string fallback = string.IsNullOrWhiteSpace(fallbackMonsterId) ? DefaultMonsterId : fallbackMonsterId.Trim();
+        if (string.IsNullOrWhiteSpace(waveMonsterId))
+        {
+            return fallback;
+        }
+
+        string candidate = waveMonsterId.Trim();
+        if (int.TryParse(candidate, out _))
+        {
+            return candidate;
+        }
+
+        Debug.LogWarning($"[EnemySpawner] wave monsterId/enemyId is not numeric. raw='{candidate}', fallback='{fallback}'. Wave CSV/asset를 숫자 id 체계로 맞춰주세요.");
+        return fallback;
     }
 
     private MonsterGrade ResolveGrade()
