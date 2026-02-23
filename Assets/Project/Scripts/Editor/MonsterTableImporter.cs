@@ -41,23 +41,18 @@ public static class MonsterTableImporter
         string[] header = lines[0].Split(',').Select(h => h.Trim()).ToArray();
         int idx(string name) => Array.IndexOf(header, name);
 
-        string[] required = { "id", "hp", "atk", "def", "critChance" };
-        foreach (string requiredColumn in required)
+        string[] requiredColumns = { "id", "hp", "atk", "def", "critChance" };
+        foreach (var col in requiredColumns)
         {
-            if (idx(requiredColumn) < 0)
+            if (idx(col) < 0)
             {
-                Debug.LogError($"Missing column: {requiredColumn}");
+                Debug.LogError($"Missing column: {col}");
                 return;
             }
         }
 
         int nameIdx = idx("name");
         int critMultiplierIdx = idx("critMultiplier");
-        if (critMultiplierIdx < 0)
-        {
-            critMultiplierIdx = idx("critMul");
-        }
-
         int moveSpeedIdx = idx("moveSpeed");
         int gradeIdx = idx("grade");
         int elementIdx = idx("element");
@@ -65,13 +60,24 @@ public static class MonsterTableImporter
         for (int i = 1; i < lines.Length; i++)
         {
             if (string.IsNullOrWhiteSpace(lines[i]))
-            {
                 continue;
-            }
 
             string[] cols = lines[i].Split(',').Select(c => c.Trim()).ToArray();
             string id = ReadCell(cols, idx("id"));
             string name = ReadCell(cols, nameIdx);
+
+            // Parse critMultiplier: Remove all non-numeric, non-dot, non-minus chars (e.g., "x2", "2배", "x1.5", "2.5" etc.)
+            float critMultiplierValue = 1f;
+            string critMultiplierStr = ReadCell(cols, critMultiplierIdx);
+            if (!string.IsNullOrEmpty(critMultiplierStr))
+            {
+                string numericPart = new string(critMultiplierStr.Where(c => char.IsDigit(c) || c == '.' || c == '-').ToArray());
+                if (!float.TryParse(numericPart, NumberStyles.Float, CultureInfo.InvariantCulture, out critMultiplierValue) || critMultiplierValue < 1f)
+                {
+                    critMultiplierValue = 1f;
+                }
+            }
+
             MonsterRow row = new MonsterRow
             {
                 id = id,
@@ -80,7 +86,7 @@ public static class MonsterTableImporter
                 atk = ParseFloat(ReadCell(cols, idx("atk"))),
                 def = ParseFloat(ReadCell(cols, idx("def"))),
                 critChance = Mathf.Clamp01(ParseFloat(ReadCell(cols, idx("critChance")))),
-                critMultiplier = Mathf.Max(1f, ParseFloat(ReadCell(cols, critMultiplierIdx)))
+                critMultiplier = critMultiplierValue
             };
 
             if (gradeIdx >= 0)
@@ -99,7 +105,7 @@ public static class MonsterTableImporter
                 {
                     row.moveSpeed = moveSpeedValue;
                 }
-                else
+                else if (!string.IsNullOrWhiteSpace(moveSpeedRaw))
                 {
                     Debug.LogWarning($"[MonsterTableImporter] Failed to parse moveSpeed for id '{id}'. raw='{moveSpeedRaw}'");
                 }
@@ -132,50 +138,32 @@ public static class MonsterTableImporter
     private static string ResolveCsvPath()
     {
         if (File.Exists(CsvPathLower))
-        {
             return CsvPathLower;
-        }
-
         if (File.Exists(CsvPathUpper))
-        {
             return CsvPathUpper;
-        }
-
         return null;
     }
 
     private static string ReadCell(string[] cols, int index)
     {
         if (index < 0 || cols == null || index >= cols.Length)
-        {
             return string.Empty;
-        }
-
         return cols[index];
     }
 
     private static float ParseFloat(string s)
     {
         if (TryParseFloat(s, out float v))
-        {
             return v;
-        }
-
         return 0f;
     }
 
     private static bool TryParseFloat(string s, out float v)
     {
         if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out v))
-        {
             return true;
-        }
-
         if (float.TryParse(s, out v))
-        {
             return true;
-        }
-
         v = 0f;
         return false;
     }

@@ -2,7 +2,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,7 +14,7 @@ public static class WaveTableImporter
     [MenuItem("Tools/Game/Import Wave CSV")]
     public static void Import()
     {
-        string csvPath = ResolveCsvPath();
+        string csvPath = File.Exists(CsvPathLower) ? CsvPathLower : (File.Exists(CsvPathUpper) ? CsvPathUpper : null);
         if (string.IsNullOrEmpty(csvPath))
         {
             Debug.LogError($"Wave CSV not found at: {CsvPathLower} (or {CsvPathUpper})");
@@ -29,46 +28,64 @@ public static class WaveTableImporter
             return;
         }
 
-        var table = AssetDatabase.LoadAssetAtPath<WaveTable>(AssetPath);
-        if (table == null)
-        {
-            table = ScriptableObject.CreateInstance<WaveTable>();
+        var table = AssetDatabase.LoadAssetAtPath<WaveTable>(AssetPath) ?? ScriptableObject.CreateInstance<WaveTable>();
+        if (AssetDatabase.LoadAssetAtPath<WaveTable>(AssetPath) == null)
             AssetDatabase.CreateAsset(table, AssetPath);
-        }
-
-        // "wave"가 아니라 "waves" 리스트를 가진 WaveTable에 맞게 변경
-        // waves가 아니라 wave라는 리스트명으로 바꾸고 싶으면 WaveTable.cs에서 public List<WaveRow> waves = new(); 을 
-        // public List<WaveRow> wave = new(); 로 명확히 바꿔야 한다
 
         table.wave.Clear();
 
-        // 헤더 파싱
-        var header = lines[0].Split(',').Select(h => h.Trim()).ToArray();
-        int idx(string name) => Array.IndexOf(header, name);
+        var header = lines[0].Split(',');
+        int colCount = header.Length;
+        for (int h = 0; h < colCount; ++h)
+            header[h] = header[h].Trim();
 
-        // 필수 컬럼 체크
-        string[] required = { "wave", "spawnCount", "spawnInterval", "enemyHpMul", "enemySpeedMul", "enemyDamageMul", "eliteEvery", "boss", "rewardGold" };
-        foreach (var r in required)
-            if (idx(r) < 0) { Debug.LogError($"Missing column: {r}"); return; }
+        // 인덱스 캐싱
+        int waveIdx = Array.IndexOf(header, "wave");
+        int spawnCountIdx = Array.IndexOf(header, "spawnCount");
+        int spawnIntervalIdx = Array.IndexOf(header, "spawnInterval");
+        int enemyHpMulIdx = Array.IndexOf(header, "enemyHpMul");
+        int enemySpeedMulIdx = Array.IndexOf(header, "enemySpeedMul");
+        int enemyDamageMulIdx = Array.IndexOf(header, "enemyDamageMul");
+        int eliteEveryIdx = Array.IndexOf(header, "eliteEvery");
+        int bossIdx = Array.IndexOf(header, "boss");
+        int rewardGoldIdx = Array.IndexOf(header, "rewardGold");
+        int enemyIdIdx = Array.IndexOf(header, "enemyId");
 
-        for (int i = 1; i < lines.Length; i++)
+        // 필수 컬럼 존재 체크
+        if (waveIdx < 0 || spawnCountIdx < 0 || spawnIntervalIdx < 0 ||
+            enemyHpMulIdx < 0 || enemySpeedMulIdx < 0 || enemyDamageMulIdx < 0 ||
+            eliteEveryIdx < 0 || bossIdx < 0 || rewardGoldIdx < 0)
         {
-            if (string.IsNullOrWhiteSpace(lines[i])) continue;
-            var cols = lines[i].Split(',').Select(c => c.Trim()).ToArray();
+            Debug.LogError("Missing required columns in CSV.");
+            return;
+        }
 
-            WaveRow row = new WaveRow();
-            row.wave = ParseInt(cols[idx("wave")]);
-            row.spawnCount = ParseInt(cols[idx("spawnCount")]);
-            row.spawnInterval = ParseFloat(cols[idx("spawnInterval")]);
-            row.enemyHpMul = ParseFloat(cols[idx("enemyHpMul")]);
-            row.enemySpeedMul = ParseFloat(cols[idx("enemySpeedMul")]);
-            row.enemyDamageMul = ParseFloat(cols[idx("enemyDamageMul")]);
-            row.eliteEvery = ParseInt(cols[idx("eliteEvery")]);
-            row.boss = ParseInt(cols[idx("boss")]) != 0;
-            row.rewardGold = ParseInt(cols[idx("rewardGold")]);
-            int enemyIdIdx = idx("enemyId");
-            row.enemyId = enemyIdIdx >= 0 ? ReadCell(cols, enemyIdIdx, "slime") : "slime";
+        for (int i = 1, n = lines.Length; i < n; ++i)
+        {
+            var line = lines[i];
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            var cols = line.Split(',');
+            if (cols.Length < colCount)
+            {
+                Debug.LogWarning($"Skipping incomplete row at line {i+1} (expected {colCount} columns, got {cols.Length}).");
+                continue;
+            }
+            for (int c = 0; c < colCount; ++c)
+                cols[c] = cols[c].Trim();
 
+            WaveRow row = new WaveRow
+            {
+                wave = ParseInt(cols[waveIdx]),
+                spawnCount = ParseInt(cols[spawnCountIdx]),
+                spawnInterval = ParseFloat(cols[spawnIntervalIdx]),
+                enemyHpMul = ParseFloat(cols[enemyHpMulIdx]),
+                enemySpeedMul = ParseFloat(cols[enemySpeedMulIdx]),
+                enemyDamageMul = ParseFloat(cols[enemyDamageMulIdx]),
+                eliteEvery = ParseInt(cols[eliteEveryIdx]),
+                boss = ParseInt(cols[bossIdx]) != 0,
+                rewardGold = ParseInt(cols[rewardGoldIdx]),
+                enemyId = (enemyIdIdx >= 0 && enemyIdIdx < cols.Length && !string.IsNullOrWhiteSpace(cols[enemyIdIdx])) ? cols[enemyIdIdx] : "slime"
+            };
             table.wave.Add(row);
         }
 
@@ -79,27 +96,15 @@ public static class WaveTableImporter
         Debug.Log($"Imported {table.wave.Count} wave into {AssetPath}");
     }
 
-
-    private static string ResolveCsvPath()
+    private static int ParseInt(string s)
     {
-        if (File.Exists(CsvPathLower)) return CsvPathLower;
-        if (File.Exists(CsvPathUpper)) return CsvPathUpper;
-        return null;
+        int v;
+        return int.TryParse(s, out v) ? v : 0;
     }
-
-    private static string ReadCell(string[] cols, int index, string fallback = "")
-    {
-        if (cols == null || index < 0 || index >= cols.Length) return fallback;
-        return string.IsNullOrWhiteSpace(cols[index]) ? fallback : cols[index];
-    }
-
-    private static int ParseInt(string s) => int.TryParse(s, out var v) ? v : 0;
 
     private static float ParseFloat(string s)
     {
-        // 엑셀 지역설정(콤마/점) 이슈 방지
-        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var v))
-            return v;
+        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float v)) return v;
         if (float.TryParse(s, out v)) return v;
         return 0f;
     }
