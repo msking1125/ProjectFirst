@@ -10,6 +10,16 @@ public class MonsterTable : ScriptableObject
 
     private readonly Dictionary<string, MonsterRow> index = new();
 
+    private static string NormalizeKey(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return null;
+        }
+
+        return raw.Trim().ToLowerInvariant();
+    }
+
     private void OnEnable()
     {
         RebuildIndex();
@@ -27,12 +37,15 @@ public class MonsterTable : ScriptableObject
             return null;
         }
 
-        if (index.Count != rows.Count)
+        RebuildIndex();
+
+        string key = NormalizeKey(id);
+        if (string.IsNullOrEmpty(key))
         {
-            RebuildIndex();
+            return null;
         }
 
-        return index.TryGetValue(id, out MonsterRow row) ? row : null;
+        return index.TryGetValue(key, out MonsterRow row) ? row : null;
     }
 
     public MonsterRow GetByIdAndGrade(string id, MonsterGrade grade)
@@ -82,12 +95,22 @@ public class MonsterTable : ScriptableObject
         for (int i = 0; i < rows.Count; i++)
         {
             MonsterRow row = rows[i];
-            if (row == null || string.IsNullOrWhiteSpace(row.id))
+            if (row == null)
             {
                 continue;
             }
 
-            index[row.id] = row;
+            string idKey = NormalizeKey(row.id);
+            if (!string.IsNullOrEmpty(idKey))
+            {
+                index[idKey] = row;
+            }
+
+            string nameKey = NormalizeKey(row.name);
+            if (!string.IsNullOrEmpty(nameKey))
+            {
+                index[nameKey] = row;
+            }
         }
     }
 }
