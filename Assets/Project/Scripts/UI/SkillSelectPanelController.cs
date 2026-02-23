@@ -14,16 +14,16 @@ public class SkillSelectPanelController : MonoBehaviour
     [SerializeField] private TMP_Text optionTxt2;
     [SerializeField] private TMP_Text optionTxt3;
     [SerializeField] private Image dimImage;
+    [SerializeField] private CanvasGroup dimCanvasGroup;
 
     private readonly List<SkillRow> currentOptions = new List<SkillRow>(3);
     private Action<SkillRow> onPicked;
+    private bool hasLoggedMissingBindings;
 
     private void Awake()
     {
-        if (panelRoot == null)
-        {
-            panelRoot = gameObject;
-        }
+        AutoBind();
+        WarnIfMissingBindings();
 
         BindButtons();
 
@@ -35,30 +35,82 @@ public class SkillSelectPanelController : MonoBehaviour
         SetDimRaycast(false);
     }
 
-    private void Start()
+    private void AutoBind()
     {
-        List<string> missingFields = null;
-        void CheckField(string fieldName, UnityEngine.Object obj)
+        panelRoot ??= gameObject;
+
+        Transform optionBtn1Transform = transform.Find("Skill_Layer/Options/OptionButton_1");
+        Transform optionBtn2Transform = transform.Find("Skill_Layer/Options/OptionButton_2");
+        Transform optionBtn3Transform = transform.Find("Skill_Layer/Options/OptionButton_3");
+
+        if (optionBtn1 == null && optionBtn1Transform != null)
         {
-            if (obj == null)
-            {
-                missingFields ??= new List<string>();
-                missingFields.Add(fieldName);
-            }
+            optionBtn1 = optionBtn1Transform.GetComponent<Button>();
+        }
+        if (optionBtn2 == null && optionBtn2Transform != null)
+        {
+            optionBtn2 = optionBtn2Transform.GetComponent<Button>();
+        }
+        if (optionBtn3 == null && optionBtn3Transform != null)
+        {
+            optionBtn3 = optionBtn3Transform.GetComponent<Button>();
         }
 
-        CheckField(nameof(panelRoot), panelRoot);
-        CheckField(nameof(optionBtn1), optionBtn1);
-        CheckField(nameof(optionBtn2), optionBtn2);
-        CheckField(nameof(optionBtn3), optionBtn3);
-        CheckField(nameof(optionTxt1), optionTxt1);
-        CheckField(nameof(optionTxt2), optionTxt2);
-        CheckField(nameof(optionTxt3), optionTxt3);
-        CheckField(nameof(dimImage), dimImage);
-
-        if (missingFields != null)
+        if (optionTxt1 == null && optionBtn1 != null)
         {
-            Debug.LogWarning($"[SkillSelectPanelController] Missing serialized references: {string.Join(", ", missingFields)}", this);
+            optionTxt1 = optionBtn1.transform.Find("Name")?.GetComponent<TMP_Text>();
+        }
+        if (optionTxt2 == null && optionBtn2 != null)
+        {
+            optionTxt2 = optionBtn2.transform.Find("Name")?.GetComponent<TMP_Text>();
+        }
+        if (optionTxt3 == null && optionBtn3 != null)
+        {
+            optionTxt3 = optionBtn3.transform.Find("Name")?.GetComponent<TMP_Text>();
+        }
+
+        if (dimImage == null)
+        {
+            dimImage = transform.Find("Dim")?.GetComponent<Image>();
+        }
+
+        if (dimCanvasGroup == null && dimImage != null)
+        {
+            dimCanvasGroup = dimImage.GetComponent<CanvasGroup>();
+        }
+    }
+
+    private void WarnIfMissingBindings()
+    {
+        if (hasLoggedMissingBindings)
+        {
+            return;
+        }
+
+        List<string> missingFields = new List<string>();
+        CheckField(nameof(panelRoot), panelRoot, missingFields);
+        CheckField(nameof(optionBtn1), optionBtn1, missingFields);
+        CheckField(nameof(optionBtn2), optionBtn2, missingFields);
+        CheckField(nameof(optionBtn3), optionBtn3, missingFields);
+        CheckField(nameof(optionTxt1), optionTxt1, missingFields);
+        CheckField(nameof(optionTxt2), optionTxt2, missingFields);
+        CheckField(nameof(optionTxt3), optionTxt3, missingFields);
+        CheckField(nameof(dimImage), dimImage, missingFields);
+
+        if (missingFields.Count == 0)
+        {
+            return;
+        }
+
+        hasLoggedMissingBindings = true;
+        Debug.LogWarning($"[SkillSelectPanelController] Missing serialized references after AutoBind: {string.Join(", ", missingFields)}", this);
+    }
+
+    private static void CheckField(string fieldName, UnityEngine.Object obj, List<string> missingFields)
+    {
+        if (obj == null)
+        {
+            missingFields.Add(fieldName);
         }
     }
 
@@ -71,6 +123,8 @@ public class SkillSelectPanelController : MonoBehaviour
         optionTxt1 = text1;
         optionTxt2 = text2;
         optionTxt3 = text3;
+        AutoBind();
+        WarnIfMissingBindings();
 
         BindButtons();
 
@@ -84,6 +138,7 @@ public class SkillSelectPanelController : MonoBehaviour
 
     public void ShowOptions(List<SkillRow> candidates, Action<SkillRow> onSelected)
     {
+        AutoBind();
         BindButtons();
 
         currentOptions.Clear();
@@ -105,7 +160,6 @@ public class SkillSelectPanelController : MonoBehaviour
         BindOption(2, optionBtn3, optionTxt3);
 
         if (panelRoot != null)
-        
         {
             panelRoot.SetActive(currentOptions.Count > 0);
         }
@@ -184,6 +238,9 @@ public class SkillSelectPanelController : MonoBehaviour
     [ContextMenu("Show Dummy Options For Test")]
     public void ShowDummyOptionsForTest()
     {
+        AutoBind();
+        WarnIfMissingBindings();
+
         if (panelRoot != null)
         {
             panelRoot.gameObject.SetActive(true);
@@ -230,6 +287,12 @@ public class SkillSelectPanelController : MonoBehaviour
         if (dimImage != null)
         {
             dimImage.raycastTarget = isEnabled;
+        }
+
+        if (dimCanvasGroup != null)
+        {
+            dimCanvasGroup.blocksRaycasts = isEnabled;
+            dimCanvasGroup.interactable = isEnabled;
         }
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,30 +28,6 @@ public class SkillBarController : MonoBehaviour
         Refresh();
     }
 
-    private void Start()
-    {
-        List<string> missingFields = null;
-        void CheckField(string fieldName, UnityEngine.Object obj)
-        {
-            if (obj == null)
-            {
-                missingFields ??= new List<string>();
-                missingFields.Add(fieldName);
-            }
-        }
-
-        CheckField(nameof(slotBtn1), slotBtn1);
-        CheckField(nameof(slotBtn2), slotBtn2);
-        CheckField(nameof(slotBtn3), slotBtn3);
-        CheckField(nameof(slotTxt1), slotTxt1);
-        CheckField(nameof(slotTxt2), slotTxt2);
-        CheckField(nameof(slotTxt3), slotTxt3);
-
-        if (missingFields != null)
-        {
-            Debug.LogWarning($"[SkillBarController] Missing serialized references: {string.Join(", ", missingFields)}", this);
-        }
-    }
 
     public void Configure(Button button1, Button button2, Button button3, TMP_Text text1, TMP_Text text2, TMP_Text text3)
     {
@@ -173,7 +148,8 @@ public class SkillBarController : MonoBehaviour
 
         if (button != null)
         {
-            button.interactable = available && skillSystem.IsSkillReady(skill);
+            bool isReady = available && skillSystem.IsSkillReady(skill);
+            button.interactable = enableSlotsOnStartForTest ? true : isReady;
         }
 
         if (text != null)
@@ -212,6 +188,7 @@ public class SkillBarController : MonoBehaviour
 
     private void EnableSlotsForTest()
     {
+        EnsureParentCanvasGroups();
         EnableSlot(slotBtn1, slotTxt1);
         EnableSlot(slotBtn2, slotTxt2);
         EnableSlot(slotBtn3, slotTxt3);
@@ -223,6 +200,25 @@ public class SkillBarController : MonoBehaviour
         {
             button.gameObject.SetActive(true);
             button.interactable = true;
+
+            Image slotImage = button.GetComponent<Image>();
+            if (slotImage != null)
+            {
+                slotImage.raycastTarget = true;
+            }
+
+            CanvasGroup slotCanvasGroup = button.GetComponent<CanvasGroup>();
+            if (slotCanvasGroup != null)
+            {
+                slotCanvasGroup.blocksRaycasts = true;
+                slotCanvasGroup.interactable = true;
+            }
+
+            GraphicRaycaster raycaster = button.GetComponentInParent<GraphicRaycaster>();
+            if (raycaster != null)
+            {
+                raycaster.enabled = true;
+            }
         }
 
         if (text != null)
@@ -230,4 +226,15 @@ public class SkillBarController : MonoBehaviour
             text.text = "EMPTY";
         }
     }
+
+    private void EnsureParentCanvasGroups()
+    {
+        CanvasGroup[] groups = GetComponentsInParent<CanvasGroup>(true);
+        for (int i = 0; i < groups.Length; i++)
+        {
+            groups[i].blocksRaycasts = true;
+            groups[i].interactable = true;
+        }
+    }
+
 }
