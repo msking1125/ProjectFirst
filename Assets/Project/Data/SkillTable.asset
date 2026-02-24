@@ -16,30 +16,36 @@ MonoBehaviour:
   - id: skill_fire_burst
     name: Fire Burst
     element: 0
-    coefficient: 1.5
-    cooldown: 8
-    range: 9999
-  - id: skill_mind_break
-    name: Mind Break
-    element: 2
     coefficient: 1.2
-    cooldown: 6
-    range: 9999
-  - id: skill_wave_crash
-    name: Wave Crash
-    element: 1
-    coefficient: 1.8
-    cooldown: 10
-    range: 9999
-  - id: skill_arc_shot
-    name: Arc Shot
-    element: 0
-    coefficient: 1.1
     cooldown: 4
     range: 9999
-  - id: skill_focus_beam
-    name: Focus Beam
+  - id: skill_mind_wave
+    name: Mind Wave
+    element: 1
+    coefficient: 1.35
+    cooldown: 5
+    range: 9999
+  - id: skill_reason_break
+    name: Reason Break
+    element: 2
+    coefficient: 1.5
+    cooldown: 6
+    range: 9999
+  - id: skill_inferno
+    name: Inferno
+    element: 0
+    coefficient: 1.8
+    cooldown: 8
+    range: 9999
+  - id: skill_flash_insight
+    name: Flash Insight
+    element: 1
+    coefficient: 1.6
+    cooldown: 7
+    range: 9999
+  - id: skill_logic_storm
+    name: Logic Storm
     element: 2
     coefficient: 1.7
-    cooldown: 9
+    cooldown: 7.5
     range: 9999

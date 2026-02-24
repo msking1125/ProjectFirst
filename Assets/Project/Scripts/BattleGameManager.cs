@@ -98,6 +98,7 @@ public class BattleGameManager : MonoBehaviour
     {
         if (runSession != null)
         {
+            runSession.OnLevelChanged -= HandleLevelChanged;
             runSession.OnReachedSkillPickLevel -= HandleReachedSkillPickLevel;
         }
 
@@ -190,7 +191,11 @@ public class BattleGameManager : MonoBehaviour
         }
 
         skillSystem = new SkillSystem(skillTable, playerAgent);
-        runSession.OnReachedSkillPickLevel -= HandleReachedSkillPickLevel; // 중복 방지
+
+        // 이벤트 중복 연결 방지 후 다시 연결
+        runSession.OnLevelChanged -= HandleLevelChanged;
+        runSession.OnReachedSkillPickLevel -= HandleReachedSkillPickLevel;
+        runSession.OnLevelChanged += HandleLevelChanged;
         runSession.OnReachedSkillPickLevel += HandleReachedSkillPickLevel;
     }
 
@@ -222,10 +227,20 @@ public class BattleGameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 레벨업 시 스킬 선택 패널 표시
+    /// 레벨이 변경되었을 때 호출되어 UI를 갱신.
+    /// </summary>
+    private void HandleLevelChanged(int level)
+    {
+        Debug.Log($"[BattleGameManager] Level changed to {level}. Exp={runSession?.Exp}/{runSession?.ExpToNextLevel}", this);
+        RefreshStatusUI();
+    }
+
+    /// <summary>
+    /// 스킬 선택 레벨(예: 3, 6, 9...)에 도달했을 때 스킬 선택 패널 표시.
     /// </summary>
     private void HandleReachedSkillPickLevel(int level)
     {
+        Debug.Log($"[BattleGameManager] Reached skill-pick level {level}. Opening skill select panel.", this);
         OpenSkillSelectPanel();
     }
 
