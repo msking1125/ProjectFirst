@@ -16,6 +16,18 @@ public class BattleGameManager : MonoBehaviour
     {
         if (Instance != null) return;
 
+#if UNITY_2022_2_OR_NEWER
+        BattleGameManager existingManager = FindFirstObjectByType<BattleGameManager>();
+#else
+        BattleGameManager existingManager = GameObject.FindObjectOfType<BattleGameManager>();
+#endif
+
+        if (existingManager != null)
+        {
+            Instance = existingManager;
+            return;
+        }
+
         GameObject managerObject = new GameObject("BattleGameManager");
         managerObject.AddComponent<BattleGameManager>();
     }
@@ -289,11 +301,70 @@ public class BattleGameManager : MonoBehaviour
             resultText = battleHudInstance.ResultText;
         }
 
+        TryResolveHudReferencesFromCanvas();
+
         SetupHudIfNeeded();
 
         if (skillBarController != null)
         {
             skillBarController.Setup(skillSystem);
+        }
+    }
+
+    private void TryResolveHudReferencesFromCanvas()
+    {
+        if (targetCanvas == null)
+        {
+            return;
+        }
+
+        if (skillSelectPanelController == null)
+        {
+            SkillSelectPanelController[] panels = targetCanvas.GetComponentsInChildren<SkillSelectPanelController>(true);
+            if (panels != null && panels.Length > 0)
+            {
+                skillSelectPanelController = panels[0];
+            }
+            WarnDuplicateControllers("SkillSelectPanelController", panels);
+        }
+
+        if (skillBarController == null)
+        {
+            SkillBarController[] bars = targetCanvas.GetComponentsInChildren<SkillBarController>(true);
+            if (bars != null && bars.Length > 0)
+            {
+                skillBarController = bars[0];
+            }
+            WarnDuplicateControllers("SkillBarController", bars);
+        }
+
+        if (statusText == null)
+        {
+            TMP_Text[] texts = targetCanvas.GetComponentsInChildren<TMP_Text>(true);
+            List<TMP_Text> matchedTexts = new List<TMP_Text>();
+            foreach (TMP_Text text in texts)
+            {
+                if (text != null && text.name.Contains("RunStatusText"))
+                {
+                    matchedTexts.Add(text);
+                }
+            }
+
+            if (matchedTexts.Count > 0)
+            {
+                statusText = matchedTexts[0];
+            }
+
+            if (matchedTexts.Count >= 2)
+            {
+                List<string> names = new List<string>(matchedTexts.Count);
+                foreach (TMP_Text text in matchedTexts)
+                {
+                    names.Add(text.name);
+                }
+
+                Debug.LogWarning($"[BattleGameManager] Found {matchedTexts.Count} RunStatusText TMP_Text instances in canvas hierarchy: {string.Join(", ", names)}", this);
+            }
         }
     }
 
