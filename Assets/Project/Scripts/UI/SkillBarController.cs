@@ -75,6 +75,40 @@ public class SkillBarController : MonoBehaviour
 
         slotSkills[slotIndex] = skill;
         Refresh();
+
+        Button slotButton = GetSlotButton(slotIndex);
+        EnsureSlotButtonInteractive(slotButton, true);
+    }
+
+    public void SetSlot(int slotIndex, string skillName)
+    {
+        TMP_Text slotText = GetSlotText(slotIndex);
+        if (slotText != null)
+        {
+            slotText.text = string.IsNullOrWhiteSpace(skillName) ? $"EMPTY {slotIndex + 1}" : skillName;
+        }
+
+        Button slotButton = GetSlotButton(slotIndex);
+        EnsureSlotButtonInteractive(slotButton, !string.IsNullOrWhiteSpace(skillName));
+    }
+
+    public void ClearSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= slotSkills.Length)
+        {
+            return;
+        }
+
+        slotSkills[slotIndex] = null;
+
+        TMP_Text slotText = GetSlotText(slotIndex);
+        if (slotText != null)
+        {
+            slotText.text = $"EMPTY {slotIndex + 1}";
+        }
+
+        Button slotButton = GetSlotButton(slotIndex);
+        EnsureSlotButtonInteractive(slotButton, false);
     }
 
     public void CastSlot1()
@@ -132,6 +166,45 @@ public class SkillBarController : MonoBehaviour
         if (text != null)
         {
             text.text = skill != null ? skill.name : $"EMPTY {index + 1}";
+        }
+    }
+
+
+    private Button GetSlotButton(int slotIndex)
+    {
+        return slotIndex switch
+        {
+            0 => slotBtn1,
+            1 => slotBtn2,
+            2 => slotBtn3,
+            _ => null
+        };
+    }
+
+    private TMP_Text GetSlotText(int slotIndex)
+    {
+        return slotIndex switch
+        {
+            0 => slotTxt1,
+            1 => slotTxt2,
+            2 => slotTxt3,
+            _ => null
+        };
+    }
+
+    private void EnsureSlotButtonInteractive(Button button, bool interactable)
+    {
+        if (button == null)
+        {
+            return;
+        }
+
+        button.interactable = interactable;
+
+        Image image = button.GetComponent<Image>();
+        if (image != null)
+        {
+            image.raycastTarget = true;
         }
     }
 

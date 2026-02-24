@@ -62,6 +62,7 @@ public class BattleGameManager : MonoBehaviour
 
     private RunSession runSession;
     private SkillSystem skillSystem;
+    private bool hasLoggedZeroRewardWarning;
 
     private void Awake()
     {
@@ -203,8 +204,20 @@ public class BattleGameManager : MonoBehaviour
         MonsterRow row = monsterTable.GetByIdAndGrade(monsterId, grade) ?? monsterTable.GetById(monsterId);
         if (row == null) return;
 
-        runSession.AddGold(row.goldReward);
-        runSession.AddExp(row.expReward);
+        int expReward = row.expReward;
+        int goldReward = row.goldReward;
+        Debug.Log($"[BattleGameManager] Enemy killed. monsterId={monsterId}, grade={grade}, expReward={expReward}, goldReward={goldReward}, before Lv={runSession.Level} Exp={runSession.Exp}/{runSession.ExpToNextLevel}");
+
+        if (expReward == 0 && goldReward == 0 && !hasLoggedZeroRewardWarning)
+        {
+            Debug.LogWarning($"[BattleGameManager] 보상 데이터 0: monsterId={monsterId}, grade={grade}");
+            hasLoggedZeroRewardWarning = true;
+        }
+
+        runSession.AddGold(goldReward);
+        runSession.AddExp(expReward);
+
+        Debug.Log($"[BattleGameManager] Rewards applied. after Lv={runSession.Level} Exp={runSession.Exp}/{runSession.ExpToNextLevel} Gold={runSession.Gold}");
         RefreshStatusUI();
     }
 
@@ -628,9 +641,39 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void RefreshStatusUI()
     {
-        if (statusText == null || runSession == null) return;
+        if (runSession == null) return;
+
+        if (statusText == null)
+        {
+            TryResolveStatusTextFallback();
+            if (statusText == null)
+            {
+                Debug.LogWarning("[BattleGameManager] statusText is null. Unable to update run status UI.", this);
+                return;
+            }
+        }
 
         statusText.text = $"Lv {runSession.Level}  EXP {runSession.Exp}/{runSession.ExpToNextLevel}\nGold {runSession.Gold}";
+    }
+
+
+    private void TryResolveStatusTextFallback()
+    {
+        GameObject runStatusObject = GameObject.Find("RunStatusText");
+        if (runStatusObject != null)
+        {
+            statusText = runStatusObject.GetComponent<TMP_Text>();
+            if (statusText != null)
+            {
+                return;
+            }
+        }
+
+#if UNITY_2022_2_OR_NEWER
+        statusText = FindFirstObjectByType<TMP_Text>();
+#else
+        statusText = GameObject.FindObjectOfType<TMP_Text>();
+#endif
     }
 
     /// <summary>

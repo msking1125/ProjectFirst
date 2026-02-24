@@ -68,6 +68,8 @@ public class SkillSystem
         int hitCount = 0;
         int baseDamage = Mathf.RoundToInt(playerAgent.AttackPower * skill.coefficient);
 
+        Debug.Log($"[SkillSystem] Cast start. skill='{skill.name}', slot={slotIndex + 1}, aliveEnemies={aliveEnemies.Count}, baseDamage={baseDamage}");
+
         for (int i = 0; i < aliveEnemies.Count; i++)
         {
             Enemy enemy = aliveEnemies[i];
@@ -80,9 +82,12 @@ public class SkillSystem
             int finalDamage = Mathf.RoundToInt(baseDamage * multiplier);
             enemy.TakeDamage(finalDamage, false);
             hitCount++;
+
+            string enemyName = enemy.name;
+            Debug.Log($"[SkillSystem] AoE hit {hitCount}: enemy={enemyName}, finalDamage={finalDamage}, multiplier={multiplier:0.##}");
         }
 
-        Debug.Log($"[SkillSystem] Cast '{skill.name}' slot={slotIndex + 1}, hit={hitCount}");
+        Debug.Log($"[SkillSystem] Cast complete. skill='{skill.name}', slot={slotIndex + 1}, hit={hitCount}");
         return hitCount;
     }
 

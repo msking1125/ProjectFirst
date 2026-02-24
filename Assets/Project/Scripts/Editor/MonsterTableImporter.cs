@@ -14,7 +14,7 @@ public static class MonsterTableImporter
     private const string PrefabDirectory = "Assets/Project/Prefabs/Enemy";
     private static readonly string[] RequiredColumns =
     {
-        "id", "grade", "name", "hp", "atk", "def", "critChance", "critMultiplier", "moveSpeed", "element", "prefab", "expReward", "goldReward"
+        "id", "grade", "name", "hp", "atk", "def", "critChance", "critMultiplier", "moveSpeed", "element", "prefab"
     };
 
     [MenuItem("Tools/Game/Import Monster CSV")]
@@ -109,8 +109,8 @@ public static class MonsterTableImporter
                 critMultiplier = critMultiplierValue,
                 // If prefabName is missing, ResolvePrefab returns null and logs warning
                 prefab = ResolvePrefab(SafeGet(cols, prefabIdx), id),
-                expReward = Mathf.Max(0, Mathf.RoundToInt(ParseFloat(SafeGet(cols, expRewardIdx)))),
-                goldReward = Mathf.Max(0, Mathf.RoundToInt(ParseFloat(SafeGet(cols, goldRewardIdx))))
+                expReward = ParseOptionalReward(cols, expRewardIdx, "expReward", id),
+                goldReward = ParseOptionalReward(cols, goldRewardIdx, "goldReward", id)
             };
 
             string gradeRaw = SafeGet(cols, gradeIdx);
@@ -176,6 +176,28 @@ public static class MonsterTableImporter
         if (TryParseFloat(s, out float v))
             return v;
         return 0f;
+    }
+
+    private static int ParseOptionalReward(string[] cols, int index, string columnName, string monsterId)
+    {
+        if (index < 0)
+        {
+            return 0;
+        }
+
+        string raw = SafeGet(cols, index);
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return 0;
+        }
+
+        if (TryParseFloat(raw, out float value))
+        {
+            return Mathf.Max(0, Mathf.RoundToInt(value));
+        }
+
+        Debug.LogWarning($"[MonsterTableImporter] Failed to parse {columnName} for id '{monsterId ?? "(null)"}'. raw='{raw}'. default=0");
+        return 0;
     }
 
     private static bool TryParseFloat(string s, out float v)
