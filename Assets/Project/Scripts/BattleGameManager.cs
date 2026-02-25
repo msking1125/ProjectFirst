@@ -53,6 +53,7 @@ public class BattleGameManager : MonoBehaviour
 
     [Header("Result UI")]
     [SerializeField] private GameObject resultPanel;
+    [SerializeField] private ResultPanelManager resultPanelManager;
 
     [Header("Scene")]
     [SerializeField] private string titleSceneName = "Title";
@@ -80,6 +81,7 @@ public class BattleGameManager : MonoBehaviour
         EnsureBaseHealth();
         EnsureHUD();
         EnsureResultUI();
+        EnsureResultPanelManager();
         SetResultUI(false, string.Empty);
         RefreshStatusUI();
     }
@@ -293,7 +295,38 @@ public class BattleGameManager : MonoBehaviour
         if (gameEnded) return;
         gameEnded = true;
         Time.timeScale = 0f;
+
+        // UI Toolkit 풀스크린 패널 우선 사용
+        EnsureResultPanelManager();
+        if (resultPanelManager != null)
+        {
+            if (message == "Victory")
+            {
+                resultPanelManager.ShowWin();
+            }
+            else
+            {
+                resultPanelManager.ShowLose();
+            }
+            return;
+        }
+
+        // 없으면 기존 uGUI 패널 사용
         SetResultUI(true, message);
+    }
+
+    /// <summary>
+    /// ResultPanelManager(UI Toolkit)를 찾아 연결
+    /// </summary>
+    private void EnsureResultPanelManager()
+    {
+        if (resultPanelManager != null) return;
+
+#if UNITY_2022_2_OR_NEWER
+        resultPanelManager = FindFirstObjectByType<ResultPanelManager>();
+#else
+        resultPanelManager = GameObject.FindObjectOfType<ResultPanelManager>();
+#endif
     }
 
     /// <summary>

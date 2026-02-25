@@ -1,11 +1,10 @@
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 /// <summary>
 /// 타이틀 화면 UI 및 버튼 동작 관리.
+/// 3D 프리뷰 대신, 배경은 별도의 2D 이미지나 월드 연출로 처리합니다.
 /// </summary>
 public class TitleManager : MonoBehaviour
 {
@@ -19,12 +18,6 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private VoidEventChannelSO startButtonEvent;
     [SerializeField] private VoidEventChannelSO settingsButtonEvent;
     [SerializeField] private VoidEventChannelSO quitButtonEvent;
-
-    [Header("Background (Addressables)")]
-    [SerializeField] private bool useAddressableBackground = true;
-    [SerializeField] private AssetReferenceGameObject backgroundPrefab;
-
-    private AsyncOperationHandle<GameObject>? _backgroundHandle;
 
     private Button _startButton;
     private Button _settingsButton;
@@ -71,7 +64,6 @@ public class TitleManager : MonoBehaviour
     private void OnEnable()
     {
         SetupUI();
-        LoadBackgroundAsync();
     }
 
     private void OnDisable()
@@ -84,12 +76,6 @@ public class TitleManager : MonoBehaviour
         if (Instance == this)
         {
             Instance = null;
-        }
-
-        if (_backgroundHandle.HasValue)
-        {
-            Addressables.Release(_backgroundHandle.Value);
-            _backgroundHandle = null;
         }
     }
 
@@ -144,16 +130,6 @@ public class TitleManager : MonoBehaviour
         {
             _quitButton.clicked -= HandleQuitClicked;
         }
-    }
-
-    private void LoadBackgroundAsync()
-    {
-        if (!useAddressableBackground || backgroundPrefab == null)
-        {
-            return;
-        }
-
-        _backgroundHandle = backgroundPrefab.InstantiateAsync();
     }
 
     private void HandleStartClicked()

@@ -293,6 +293,7 @@ MonoBehaviour:
   skillBarPrefab: {fileID: 3971674745986000917}
   skillSelectPanelPrefab: {fileID: 2897921023371036348}
   resultPanel: {fileID: 0}
+  resultPanelManager: {fileID: 0}
   titleSceneName: Title
 --- !u!4 &110781536
 Transform:
@@ -8309,6 +8310,72 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   hpText: {fileID: 862557656}
+--- !u!1 &1145678718
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1145678721}
+  - component: {fileID: 1145678720}
+  - component: {fileID: 1145678719}
+  m_Layer: 0
+  m_Name: ResultUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1145678719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1145678718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6efae3f15b23e6429a5a71e6440c98b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  winTitleText: "\uC2B9\uB9AC"
+  winSubtitleText: "\uAE30\uC9C0\uB97C \uC9C0\uCF1C\uB0C8\uC2B5\uB2C8\uB2E4!"
+  loseTitleText: "\uD328\uBC30"
+  loseSubtitleText: "\uAE30\uC9C0\uAC00 \uD30C\uAD34\uB418\uC5C8\uC2B5\uB2C8\uB2E4..."
+--- !u!114 &1145678720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1145678718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PanelSettings: {fileID: 0}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 03d50a82a1d870647b4921667a506423,
+    type: 3}
+  m_SortingOrder: 0
+--- !u!4 &1145678721
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1145678718}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.24, y: 11.32, z: -0.01999998}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1196524927 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1492427911452727513, guid: fd6d85c0b29706e4f95d58e522edd9f9,
@@ -9671,3 +9738,4 @@ SceneRoots:
   - {fileID: 221309680}
   - {fileID: 404325891}
   - {fileID: 31644602}
+  - {fileID: 1145678721}

@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="project://database/Assets/_Project/UI/Title/TitleView.uss" />
+    <ui:Style src="project://database/Assets/Project/UI/Title/TitleView.uss" />
     <ui:VisualElement class="title-root">
         <ui:VisualElement class="title-container">
             <ui:Label name="title-label" class="title-text" text="Project First" />
