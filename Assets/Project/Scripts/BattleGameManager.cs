@@ -87,11 +87,13 @@ public class BattleGameManager : MonoBehaviour
     private void OnEnable()
     {
         Enemy.EnemyKilled += HandleEnemyKilled;
+        Debug.Log("[BGM] Subscribed EnemyKilled");
     }
 
     private void OnDisable()
     {
         Enemy.EnemyKilled -= HandleEnemyKilled;
+        Debug.Log("[BGM] Unsubscribed EnemyKilled");
     }
 
     private void OnDestroy()
@@ -202,16 +204,35 @@ public class BattleGameManager : MonoBehaviour
     /// <summary>
     /// 적 처치시 골드/경험치 지급, 상태 UI 새로고침
     /// </summary>
-    private void HandleEnemyKilled(string monsterId, MonsterGrade grade)
+    private void HandleEnemyKilled(Enemy enemy)
     {
-        if (gameEnded || runSession == null || monsterTable == null) return;
+        Debug.Log("[BGM] HandleEnemyKilled called");
 
+        if (gameEnded || monsterTable == null || enemy == null)
+        {
+            return;
+        }
+
+        if (runSession == null)
+        {
+            InitializeRunSession();
+            if (runSession == null)
+            {
+                return;
+            }
+        }
+
+        string monsterId = enemy.MonsterId;
+        MonsterGrade grade = enemy.Grade;
         MonsterRow row = monsterTable.GetByIdAndGrade(monsterId, grade) ?? monsterTable.GetById(monsterId);
-        if (row == null) return;
+        if (row == null)
+        {
+            return;
+        }
 
         int expReward = row.expReward;
         int goldReward = row.goldReward;
-        Debug.Log($"[BattleGameManager] Enemy killed. monsterId={monsterId}, grade={grade}, expReward={expReward}, goldReward={goldReward}, before Lv={runSession.Level} Exp={runSession.Exp}/{runSession.ExpToNextLevel}");
+        Debug.Log($"[BGM] reward exp={expReward} gold={goldReward}");
 
         if (expReward == 0 && goldReward == 0 && !hasLoggedZeroRewardWarning)
         {
@@ -219,8 +240,8 @@ public class BattleGameManager : MonoBehaviour
             hasLoggedZeroRewardWarning = true;
         }
 
-        runSession.AddGold(goldReward);
         runSession.AddExp(expReward);
+        runSession.AddGold(goldReward);
 
         Debug.Log($"[BattleGameManager] Rewards applied. after Lv={runSession.Level} Exp={runSession.Exp}/{runSession.ExpToNextLevel} Gold={runSession.Gold}");
         RefreshStatusUI();

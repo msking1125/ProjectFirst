@@ -17,7 +17,7 @@ public struct WaveMultipliers
 
 public class Enemy : MonoBehaviour
 {
-    public static event Action<string, MonsterGrade> EnemyKilled;
+    public static event Action<Enemy> EnemyKilled;
     private static readonly int BaseColorPropertyId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorPropertyId = Shader.PropertyToID("_Color");
     private const string MonsterRunStateName = "Monster_run";
@@ -98,6 +98,7 @@ public class Enemy : MonoBehaviour
     private MonsterGrade appliedMonsterGrade = MonsterGrade.Normal;
     private string appliedMoveSpeedSource = "default";
     private bool hasLoggedMoveSpeedForSpawn;
+    private bool shouldNotifyKilled;
 
     private bool UsesRigidbodyMovement => cachedRigidbody != null && cachedRigidbody.isKinematic && cachedRigidbody.gameObject.activeInHierarchy;
 
@@ -106,6 +107,8 @@ public class Enemy : MonoBehaviour
 
     public float Defense => currentCombatStats.def;
     public bool IsAlive => isAlive;
+    public string MonsterId => appliedMonsterId;
+    public MonsterGrade Grade => appliedMonsterGrade;
 
     void Awake()
     {
@@ -197,6 +200,7 @@ public class Enemy : MonoBehaviour
         isInPool = false;
         isDeathReturning = false;
         hasHitBarrier = false;
+        shouldNotifyKilled = false;
 
         if (EnemyManager.Instance != null)
         {
@@ -285,6 +289,13 @@ public class Enemy : MonoBehaviour
 
     private void ReturnToPool()
     {
+        if (shouldNotifyKilled)
+        {
+            shouldNotifyKilled = false;
+            EnemyKilled?.Invoke(this);
+            Debug.Log($"[Enemy] Killed. id={MonsterId} grade={Grade}");
+        }
+
         if (ownerPool != null && !isInPool)
         {
             ownerPool.Return(this);
@@ -379,7 +390,7 @@ public class Enemy : MonoBehaviour
         }
 
         isAlive = false;
-        EnemyKilled?.Invoke(appliedMonsterId, appliedMonsterGrade);
+        shouldNotifyKilled = true;
         TrySetAnimatorTrigger(DieTriggerId, hasDieTrigger);
 
         if (!useDeathReturnDelay || deathReturnDelay <= 0f)
