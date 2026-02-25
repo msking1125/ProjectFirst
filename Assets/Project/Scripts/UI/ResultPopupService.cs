@@ -88,26 +88,14 @@ public class ResultPopupService : MonoBehaviour
         {
             _panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
 
-            // UIThemeStyleSheet 적용이 안되어 있으면 기본 Theme Style Sheet를 시도해서 경고를 방지
+            // ThemeStyleSheet가 비어 있으면 기본 Light 테마를 자동으로 연결 시도
 #if UNITY_EDITOR
-            // 에디터에서 경고를 막기 위해 패키지 경로에서 DefaultTheme를 시도하여 로드
-            var defaultTheme = UnityEditor.AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(
-                "Packages/com.unity.ui/Runtime/Themes/DefaultCommonLight.uss"
-            );
-            if (defaultTheme != null)
-            {
-                _panelSettings.themeStyleSheet = defaultTheme;
-            }
-            else
+            TryAssignEditorDefaultTheme();
+            if (_panelSettings.themeStyleSheet == null)
             {
                 Debug.LogWarning(
-                    "[ResultPopupService] PanelSettings에 할당할 ThemeStyleSheet(기본 Light 테마)를 찾을 수 없습니다.\n" +
-                    "UnityEngine.Debug:LogWarning (object)\n" +
-                    "ResultPopupService:EnsureUIDocument () (at Assets/Project/Scripts/UI/ResultPopupService.cs:103)\n" +
-                    "ResultPopupService:Awake () (at Assets/Project/Scripts/UI/ResultPopupService.cs:74)\n" +
-                    "UnityEngine.GameObject:AddComponent<ResultPopupService> ()\n" +
-                    "ResultPopupService:CreateSingleton () (at Assets/Project/Scripts/UI/ResultPopupService.cs:59)\n" +
-                    "ResultPopupService:AutoCreate () (at Assets/Project/Scripts/UI/ResultPopupService.cs:45)"
+                    "[ResultPopupService] PanelSettings에 할당할 ThemeStyleSheet(기본 Light 테마)를 찾을 수 없습니다. " +
+                    "패키지/프로젝트 경로를 확인해 주세요."
                 );
             }
 #else
@@ -149,6 +137,35 @@ public class ResultPopupService : MonoBehaviour
             OnCloseClicked
         );
     }
+
+#if UNITY_EDITOR
+    private void TryAssignEditorDefaultTheme()
+    {
+        if (_panelSettings.themeStyleSheet != null)
+        {
+            return;
+        }
+
+        string[] candidatePaths =
+        {
+            "Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss",
+            "Packages/com.unity.ui/PackageResources/StyleSheets/Generated/Default.tss",
+            "Packages/com.unity.ui/Runtime/Themes/DefaultCommonLight.uss"
+        };
+
+        foreach (var path in candidatePaths)
+        {
+            var theme = UnityEditor.AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(path);
+            if (theme == null)
+            {
+                continue;
+            }
+
+            _panelSettings.themeStyleSheet = theme;
+            return;
+        }
+    }
+#endif
 
     #region Public API
 
@@ -296,4 +313,3 @@ public class ResultPopupService : MonoBehaviour
 
     #endregion
 }
-
