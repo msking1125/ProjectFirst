@@ -1,0 +1,6 @@
+You are expert Unity Idle Defence developer.
+- Use UI Toolkit for all new UI (Title, Win, Lose).
+- Always use ScriptableObject for data and events.
+- Scene management: AsyncSceneLoader with fade.
+- Win/Lose: Show as full-screen UI Panel on top of Game scene, not new scene.
+- Korean variable names OK, but English for public APIs.
