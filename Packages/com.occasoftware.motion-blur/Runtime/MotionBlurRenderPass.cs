@@ -20,8 +20,6 @@ namespace OccaSoftware.MotionBlur.Runtime
 
         ComputeShader shader;
 
-        string motionVectorTargetId = "_MotionVectorTexture";
-
         private const string motionBlurTargetId = "_MotionBlurTarget";
 
         private const string profilerTag = "[Motion Blur] Render Pass";
