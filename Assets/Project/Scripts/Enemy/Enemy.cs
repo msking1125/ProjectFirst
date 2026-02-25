@@ -292,8 +292,10 @@ public class Enemy : MonoBehaviour
         if (shouldNotifyKilled)
         {
             shouldNotifyKilled = false;
+            string monsterId = MonsterId;
+            MonsterGrade grade = Grade;
             EnemyKilled?.Invoke(this);
-            Debug.Log($"[Enemy] Killed. id={MonsterId} grade={Grade}");
+            Debug.Log($"[Enemy] Killed. id={monsterId} grade={grade}");
         }
 
         if (ownerPool != null && !isInPool)
