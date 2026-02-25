@@ -55,14 +55,30 @@ public class TitleManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        // UI Document 찾기 우선순위 조정: 
+        // (1) 인스펙터 할당, (2) 자식 오브젝트 포함하여 GetComponentInChildren 시도
         if (uiDocument == null)
         {
+            // 우선 현재 오브젝트, 없으면 자식에서 찾기
             uiDocument = GetComponent<UIDocument>();
+            if (uiDocument == null)
+            {
+                uiDocument = GetComponentInChildren<UIDocument>(true);
+            }
         }
     }
 
     private void OnEnable()
     {
+        // SetupUI에서 uiDocument가 없으면 마지막 시도로 한 번 더 찾아줌
+        if (uiDocument == null)
+        {
+            uiDocument = GetComponent<UIDocument>();
+            if (uiDocument == null)
+            {
+                uiDocument = GetComponentInChildren<UIDocument>(true);
+            }
+        }
         SetupUI();
     }
 
@@ -83,7 +99,7 @@ public class TitleManager : MonoBehaviour
     {
         if (uiDocument == null)
         {
-            Debug.LogWarning("[TitleManager] UIDocument 가 설정되지 않았습니다.");
+            Debug.LogWarning("[TitleManager] UIDocument 가 설정되지 않았습니다. Scene에 UIDocument가 포함된지 다시 확인하세요.");
             return;
         }
 
@@ -171,4 +187,3 @@ public class TitleManager : MonoBehaviour
         Application.Quit();
     }
 }
-

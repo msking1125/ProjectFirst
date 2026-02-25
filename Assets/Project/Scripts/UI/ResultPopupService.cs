@@ -87,6 +87,37 @@ public class ResultPopupService : MonoBehaviour
         if (_panelSettings == null)
         {
             _panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
+
+            // UIThemeStyleSheet 적용이 안되어 있으면 기본 Theme Style Sheet를 시도해서 경고를 방지
+#if UNITY_EDITOR
+            // 에디터에서 경고를 막기 위해 패키지 경로에서 DefaultTheme를 시도하여 로드
+            var defaultTheme = UnityEditor.AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(
+                "Packages/com.unity.ui/Runtime/Themes/DefaultCommonLight.uss"
+            );
+            if (defaultTheme != null)
+            {
+                _panelSettings.themeStyleSheet = defaultTheme;
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[ResultPopupService] PanelSettings에 할당할 ThemeStyleSheet(기본 Light 테마)를 찾을 수 없습니다.\n" +
+                    "UnityEngine.Debug:LogWarning (object)\n" +
+                    "ResultPopupService:EnsureUIDocument () (at Assets/Project/Scripts/UI/ResultPopupService.cs:103)\n" +
+                    "ResultPopupService:Awake () (at Assets/Project/Scripts/UI/ResultPopupService.cs:74)\n" +
+                    "UnityEngine.GameObject:AddComponent<ResultPopupService> ()\n" +
+                    "ResultPopupService:CreateSingleton () (at Assets/Project/Scripts/UI/ResultPopupService.cs:59)\n" +
+                    "ResultPopupService:AutoCreate () (at Assets/Project/Scripts/UI/ResultPopupService.cs:45)"
+                );
+            }
+#else
+            // 런타임 - 유저가 직접 테마를 Resources나 Addressables등으로 지정하도록 가이드
+            // 이 자리에 ThemeStyleSheet가 없으면 경고
+            if (_panelSettings.themeStyleSheet == null)
+            {
+                Debug.LogWarning("[ResultPopupService] PanelSettings에 Theme Style Sheet가 지정되지 않아 UI가 예상대로 렌더링되지 않을 수 있습니다. Resources 폴더에서 커스텀 ThemeStyleSheet를 로드해 적용하세요.");
+            }
+#endif
         }
         _uiDocument.panelSettings = _panelSettings;
 
