@@ -98,7 +98,6 @@ public class Enemy : MonoBehaviour
     private MonsterGrade appliedMonsterGrade = MonsterGrade.Normal;
     private string appliedMoveSpeedSource = "default";
     private bool hasLoggedMoveSpeedForSpawn;
-    private bool shouldNotifyKilled;
 
     private bool UsesRigidbodyMovement => cachedRigidbody != null && cachedRigidbody.isKinematic && cachedRigidbody.gameObject.activeInHierarchy;
 
@@ -200,7 +199,6 @@ public class Enemy : MonoBehaviour
         isInPool = false;
         isDeathReturning = false;
         hasHitBarrier = false;
-        shouldNotifyKilled = false;
 
         if (EnemyManager.Instance != null)
         {
@@ -225,7 +223,7 @@ public class Enemy : MonoBehaviour
 
         if (currentHP <= 0f)
         {
-            Debug.Log($"[Enemy] Die name={name} monsterId={MonsterId} grade={Grade} => invoking EnemyKilled");
+            Debug.Log($"[Enemy] Die name={name} monsterId={MonsterId} grade={Grade}");
             HandleDeath();
         }
     }
@@ -290,16 +288,6 @@ public class Enemy : MonoBehaviour
 
     private void ReturnToPool()
     {
-        if (shouldNotifyKilled)
-        {
-            shouldNotifyKilled = false;
-            string monsterId = MonsterId;
-            MonsterGrade grade = Grade;
-            Debug.Log($"[Enemy] Invoking EnemyKilled name={name} monsterId={monsterId} grade={grade}");
-            EnemyKilled?.Invoke(this);
-            Debug.Log($"[Enemy] Killed. id={monsterId} grade={grade}");
-        }
-
         if (ownerPool != null && !isInPool)
         {
             ownerPool.Return(this);
@@ -394,7 +382,10 @@ public class Enemy : MonoBehaviour
         }
 
         isAlive = false;
-        shouldNotifyKilled = true;
+        string monsterId = MonsterId;
+        MonsterGrade grade = Grade;
+        Debug.Log($"[Enemy] Killed. id={monsterId} grade={grade}");
+        EnemyKilled?.Invoke(this);
         TrySetAnimatorTrigger(DieTriggerId, hasDieTrigger);
 
         if (!useDeathReturnDelay || deathReturnDelay <= 0f)
