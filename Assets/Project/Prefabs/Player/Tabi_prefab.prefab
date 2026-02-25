@@ -992,7 +992,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6715985925819283625
 Transform:
   m_ObjectHideFlags: 0
@@ -1030,7 +1030,7 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 45
+    FieldOfView: 60
     OrthographicSize: 5
     NearClipPlane: 0.1
     FarClipPlane: 1000
@@ -4419,9 +4419,12 @@ PlayableDirector:
     value: {fileID: 2907172026179326556}
   - key: {fileID: -1128967293139454723, guid: ba11620f289bb634eb6af28a45a6d7ca, type: 2}
     value: {fileID: 2773090444568930573}
+  - key: {fileID: -7928353836289627433, guid: ba11620f289bb634eb6af28a45a6d7ca, type: 2}
+    value: {fileID: 1416134915412417721}
   m_ExposedReferences:
     m_References:
     - 0b09a7e133ca63e4e8042d4dbc1989b6: {fileID: 5444567186362710622}
+    - 253f9297136d52c479cbcf9361ecf7eb: {fileID: 5444567186362710622}
 --- !u!1 &6009920199136161933
 GameObject:
   m_ObjectHideFlags: 0
@@ -6371,7 +6374,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8114311999316456311}
   - component: {fileID: 2773090444568930573}
-  - component: {fileID: 749334424783464298}
   m_Layer: 0
   m_Name: Tabi_rig
   m_TagString: Untagged
@@ -6414,7 +6416,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: fd63ed381b5d98743a14c0722d616727, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -6422,32 +6424,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!320 &749334424783464298
-PlayableDirector:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8921634611348515277}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_PlayableAsset: {fileID: 11400000, guid: ba11620f289bb634eb6af28a45a6d7ca, type: 2}
-  m_InitialState: 1
-  m_WrapMode: 2
-  m_DirectorUpdateMode: 1
-  m_InitialTime: 0
-  m_SceneBindings:
-  - key: {fileID: -1128967293139454723, guid: ba11620f289bb634eb6af28a45a6d7ca, type: 2}
-    value: {fileID: 2773090444568930573}
-  - key: {fileID: 7452347590436096316, guid: ba11620f289bb634eb6af28a45a6d7ca, type: 2}
-    value: {fileID: 2907172026179326556}
-  - key: {fileID: 7024473679529173612, guid: ba11620f289bb634eb6af28a45a6d7ca, type: 2}
-    value: {fileID: 0}
-  m_ExposedReferences:
-    m_References:
-    - 0b09a7e133ca63e4e8042d4dbc1989b6: {fileID: 5444567186362710622}
-    - 44ac7e60754f06846a4fe905e569f6ef: {fileID: 5444567186362710622}
-    - ff4368673e73813449432364d6ac6444: {fileID: 0}
 --- !u!1 &8930275493904004028
 GameObject:
   m_ObjectHideFlags: 0

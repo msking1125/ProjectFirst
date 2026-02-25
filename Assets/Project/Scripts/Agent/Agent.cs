@@ -48,10 +48,13 @@ public class Agent : MonoBehaviour
         attackDamage = stats.atk;
     }
 
+    public bool isCombatStarted = false;
+
     void Update()
     {
-        timer += Time.deltaTime;
+        if (!isCombatStarted) return;
 
+        timer += Time.deltaTime;
         if (timer >= attackRate)
         {
             Attack();
