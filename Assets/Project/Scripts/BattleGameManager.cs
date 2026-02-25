@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public class BattleGameManager : MonoBehaviour
 {
     public static BattleGameManager Instance { get; private set; }
+    private static bool hasLoggedDuplicateManagerWarning;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoCreate()
@@ -64,9 +65,17 @@ public class BattleGameManager : MonoBehaviour
     private RunSession runSession;
     private SkillSystem skillSystem;
     private bool hasLoggedZeroRewardWarning;
+    private bool isEnemyKilledSubscribed;
 
     private void Awake()
     {
+        int managerCount = FindObjectsOfType<BattleGameManager>().Length;
+        if (managerCount > 1 && !hasLoggedDuplicateManagerWarning)
+        {
+            Debug.LogWarning($"[BGM] Multiple BattleGameManager detected in scene: count={managerCount}", this);
+            hasLoggedDuplicateManagerWarning = true;
+        }
+
         // 싱글턴 중복 방지
         if (Instance != null && Instance != this)
         {
@@ -88,13 +97,23 @@ public class BattleGameManager : MonoBehaviour
 
     private void OnEnable()
     {
-        Enemy.EnemyKilled += HandleEnemyKilled;
-        Debug.Log("[BGM] Subscribed EnemyKilled");
+        EnsureEnemyKilledSubscription();
+    }
+
+    private void Start()
+    {
+        EnsureEnemyKilledSubscription();
     }
 
     private void OnDisable()
     {
+        if (!isEnemyKilledSubscribed)
+        {
+            return;
+        }
+
         Enemy.EnemyKilled -= HandleEnemyKilled;
+        isEnemyKilledSubscribed = false;
         Debug.Log("[BGM] Unsubscribed EnemyKilled");
     }
 
@@ -205,11 +224,12 @@ public class BattleGameManager : MonoBehaviour
 
     /// <summary>
     /// 적 처치시 골드/경험치 지급, 상태 UI 새로고침
+    /// 테스트 가이드:
+    /// Play -> 몬스터 1마리 사망 -> [Enemy] Die 로그 확인
+    /// 이어서 [BGM] Subscribed -> [BGM] HandleEnemyKilled -> [RunSession] AddExp 로그 순서 확인
     /// </summary>
     private void HandleEnemyKilled(Enemy enemy)
     {
-        Debug.Log("[BGM] HandleEnemyKilled called");
-
         if (gameEnded || monsterTable == null || enemy == null)
         {
             return;
@@ -226,15 +246,17 @@ public class BattleGameManager : MonoBehaviour
 
         string monsterId = enemy.MonsterId;
         MonsterGrade grade = enemy.Grade;
+        Debug.Log($"[BGM] HandleEnemyKilled start monsterId={monsterId} grade={grade}");
         MonsterRow row = monsterTable.GetByIdAndGrade(monsterId, grade) ?? monsterTable.GetById(monsterId);
         if (row == null)
         {
+            Debug.LogWarning($"[BGM] HandleEnemyKilled row miss: monsterId={monsterId} grade={grade}");
             return;
         }
 
         int expReward = row.expReward;
         int goldReward = row.goldReward;
-        Debug.Log($"[BGM] reward exp={expReward} gold={goldReward}");
+        Debug.Log($"[BGM] HandleEnemyKilled monsterId={monsterId} grade={grade} expReward={expReward} goldReward={goldReward}");
 
         if (expReward == 0 && goldReward == 0 && !hasLoggedZeroRewardWarning)
         {
@@ -242,11 +264,25 @@ public class BattleGameManager : MonoBehaviour
             hasLoggedZeroRewardWarning = true;
         }
 
+        Debug.Log($"[BGM] Calling RunSession.AddExp amount={expReward}");
         runSession.AddExp(expReward);
         runSession.AddGold(goldReward);
 
         Debug.Log($"[BattleGameManager] Rewards applied. after Lv={runSession.Level} Exp={runSession.Exp}/{runSession.ExpToNextLevel} Gold={runSession.Gold}");
         RefreshStatusUI();
+    }
+
+    private void EnsureEnemyKilledSubscription()
+    {
+        if (isEnemyKilledSubscribed)
+        {
+            return;
+        }
+
+        Enemy.EnemyKilled -= HandleEnemyKilled;
+        Enemy.EnemyKilled += HandleEnemyKilled;
+        isEnemyKilledSubscribed = true;
+        Debug.Log("[BGM] Subscribed EnemyKilled");
     }
 
     /// <summary>

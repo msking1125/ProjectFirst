@@ -225,6 +225,7 @@ public class Enemy : MonoBehaviour
 
         if (currentHP <= 0f)
         {
+            Debug.Log($"[Enemy] Die name={name} monsterId={MonsterId} grade={Grade} => invoking EnemyKilled");
             HandleDeath();
         }
     }
@@ -294,6 +295,7 @@ public class Enemy : MonoBehaviour
             shouldNotifyKilled = false;
             string monsterId = MonsterId;
             MonsterGrade grade = Grade;
+            Debug.Log($"[Enemy] Invoking EnemyKilled name={name} monsterId={monsterId} grade={grade}");
             EnemyKilled?.Invoke(this);
             Debug.Log($"[Enemy] Killed. id={monsterId} grade={grade}");
         }

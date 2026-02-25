@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 public class RunSession
 {
@@ -31,7 +32,11 @@ public class RunSession
 
     public int AddExp(int amount)
     {
-        Exp += amount > 0 ? amount : 0;
+        int added = amount > 0 ? amount : 0;
+        int need = GetRequiredExpForLevel(Level);
+        Debug.Log($"[RunSession] AddExp start added={added} currentExp={Exp} need={need} level={Level}");
+
+        Exp += added;
 
         int levelUps = 0;
         while (Exp >= GetRequiredExpForLevel(Level))
@@ -40,9 +45,13 @@ public class RunSession
             Level++;
             levelUps++;
 
+            int nextNeed = GetRequiredExpForLevel(Level);
+            Debug.Log($"[RunSession] LevelUp added={added} currentExp={Exp} need={nextNeed} level={Level}");
+
             OnLevelChanged?.Invoke(Level);
             if (Level % 3 == 0)
             {
+                Debug.Log($"[RunSession] Trigger skill-pick event level={Level}");
                 OnReachedSkillPickLevel?.Invoke(Level);
             }
         }
