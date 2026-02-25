@@ -81,7 +81,7 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value:
       serializedVersion: 2
-      m_Bits: 64
+      m_Bits: 0
 --- !u!114 &-4623677816947739461
 MonoBehaviour:
   m_ObjectHideFlags: 3
