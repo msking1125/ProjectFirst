@@ -64,7 +64,6 @@ public class BattleGameManager : MonoBehaviour
     [SerializeField] private string defeatSubtitle  = "기지가 함락되었습니다.";
     [SerializeField] private string restartLabel    = "다시 시작";
     [SerializeField] private string titleLabel      = "타이틀로";
-    [SerializeField] private ResultPanelManager resultPanelManager;
 
     [Header("Scene")]
     [SerializeField] private string titleSceneName = "Title";
@@ -100,7 +99,6 @@ public class BattleGameManager : MonoBehaviour
         EnsureBaseHealth();
         EnsureHUD();
         EnsureResultUI();
-        EnsureResultPanelManager();
         SetResultUI(false, string.Empty);
         RefreshStatusUI();
     }
@@ -424,37 +422,17 @@ public class BattleGameManager : MonoBehaviour
         gameEnded = true;
         Time.timeScale = 0f;
 
-        // UI Toolkit 풀스크린 패널 우선 사용
-        EnsureResultPanelManager();
-        if (resultPanelManager != null)
+        int currentWave = WaveManager.Instance?.CurrentWave ?? 5;
+        int currentGold = runSession?.Gold ?? 0;
+        const int prestige = 10; // 테스트용 고정값
+
+        if (message == "Victory")
         {
-            if (message == "Victory")
-            {
-                resultPanelManager.ShowWin();
-            }
-            else
-            {
-                resultPanelManager.ShowLose();
-            }
+            ResultPopupService.ShowWin(currentWave, currentGold, prestige);
             return;
         }
 
-        // 없으면 기존 uGUI 패널 사용
-        SetResultUI(true, message);
-    }
-
-    /// <summary>
-    /// ResultPanelManager(UI Toolkit)를 찾아 연결
-    /// </summary>
-    private void EnsureResultPanelManager()
-    {
-        if (resultPanelManager != null) return;
-
-#if UNITY_2022_2_OR_NEWER
-        resultPanelManager = FindFirstObjectByType<ResultPanelManager>();
-#else
-        resultPanelManager = GameObject.FindObjectOfType<ResultPanelManager>();
-#endif
+        ResultPopupService.ShowLose(currentWave, currentGold);
     }
 
     /// <summary>
