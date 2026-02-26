@@ -1,4 +1,4 @@
 id,grade,name,prefab,hp,atk,def,critChance,critMultiplier,moveSpeed,element,expReward,goldReward
-Monster1,Normal,Slime,Enemy04,50,8,2,0.1,1.5,2,Intuition,5,10
-Monster2,Elite,Elite,Enemy05,60,8,2,0.1,1.4,3,Passion,12,25
-Monster3,Boss,Boss,Enemy06,100,10,3,0.2,1.6,4,Reason,30,100
+Monster1,Normal,Slime,Enemy04,20,8,2,0.1,1.5,2,Intuition,5,10
+Monster2,Elite,Elite,Enemy05,20,8,2,0.1,1.4,3,Passion,12,25
+Monster3,Boss,Boss,Enemy06,20,10,3,0.2,1.6,4,Reason,30,100

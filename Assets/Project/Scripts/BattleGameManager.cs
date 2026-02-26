@@ -56,6 +56,14 @@ public class BattleGameManager : MonoBehaviour
 
     [Header("Result UI")]
     [SerializeField] private GameObject resultPanel;
+
+    [Header("Result Panel Text (직접 수정 가능)")]
+    [SerializeField] private string victoryTitle    = "승리!";
+    [SerializeField] private string victorySubtitle = "기지를 지켜냈습니다!";
+    [SerializeField] private string defeatTitle     = "패배...";
+    [SerializeField] private string defeatSubtitle  = "기지가 함락되었습니다.";
+    [SerializeField] private string restartLabel    = "다시 시작";
+    [SerializeField] private string titleLabel      = "타이틀로";
     [SerializeField] private ResultPanelManager resultPanelManager;
 
     [Header("Scene")]
@@ -782,21 +790,39 @@ public class BattleGameManager : MonoBehaviour
         // 없으면 동적으로 생성
         if (resultPanel == null)
         {
+            // ── 반투명 Dim 배경 (전체 화면) ─────────────────────────────────
+            GameObject dimObject = new GameObject("ResultDim", typeof(RectTransform), typeof(Image));
+            dimObject.transform.SetParent(targetCanvas.transform, false);
+            RectTransform dimRect = dimObject.GetComponent<RectTransform>();
+            dimRect.anchorMin = Vector2.zero;
+            dimRect.anchorMax = Vector2.one;
+            dimRect.offsetMin = Vector2.zero;
+            dimRect.offsetMax = Vector2.zero;
+            dimRect.SetAsLastSibling();
+            dimObject.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.6f);
+
+            // ── 중앙 패널 (화면 너비 80%, 높이 50%) ─────────────────────────
             resultPanel = new GameObject("ResultPanel", typeof(RectTransform), typeof(Image));
-            resultPanel.transform.SetParent(targetCanvas.transform, false);
+            resultPanel.transform.SetParent(dimObject.transform, false);
 
             RectTransform panelRect = resultPanel.GetComponent<RectTransform>();
-            panelRect.anchorMin = new Vector2(0.5f, 0.5f);
-            panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(560f, 320f);
+            panelRect.anchorMin = new Vector2(0.1f, 0.25f);
+            panelRect.anchorMax = new Vector2(0.9f, 0.75f);
+            panelRect.offsetMin = Vector2.zero;
+            panelRect.offsetMax = Vector2.zero;
 
             Image panelImage = resultPanel.GetComponent<Image>();
-            panelImage.color = new Color(0f, 0f, 0f, 0.85f);
+            panelImage.color = new Color(0.08f, 0.08f, 0.12f, 0.97f);
 
-            resultText = CreateText("ResultText", resultPanel.transform, 64f, new Vector2(0f, 96f), 56f);
-            CreateButton("RestartButton", "Restart", new Vector2(0f, -12f), Restart);
-            CreateButton("BackButton", "Back To Title", new Vector2(0f, -102f), BackToTitle);
+            // ── 제목 텍스트 ──────────────────────────────────────────────────
+            resultText = CreateText("ResultTitle", resultPanel.transform, 0f, new Vector2(0f, 0.22f), 72f, true);
+
+            // ── 부제목 텍스트 ────────────────────────────────────────────────
+            CreateText("ResultSubtitle", resultPanel.transform, 0f, new Vector2(0f, 0.08f), 36f, true);
+
+            // ── 버튼 2개 나란히 ──────────────────────────────────────────────
+            CreateButtonAnchored("RestartButton", restartLabel, new Vector2(0.12f, 0.05f), new Vector2(0.48f, 0.33f), Restart);
+            CreateButtonAnchored("BackButton",    titleLabel,   new Vector2(0.52f, 0.05f), new Vector2(0.88f, 0.33f), BackToTitle);
         }
         else if (resultText == null)
         {
@@ -813,20 +839,54 @@ public class BattleGameManager : MonoBehaviour
     /// <summary>
     /// 텍스트 객체 생성 헬퍼
     /// </summary>
-    private TMP_Text CreateText(string objectName, Transform parent, float width, Vector2 pos, float fontSize)
+    private TMP_Text CreateText(string objectName, Transform parent, float width, Vector2 pos, float fontSize, bool useAnchor = false)
     {
         GameObject textObject = new GameObject(objectName, typeof(RectTransform), typeof(TextMeshProUGUI));
         textObject.transform.SetParent(parent, false);
 
         RectTransform textRect = textObject.GetComponent<RectTransform>();
-        textRect.sizeDelta = new Vector2(width * 6f, 90f);
-        textRect.anchoredPosition = pos;
+        if (useAnchor)
+        {
+            // anchoredPosition을 앵커 비율로 해석 (0~1)
+            textRect.anchorMin = new Vector2(0.05f, pos.y - 0.1f);
+            textRect.anchorMax = new Vector2(0.95f, pos.y + 0.1f);
+            textRect.offsetMin = Vector2.zero;
+            textRect.offsetMax = Vector2.zero;
+        }
+        else
+        {
+            textRect.sizeDelta = new Vector2(width > 0f ? width * 6f : 800f, 90f);
+            textRect.anchoredPosition = pos;
+        }
 
         TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
         text.alignment = TextAlignmentOptions.Center;
         text.fontSize = fontSize;
         text.color = Color.white;
         return text;
+    }
+
+    /// <summary>앵커 기반 버튼 생성 (반응형)</summary>
+    private void CreateButtonAnchored(string objectName, string label, Vector2 anchorMin, Vector2 anchorMax, UnityEngine.Events.UnityAction onClick)
+    {
+        GameObject buttonObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(Button));
+        buttonObject.transform.SetParent(resultPanel.transform, false);
+
+        RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
+        buttonRect.anchorMin = anchorMin;
+        buttonRect.anchorMax = anchorMax;
+        buttonRect.offsetMin = new Vector2(8f, 8f);
+        buttonRect.offsetMax = new Vector2(-8f, -8f);
+
+        buttonObject.GetComponent<Image>().color = new Color(0.18f, 0.38f, 0.72f, 1f);
+        buttonObject.GetComponent<Button>().onClick.AddListener(onClick);
+
+        TMP_Text buttonText = CreateText($"{objectName}_Label", buttonObject.transform, 0f, Vector2.zero, 38f, false);
+        buttonText.GetComponent<RectTransform>().anchorMin = Vector2.zero;
+        buttonText.GetComponent<RectTransform>().anchorMax = Vector2.one;
+        buttonText.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        buttonText.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        buttonText.text = label;
     }
 
     /// <summary>
@@ -894,6 +954,13 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void SetResultUI(bool active, string message)
     {
+        // 제목/부제목 갱신
+        if (resultPanel != null)
+        {
+            TMP_Text subtitle = resultPanel.transform.Find("ResultSubtitle")?.GetComponent<TMP_Text>();
+            if (subtitle != null)
+                subtitle.text = (message == "Victory") ? victorySubtitle : defeatSubtitle;
+        }
         if (resultPanel != null)
         {
             resultPanel.SetActive(active);
@@ -901,7 +968,7 @@ public class BattleGameManager : MonoBehaviour
 
         if (resultText != null)
         {
-            resultText.text = message;
+            resultText.text = (message == "Victory") ? victoryTitle : defeatTitle;
         }
     }
 }

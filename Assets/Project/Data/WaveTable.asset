@@ -36,13 +36,13 @@ MonoBehaviour:
     enemyId: Monster2
     monsterId: Monster2
   - wave: 3
-    spawnCount: 15
+    spawnCount: 2
     spawnInterval: 1
     enemyHpMul: 1.2
     enemySpeedMul: 1.05
     enemyDamageMul: 1.05
     eliteEvery: 5
-    boss: 0
+    boss: 1
     rewardGold: 70
     enemyId: Monster3
     monsterId: Monster3

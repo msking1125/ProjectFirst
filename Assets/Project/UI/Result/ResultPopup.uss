@@ -1,0 +1,94 @@
+/* ── 배경 Dim (전체 화면) ─────────────────────────────────────────── */
+.result-popup-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.72);
+    display: none;
+    opacity: 0;
+}
+
+/* ── 중앙 패널 ────────────────────────────────────────────────────── */
+/* 9:16 모바일 기준. 너비 88%, 최대 540px */
+.result-popup-panel {
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 40px 40px 40px;
+    background-color: rgba(12, 12, 18, 0.97);
+    border-radius: 16px;
+    width: 88%;
+    max-width: 540px;
+    min-height: 52%;
+    justify-content: center;
+}
+
+/* ── 닫기 버튼 ───────────────────────────────────────────────────── */
+.result-popup-close {
+    align-self: flex-end;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    margin-bottom: 12px;
+    background-color: rgba(80, 80, 80, 0.6);
+    border-radius: 20px;
+    color: #ffffff;
+    border-width: 0;
+}
+
+/* ── 제목 ─────────────────────────────────────────────────────────── */
+.result-popup-title {
+    -unity-font-style: bold;
+    font-size: 64px;
+    color: #ffffff;
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+}
+
+/* ── 부제목 ───────────────────────────────────────────────────────── */
+.result-popup-description {
+    font-size: 28px;
+    color: #d8d8d8;
+    margin-bottom: 24px;
+    -unity-text-align: middle-center;
+}
+
+/* ── 스탯 텍스트 ──────────────────────────────────────────────────── */
+.result-popup-stat {
+    font-size: 22px;
+    color: #f0f0a0;
+    margin-bottom: 6px;
+    -unity-text-align: middle-center;
+}
+
+/* ── 버튼 행 ─────────────────────────────────────────────────────── */
+.result-popup-button-row {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+
+/* ── 버튼 공통 ───────────────────────────────────────────────────── */
+.result-popup-button {
+    width: 160px;
+    height: 60px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    background-color: #2e64c8;
+    color: #ffffff;
+    border-radius: 8px;
+    border-width: 0;
+    margin: 8px;
+}
+
+.result-popup-button:hover {
+    background-color: #4a85ef;
+}
+
+.result-popup-button:active {
+    background-color: #1e4a9a;
+}

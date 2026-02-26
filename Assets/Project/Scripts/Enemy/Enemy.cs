@@ -177,9 +177,19 @@ public class Enemy : MonoBehaviour
 
     public void Init(Transform arkTarget, string monsterId, MonsterGrade grade, WaveMultipliers waveMultipliers, MonsterTable monsterTable)
     {
-        if (arkTarget == null || ownerPool == null)
+        if (arkTarget == null) return;
+
+        // ownerPool이 null이면 EnemyPool.Instance로 자동 복구
+        // (CreateOne → SetPool 타이밍 문제, 또는 직접 Instantiate된 경우 대비)
+        if (ownerPool == null)
         {
-            return;
+            ownerPool = EnemyPool.Instance;
+            if (ownerPool == null)
+            {
+                Debug.LogError($"[Enemy] Init 실패: ownerPool과 EnemyPool.Instance 모두 null. name={gameObject.name}", this);
+                return;
+            }
+            Debug.LogWarning($"[Enemy] ownerPool이 null이어서 EnemyPool.Instance로 자동 복구했습니다. name={gameObject.name}", this);
         }
 
         string resolvedMonsterId = string.IsNullOrWhiteSpace(monsterId) ? defaultMonsterId : monsterId;

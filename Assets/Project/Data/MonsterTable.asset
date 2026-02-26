@@ -18,7 +18,7 @@ MonoBehaviour:
     name: Slime
     prefab: {fileID: 1996877023500070189, guid: 554e914b023986b44be1e734ace93455,
       type: 3}
-    hp: 50
+    hp: 20
     atk: 8
     def: 2
     critChance: 0.1
@@ -32,7 +32,7 @@ MonoBehaviour:
     name: Elite
     prefab: {fileID: 6013794693491469871, guid: a048048d66842724d955499162031057,
       type: 3}
-    hp: 60
+    hp: 20
     atk: 8
     def: 2
     critChance: 0.1
@@ -45,7 +45,7 @@ MonoBehaviour:
     grade: 2
     name: Boss
     prefab: {fileID: 654030787582168236, guid: e3c9d1cd262ba0d4791003605013ec69, type: 3}
-    hp: 100
+    hp: 20
     atk: 10
     def: 3
     critChance: 0.2
