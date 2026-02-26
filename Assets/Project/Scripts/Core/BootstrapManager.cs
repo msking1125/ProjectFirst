@@ -36,6 +36,13 @@ public class BootstrapManager : MonoBehaviour
             return;
         }
 
+        // AsyncSceneLoader.Instance가 null일 경우를 체크하여 예외 방지
+        if (AsyncSceneLoader.Instance == null)
+        {
+            Debug.LogError("[BootstrapManager] AsyncSceneLoader.Instance 가 null입니다. AsyncSceneLoader가 씬에 존재하는지 확인하세요.");
+            return;
+        }
+
         // 타이틀 씬을 Additive로 로드
         AsyncSceneLoader.Instance.LoadSceneAsync(titleSceneName, LoadSceneMode.Additive);
     }
