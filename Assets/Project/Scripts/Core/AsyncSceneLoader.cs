@@ -2,30 +2,30 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// 씬 비동기 로드를 담당하는 싱글톤 로더입니다.
+/// Bootstrap 씬에서 생성되어 전역으로 사용하는 씬 비동기 로더 싱글톤입니다.
 /// </summary>
-public class AsyncSceneLoader : MonoBehaviour
+public sealed class AsyncSceneLoader : MonoBehaviour
 {
     // 어디서든 접근 가능한 싱글톤 인스턴스
     public static AsyncSceneLoader Instance { get; private set; }
 
     private void Awake()
     {
-        // 중복 인스턴스가 있으면 현재 오브젝트 제거 (Unity 2022.3 안전 패턴)
+        // 이미 다른 인스턴스가 있으면 현재 오브젝트를 제거하여 싱글톤 보장
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(this.gameObject);
             return;
         }
 
-        // 싱글톤 인스턴스 등록 및 씬 전환 간 유지
+        // 요구사항: Awake에서 인스턴스 등록 및 씬 전환 시 유지
         Instance = this;
         DontDestroyOnLoad(this.gameObject);
     }
 
     private void OnDestroy()
     {
-        // 파괴 시 정적 참조 정리
+        // 파괴 시 정적 참조를 정리해 잘못된 참조를 방지
         if (Instance == this)
         {
             Instance = null;
@@ -33,29 +33,30 @@ public class AsyncSceneLoader : MonoBehaviour
     }
 
     /// <summary>
-    /// 지정한 씬을 비동기로 로드합니다.
-    /// 기본 모드는 Additive 입니다.
+    /// 씬을 비동기로 로드합니다.
     /// </summary>
+    /// <param name="sceneName">로드할 씬 이름</param>
+    /// <param name="mode">씬 로드 모드 (기본: Additive)</param>
     public void LoadSceneAsync(string sceneName, LoadSceneMode mode = LoadSceneMode.Additive)
     {
-        // 잘못된 입력값 방어
+        // null/빈 문자열 방어 코드
         if (string.IsNullOrWhiteSpace(sceneName))
         {
-            Debug.LogError("[AsyncSceneLoader] sceneName이 비어 있어 씬을 로드할 수 없습니다.");
+            Debug.LogError("[AsyncSceneLoader] sceneName이 null 또는 빈 문자열입니다.");
             return;
         }
 
-        AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneName, mode);
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName, mode);
 
-        // 비동기 로드 시작 실패 방어
-        if (loadOperation == null)
+        // Unity 상황에 따라 null이 반환될 수 있으므로 안전 체크
+        if (asyncOperation == null)
         {
-            Debug.LogError("[AsyncSceneLoader] SceneManager.LoadSceneAsync가 null을 반환했습니다: " + sceneName);
+            Debug.LogError("[AsyncSceneLoader] 씬 로드 시작에 실패했습니다: " + sceneName);
             return;
         }
 
-        // 로드 완료 시 로그 출력
-        loadOperation.completed += _ =>
+        // 요구사항: 로드 완료 로그 출력
+        asyncOperation.completed += _ =>
         {
             Debug.Log("[AsyncSceneLoader] " + sceneName + " 로드 완료");
         };
