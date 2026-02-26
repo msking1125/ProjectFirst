@@ -1,18 +1,25 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="project://database/Assets/Project/UI/Title/TitleView.uss" />
     <ui:VisualElement class="title-root">
+
+        <!-- 상단: 게임 타이틀 영역 -->
         <ui:VisualElement class="title-container">
             <ui:Label name="title-label" class="title-text" text="Project First" />
             <ui:Label name="subtitle-label" class="subtitle-text" text="Idle Tower Defence" />
         </ui:VisualElement>
 
+        <!-- 중앙 여백 (배경 이미지 표시 영역) -->
+        <ui:VisualElement class="spacer" />
+
+        <!-- 하단: 버튼 3개 가로 배치 -->
         <ui:VisualElement class="button-container">
-            <ui:Button name="start-button" class="title-button" text="게임 시작" />
+            <ui:Button name="start-button"    class="title-button" text="게임 시작" />
             <ui:Button name="settings-button" class="title-button" text="설정" />
-            <ui:Button name="quit-button" class="title-button" text="종료" />
+            <ui:Button name="quit-button"     class="title-button" text="종료" />
         </ui:VisualElement>
 
+        <!-- 푸터 -->
         <ui:Label name="footer-label" class="footer-text" text="프로젝트 퍼스트 - Idle Tower Defence" />
+
     </ui:VisualElement>
 </ui:UXML>
-

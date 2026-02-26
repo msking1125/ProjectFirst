@@ -632,7 +632,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1242081211}
   - component: {fileID: 1242081213}
-  - component: {fileID: 1242081212}
+  - component: {fileID: 1242081214}
   m_Layer: 0
   m_Name: TitleUIRoot
   m_TagString: Untagged
@@ -649,30 +649,12 @@ Transform:
   m_GameObject: {fileID: 1242081210}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.24, y: 11.32, z: -0.01999998}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1242081212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1242081210}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 531733272d33f734982e183965d48c59, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uiDocument: {fileID: 1242081213}
-  gameSceneName: Battle_Test
-  startButtonEvent: {fileID: 11400000, guid: 652bbfbe818c6244faad4a197dcf7417, type: 2}
-  settingsButtonEvent: {fileID: 11400000, guid: d5ac13de7fc216b4db43217adacbd107,
-    type: 2}
-  quitButtonEvent: {fileID: 11400000, guid: 02fcdd8bdbcaf0a4294fa2c96a15aac4, type: 2}
 --- !u!114 &1242081213
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -690,6 +672,24 @@ MonoBehaviour:
   sourceAsset: {fileID: 9197481963319205126, guid: d9dc6d3af8359444f8679421feed8c32,
     type: 3}
   m_SortingOrder: 0
+--- !u!114 &1242081214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1242081210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14168dcc775051c429e9fa77674e6e15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiDocument: {fileID: 0}
+  gameSceneName: Battle_Test
+  startButtonEvent: {fileID: 11400000, guid: 0744463957a17f043bc39ef8df263e64, type: 2}
+  settingsButtonEvent: {fileID: 11400000, guid: 58279f22040f87043ad913c9f6e9ec1d,
+    type: 2}
+  quitButtonEvent: {fileID: 11400000, guid: 591f1c53189e8bf4f840e0d558035aa2, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

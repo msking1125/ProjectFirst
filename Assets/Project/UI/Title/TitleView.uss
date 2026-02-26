@@ -1,58 +1,114 @@
+/* ========================================
+   Title Screen - 9:16 세로 레이아웃
+   ======================================== */
+
+/* 루트: 화면 전체 채우기, 투명 배경 */
 .title-root {
+    width: 100%;
+    height: 100%;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 80px;
-    padding-bottom: 48px;
-    padding-left: 40px;
-    padding-right: 40px;
-    background-color: rgba(0, 0, 0, 0.85);
+    justify-content: flex-start;
+    align-items: stretch;
+    padding-top: 60px;
+    padding-bottom: 36px;
+    padding-left: 24px;
+    padding-right: 24px;
+    background-color: rgba(0, 0, 0, 0);   /* 완전 투명: 게임 배경 이미지 표시 */
 }
 
+/* 상단 타이틀 영역 */
 .title-container {
     flex-direction: column;
     align-items: center;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.45);
+    border-radius: 12px;
+    margin-bottom: 12px;
 }
 
 .title-text {
     -unity-font-style: bold;
-    font-size: 48px;
+    font-size: 52px;
     color: #ffffff;
-    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+    margin-bottom: 6px;
+    /* 텍스트 윤곽선 효과 (Unity UI Toolkit 지원 시) */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 
 .subtitle-text {
-    font-size: 20px;
-    color: #d0d0d0;
+    font-size: 18px;
+    color: #ccddff;
+    -unity-text-align: middle-center;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
 }
 
+/* 중앙 여백 (배경 이미지 캐릭터 영역) */
+.spacer {
+    flex-grow: 1;
+}
+
+/* 하단 버튼 컨테이너: 가로(row) 배치 */
 .button-container {
-    flex-direction: column;
+    flex-direction: row;              /* ★ 핵심: 가로 배치 */
+    justify-content: space-between;  /* 버튼 간격 균등 */
     align-items: center;
+    width: 100%;
+    margin-bottom: 16px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
+/* 버튼 공통 스타일 */
 .title-button {
-    width: 220px;
-    height: 44px;
+    flex-grow: 1;                     /* 가로 공간 균등 분배 */
+    height: 56px;
     font-size: 18px;
     -unity-font-style: bold;
+    -unity-text-align: middle-center;
     background-color: #3a7bd5;
     color: #ffffff;
-    border-radius: 6px;
+    border-radius: 8px;
     border-width: 0;
-    margin-top: 8px;
+    margin-left: 6px;
+    margin-right: 6px;
+    /* 그림자 효과 */
+    transition-duration: 0.15s;
 }
 
 .title-button:hover {
     background-color: #5394f0;
+    scale: 1.03 1.03;
 }
 
 .title-button:active {
     background-color: #2c5ea4;
+    scale: 0.97 0.97;
 }
 
+/* 게임 시작 버튼: 강조 색상 */
+#start-button {
+    background-color: #1e88e5;
+    font-size: 20px;
+}
+
+#start-button:hover {
+    background-color: #42a5f5;
+}
+
+/* 종료 버튼: 약간 어두운 색상 */
+#quit-button {
+    background-color: #455a64;
+}
+
+#quit-button:hover {
+    background-color: #607d8b;
+}
+
+/* 푸터 */
 .footer-text {
-    font-size: 12px;
-    color: #999999;
+    font-size: 11px;
+    color: #aaaaaa;
+    -unity-text-align: middle-center;
+    -unity-font-style: italic;
 }
-
