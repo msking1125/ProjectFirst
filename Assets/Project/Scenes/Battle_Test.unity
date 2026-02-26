@@ -8188,7 +8188,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49f56d5439304e4f90d0db47a7f3f180, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 500
   hpText: {fileID: 862557656}
 --- !u!1 &1116975039 stripped
 GameObject:
@@ -8942,6 +8942,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1135073053437913466, guid: 30655e303fad03e4b96e8b373bded6cf,
         type: 3}
+      propertyPath: agentTable
+      value: 
+      objectReference: {fileID: 11400000, guid: b6f14f364efe9c94687f0e1480c0bd2f,
+        type: 2}
+    - target: {fileID: 1135073053437913466, guid: 30655e303fad03e4b96e8b373bded6cf,
+        type: 3}
       propertyPath: attackDamage
       value: 5
       objectReference: {fileID: 0}
@@ -8965,6 +8971,12 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4478864821926809020, guid: 30655e303fad03e4b96e8b373bded6cf,
+        type: 3}
+      propertyPath: agentTable
+      value: 
+      objectReference: {fileID: 11400000, guid: b6f14f364efe9c94687f0e1480c0bd2f,
+        type: 2}
     - target: {fileID: 4478864821926809020, guid: 30655e303fad03e4b96e8b373bded6cf,
         type: 3}
       propertyPath: attackDamage
@@ -9050,6 +9062,12 @@ PrefabInstance:
       propertyPath: stats.atk
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 6737435149655013798, guid: 30655e303fad03e4b96e8b373bded6cf,
+        type: 3}
+      propertyPath: agentTable
+      value: 
+      objectReference: {fileID: 11400000, guid: b6f14f364efe9c94687f0e1480c0bd2f,
+        type: 2}
     - target: {fileID: 6737435149655013798, guid: 30655e303fad03e4b96e8b373bded6cf,
         type: 3}
       propertyPath: attackDamage
