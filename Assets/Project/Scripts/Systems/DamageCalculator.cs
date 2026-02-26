@@ -1,31 +1,28 @@
 using UnityEngine;
 
+/// <summary>
+/// 캐릭터/몬스터 데미지 계산 유틸리티
+/// </summary>
 public static class DamageCalculator
 {
-    private static bool hasLoggedCombatDebug;
-
-    public static int ComputeCharacterDamage(
-        int atk,
-        int def,
-        float critChance,
-        float critMultiplier)
+    /// <summary>
+    /// 공격자의 ATK, 방어자의 DEF, 크리티컬 확률/배수로 최종 피해량 계산
+    /// isCrit: 이번 공격이 크리티컬인지 out 반환
+    /// </summary>
+    public static int ComputeCharacterDamage(int atk, int def, float critChance, float critMultiplier, out bool isCrit)
     {
-        float baseDamage = Mathf.Max(1f, atk - def);
+        float baseDmg = Mathf.Max(1f, atk - def);
+        isCrit = Random.value < critChance;
+        float finalDmg = isCrit ? baseDmg * Mathf.Max(1f, critMultiplier) : baseDmg;
+        return Mathf.Max(1, Mathf.RoundToInt(finalDmg));
+    }
 
-        bool isCrit = Random.value < critChance;
-        if (isCrit)
-        {
-            baseDamage *= critMultiplier;
-        }
-
-        int dmg = Mathf.RoundToInt(baseDamage);
-
-        if (!hasLoggedCombatDebug)
-        {
-            Debug.Log($"[Combat] atk={atk}, def={def}, critChance={critChance}, critMul={critMultiplier}, finalDmg={dmg}");
-            hasLoggedCombatDebug = true;
-        }
-
-        return dmg;
+    /// <summary>
+    /// isCrit 없이 사용하는 오버로드 (하위 호환)
+    /// </summary>
+    public static int ComputeCharacterDamage(int atk, int def, float critChance, float critMultiplier)
+    {
+        bool _ ;
+        return ComputeCharacterDamage(atk, def, critChance, critMultiplier, out _);
     }
 }

@@ -85,7 +85,23 @@ public class Agent : MonoBehaviour
         attackDamage = stats.atk;
     }
 
-    public bool isCombatStarted = false;
+    private bool isCombatStarted = false;
+
+    /// <summary>
+    /// BattleGameManager에서 호출하여 전투를 시작합니다.
+    /// </summary>
+    public void StartCombat()
+    {
+        isCombatStarted = true;
+        timer = 0f;
+        Debug.Log($"[Agent] 전투 시작: {gameObject.name}, ATK={stats.atk}, Range={range}, Rate={attackRate}");
+    }
+
+    /// <summary>전투를 일시 중지합니다 (스킬 선택 패널 등).</summary>
+    public void PauseCombat() => isCombatStarted = false;
+
+    /// <summary>전투를 재개합니다.</summary>
+    public void ResumeCombat() => isCombatStarted = true;
 
     void Update()
     {
@@ -102,18 +118,17 @@ public class Agent : MonoBehaviour
     void Attack()
     {
         Enemy target = FindClosestEnemy();
-        if (target == null)
-        {
-            return;
-        }
+        if (target == null) return;
 
+        bool isCrit;
         int finalDmg = DamageCalculator.ComputeCharacterDamage(
             Mathf.RoundToInt(stats.atk),
             Mathf.RoundToInt(target.Defense),
             stats.critChance,
-            stats.critMultiplier);
+            stats.critMultiplier,
+            out isCrit);
 
-        target.TakeDamage(finalDmg);
+        target.TakeDamage(finalDmg, isCrit);
     }
 
     Enemy FindClosestEnemy()

@@ -41,6 +41,8 @@ public class BattleGameManager : MonoBehaviour
     [SerializeField] private MonsterTable monsterTable;
     [SerializeField] private SkillTable skillTable;
     [SerializeField] private Agent playerAgent;
+    // 씬의 모든 Agent를 관리 (Agent_1, Agent_2, Agent_3 등)
+    private Agent[] allAgents;
 
     [Header("HUD")]
     [SerializeField] private Canvas targetCanvas;
@@ -214,6 +216,28 @@ public class BattleGameManager : MonoBehaviour
         }
 
         skillSystem = new SkillSystem(skillTable, playerAgent);
+
+        // ── 씬의 모든 Agent 탐색 및 전투 시작 ─────────────────────────────────
+#if UNITY_2022_2_OR_NEWER
+        allAgents = FindObjectsByType<Agent>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+#else
+        allAgents = FindObjectsOfType<Agent>();
+#endif
+        if (allAgents == null || allAgents.Length == 0)
+        {
+            Debug.LogWarning("[BGM] 씬에서 Agent를 찾지 못했습니다. Agent 오브젝트가 활성화되어 있는지 확인하세요.");
+        }
+        else
+        {
+            foreach (Agent a in allAgents)
+            {
+                if (a != null)
+                {
+                    a.StartCombat();
+                    Debug.Log($"[BGM] Agent 전투 시작: {a.gameObject.name}");
+                }
+            }
+        }
 
         // 이벤트 중복 연결 방지 후 다시 연결
         runSession.OnLevelChanged -= HandleLevelChanged;
