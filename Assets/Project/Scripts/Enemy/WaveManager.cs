@@ -112,7 +112,7 @@ public class WaveManager : MonoBehaviour
         return true;
     }
 
-    private void StartNextWave()
+    public void StartNextWave()
     {
         currentWaveIndex++;
 
