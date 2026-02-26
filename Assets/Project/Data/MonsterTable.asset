@@ -20,7 +20,7 @@ MonoBehaviour:
       type: 3}
     hp: 1
     atk: 8
-    def: 2
+    def: 1
     critChance: 0.05
     critMultiplier: 1.5
     moveSpeed: 2.5
@@ -34,7 +34,7 @@ MonoBehaviour:
       type: 3}
     hp: 1
     atk: 10
-    def: 8
+    def: 1
     critChance: 0.02
     critMultiplier: 1.4
     moveSpeed: 1.6

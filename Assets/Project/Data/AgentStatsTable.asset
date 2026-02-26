@@ -23,7 +23,7 @@ MonoBehaviour:
   - id: agent01
     name: Agent 1
     hp: 120
-    atk: 15
+    atk: 20
     def: 2
     critChance: 0.15
     critMultiplier: 1.75
@@ -31,7 +31,7 @@ MonoBehaviour:
   - id: agent02
     name: Agent 2
     hp: 100
-    atk: 10
+    atk: 20
     def: 1
     critChance: 0.2
     critMultiplier: 1.6
@@ -39,7 +39,7 @@ MonoBehaviour:
   - id: agent03
     name: Agent 3
     hp: 140
-    atk: 10
+    atk: 20
     def: 3
     critChance: 0.1
     critMultiplier: 2
