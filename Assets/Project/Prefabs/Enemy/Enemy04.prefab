@@ -266,7 +266,7 @@ GameObject:
   - component: {fileID: -8679921383154817045}
   - component: {fileID: 5866666021909216657}
   m_Layer: 0
-  m_Name: Monster_dummy
+  m_Name: mon_slime_Rig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -302,7 +302,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: b19c9ed6b0b607246b04057a0bcca18d, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
