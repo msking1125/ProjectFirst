@@ -1,10 +1,9 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// ResultUI 오브젝트에 부착. UIDocument의 result-popup-root를 찾아 승/패 표시.
-/// Inspector에서 텍스트를 직접 수정 가능합니다.
+/// ResultUI 오브젝트에 부착.
+/// UIDocument에서 result-popup-root(또는 첫 번째 VisualElement)를 찾아 승/패 표시합니다.
 /// </summary>
 [RequireComponent(typeof(UIDocument))]
 public class ResultPanelManager : MonoBehaviour
@@ -15,111 +14,144 @@ public class ResultPanelManager : MonoBehaviour
     [SerializeField] private string loseTitleText    = "패배";
     [SerializeField] private string loseSubtitleText = "기지가 파괴되었습니다...";
 
-    private VisualElement root;
-    private Label   titleLabel;
-    private Label   descriptionLabel;
-    private Button  retryButton;
-    private Button  titleButton;
-    private Button  continueButton;
-    private Button  closeButton;
+    // ── 내부 상태 ────────────────────────────────────────────────────────────
+    private UIDocument  uiDoc;
+    private VisualElement root;          // 최상위 패널 (show/hide 대상)
+    private Label        titleLabel;
+    private Label        descLabel;
+    private bool         isInitialized;
 
-    private void Awake()
+    // ── 요소 이름 후보 목록 (어떤 UXML이든 매칭) ─────────────────────────────
+    private static readonly string[] RootCandidates   = { "result-popup-root", "result-root", "root", "ResultRoot", "panel" };
+    private static readonly string[] TitleCandidates  = { "result-title",    "title",    "Title",    "resultTitle"   };
+    private static readonly string[] DescCandidates   = { "result-description", "result-subtitle", "subtitle", "description", "Subtitle" };
+    private static readonly string[] RetryCandidates  = { "retry-button",    "continue-button", "restart-button", "RetryButton" };
+    private static readonly string[] TitleBtnCandidates = { "title-button",  "back-button",  "TitleButton" };
+    private static readonly string[] CloseCandidates  = { "close-button",   "CloseButton" };
+
+    // ────────────────────────────────────────────────────────────────────────
+
+    private void Awake()  => TryInit();
+    private void Start()  => TryInit();   // Awake에서 rootVisualElement가 아직 없는 경우 대비
+
+    private void TryInit()
     {
-        InitRoot();
-    }
+        if (isInitialized) return;
 
-    private void InitRoot()
-    {
-        if (root != null) return;
+        uiDoc = GetComponent<UIDocument>();
+        if (uiDoc == null) return;
 
-        UIDocument doc = GetComponent<UIDocument>();
-        if (doc == null)
-        {
-            Debug.LogError("[ResultPanelManager] UIDocument 컴포넌트가 없습니다.", this);
-            return;
-        }
-
-        // rootVisualElement는 Start 이후 안정적으로 접근 가능
-        // Awake에서 null이면 Start에서 재시도
-        VisualElement docRoot = doc.rootVisualElement;
+        VisualElement docRoot = uiDoc.rootVisualElement;
         if (docRoot == null) return;
 
-        root = docRoot.Q<VisualElement>("result-popup-root");
+        // ── root 탐색 ─────────────────────────────────────────────────────
+        root = QueryFirst(docRoot, RootCandidates);
+
+        // 이름 매칭 실패 → 첫 번째 자식 VisualElement 사용
+        if (root == null && docRoot.childCount > 0)
+        {
+            root = docRoot[0];
+            Debug.Log($"[ResultPanelManager] root 이름 매칭 실패. 첫 번째 자식 '{root.name}' 을 사용합니다.");
+        }
+
         if (root == null)
         {
-            Debug.LogError("[ResultPanelManager] 'result-popup-root' 요소를 찾지 못했습니다. ResultPopup.uxml을 확인하세요.", this);
+            Debug.LogError("[ResultPanelManager] UIDocument에서 표시할 root VisualElement를 찾지 못했습니다.", this);
             return;
         }
 
-        titleLabel       = root.Q<Label>("result-title");
-        descriptionLabel = root.Q<Label>("result-description");
-        retryButton      = root.Q<Button>("retry-button");
-        titleButton      = root.Q<Button>("title-button");
-        continueButton   = root.Q<Button>("continue-button");
-        closeButton      = root.Q<Button>("close-button");
+        // ── 자식 요소 탐색 ────────────────────────────────────────────────
+        titleLabel = QueryFirst<Label>(root, TitleCandidates);
+        descLabel  = QueryFirst<Label>(root, DescCandidates);
 
-        // 버튼 이벤트 연결
-        retryButton?.RegisterCallback<ClickEvent>(_ =>
-        {
-            Hide();
-            var mgr = BattleGameManager.Instance;
-            if (mgr != null) mgr.Restart();
-        });
-
-        titleButton?.RegisterCallback<ClickEvent>(_ =>
-        {
-            Hide();
-            var mgr = BattleGameManager.Instance;
-            if (mgr != null) mgr.BackToTitle();
-        });
-
-        continueButton?.RegisterCallback<ClickEvent>(_ => Hide());
-        closeButton?.RegisterCallback<ClickEvent>(_ => Hide());
+        // 버튼 바인딩 (없어도 무방)
+        BindButton(root, RetryCandidates, OnRetry);
+        BindButton(root, TitleBtnCandidates, OnTitle);
+        BindButton(root, CloseCandidates, OnClose);
 
         // 초기 숨김
-        Hide();
+        SetVisible(false);
+
+        isInitialized = true;
+        Debug.Log($"[ResultPanelManager] 초기화 완료. root='{root.name}', title={titleLabel?.name}, desc={descLabel?.name}", this);
     }
 
-    private void Start()
-    {
-        // Awake에서 rootVisualElement가 아직 없던 경우 재시도
-        if (root == null)
-            InitRoot();
-    }
+    // ── 공개 API ─────────────────────────────────────────────────────────────
 
-    public void ShowWin()
-    {
-        Show(winTitleText, winSubtitleText);
-    }
+    public void ShowWin()  => Show(winTitleText,  winSubtitleText);
+    public void ShowLose() => Show(loseTitleText, loseSubtitleText);
 
-    public void ShowLose()
-    {
-        Show(loseTitleText, loseSubtitleText);
-    }
+    // ── 내부 ─────────────────────────────────────────────────────────────────
 
     private void Show(string title, string subtitle)
     {
+        if (!isInitialized) TryInit();
+
         if (root == null)
         {
-            InitRoot();
-            if (root == null)
+            Debug.LogWarning("[ResultPanelManager] root가 설정되지 않아 결과 패널을 표시할 수 없습니다.", this);
+            return;
+        }
+
+        if (titleLabel != null) titleLabel.text = title;
+        if (descLabel  != null) descLabel.text  = subtitle;
+
+        SetVisible(true);
+    }
+
+    private void SetVisible(bool visible)
+    {
+        if (root == null) return;
+        root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        root.style.opacity = visible ? 1f : 0f;
+    }
+
+    private void OnRetry()
+    {
+        SetVisible(false);
+        BattleGameManager.Instance?.Restart();
+    }
+
+    private void OnTitle()
+    {
+        SetVisible(false);
+        BattleGameManager.Instance?.BackToTitle();
+    }
+
+    private void OnClose() => SetVisible(false);
+
+    // ── 유틸 ─────────────────────────────────────────────────────────────────
+
+    private static VisualElement QueryFirst(VisualElement parent, string[] names)
+    {
+        foreach (string n in names)
+        {
+            var e = parent.Q<VisualElement>(n);
+            if (e != null) return e;
+        }
+        return null;
+    }
+
+    private static T QueryFirst<T>(VisualElement parent, string[] names) where T : VisualElement
+    {
+        foreach (string n in names)
+        {
+            var e = parent.Q<T>(n);
+            if (e != null) return e;
+        }
+        return null;
+    }
+
+    private static void BindButton(VisualElement parent, string[] names, System.Action onClick)
+    {
+        foreach (string n in names)
+        {
+            var btn = parent.Q<Button>(n);
+            if (btn != null)
             {
-                Debug.LogWarning("[ResultPanelManager] root가 설정되지 않아 결과 패널을 표시할 수 없습니다.", this);
+                btn.RegisterCallback<ClickEvent>(_ => onClick?.Invoke());
                 return;
             }
         }
-
-        if (titleLabel != null)       titleLabel.text       = title;
-        if (descriptionLabel != null) descriptionLabel.text  = subtitle;
-
-        root.style.display = DisplayStyle.Flex;
-        root.style.opacity = 1f;
-    }
-
-    private void Hide()
-    {
-        if (root == null) return;
-        root.style.display = DisplayStyle.None;
-        root.style.opacity = 0f;
     }
 }
