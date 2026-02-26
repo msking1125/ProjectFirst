@@ -128,7 +128,26 @@ public class EnemyPool : MonoBehaviour
         Enemy defaultPrefab = enemyPrefab;
         Enemy sourcePrefab = defaultPrefab;
 
-        MonsterRow row = monsterTable != null ? monsterTable.GetByIdAndGrade(enemyId, grade) : null;
+        MonsterRow row = null;
+        // bool gradeFallbackUsed = false; // 변수 제거
+
+        if (monsterTable != null)
+        {
+            // 1순위: ID + Grade 정확 매칭
+            row = monsterTable.GetByIdAndGrade(enemyId, grade);
+
+            // 2순위: ID만으로 매칭 (MonsterTable의 Grade와 WaveTable의 Grade가 다를 때 허용)
+            if (row == null)
+            {
+                row = monsterTable.GetById(enemyId);
+                if (row != null)
+                {
+                    // gradeFallbackUsed = true;
+                    Debug.Log($"[EnemyPool] ID='{enemyId}'로 Grade 무관 매칭 성공 (MonsterTable Grade='{row.grade}', 요청 Grade='{grade}').");
+                }
+            }
+        }
+
         GameObject prefabOverride = row != null ? row.prefab : null;
 
         if (row == null)

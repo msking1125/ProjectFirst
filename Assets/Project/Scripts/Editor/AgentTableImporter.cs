@@ -6,8 +6,28 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// AgentTableImporter는 에이전트(CSV) 데이터를 ScriptableObject로 임포트하는 에디터 유틸입니다.
+/// 
+/// <b>다음과 같은 오류 발생 원인과 해결방법을 참고하세요:</b>
+/// <para>
+/// <b>[에러 메시지]</b>
+/// Agent CSV not found at: Assets/Project/Data/agents.csv
+/// UnityEngine.Debug:LogError (object)
+/// AgentTableImporter:Import () (at Assets/Project/Scripts/Editor/AgentTableImporter.cs:23)
+/// </para>
+/// <b>[원인]</b>
+/// 지정된 경로(Assets/Project/Data/agents.csv)에 에이전트 데이터를 담은 CSV 파일이 없다는 뜻입니다. 
+/// 이 파일이 존재하지 않으면 데이터를 불러오지 못해 임포트가 중단됩니다.
+/// 
+/// <b>[수정 방법]</b>
+/// 1. <b>프로젝트의 Assets/Project/Data/ 경로에 agents.csv 파일이 실제로 있는지 확인하세요.</b>
+/// 2. <b>CSV 파일명을 오탈자 없이 정확하게 맞추어 놓으세요. (예: Agents.csv, agentsCSV.csv 등은 안됩니다)</b>
+/// 3. <b>경로가 다를 경우 아래 CsvPath 상수를 올바른 경로로 수정하세요.</b>
+/// </summary>
 public static class AgentTableImporter
 {
+    // [agents.csv 경로와 파일명을 꼭 확인하세요!]
     private const string CsvPath = "Assets/Project/Data/agents.csv";
     private const string AssetPath = "Assets/Project/Data/AgentTable.asset";
     private static readonly string[] RequiredColumns =
@@ -20,7 +40,7 @@ public static class AgentTableImporter
     {
         if (!File.Exists(CsvPath))
         {
-            Debug.LogError($"Agent CSV not found at: {CsvPath}");
+            Debug.LogError($"Agent CSV not found at: {CsvPath}\n\n- 위 경로에 agents.csv 파일이 있는지 확인하세요!\n- 파일명 오탈자 혹은 위치 오류가 없는지도 점검하세요.");
             return;
         }
 

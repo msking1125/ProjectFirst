@@ -7,42 +7,41 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// SkillTableImporter는 CSV 파일로부터 SkillTable ScriptableObject를 생성 또는 갱신하는 유틸리티입니다.
+/// SkillTableImporter:
+/// CSV 파일에서 SkillTable ScriptableObject를 매우 쉽게 생성/갱신하는 에디터 유틸리티입니다.
 /// </summary>
 public static class SkillTableImporter
 {
-    // CSV 및 스킬 데이터 에셋 경로 상수 정의
+    // CSV/에셋 파일 경로 정의
     private const string CsvPath = "Assets/Project/Data/skills.csv";
     private const string AssetPath = "Assets/Project/Data/SkillTable.asset";
 
-    // 필수 컬럼 명시 (헤더 일치 검사에 사용)
-    private static readonly string[] RequiredColumns =
-    {
-        "id", "name", "element", "coefficient", "range"
-    };
+    // Skill 필수 컬럼 정의 (누락 시 import 금지)
+    private static readonly string[] RequiredColumns = { "id", "name", "element", "coefficient", "range" };
 
     /// <summary>
-    /// 메뉴에서 실행: CSV를 SkillTable.asset로 임포트합니다.
+    /// [Tools/Game/Import Skill CSV] 메뉴에서 실행
+    /// CSV를 SkillTable.asset으로 불러옵니다.
     /// </summary>
     [MenuItem("Tools/Game/Import Skill CSV")]
     public static void Import()
     {
-        // 1. 파일 존재 검사
+        // 1. 파일 체크
         if (!File.Exists(CsvPath))
         {
-            Debug.LogError($"Skill CSV 파일을 찾을 수 없습니다: {CsvPath}");
+            Debug.LogError($"Skill CSV 파일이 존재하지 않습니다: {CsvPath}\n* 경로 및 파일명을 확인하세요.");
             return;
         }
 
-        // 2. CSV 전체 라인 읽기 (헤더 포함)
-        string[] lines = File.ReadAllLines(CsvPath);
+        // 2. CSV 라인 파싱 (헤더+데이터)
+        var lines = File.ReadAllLines(CsvPath);
         if (lines.Length < 2)
         {
-            Debug.LogError("Skill CSV에 데이터 행이 없습니다.");
+            Debug.LogError("[SkillTableImporter] Skill CSV에 데이터 행이 없습니다.");
             return;
         }
 
-        // 3. SkillTable 에셋 로드(없으면 새로 생성)
+        // 3. SkillTable 에셋 로드/생성
         SkillTable table = AssetDatabase.LoadAssetAtPath<SkillTable>(AssetPath);
         if (table == null)
         {
@@ -50,105 +49,100 @@ public static class SkillTableImporter
             AssetDatabase.CreateAsset(table, AssetPath);
         }
 
-        // 4. SkillTable rows 필드 초기화
+        // 4. 직렬화 rows 필드 초기화
         SerializedObject so = new SerializedObject(table);
         SerializedProperty rowsProp = so.FindProperty("rows");
         if (rowsProp == null)
         {
-            Debug.LogError("SkillTable에 'rows' 필드를 찾을 수 없습니다.");
+            Debug.LogError("SkillTable에 'rows' 리스트 필드가 존재하지 않습니다. 필드를 확인하세요.");
             return;
         }
         rowsProp.ClearArray();
 
-        // 5. 헤더 파싱 및 컬럼 인덱스 확인
-        string[] header = lines[0].Split(',').Select(h => h.Trim()).ToArray();
-        int GetColumnIndex(string name) => Array.FindIndex(header, h => string.Equals(h, name, StringComparison.OrdinalIgnoreCase));
+        // 5. 헤더 추출 및 컬럼 검사
+        var header = lines[0].Split(',').Select(x => x.Trim()).ToArray();
+        int ColIdx(string n) => Array.FindIndex(header, h => string.Equals(h, n, StringComparison.OrdinalIgnoreCase));
 
-        foreach (string col in RequiredColumns)
+        foreach (var col in RequiredColumns)
         {
-            if (GetColumnIndex(col) < 0)
+            if (ColIdx(col) < 0)
             {
-                Debug.LogError($"필수 컬럼이 누락되었습니다: {col}");
+                Debug.LogError($"[SkillTableImporter] CSV에 '{col}' 컬럼이 없습니다. 헤더를 확인하세요.");
                 return;
             }
         }
 
-        // 각 컬럼 인덱스 저장
-        int idIdx = GetColumnIndex("id");
-        int nameIdx = GetColumnIndex("name");
-        int elementIdx = GetColumnIndex("element");
-        int coefficientIdx = GetColumnIndex("coefficient");
-        int cooldownIdx = GetColumnIndex("cooldown");
-        int rangeIdx = GetColumnIndex("range");
+        // 컬럼 인덱스 캐싱 (cooldown은 옵션)
+        int idIdx = ColIdx("id"),
+            nameIdx = ColIdx("name"),
+            elementIdx = ColIdx("element"),
+            coefficientIdx = ColIdx("coefficient"),
+            rangeIdx = ColIdx("range"),
+            cooldownIdx = ColIdx("cooldown"); // -1이면 없는 컬럼
 
-        // 6. 실제 데이터 행 파싱 및 에셋에 저장
-        int rowIndex = 0;
+        // 6. 데이터 행 파싱 & ScriptableObject 반영
+        int importedCount = 0;
         for (int i = 1; i < lines.Length; i++)
         {
-            string line = lines[i];
+            var line = lines[i];
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
-            string[] cols = line.Split(',').Select(c => c.Trim()).ToArray();
+            var cols = line.Split(',').Select(x => x.Trim()).ToArray();
             if (cols.Length < header.Length)
             {
-                Debug.LogWarning($"{i + 1}번째 라인에 컬럼 개수가 부족합니다. 건너뜁니다: '{line}'");
+                Debug.LogWarning($"[{i+1}행] 컬럼 수 부족(필요: {header.Length}, 실제: {cols.Length}) → 스킵: {line}");
                 continue;
             }
-            rowsProp.InsertArrayElementAtIndex(rowIndex);
-            SerializedProperty row = rowsProp.GetArrayElementAtIndex(rowIndex);
 
-            row.FindPropertyRelative("id").stringValue = ReadCell(cols, idIdx);
-            row.FindPropertyRelative("name").stringValue = ReadCell(cols, nameIdx);
-            row.FindPropertyRelative("coefficient").floatValue = Mathf.Max(0.1f, ParseFloat(ReadCell(cols, coefficientIdx), 1f));
-            row.FindPropertyRelative("cooldown").floatValue = Mathf.Max(0f, ParseFloat(ReadCell(cols, cooldownIdx), 0f));
-            row.FindPropertyRelative("range").floatValue = Mathf.Max(0f, ParseFloat(ReadCell(cols, rangeIdx), 9999f));
+            rowsProp.InsertArrayElementAtIndex(importedCount);
+            var row = rowsProp.GetArrayElementAtIndex(importedCount);
 
-            string elementRaw = ReadCell(cols, elementIdx);
-            // Enum TryParse 오류 시 기본값 Reason 사용
-            if (!Enum.TryParse(elementRaw, true, out ElementType element))
+            row.FindPropertyRelative("id").stringValue = GetCell(cols, idIdx);
+            row.FindPropertyRelative("name").stringValue = GetCell(cols, nameIdx);
+            row.FindPropertyRelative("coefficient").floatValue = Mathf.Max(0.1f, StrToFloat(GetCell(cols, coefficientIdx), 1f));
+            row.FindPropertyRelative("range").floatValue = Mathf.Max(0f, StrToFloat(GetCell(cols, rangeIdx), 9999f));
+            if (cooldownIdx >= 0)
+                row.FindPropertyRelative("cooldown").floatValue = Mathf.Max(0f, StrToFloat(GetCell(cols, cooldownIdx), 0f));
+
+            string elemRaw = GetCell(cols, elementIdx);
+            if (!Enum.TryParse(elemRaw, true, out ElementType element))
             {
-                Debug.LogWarning($"'{elementRaw}'은(는) 올바른 ElementType이 아닙니다. 기본값 Reason이 할당됩니다.");
+                Debug.LogWarning($"[SkillTableImporter] '{elemRaw}'는 ElementType으로 변환할 수 없습니다(id: {GetCell(cols, idIdx)}). 기본값 Reason으로 대체.");
                 element = ElementType.Reason;
             }
             row.FindPropertyRelative("element").enumValueIndex = (int)element;
 
-            rowIndex++;
+            importedCount++;
         }
 
-        // 7. 변경 적용 및 에셋 저장
+        // 7. 에셋/변경사항 저장
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(table);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"총 {rowIndex}개의 스킬 데이터를 성공적으로 임포트했습니다: {AssetPath}");
+        Debug.Log($"[SkillTableImporter] Skill 데이터 {importedCount}개를 성공적으로 임포트했습니다 → {AssetPath}");
     }
 
     /// <summary>
-    /// 해당 인덱스의 셀 값을 안전하게 반환합니다.
+    /// (안전하게) 해당 인덱스 셀 추출. 인덱스 범위 밖이면 빈 문자열 반환.
     /// </summary>
-    private static string ReadCell(string[] cols, int index)
-    {
-        if (cols == null || index < 0 || index >= cols.Length)
-            return string.Empty;
-        return cols[index];
-    }
+    private static string GetCell(string[] arr, int idx)
+        => arr == null || idx < 0 || idx >= arr.Length ? string.Empty : arr[idx];
 
     /// <summary>
-    /// 문자열을 float으로 파싱. 실패 시 기본값 반환.
+    /// 문자열 → float 변환. 실패 시 기본값 반환.
     /// </summary>
-    private static float ParseFloat(string s, float defaultValue)
+    private static float StrToFloat(string s, float fallback)
     {
         if (string.IsNullOrWhiteSpace(s))
-            return defaultValue;
-
-        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
-            return value;
-        if (float.TryParse(s, out value))
-            return value;
-
-        return defaultValue;
+            return fallback;
+        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float v))
+            return v;
+        if (float.TryParse(s, out v))
+            return v;
+        return fallback;
     }
 }
 #endif

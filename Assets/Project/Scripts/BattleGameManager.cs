@@ -554,6 +554,18 @@ public class BattleGameManager : MonoBehaviour
 
         if (skillSelectPanelController == null)
         {
+            // searchRoot 밖에 있는 경우를 대비해 씬 전체에서 탐색
+#if UNITY_2022_2_OR_NEWER
+            skillSelectPanelController = FindFirstObjectByType<SkillSelectPanelController>(FindObjectsInactive.Include);
+#else
+            skillSelectPanelController = FindObjectOfType<SkillSelectPanelController>(true);
+#endif
+            if (skillSelectPanelController != null)
+                Debug.Log("[BattleGameManager] SkillSelectPanelController를 씬 전체 탐색으로 발견했습니다.");
+        }
+
+        if (skillSelectPanelController == null)
+        {
             CreateDefaultSkillSelectPanel();
         }
     }
@@ -646,6 +658,18 @@ public class BattleGameManager : MonoBehaviour
             optionLabels[i] = CreateText($"OptionLabel_{i}", option.transform, 24f, Vector2.zero, 24f);
             optionLabels[i].alignment = TextAlignmentOptions.Center;
         }
+
+        // Dim 오브젝트 생성 (화면 전체를 덮는 반투명 레이캐스트 차단용)
+        GameObject dimObject = new GameObject("Dim", typeof(RectTransform), typeof(Image));
+        dimObject.transform.SetParent(panelObject.transform, false);
+        RectTransform dimRect = dimObject.GetComponent<RectTransform>();
+        dimRect.anchorMin = Vector2.zero;
+        dimRect.anchorMax = Vector2.one;
+        dimRect.offsetMin = Vector2.zero;
+        dimRect.offsetMax = Vector2.zero;
+        Image dimImg = dimObject.GetComponent<Image>();
+        dimImg.color = new Color(0f, 0f, 0f, 0f); // 완전 투명 (레이캐스트 차단 전용)
+        dimImg.raycastTarget = false;
 
         skillSelectPanelController = panelObject.GetComponent<SkillSelectPanelController>();
         skillSelectPanelController.Configure(panelObject, optionButtons[0], optionButtons[1], optionButtons[2], optionLabels[0], optionLabels[1], optionLabels[2]);

@@ -22,8 +22,8 @@ MonoBehaviour:
     eliteEvery: 0
     boss: 0
     rewardGold: 50
-    enemyId: 1
-    monsterId: 1
+    enemyId: Monster1
+    monsterId: Monster1
   - wave: 2
     spawnCount: 12
     spawnInterval: 1.1
@@ -33,8 +33,8 @@ MonoBehaviour:
     eliteEvery: 0
     boss: 0
     rewardGold: 60
-    enemyId: 2
-    monsterId: 2
+    enemyId: Monster2
+    monsterId: Monster2
   - wave: 3
     spawnCount: 15
     spawnInterval: 1
@@ -44,5 +44,5 @@ MonoBehaviour:
     eliteEvery: 5
     boss: 0
     rewardGold: 70
-    enemyId: 3
-    monsterId: 3
+    enemyId: Monster3
+    monsterId: Monster3

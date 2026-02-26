@@ -20,7 +20,12 @@ public class Enemy : MonoBehaviour
     public static event Action<Enemy> EnemyKilled;
     private static readonly int BaseColorPropertyId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorPropertyId = Shader.PropertyToID("_Color");
-    private const string MonsterRunStateName = "Monster_run";
+    // ─── Animator Run State 자동 탐지 ──────────────────────────────────────────
+    // _run 이 포함된 State 이름을 런타임에 자동으로 탐지합니다.
+    // 특정 이름을 직접 지정하려면 Inspector의 runStateOverride에 입력하세요.
+    [SerializeField, Tooltip("비워두면 이름에 '_run'이 포함된 State를 자동 탐지합니다.")]
+    private string runStateOverride = string.Empty;
+    private string resolvedRunStateName = string.Empty; // 런타임 캐시
     private static readonly int SpeedParamId = Animator.StringToHash("Speed");
     private static readonly int IsMovingParamId = Animator.StringToHash("IsMoving");
     private static readonly int HitTriggerId = Animator.StringToHash("Hit");
@@ -624,7 +629,56 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void ResolveAnimator()
+    /// <summary>
+    /// Animator의 Layer 0에서 이름에 "_run"이 포함된 State를 탐지하여 반환합니다.
+    /// runStateOverride가 지정된 경우 해당 이름을 우선 사용합니다.
+    /// </summary>
+    private string ResolveRunStateName(Animator animator)
+    {
+        if (animator == null) return string.Empty;
+
+        // Inspector에서 직접 지정한 경우 우선 사용
+        if (!string.IsNullOrWhiteSpace(runStateOverride))
+        {
+            int overrideHash = Animator.StringToHash(runStateOverride);
+            if (animator.HasState(0, overrideHash))
+                return runStateOverride;
+
+            Debug.LogWarning($"[Enemy] runStateOverride='{runStateOverride}'가 Animator에 없습니다. 자동 탐지를 시도합니다.", this);
+        }
+
+        // RuntimeAnimatorController에서 클립 이름 기반으로 _run 탐지
+        // Unity 런타임에서는 State 이름을 직접 열거할 수 없으므로
+        // AnimationClip 이름으로 후보를 만들고 HasState로 검증합니다.
+        RuntimeAnimatorController rac = animator.runtimeAnimatorController;
+        if (rac == null) return string.Empty;
+
+        foreach (AnimationClip clip in rac.animationClips)
+        {
+            if (clip == null) continue;
+            string clipName = clip.name;
+
+            // clip 이름에 _run(대소문자 무관)이 포함된 경우 State 이름으로 시도
+            if (clipName.IndexOf("_run", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                clipName.IndexOf("_Run", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                int hash = Animator.StringToHash(clipName);
+                if (animator.HasState(0, hash))
+                {
+                    Debug.Log($"[Enemy] Run State 자동 탐지 성공: '{clipName}' (on '{name}')", this);
+                    return clipName;
+                }
+            }
+        }
+
+        // 못 찾은 경우 경고
+        Debug.LogWarning($"[Enemy] '_run'이 포함된 Animator State를 찾지 못했습니다. " +
+                         $"Inspector의 runStateOverride에 State 이름을 직접 입력하거나 " +
+                         $"Animator Controller의 State 이름에 '_run'을 포함시켜 주세요. (on '{name}')", this);
+        return string.Empty;
+    }
+
+        private void ResolveAnimator()
     {
         if (cachedAnimator == null)
         {
@@ -646,7 +700,8 @@ public class Enemy : MonoBehaviour
         hasIsMovingParam = HasAnimatorParameter("IsMoving", AnimatorControllerParameterType.Bool);
         hasHitTrigger = HasAnimatorParameter("Hit", AnimatorControllerParameterType.Trigger);
         hasDieTrigger = HasAnimatorParameter("Die", AnimatorControllerParameterType.Trigger);
-        hasMonsterRunState = cachedAnimator.HasState(0, Animator.StringToHash(MonsterRunStateName));
+        resolvedRunStateName = ResolveRunStateName(cachedAnimator);
+        hasMonsterRunState = !string.IsNullOrEmpty(resolvedRunStateName);
     }
 
     private bool HasAnimatorParameter(string parameterName, AnimatorControllerParameterType parameterType)
@@ -677,8 +732,15 @@ public class Enemy : MonoBehaviour
 
         cachedAnimator.Rebind();
         cachedAnimator.Update(0f);
-        cachedAnimator.Play(MonsterRunStateName, 0, 0f);
-        cachedAnimator.Update(0f);
+
+        // hasMonsterRunState가 true일 때만 Play 호출
+        // false이면 Entry → 기본 State로 자동 전이되므로 별도 Play 불필요
+        if (hasMonsterRunState)
+        {
+            cachedAnimator.Play(resolvedRunStateName, 0, 0f);
+            cachedAnimator.Update(0f);
+        }
+
         hasPlayedRunFallback = false;
     }
 
@@ -714,7 +776,7 @@ public class Enemy : MonoBehaviour
                 return;
             }
 
-            cachedAnimator.Play(MonsterRunStateName, 0, 0f);
+            cachedAnimator.Play(resolvedRunStateName, 0, 0f);
             hasPlayedRunFallback = true;
         }
     }
