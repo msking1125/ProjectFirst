@@ -21,6 +21,8 @@ public class Agent : MonoBehaviour
     [SerializeField] private bool logElementAdvantageOnce = true;
 
     public float AttackPower => stats.atk;
+    public float CritChance => stats.critChance;
+    public float CritMultiplier => stats.critMultiplier;
     public ElementType Element => element;
 
     private float timer;
@@ -70,19 +72,20 @@ public class Agent : MonoBehaviour
             return;
         }
 
-        float baseDmg = Mathf.Max(1f, stats.atk - target.Defense);
-        bool isCrit = Random.value < Mathf.Clamp01(stats.critChance);
-        float critAppliedDmg = isCrit
-            ? baseDmg * Mathf.Max(1f, stats.critMultiplier)
-            : baseDmg;
-
-        float elementMultiplier = ElementRules.GetMultiplier(element, target.Element);
-        int finalDmg = Mathf.RoundToInt(critAppliedDmg * elementMultiplier);
+        int finalDmg = DamageCalculator.ComputeBasicDamage(
+            Mathf.RoundToInt(stats.atk),
+            Mathf.RoundToInt(target.Defense),
+            stats.critChance,
+            stats.critMultiplier,
+            element,
+            target.Element,
+            out bool isCrit);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (logElementDamage && (!logElementAdvantageOnce || !hasLoggedElementAdvantage))
         {
             bool hasAdvantage = ElementRules.HasAdvantage(element, target.Element);
+            float elementMultiplier = ElementRules.GetMultiplier(element, target.Element);
             Debug.Log($"[Agent] DamageCalc attackerElement={element} defenderElement={target.Element} advantageApplied={hasAdvantage} multiplier={elementMultiplier:F1} finalDmg={finalDmg}", this);
             hasLoggedElementAdvantage = true;
         }

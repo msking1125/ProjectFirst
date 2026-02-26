@@ -6,6 +6,7 @@ public class SkillSystem
     private readonly SkillTable skillTable;
     private readonly Agent playerAgent;
     private readonly SkillRow[] equippedSkills = new SkillRow[3];
+    private bool hasLoggedDamageDebug;
 
     public IReadOnlyList<SkillRow> EquippedSkills => equippedSkills;
 
@@ -66,9 +67,7 @@ public class SkillSystem
 
         IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
         int hitCount = 0;
-        int baseDamage = Mathf.RoundToInt(playerAgent.AttackPower * skill.coefficient);
-
-        Debug.Log($"[SkillSystem] Cast start. skill='{skill.name}', slot={slotIndex + 1}, aliveEnemies={aliveEnemies.Count}, baseDamage={baseDamage}");
+        int atk = Mathf.RoundToInt(playerAgent.AttackPower);
 
         for (int i = 0; i < aliveEnemies.Count; i++)
         {
@@ -78,16 +77,28 @@ public class SkillSystem
                 continue;
             }
 
-            float multiplier = ElementTypeHelper.GetMultiplier(skill.element, enemy.Element);
-            int finalDamage = Mathf.RoundToInt(baseDamage * multiplier);
+            int enemyDef = Mathf.RoundToInt(enemy.Defense);
+            bool hasAdvantage = ElementTypeHelper.HasAdvantage(skill.element, enemy.Element);
+            float multiplier = hasAdvantage ? ElementTypeHelper.AdvantageMultiplier : ElementTypeHelper.NeutralMultiplier;
+            int finalDamage = DamageCalculator.ComputeSkillDamage(
+                atk,
+                enemyDef,
+                skill.coefficient,
+                playerAgent.CritChance,
+                playerAgent.CritMultiplier,
+                skill.element,
+                enemy.Element);
+
+            if (!hasLoggedDamageDebug)
+            {
+                Debug.Log($"[SkillSystem] DamageDebug atk={atk}, def={enemyDef}, coefficient={Mathf.Max(0f, skill.coefficient):0.###}, critChance={Mathf.Clamp01(playerAgent.CritChance):0.###}, critMultiplier={Mathf.Max(1f, playerAgent.CritMultiplier):0.###}, atkElem={skill.element}, defElem={enemy.Element}, elemMultiplier={multiplier:0.###}, final={finalDamage}");
+                hasLoggedDamageDebug = true;
+            }
+
             enemy.TakeDamage(finalDamage, false);
             hitCount++;
-
-            string enemyName = enemy.name;
-            Debug.Log($"[SkillSystem] AoE hit {hitCount}: enemy={enemyName}, finalDamage={finalDamage}, multiplier={multiplier:0.##}");
         }
 
-        Debug.Log($"[SkillSystem] Cast complete. skill='{skill.name}', slot={slotIndex + 1}, hit={hitCount}");
         return hitCount;
     }
 
