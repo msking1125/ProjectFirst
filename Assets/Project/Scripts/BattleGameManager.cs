@@ -422,7 +422,7 @@ public class BattleGameManager : MonoBehaviour
         gameEnded = true;
         Time.timeScale = 0f;
 
-        int currentWave = WaveManager.Instance?.CurrentWave ?? 5;
+        int currentWave = Mathf.Max(1, WaveManager.Instance?.CurrentWave ?? 5);
         int currentGold = runSession?.Gold ?? 0;
         const int prestige = 10; // 테스트용 고정값
 
