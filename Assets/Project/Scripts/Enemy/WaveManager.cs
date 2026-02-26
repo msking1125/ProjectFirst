@@ -5,6 +5,8 @@ using UnityEngine;
 [AddComponentMenu("Enemy/Wave Manager")]
 public class WaveManager : MonoBehaviour
 {
+    public static WaveManager Instance { get; private set; }
+
     private const string DefaultMonsterId = "1";
 
     [Header("References")]
@@ -19,6 +21,7 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private TMP_Text aliveEnemyText;
 
     private int currentWaveIndex = -1;
+    public int CurrentWave => currentWaveIndex + 1;   // 외부에서 읽기용
     private bool waveInProgress;
     private bool gameEnded;
     private bool loggedMissingWaveTable;
@@ -26,6 +29,16 @@ public class WaveManager : MonoBehaviour
 
     private void Awake()
     {
+        // 싱글톤 중복 방지
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
         if (enemySpawner == null)
         {
             enemySpawner = FindFirstObjectByType<EnemySpawner>();
