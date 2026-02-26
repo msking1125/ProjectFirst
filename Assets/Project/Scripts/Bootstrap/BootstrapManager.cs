@@ -24,12 +24,12 @@ public class BootstrapManager : MonoBehaviour
         Instance = this;
 
         // 씬이 바뀌어도 BootstrapManager를 유지
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(this.gameObject);
     }
 
     private void Start()
     {
-        // BootstrapLoader의 기존 방어 로직을 동일하게 통합
+        // 기존 BootstrapLoader의 방어 로직을 통합
         if (string.IsNullOrEmpty(titleSceneName))
         {
             Debug.LogWarning("[BootstrapManager] titleSceneName 이 비어 있습니다.");
@@ -43,7 +43,7 @@ public class BootstrapManager : MonoBehaviour
             return;
         }
 
-        // 타이틀 씬을 Additive로 로드
-        AsyncSceneLoader.Instance.LoadSceneAsync(titleSceneName, LoadSceneMode.Additive);
+        // 요구사항: Title 씬을 Additive로 비동기 로드
+        AsyncSceneLoader.Instance.LoadSceneAsync("Title", LoadSceneMode.Additive);
     }
 }
