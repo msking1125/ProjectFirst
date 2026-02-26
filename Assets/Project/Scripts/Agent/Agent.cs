@@ -17,8 +17,6 @@ public class Agent : MonoBehaviour
     [SerializeField] private ElementType element = ElementType.Reason;
 
     [Header("Debug")]
-    [SerializeField] private bool logElementDamage;
-    [SerializeField] private bool logElementAdvantageOnce = true;
 
     public float AttackPower => stats.atk;
     public float CritChance => stats.critChance;
@@ -27,7 +25,6 @@ public class Agent : MonoBehaviour
 
     private float timer;
     private bool hasLoggedMissingManager;
-    private bool hasLoggedElementAdvantage;
 
     private void Awake()
     {
@@ -72,26 +69,13 @@ public class Agent : MonoBehaviour
             return;
         }
 
-        int finalDmg = DamageCalculator.ComputeBasicDamage(
+        int finalDmg = DamageCalculator.ComputeCharacterDamage(
             Mathf.RoundToInt(stats.atk),
             Mathf.RoundToInt(target.Defense),
             stats.critChance,
-            stats.critMultiplier,
-            element,
-            target.Element,
-            out bool isCrit);
+            stats.critMultiplier);
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (logElementDamage && (!logElementAdvantageOnce || !hasLoggedElementAdvantage))
-        {
-            bool hasAdvantage = ElementRules.HasAdvantage(element, target.Element);
-            float elementMultiplier = ElementRules.GetMultiplier(element, target.Element);
-            Debug.Log($"[Agent] DamageCalc attackerElement={element} defenderElement={target.Element} advantageApplied={hasAdvantage} multiplier={elementMultiplier:F1} finalDmg={finalDmg}", this);
-            hasLoggedElementAdvantage = true;
-        }
-#endif
-
-        target.TakeDamage(finalDmg, isCrit);
+        target.TakeDamage(finalDmg);
     }
 
     Enemy FindClosestEnemy()

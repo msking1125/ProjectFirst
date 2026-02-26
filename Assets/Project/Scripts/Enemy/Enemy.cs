@@ -214,10 +214,9 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        int finalDamage = Mathf.Max(0, dmg);
-        currentHP -= finalDamage;
+        currentHP -= dmg;
 
-        SpawnDamageText(finalDamage, isCrit);
+        SpawnDamageText(dmg, isCrit);
         PlayHitFeedback(isCrit);
         TrySetAnimatorTrigger(HitTriggerId, hasHitTrigger);
 

@@ -6,7 +6,6 @@ public class SkillSystem
     private readonly SkillTable skillTable;
     private readonly Agent playerAgent;
     private readonly SkillRow[] equippedSkills = new SkillRow[3];
-    private bool hasLoggedDamageDebug;
 
     public IReadOnlyList<SkillRow> EquippedSkills => equippedSkills;
 
@@ -78,24 +77,13 @@ public class SkillSystem
             }
 
             int enemyDef = Mathf.RoundToInt(enemy.Defense);
-            bool hasAdvantage = ElementTypeHelper.HasAdvantage(skill.element, enemy.Element);
-            float multiplier = hasAdvantage ? ElementTypeHelper.AdvantageMultiplier : ElementTypeHelper.NeutralMultiplier;
-            int finalDamage = DamageCalculator.ComputeSkillDamage(
+            int finalDamage = DamageCalculator.ComputeCharacterDamage(
                 atk,
                 enemyDef,
-                skill.coefficient,
                 playerAgent.CritChance,
-                playerAgent.CritMultiplier,
-                skill.element,
-                enemy.Element);
+                playerAgent.CritMultiplier);
 
-            if (!hasLoggedDamageDebug)
-            {
-                Debug.Log($"[SkillSystem] DamageDebug atk={atk}, def={enemyDef}, coefficient={Mathf.Max(0f, skill.coefficient):0.###}, critChance={Mathf.Clamp01(playerAgent.CritChance):0.###}, critMultiplier={Mathf.Max(1f, playerAgent.CritMultiplier):0.###}, atkElem={skill.element}, defElem={enemy.Element}, elemMultiplier={multiplier:0.###}, final={finalDamage}");
-                hasLoggedDamageDebug = true;
-            }
-
-            enemy.TakeDamage(finalDamage, false);
+            enemy.TakeDamage(finalDamage);
             hitCount++;
         }
 
