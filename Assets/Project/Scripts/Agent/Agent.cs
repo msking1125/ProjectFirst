@@ -5,6 +5,7 @@ public class Agent : MonoBehaviour
     [Header("Data")]
     [SerializeField] private string agentId = "agent01";
     [SerializeField] private AgentTable agentTable;
+    [SerializeField] private AgentStatsTable agentStatsTable; // 추가됨
 
     public float range = 5f;
     public float attackRate = 1f;
@@ -16,8 +17,6 @@ public class Agent : MonoBehaviour
     [SerializeField] private CombatStats stats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
     [SerializeField] private ElementType element = ElementType.Reason;
 
-    [Header("Debug")]
-
     public float AttackPower => stats.atk;
     public float CritChance => stats.critChance;
     public float CritMultiplier => stats.critMultiplier;
@@ -28,17 +27,56 @@ public class Agent : MonoBehaviour
 
     private void Awake()
     {
-        ApplyStatsFromTable();
+        ApplyStatsFromTables();
     }
 
-    private void ApplyStatsFromTable()
+    /// <summary>
+    /// AgentTable 또는 AgentStatsTable을 통해 스탯/속성 정보 적용
+    /// </summary>
+    private void ApplyStatsFromTables()
     {
+        bool statsFromTable = false;
+
+        // 우선순위: AgentTable → AgentStatsTable → 기본값
         if (agentTable != null)
         {
             stats = agentTable.GetStats(agentId);
             element = agentTable.GetElement(agentId);
+            statsFromTable = true;
         }
-        else if (stats.atk <= 0f)
+        else if (agentStatsTable != null)
+        {
+            // AgentStatsTable에서 스탯 가져오기
+            CombatStats? tableStats = agentStatsTable.GetStats(agentId); // 구현에 따라 인덱서나 메서드명 조정
+            if (tableStats != null)
+            {
+                stats = tableStats.Value;
+                statsFromTable = true;
+            }
+
+            // AgentStatsTable에 GetElement(string agentId) 메서드가 있다고 가정하고 호출
+            // 실제 구현에서 해당 메서드가 없으면 수정 필요
+            try
+            {
+                // 만약 GetElement 메서드가 있다면
+                var method = agentStatsTable.GetType().GetMethod("GetElement");
+                if (method != null)
+                {
+                    object result = method.Invoke(agentStatsTable, new object[] { agentId });
+                    if (result is ElementType foundElement)
+                    {
+                        element = foundElement;
+                    }
+                }
+            }
+            catch
+            {
+                // 안전하게 실패
+            }
+        }
+
+        // fallback: Inspector 값 보정
+        if (!statsFromTable && stats.atk <= 0f)
         {
             stats.atk = Mathf.Max(1f, attackDamage);
         }
@@ -91,7 +129,6 @@ public class Agent : MonoBehaviour
 
             return null;
         }
-
         return manager.GetClosest(transform.position, range);
     }
 }
