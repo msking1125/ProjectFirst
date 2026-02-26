@@ -89,21 +89,31 @@ public class ResultPopupService : MonoBehaviour
             _panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
 
             // ThemeStyleSheet가 비어 있으면 기본 Light 테마를 자동으로 연결 시도
+            // 1순위: Resources 폴더에서 로드 (빌드/에디터 공통)
+            var runtimeTheme = Resources.Load<ThemeStyleSheet>("UnityDefaultRuntimeTheme");
+            if (runtimeTheme != null)
+            {
+                _panelSettings.themeStyleSheet = runtimeTheme;
+            }
+
 #if UNITY_EDITOR
-            TryAssignEditorDefaultTheme();
+            // 2순위: 에디터에서 패키지/프로젝트 경로로 탐색
+            if (_panelSettings.themeStyleSheet == null)
+            {
+                TryAssignEditorDefaultTheme();
+            }
             if (_panelSettings.themeStyleSheet == null)
             {
                 Debug.LogWarning(
-                    "[ResultPopupService] PanelSettings에 할당할 ThemeStyleSheet(기본 Light 테마)를 찾을 수 없습니다. " +
-                    "패키지/프로젝트 경로를 확인해 주세요."
+                    "[ResultPopupService] Theme Style Sheet를 찾지 못했습니다.\n" +
+                    "해결방법: 'Assets/Resources/UnityDefaultRuntimeTheme.tss' 경로로 기본 테마를 복사하거나\n" +
+                    "다른 UI Document의 PanelSettings에서 사용하는 테마를 Resources 폴더에 배치하세요."
                 );
             }
 #else
-            // 런타임 - 유저가 직접 테마를 Resources나 Addressables등으로 지정하도록 가이드
-            // 이 자리에 ThemeStyleSheet가 없으면 경고
             if (_panelSettings.themeStyleSheet == null)
             {
-                Debug.LogWarning("[ResultPopupService] PanelSettings에 Theme Style Sheet가 지정되지 않아 UI가 예상대로 렌더링되지 않을 수 있습니다. Resources 폴더에서 커스텀 ThemeStyleSheet를 로드해 적용하세요.");
+                Debug.LogWarning("[ResultPopupService] Theme Style Sheet 없음 - UI 렌더링이 올바르지 않을 수 있습니다.");
             }
 #endif
         }
@@ -149,8 +159,12 @@ public class ResultPopupService : MonoBehaviour
         string[] candidatePaths =
         {
             "Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss",
+            "Assets/Settings/UnityDefaultRuntimeTheme.tss",
+            "Assets/Resources/UnityDefaultRuntimeTheme.tss",
+            "Packages/com.unity.ui/PackageResources/StyleSheets/Defaults/UnityDefaultRuntimeTheme.tss",
             "Packages/com.unity.ui/PackageResources/StyleSheets/Generated/Default.tss",
-            "Packages/com.unity.ui/Runtime/Themes/DefaultCommonLight.uss"
+            "Packages/com.unity.ui/Runtime/Themes/DefaultCommonLight.uss",
+            "Packages/com.unity.ui.builder/PackageResources/RuntimeTheme/UnityDefaultRuntimeTheme.tss"
         };
 
         foreach (var path in candidatePaths)

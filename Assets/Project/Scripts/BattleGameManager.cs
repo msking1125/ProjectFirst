@@ -332,10 +332,31 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void OpenSkillSelectPanel()
     {
-        if (skillSystem == null || skillSelectPanelController == null) return;
+        if (skillSystem == null)
+        {
+            Debug.LogError("[BGM] OpenSkillSelectPanel: skillSystem이 null입니다. SkillTable이 연결되어 있는지 확인하세요.", this);
+            return;
+        }
+
+        if (skillSelectPanelController == null)
+        {
+            Debug.LogError("[BGM] OpenSkillSelectPanel: skillSelectPanelController가 null입니다. 씬의 SkillSelectPanel 오브젝트를 확인하세요.", this);
+            return;
+        }
 
         List<SkillRow> candidates = skillSystem.GetRandomCandidates(3);
-        if (candidates == null || candidates.Count == 0) return;
+        if (candidates == null || candidates.Count == 0)
+        {
+            Debug.LogWarning("[BGM] OpenSkillSelectPanel: 스킬 후보가 없습니다. SkillTable에 스킬 데이터가 있는지 확인하세요.", this);
+            return;
+        }
+
+        // ── 패널 RectTransform을 화면 전체로 강제 설정 ──────────────────────────
+        // 씬의 SkillSelectPanel 프리팹이 작게 설정되어 있을 경우를 대비합니다.
+        EnsureSkillPanelFullscreen();
+
+        // ── 에이전트 전투 일시 정지 ────────────────────────────────────────────
+        SetAgentsCombat(false);
 
         skillSelectPanelController.ShowOptions(candidates, selectedSkill =>
         {
@@ -344,7 +365,46 @@ public class BattleGameManager : MonoBehaviour
             {
                 skillBarController.SetSlot(equippedSlot, selectedSkill);
             }
+
+            // ── 에이전트 전투 재개 ───────────────────────────────────────────
+            SetAgentsCombat(true);
         });
+    }
+
+    /// <summary>
+    /// SkillSelectPanel의 RectTransform을 화면 전체로 강제 설정합니다.
+    /// 프리팹이 100×100 등 잘못된 크기로 설정된 경우를 보정합니다.
+    /// </summary>
+    private void EnsureSkillPanelFullscreen()
+    {
+        if (skillSelectPanelController == null) return;
+
+        RectTransform rt = skillSelectPanelController.GetComponent<RectTransform>();
+        if (rt == null) return;
+
+        // 화면 전체를 덮도록 앵커 설정
+        rt.anchorMin        = Vector2.zero;
+        rt.anchorMax        = Vector2.one;
+        rt.offsetMin        = Vector2.zero;
+        rt.offsetMax        = Vector2.zero;
+
+        // Canvas 안에서 가장 앞으로 이동
+        rt.SetAsLastSibling();
+        Debug.Log("[BGM] SkillSelectPanel RectTransform을 fullscreen으로 설정했습니다.");
+    }
+
+    /// <summary>
+    /// 씬의 모든 Agent 전투 상태를 제어합니다.
+    /// </summary>
+    private void SetAgentsCombat(bool active)
+    {
+        if (allAgents == null) return;
+        foreach (Agent a in allAgents)
+        {
+            if (a == null) continue;
+            if (active) a.ResumeCombat();
+            else        a.PauseCombat();
+        }
     }
 
     /// <summary>
