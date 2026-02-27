@@ -214,19 +214,15 @@ public class EnemySpawner : MonoBehaviour
     private string ResolveMonsterIdOrFallback(string waveMonsterId, string fallbackMonsterId)
     {
         string fallback = string.IsNullOrWhiteSpace(fallbackMonsterId) ? DefaultMonsterId : fallbackMonsterId.Trim();
+
         if (string.IsNullOrWhiteSpace(waveMonsterId))
         {
             return fallback;
         }
 
-        string candidate = waveMonsterId.Trim();
-        if (int.TryParse(candidate, out _))
-        {
-            return candidate;
-        }
-
-        Debug.LogWarning($"[EnemySpawner] wave monsterId/enemyId is not numeric. raw='{candidate}', fallback='{fallback}'. Wave CSV/asset를 숫자 id 체계로 맞춰주세요.");
-        return fallback;
+        // 숫자/문자 혼합 ID (Monster1, slime_01 등) 모두 허용
+        // 공백만 제거하여 그대로 사용
+        return waveMonsterId.Trim();
     }
 
     private MonsterGrade ResolveGrade()

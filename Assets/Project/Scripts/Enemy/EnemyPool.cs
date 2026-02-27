@@ -12,10 +12,12 @@ public class EnemyPool : MonoBehaviour
     public static EnemyPool Instance { get; private set; }
 
     [Header("Enemy Pool Settings")]
-    [Tooltip("Enemy 기본 프리팹. MonsterTable에서 프리팹 없을 때 사용됨.")]
+    [Tooltip("(선택) 기본 Enemy 프리팹. MonsterTable에 프리팹이 모두 설정된 경우 비워도 됩니다.")]
     [SerializeField] private Enemy enemyPrefab;
-    [Tooltip("풀에 미리 생성할 적 개수")]
-    [SerializeField] private int initialSize = 30;
+    [Tooltip("(선택) 게임 시작 시 미리 생성할 적 개수. MonsterTable 기반 사전 로드를 사용하려면 monsterTable도 연결하세요.")]
+    [SerializeField] private int initialSize = 10;
+    [Tooltip("(선택) 사전 로드용 MonsterTable. 연결하면 각 몬스터 프리팹을 미리 풀에 생성합니다.")]
+    [SerializeField] private MonsterTable warmUpMonsterTable;
     [Tooltip("풀링된 오브젝트의 부모 트랜스폼")]
     [SerializeField] private Transform poolRoot;
 
@@ -58,7 +60,22 @@ public class EnemyPool : MonoBehaviour
         if (poolRoot == null)
             poolRoot = transform;
 
-        WarmUp(enemyPrefab, initialSize);
+        // MonsterTable 기반 사전 로드 (warmUpMonsterTable 연결 시)
+        if (warmUpMonsterTable != null && warmUpMonsterTable.rows != null)
+        {
+            foreach (MonsterRow row in warmUpMonsterTable.rows)
+            {
+                if (row == null || row.prefab == null) continue;
+                Enemy prefabEnemy = row.prefab.GetComponent<Enemy>();
+                if (prefabEnemy != null)
+                    WarmUp(prefabEnemy, Mathf.Max(1, initialSize / Mathf.Max(1, warmUpMonsterTable.rows.Count)));
+            }
+        }
+        else if (enemyPrefab != null)
+        {
+            // 기본 프리팹으로 사전 로드
+            WarmUp(enemyPrefab, initialSize);
+        }
     }
 
     /// <summary>
@@ -118,42 +135,43 @@ public class EnemyPool : MonoBehaviour
     /// </summary>
     public Enemy Get(Vector3 pos, Quaternion rot, Transform arkTarget, MonsterTable monsterTable, string enemyId, MonsterGrade grade, WaveMultipliers multipliers)
     {
-        // 반드시 null체크 처리
-        if (enemyPrefab == null)
+        // ── 1순위: MonsterTable에서 ID 매칭으로 프리팹 결정 ──────────────────────
+        MonsterRow row = null;
+        if (monsterTable != null)
         {
-            Debug.LogError("[EnemyPool] enemyPrefab 미지정! EnemyPool에 Enemy 프리팹 참조 연결 필요.");
-            return null;
-        }
+            // ID + Grade 정확 매칭
+            row = monsterTable.GetByIdAndGrade(enemyId, grade);
 
-        Enemy defaultPrefab = enemyPrefab;
-        Enemy sourcePrefab = defaultPrefab;
-
-        MonsterRow row = monsterTable != null ? monsterTable.GetByIdAndGrade(enemyId, grade) : null;
-        GameObject prefabOverride = row != null ? row.prefab : null;
-
-        if (row == null)
-        {
-            Debug.LogWarning($"[EnemyPool] MonsterTable lookup miss. monsterId='{enemyId}', grade='{grade}'. table={BuildMonsterTableSummary(monsterTable)}. Fallback to defaultPrefab='{(defaultPrefab != null ? defaultPrefab.name : "null")}'.");
-        }
-        else if (prefabOverride == null)
-        {
-            Debug.LogWarning($"[EnemyPool] Monster row found but prefab is null. monsterId='{enemyId}', grade='{grade}', rowName='{row.name}'. table={BuildMonsterTableSummary(monsterTable)}. Fallback to defaultPrefab='{(defaultPrefab != null ? defaultPrefab.name : "null")}'.");
-        }
-
-        // MonsterTable의 row에 프리팹이 있다면 덮어씀
-        if (prefabOverride != null)
-        {
-            sourcePrefab = prefabOverride.GetComponent<Enemy>();
-            if (sourcePrefab == null)
+            // Grade 불일치 시 ID만으로 재시도
+            if (row == null)
             {
-                Debug.LogWarning($"[EnemyPool] prefabOverride has no Enemy component. monsterId='{enemyId}', grade='{grade}', prefab='{prefabOverride.name}'. Fallback to defaultPrefab='{(defaultPrefab != null ? defaultPrefab.name : "null")}'.");
-                sourcePrefab = defaultPrefab;
+                row = monsterTable.GetById(enemyId);
+                if (row != null)
+                    Debug.Log($"[EnemyPool] ID='{enemyId}'로 Grade 무관 매칭 성공 (Table Grade='{row.grade}', 요청 Grade='{grade}').");
             }
+        }
+
+        // ── 2순위: row 프리팹 → 기본 enemyPrefab 순으로 결정 ─────────────────
+        Enemy sourcePrefab = null;
+
+        if (row != null && row.prefab != null)
+        {
+            sourcePrefab = row.prefab.GetComponent<Enemy>();
+            if (sourcePrefab == null)
+                Debug.LogWarning($"[EnemyPool] row.prefab에 Enemy 컴포넌트 없음: id='{enemyId}'. 기본 프리팹으로 대체.");
+        }
+
+        if (sourcePrefab == null && enemyPrefab != null)
+        {
+            sourcePrefab = enemyPrefab;
+            if (row == null)
+                Debug.LogWarning($"[EnemyPool] MonsterTable lookup miss: id='{enemyId}', grade='{grade}'. 기본 프리팹 사용. table={BuildMonsterTableSummary(monsterTable)}");
         }
 
         if (sourcePrefab == null)
         {
-            Debug.LogError("[EnemyPool] Enemy 프리팹이 모두 null입니다. enemyPrefab 연결 필요.");
+            Debug.LogError($"[EnemyPool] 스폰 실패: id='{enemyId}'에 해당하는 프리팹을 찾지 못했습니다.\n" +
+                           "MonsterTable의 해당 row에 Prefab을 연결하거나, EnemyPool의 Enemy Prefab(기본값)을 설정하세요.");
             return null;
         }
 

@@ -4,31 +4,30 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// ResultPopup 을 전역에서 호출할 수 있는 서비스.
-/// DontDestroyOnLoad 로 유지되며, UI Toolkit 오버레이를 사용합니다.
+/// 전역 호출 가능한 ResultPopup 서비스.
+/// DontDestroyOnLoad로 영속되고 UI Toolkit 오버레이를 사용합니다.
 /// </summary>
 public class ResultPopupService : MonoBehaviour
 {
     private static ResultPopupService _instance;
+
     public static ResultPopupService Instance
     {
         get
         {
             if (_instance == null)
-            {
                 CreateSingleton();
-            }
 
             return _instance;
         }
     }
 
     [Header("Settings")]
-    [SerializeField] private float fadeDuration = 0.3f;
+    [SerializeField] private float fadeDuration = 0.35f;
     [SerializeField] private float autoCloseSeconds = 3f;
 
     /// <summary>
-    /// 프레스티지 버튼이 눌렸을 때 호출되는 이벤트. 외부에서 구독해 사용.
+    /// 프레스티지 버튼 클릭 이벤트(외부 구독용)
     /// </summary>
     public event Action PrestigeClicked;
 
@@ -36,14 +35,13 @@ public class ResultPopupService : MonoBehaviour
     private PanelSettings _panelSettings;
     private ResultPopup _popup;
     private Coroutine _currentRoutine;
+    private float _currentOpacity;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoCreate()
     {
         if (_instance == null)
-        {
             CreateSingleton();
-        }
     }
 
     private static void CreateSingleton()
@@ -70,55 +68,77 @@ public class ResultPopupService : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
-
         EnsureUIDocument();
     }
 
     private void EnsureUIDocument()
     {
-        if (_uiDocument != null && _popup != null) return;
+        if (_uiDocument != null && _popup != null)
+            return;
 
-        _uiDocument = GetComponent<UIDocument>();
+        VisualElement root = null;
+
         if (_uiDocument == null)
         {
-            _uiDocument = gameObject.AddComponent<UIDocument>();
+            UIDocument[] allDocs;
+#if UNITY_2022_2_OR_NEWER
+            allDocs = FindObjectsByType<UIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#else
+            allDocs = FindObjectsOfType<UIDocument>(true);
+#endif
+            foreach (var doc in allDocs)
+            {
+                if (doc == null)
+                    continue;
+
+                var candidate = doc.rootVisualElement?.Q<VisualElement>("result-popup-root");
+                if (candidate == null)
+                    continue;
+
+                _uiDocument = doc;
+                root = candidate;
+                break;
+            }
         }
 
-        if (_panelSettings == null)
+        if (_uiDocument == null)
         {
-            _panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
-
-            // ThemeStyleSheet가 비어 있으면 기본 Light 테마를 자동으로 연결 시도
+            _uiDocument = GetComponent<UIDocument>() ?? gameObject.AddComponent<UIDocument>();
+            if (_panelSettings == null)
+            {
+                _panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
 #if UNITY_EDITOR
-            TryAssignEditorDefaultTheme();
-            if (_panelSettings.themeStyleSheet == null)
-            {
-                Debug.LogWarning(
-                    "[ResultPopupService] PanelSettings에 할당할 ThemeStyleSheet(기본 Light 테마)를 찾을 수 없습니다. " +
-                    "패키지/프로젝트 경로를 확인해 주세요."
-                );
+                TryAssignEditorDefaultTheme();
+#endif
             }
-#else
-            // 런타임 - 유저가 직접 테마를 Resources나 Addressables등으로 지정하도록 가이드
-            // 이 자리에 ThemeStyleSheet가 없으면 경고
-            if (_panelSettings.themeStyleSheet == null)
+
+            _uiDocument.panelSettings = _panelSettings;
+
+            VisualTreeAsset treeAsset = Resources.Load<VisualTreeAsset>("UI/Result/ResultPopup");
+#if UNITY_EDITOR
+            if (treeAsset == null)
             {
-                Debug.LogWarning("[ResultPopupService] PanelSettings에 Theme Style Sheet가 지정되지 않아 UI가 예상대로 렌더링되지 않을 수 있습니다. Resources 폴더에서 커스텀 ThemeStyleSheet를 로드해 적용하세요.");
+                string[] guids = UnityEditor.AssetDatabase.FindAssets("ResultPopup t:VisualTreeAsset");
+                if (guids.Length > 0)
+                {
+                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                    treeAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+                }
             }
 #endif
+
+            if (treeAsset == null)
+            {
+                Debug.LogError("[ResultPopupService] ResultPopup.uxml을 찾을 수 없습니다. Resources/UI/Result 경로를 확인하세요.");
+                return;
+            }
+
+            _uiDocument.visualTreeAsset = treeAsset;
         }
-        _uiDocument.panelSettings = _panelSettings;
 
-        var treeAsset = Resources.Load<VisualTreeAsset>("UI/Result/ResultPopup");
-        if (treeAsset == null)
-        {
-            Debug.LogError("[ResultPopupService] Resources/UI/Result/ResultPopup.uxml 을 찾을 수 없습니다.");
-            return;
-        }
+        if (root == null)
+            root = _uiDocument.rootVisualElement?.Q<VisualElement>("result-popup-root");
 
-        _uiDocument.visualTreeAsset = treeAsset;
-
-        var root = _uiDocument.rootVisualElement?.Q<VisualElement>("result-popup-root");
         if (root == null)
         {
             Debug.LogError("[ResultPopupService] result-popup-root 요소를 찾을 수 없습니다.");
@@ -127,24 +147,21 @@ public class ResultPopupService : MonoBehaviour
 
         _popup = new ResultPopup(root);
         _popup.SetVisible(false);
-        _popup.SetOpacity(0f);
+        SetPopupOpacity(0f);
 
         _popup.BindButtons(
             OnContinueClicked,
             OnPrestigeClicked,
             OnRetryClicked,
             OnTitleClicked,
-            OnCloseClicked
-        );
+            OnCloseClicked);
     }
 
 #if UNITY_EDITOR
     private void TryAssignEditorDefaultTheme()
     {
         if (_panelSettings.themeStyleSheet != null)
-        {
             return;
-        }
 
         string[] candidatePaths =
         {
@@ -157,17 +174,13 @@ public class ResultPopupService : MonoBehaviour
         {
             var theme = UnityEditor.AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(path);
             if (theme == null)
-            {
                 continue;
-            }
 
             _panelSettings.themeStyleSheet = theme;
             return;
         }
     }
 #endif
-
-    #region Public API
 
     public static void ShowWin(int wave, int gold, int prestige, bool autoClose = false)
     {
@@ -179,52 +192,37 @@ public class ResultPopupService : MonoBehaviour
         Instance.InternalShow(ResultPopup.Mode.Lose, wave, gold, 0, autoClose);
     }
 
-    #endregion
-
     private void InternalShow(ResultPopup.Mode mode, int wave, int gold, int prestige, bool autoClose)
     {
         EnsureUIDocument();
         if (_popup == null)
-        {
             return;
-        }
-
-        if (_currentRoutine != null)
-        {
-            StopCoroutine(_currentRoutine);
-        }
 
         if (mode == ResultPopup.Mode.Win)
-        {
             _popup.ConfigureWin(wave, gold, prestige);
-        }
         else
-        {
             _popup.ConfigureLose(wave, gold);
-        }
 
-        _currentRoutine = StartCoroutine(ShowRoutine(autoClose));
+        StartTransition(ShowRoutine(autoClose));
+    }
+
+    private void StartTransition(IEnumerator routine)
+    {
+        if (_currentRoutine != null)
+            StopCoroutine(_currentRoutine);
+
+        _currentRoutine = StartCoroutine(routine);
     }
 
     private IEnumerator ShowRoutine(bool autoClose)
     {
         _popup.SetVisible(true);
-
-        float t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.unscaledDeltaTime;
-            float alpha = Mathf.Clamp01(t / fadeDuration);
-            _popup.SetOpacity(alpha);
-            yield return null;
-        }
-
-        _popup.SetOpacity(1f);
+        yield return FadeTo(1f);
 
         if (autoClose)
         {
             yield return new WaitForSecondsRealtime(autoCloseSeconds);
-            yield return StartCoroutine(HideRoutine());
+            yield return HideRoutine();
         }
 
         _currentRoutine = null;
@@ -232,84 +230,79 @@ public class ResultPopupService : MonoBehaviour
 
     private IEnumerator HideRoutine()
     {
-        float t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.unscaledDeltaTime;
-            float alpha = 1f - Mathf.Clamp01(t / fadeDuration);
-            _popup.SetOpacity(alpha);
-            yield return null;
-        }
-
-        _popup.SetOpacity(0f);
+        yield return FadeTo(0f);
         _popup.SetVisible(false);
         _currentRoutine = null;
     }
 
-    #region Button Handlers
+    private IEnumerator FadeTo(float targetOpacity)
+    {
+        float startOpacity = _currentOpacity;
+        float duration = Mathf.Max(0.01f, fadeDuration);
+
+        if (Mathf.Approximately(startOpacity, targetOpacity))
+        {
+            SetPopupOpacity(targetOpacity);
+            yield break;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float eased = Mathf.SmoothStep(0f, 1f, t);
+            SetPopupOpacity(Mathf.Lerp(startOpacity, targetOpacity, eased));
+            yield return null;
+        }
+
+        SetPopupOpacity(targetOpacity);
+    }
+
+    private void SetPopupOpacity(float value)
+    {
+        _currentOpacity = Mathf.Clamp01(value);
+        _popup?.SetOpacity(_currentOpacity);
+    }
 
     private void OnContinueClicked()
     {
-        if (_currentRoutine != null)
-        {
-            StopCoroutine(_currentRoutine);
-        }
+        var waveManager = WaveManager.Instance != null ? WaveManager.Instance : FindFirstObjectByType<WaveManager>();
+        if (waveManager != null)
+            waveManager.StartNextWave();
+        else
+            Debug.LogWarning("[ResultPopupService] WaveManager를 찾지 못해 다음 웨이브를 시작하지 못했습니다.");
 
-        _currentRoutine = StartCoroutine(HideRoutine());
+        StartTransition(HideRoutine());
     }
 
     private void OnPrestigeClicked()
     {
-        if (_currentRoutine != null)
-        {
-            StopCoroutine(_currentRoutine);
-        }
-
-        _currentRoutine = StartCoroutine(HideRoutine());
+        Debug.Log("[Prestige] 프레스티지 버튼 클릭!");
         PrestigeClicked?.Invoke();
+        StartTransition(HideRoutine());
     }
 
     private void OnRetryClicked()
     {
-        if (_currentRoutine != null)
-        {
-            StopCoroutine(_currentRoutine);
-        }
-
-        _currentRoutine = StartCoroutine(HideRoutine());
+        StartTransition(HideRoutine());
 
         var manager = BattleGameManager.Instance;
         if (manager != null)
-        {
             manager.Restart();
-        }
     }
 
     private void OnTitleClicked()
     {
-        if (_currentRoutine != null)
-        {
-            StopCoroutine(_currentRoutine);
-        }
-
-        _currentRoutine = StartCoroutine(HideRoutine());
+        StartTransition(HideRoutine());
 
         var manager = BattleGameManager.Instance;
         if (manager != null)
-        {
             manager.BackToTitle();
-        }
     }
 
     private void OnCloseClicked()
     {
-        if (_currentRoutine != null)
-        {
-            StopCoroutine(_currentRoutine);
-        }
-
-        _currentRoutine = StartCoroutine(HideRoutine());
+        StartTransition(HideRoutine());
     }
-
-    #endregion
 }

@@ -41,6 +41,8 @@ public class BattleGameManager : MonoBehaviour
     [SerializeField] private MonsterTable monsterTable;
     [SerializeField] private SkillTable skillTable;
     [SerializeField] private Agent playerAgent;
+    // 씬의 모든 Agent를 관리 (Agent_1, Agent_2, Agent_3 등)
+    private Agent[] allAgents;
 
     [Header("HUD")]
     [SerializeField] private Canvas targetCanvas;
@@ -54,7 +56,14 @@ public class BattleGameManager : MonoBehaviour
 
     [Header("Result UI")]
     [SerializeField] private GameObject resultPanel;
-    [SerializeField] private ResultPanelManager resultPanelManager;
+
+    [Header("Result Panel Text (직접 수정 가능)")]
+    [SerializeField] private string victoryTitle    = "승리!";
+    [SerializeField] private string victorySubtitle = "기지를 지켜냈습니다!";
+    [SerializeField] private string defeatTitle     = "패배...";
+    [SerializeField] private string defeatSubtitle  = "기지가 함락되었습니다.";
+    [SerializeField] private string restartLabel    = "다시 시작";
+    [SerializeField] private string titleLabel      = "타이틀로";
 
     [Header("Scene")]
     [SerializeField] private string titleSceneName = "Title";
@@ -90,7 +99,6 @@ public class BattleGameManager : MonoBehaviour
         EnsureBaseHealth();
         EnsureHUD();
         EnsureResultUI();
-        EnsureResultPanelManager();
         SetResultUI(false, string.Empty);
         RefreshStatusUI();
     }
@@ -215,6 +223,28 @@ public class BattleGameManager : MonoBehaviour
 
         skillSystem = new SkillSystem(skillTable, playerAgent);
 
+        // ── 씬의 모든 Agent 탐색 및 전투 시작 ─────────────────────────────────
+#if UNITY_2022_2_OR_NEWER
+        allAgents = FindObjectsByType<Agent>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+#else
+        allAgents = FindObjectsOfType<Agent>();
+#endif
+        if (allAgents == null || allAgents.Length == 0)
+        {
+            Debug.LogWarning("[BGM] 씬에서 Agent를 찾지 못했습니다. Agent 오브젝트가 활성화되어 있는지 확인하세요.");
+        }
+        else
+        {
+            foreach (Agent a in allAgents)
+            {
+                if (a != null)
+                {
+                    a.StartCombat();
+                    Debug.Log($"[BGM] Agent 전투 시작: {a.gameObject.name}");
+                }
+            }
+        }
+
         // 이벤트 중복 연결 방지 후 다시 연결
         runSession.OnLevelChanged -= HandleLevelChanged;
         runSession.OnReachedSkillPickLevel -= HandleReachedSkillPickLevel;
@@ -308,10 +338,31 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void OpenSkillSelectPanel()
     {
-        if (skillSystem == null || skillSelectPanelController == null) return;
+        if (skillSystem == null)
+        {
+            Debug.LogError("[BGM] OpenSkillSelectPanel: skillSystem이 null입니다. SkillTable이 연결되어 있는지 확인하세요.", this);
+            return;
+        }
+
+        if (skillSelectPanelController == null)
+        {
+            Debug.LogError("[BGM] OpenSkillSelectPanel: skillSelectPanelController가 null입니다. 씬의 SkillSelectPanel 오브젝트를 확인하세요.", this);
+            return;
+        }
 
         List<SkillRow> candidates = skillSystem.GetRandomCandidates(3);
-        if (candidates == null || candidates.Count == 0) return;
+        if (candidates == null || candidates.Count == 0)
+        {
+            Debug.LogWarning("[BGM] OpenSkillSelectPanel: 스킬 후보가 없습니다. SkillTable에 스킬 데이터가 있는지 확인하세요.", this);
+            return;
+        }
+
+        // ── 패널 RectTransform을 화면 전체로 강제 설정 ──────────────────────────
+        // 씬의 SkillSelectPanel 프리팹이 작게 설정되어 있을 경우를 대비합니다.
+        EnsureSkillPanelFullscreen();
+
+        // ── 에이전트 전투 일시 정지 ────────────────────────────────────────────
+        SetAgentsCombat(false);
 
         skillSelectPanelController.ShowOptions(candidates, selectedSkill =>
         {
@@ -320,7 +371,46 @@ public class BattleGameManager : MonoBehaviour
             {
                 skillBarController.SetSlot(equippedSlot, selectedSkill);
             }
+
+            // ── 에이전트 전투 재개 ───────────────────────────────────────────
+            SetAgentsCombat(true);
         });
+    }
+
+    /// <summary>
+    /// SkillSelectPanel의 RectTransform을 화면 전체로 강제 설정합니다.
+    /// 프리팹이 100×100 등 잘못된 크기로 설정된 경우를 보정합니다.
+    /// </summary>
+    private void EnsureSkillPanelFullscreen()
+    {
+        if (skillSelectPanelController == null) return;
+
+        RectTransform rt = skillSelectPanelController.GetComponent<RectTransform>();
+        if (rt == null) return;
+
+        // 화면 전체를 덮도록 앵커 설정
+        rt.anchorMin        = Vector2.zero;
+        rt.anchorMax        = Vector2.one;
+        rt.offsetMin        = Vector2.zero;
+        rt.offsetMax        = Vector2.zero;
+
+        // Canvas 안에서 가장 앞으로 이동
+        rt.SetAsLastSibling();
+        Debug.Log("[BGM] SkillSelectPanel RectTransform을 fullscreen으로 설정했습니다.");
+    }
+
+    /// <summary>
+    /// 씬의 모든 Agent 전투 상태를 제어합니다.
+    /// </summary>
+    private void SetAgentsCombat(bool active)
+    {
+        if (allAgents == null) return;
+        foreach (Agent a in allAgents)
+        {
+            if (a == null) continue;
+            if (active) a.ResumeCombat();
+            else        a.PauseCombat();
+        }
     }
 
     /// <summary>
@@ -332,37 +422,17 @@ public class BattleGameManager : MonoBehaviour
         gameEnded = true;
         Time.timeScale = 0f;
 
-        // UI Toolkit 풀스크린 패널 우선 사용
-        EnsureResultPanelManager();
-        if (resultPanelManager != null)
+        int currentWave = Mathf.Max(1, WaveManager.Instance?.CurrentWave ?? 5);
+        int currentGold = runSession?.Gold ?? 0;
+        const int prestige = 10; // 테스트용 고정값
+
+        if (message == "Victory")
         {
-            if (message == "Victory")
-            {
-                resultPanelManager.ShowWin();
-            }
-            else
-            {
-                resultPanelManager.ShowLose();
-            }
+            ResultPopupService.ShowWin(currentWave, currentGold, prestige);
             return;
         }
 
-        // 없으면 기존 uGUI 패널 사용
-        SetResultUI(true, message);
-    }
-
-    /// <summary>
-    /// ResultPanelManager(UI Toolkit)를 찾아 연결
-    /// </summary>
-    private void EnsureResultPanelManager()
-    {
-        if (resultPanelManager != null) return;
-
-#if UNITY_2022_2_OR_NEWER
-        resultPanelManager = FindFirstObjectByType<ResultPanelManager>();
-#else
-        resultPanelManager = GameObject.FindObjectOfType<ResultPanelManager>();
-#endif
+        ResultPopupService.ShowLose(currentWave, currentGold);
     }
 
     /// <summary>
@@ -554,6 +624,18 @@ public class BattleGameManager : MonoBehaviour
 
         if (skillSelectPanelController == null)
         {
+            // searchRoot 밖에 있는 경우를 대비해 씬 전체에서 탐색
+#if UNITY_2022_2_OR_NEWER
+            skillSelectPanelController = FindFirstObjectByType<SkillSelectPanelController>(FindObjectsInactive.Include);
+#else
+            skillSelectPanelController = FindObjectOfType<SkillSelectPanelController>(true);
+#endif
+            if (skillSelectPanelController != null)
+                Debug.Log("[BattleGameManager] SkillSelectPanelController를 씬 전체 탐색으로 발견했습니다.");
+        }
+
+        if (skillSelectPanelController == null)
+        {
             CreateDefaultSkillSelectPanel();
         }
     }
@@ -647,6 +729,18 @@ public class BattleGameManager : MonoBehaviour
             optionLabels[i].alignment = TextAlignmentOptions.Center;
         }
 
+        // Dim 오브젝트 생성 (화면 전체를 덮는 반투명 레이캐스트 차단용)
+        GameObject dimObject = new GameObject("Dim", typeof(RectTransform), typeof(Image));
+        dimObject.transform.SetParent(panelObject.transform, false);
+        RectTransform dimRect = dimObject.GetComponent<RectTransform>();
+        dimRect.anchorMin = Vector2.zero;
+        dimRect.anchorMax = Vector2.one;
+        dimRect.offsetMin = Vector2.zero;
+        dimRect.offsetMax = Vector2.zero;
+        Image dimImg = dimObject.GetComponent<Image>();
+        dimImg.color = new Color(0f, 0f, 0f, 0f); // 완전 투명 (레이캐스트 차단 전용)
+        dimImg.raycastTarget = false;
+
         skillSelectPanelController = panelObject.GetComponent<SkillSelectPanelController>();
         skillSelectPanelController.Configure(panelObject, optionButtons[0], optionButtons[1], optionButtons[2], optionLabels[0], optionLabels[1], optionLabels[2]);
     }
@@ -674,21 +768,39 @@ public class BattleGameManager : MonoBehaviour
         // 없으면 동적으로 생성
         if (resultPanel == null)
         {
+            // ── 반투명 Dim 배경 (전체 화면) ─────────────────────────────────
+            GameObject dimObject = new GameObject("ResultDim", typeof(RectTransform), typeof(Image));
+            dimObject.transform.SetParent(targetCanvas.transform, false);
+            RectTransform dimRect = dimObject.GetComponent<RectTransform>();
+            dimRect.anchorMin = Vector2.zero;
+            dimRect.anchorMax = Vector2.one;
+            dimRect.offsetMin = Vector2.zero;
+            dimRect.offsetMax = Vector2.zero;
+            dimRect.SetAsLastSibling();
+            dimObject.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.6f);
+
+            // ── 중앙 패널 (화면 너비 80%, 높이 50%) ─────────────────────────
             resultPanel = new GameObject("ResultPanel", typeof(RectTransform), typeof(Image));
-            resultPanel.transform.SetParent(targetCanvas.transform, false);
+            resultPanel.transform.SetParent(dimObject.transform, false);
 
             RectTransform panelRect = resultPanel.GetComponent<RectTransform>();
-            panelRect.anchorMin = new Vector2(0.5f, 0.5f);
-            panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(560f, 320f);
+            panelRect.anchorMin = new Vector2(0.1f, 0.25f);
+            panelRect.anchorMax = new Vector2(0.9f, 0.75f);
+            panelRect.offsetMin = Vector2.zero;
+            panelRect.offsetMax = Vector2.zero;
 
             Image panelImage = resultPanel.GetComponent<Image>();
-            panelImage.color = new Color(0f, 0f, 0f, 0.85f);
+            panelImage.color = new Color(0.08f, 0.08f, 0.12f, 0.97f);
 
-            resultText = CreateText("ResultText", resultPanel.transform, 64f, new Vector2(0f, 96f), 56f);
-            CreateButton("RestartButton", "Restart", new Vector2(0f, -12f), Restart);
-            CreateButton("BackButton", "Back To Title", new Vector2(0f, -102f), BackToTitle);
+            // ── 제목 텍스트 ──────────────────────────────────────────────────
+            resultText = CreateText("ResultTitle", resultPanel.transform, 0f, new Vector2(0f, 0.22f), 72f, true);
+
+            // ── 부제목 텍스트 ────────────────────────────────────────────────
+            CreateText("ResultSubtitle", resultPanel.transform, 0f, new Vector2(0f, 0.08f), 36f, true);
+
+            // ── 버튼 2개 나란히 ──────────────────────────────────────────────
+            CreateButtonAnchored("RestartButton", restartLabel, new Vector2(0.12f, 0.05f), new Vector2(0.48f, 0.33f), Restart);
+            CreateButtonAnchored("BackButton",    titleLabel,   new Vector2(0.52f, 0.05f), new Vector2(0.88f, 0.33f), BackToTitle);
         }
         else if (resultText == null)
         {
@@ -705,20 +817,54 @@ public class BattleGameManager : MonoBehaviour
     /// <summary>
     /// 텍스트 객체 생성 헬퍼
     /// </summary>
-    private TMP_Text CreateText(string objectName, Transform parent, float width, Vector2 pos, float fontSize)
+    private TMP_Text CreateText(string objectName, Transform parent, float width, Vector2 pos, float fontSize, bool useAnchor = false)
     {
         GameObject textObject = new GameObject(objectName, typeof(RectTransform), typeof(TextMeshProUGUI));
         textObject.transform.SetParent(parent, false);
 
         RectTransform textRect = textObject.GetComponent<RectTransform>();
-        textRect.sizeDelta = new Vector2(width * 6f, 90f);
-        textRect.anchoredPosition = pos;
+        if (useAnchor)
+        {
+            // anchoredPosition을 앵커 비율로 해석 (0~1)
+            textRect.anchorMin = new Vector2(0.05f, pos.y - 0.1f);
+            textRect.anchorMax = new Vector2(0.95f, pos.y + 0.1f);
+            textRect.offsetMin = Vector2.zero;
+            textRect.offsetMax = Vector2.zero;
+        }
+        else
+        {
+            textRect.sizeDelta = new Vector2(width > 0f ? width * 6f : 800f, 90f);
+            textRect.anchoredPosition = pos;
+        }
 
         TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
         text.alignment = TextAlignmentOptions.Center;
         text.fontSize = fontSize;
         text.color = Color.white;
         return text;
+    }
+
+    /// <summary>앵커 기반 버튼 생성 (반응형)</summary>
+    private void CreateButtonAnchored(string objectName, string label, Vector2 anchorMin, Vector2 anchorMax, UnityEngine.Events.UnityAction onClick)
+    {
+        GameObject buttonObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(Button));
+        buttonObject.transform.SetParent(resultPanel.transform, false);
+
+        RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
+        buttonRect.anchorMin = anchorMin;
+        buttonRect.anchorMax = anchorMax;
+        buttonRect.offsetMin = new Vector2(8f, 8f);
+        buttonRect.offsetMax = new Vector2(-8f, -8f);
+
+        buttonObject.GetComponent<Image>().color = new Color(0.18f, 0.38f, 0.72f, 1f);
+        buttonObject.GetComponent<Button>().onClick.AddListener(onClick);
+
+        TMP_Text buttonText = CreateText($"{objectName}_Label", buttonObject.transform, 0f, Vector2.zero, 38f, false);
+        buttonText.GetComponent<RectTransform>().anchorMin = Vector2.zero;
+        buttonText.GetComponent<RectTransform>().anchorMax = Vector2.one;
+        buttonText.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        buttonText.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        buttonText.text = label;
     }
 
     /// <summary>
@@ -786,6 +932,13 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void SetResultUI(bool active, string message)
     {
+        // 제목/부제목 갱신
+        if (resultPanel != null)
+        {
+            TMP_Text subtitle = resultPanel.transform.Find("ResultSubtitle")?.GetComponent<TMP_Text>();
+            if (subtitle != null)
+                subtitle.text = (message == "Victory") ? victorySubtitle : defeatSubtitle;
+        }
         if (resultPanel != null)
         {
             resultPanel.SetActive(active);
@@ -793,7 +946,7 @@ public class BattleGameManager : MonoBehaviour
 
         if (resultText != null)
         {
-            resultText.text = message;
+            resultText.text = (message == "Victory") ? victoryTitle : defeatTitle;
         }
     }
 }

@@ -13,45 +13,44 @@ MonoBehaviour:
   m_Name: MonsterTable
   m_EditorClassIdentifier: 
   rows:
-  - id: 1
+  - id: Monster1
     grade: 0
     name: Slime
     prefab: {fileID: 1996877023500070189, guid: 554e914b023986b44be1e734ace93455,
       type: 3}
-    hp: 1
+    hp: 20
     atk: 8
     def: 2
-    critChance: 0.05
+    critChance: 0.1
     critMultiplier: 1.5
-    moveSpeed: 2.5
+    moveSpeed: 2
     element: 1
     expReward: 5
     goldReward: 10
-  - id: 2
+  - id: Monster2
     grade: 1
-    name: Tank
-    prefab: {fileID: 1996877023500070189, guid: 554e914b023986b44be1e734ace93455,
+    name: Elite
+    prefab: {fileID: 6013794693491469871, guid: a048048d66842724d955499162031057,
       type: 3}
-    hp: 1
-    atk: 10
-    def: 8
-    critChance: 0.02
+    hp: 20
+    atk: 8
+    def: 2
+    critChance: 0.1
     critMultiplier: 1.4
-    moveSpeed: 1.6
+    moveSpeed: 3
     element: 0
     expReward: 12
     goldReward: 25
-  - id: 3
+  - id: Monster3
     grade: 2
-    name: Fast
-    prefab: {fileID: 1996877023500070189, guid: 554e914b023986b44be1e734ace93455,
-      type: 3}
-    hp: 30
-    atk: 6
-    def: 1
-    critChance: 0.08
+    name: Boss
+    prefab: {fileID: 654030787582168236, guid: e3c9d1cd262ba0d4791003605013ec69, type: 3}
+    hp: 20
+    atk: 10
+    def: 3
+    critChance: 0.2
     critMultiplier: 1.6
-    moveSpeed: 3.5
+    moveSpeed: 4
     element: 2
     expReward: 30
     goldReward: 100

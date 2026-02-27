@@ -1,0 +1,127 @@
+.result-popup-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    padding: 18px;
+    background-color: rgba(7, 10, 20, 0.78);
+    display: none;
+    opacity: 0;
+}
+
+.result-popup-panel {
+    flex-direction: column;
+    align-items: stretch;
+    width: 92%;
+    max-width: 560px;
+    min-height: 60%;
+    padding: 22px 22px 28px 22px;
+    border-radius: 24px;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(19, 26, 52, 0.97);
+}
+
+.result-popup-close {
+    align-self: flex-end;
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+    color: #eef2ff;
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 22px;
+    border-width: 0;
+    margin-bottom: 8px;
+}
+
+.result-popup-close:hover {
+    background-color: rgba(255, 255, 255, 0.24);
+}
+
+.result-popup-title {
+    -unity-font-style: bold;
+    font-size: 52px;
+    color: #ffffff;
+    -unity-text-align: middle-center;
+    margin-bottom: 6px;
+}
+
+.result-popup-description {
+    font-size: 24px;
+    color: #d2dcff;
+    -unity-text-align: middle-center;
+    margin-bottom: 16px;
+}
+
+.result-popup-stat-box {
+    padding: 16px 14px;
+    border-radius: 14px;
+    background-color: rgba(255, 255, 255, 0.06);
+    margin-bottom: 16px;
+}
+
+.result-popup-stat {
+    font-size: 24px;
+    color: #eef2ff;
+    margin-bottom: 6px;
+    -unity-text-align: middle-center;
+}
+
+.result-popup-stat-prestige {
+    color: #ffe083;
+}
+
+.result-popup-button-row {
+    margin-top: auto;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.result-popup-button {
+    width: 46%;
+    min-width: 180px;
+    height: 62px;
+    margin: 8px;
+    border-radius: 12px;
+    border-width: 0;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: #ffffff;
+    background-color: #537df7;
+}
+
+.result-popup-button:hover {
+    background-color: #6f94ff;
+}
+
+.result-popup-button:active {
+    background-color: #3a62d2;
+}
+
+.result-popup-button-accent {
+    background-color: #ba62ff;
+}
+
+.result-popup-button-accent:hover {
+    background-color: #cb87ff;
+}
+
+.result-popup-button-accent:active {
+    background-color: #8d43c7;
+}
+
+.result-popup-button-secondary {
+    background-color: #3f4b69;
+}
+
+.result-popup-button-secondary:hover {
+    background-color: #596582;
+}
+
+.result-popup-button-secondary:active {
+    background-color: #2d3752;
+}

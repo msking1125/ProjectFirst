@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="project://database/Assets/Project/UI/Result/ResultPopup.uss" />
+
+    <ui:VisualElement name="result-popup-root" class="result-popup-root">
+        <ui:VisualElement name="result-popup-panel" class="result-popup-panel">
+            <ui:Button name="close-button" class="result-popup-close" text="✕" />
+
+            <ui:Label name="result-title" class="result-popup-title" text="승리!" />
+            <ui:Label name="result-description" class="result-popup-description" text="전투 결과" />
+
+            <ui:VisualElement name="result-stat-box" class="result-popup-stat-box">
+                <ui:Label name="wave-label" class="result-popup-stat" text="도달 웨이브: 0" />
+                <ui:Label name="gold-label" class="result-popup-stat" text="획득 골드: 0" />
+                <ui:Label name="prestige-label" class="result-popup-stat result-popup-stat-prestige" text="프레스티지 포인트: 0" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="button-row" class="result-popup-button-row">
+                <ui:Button name="continue-button" class="result-popup-button result-popup-button-primary" text="계속하기" />
+                <ui:Button name="prestige-button" class="result-popup-button result-popup-button-accent" text="프레스티지" />
+                <ui:Button name="retry-button" class="result-popup-button result-popup-button-primary" text="다시 도전" />
+                <ui:Button name="title-button" class="result-popup-button result-popup-button-secondary" text="타이틀로" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
