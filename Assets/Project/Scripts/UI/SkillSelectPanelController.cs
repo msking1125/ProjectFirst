@@ -13,6 +13,10 @@ public class SkillSelectPanelController : MonoBehaviour
     [SerializeField] private TMP_Text optionTxt1;
     [SerializeField] private TMP_Text optionTxt2;
     [SerializeField] private TMP_Text optionTxt3;
+    [Header("아이콘 Image (없으면 자동 탐지/생성)")]
+    [SerializeField] private Image optionIcon1;
+    [SerializeField] private Image optionIcon2;
+    [SerializeField] private Image optionIcon3;
     [SerializeField] private Image dimImage;
     [SerializeField] private CanvasGroup dimCanvasGroup;
 
@@ -66,6 +70,11 @@ public class SkillSelectPanelController : MonoBehaviour
         {
             optionTxt3 = optionBtn3.transform.Find("Name")?.GetComponent<TMP_Text>();
         }
+
+        // 아이콘 자동 탐지: 버튼의 "Icon" 자식 → 없으면 Image 자식 재사용
+        optionIcon1 = AutoBindIcon(optionBtn1, optionIcon1);
+        optionIcon2 = AutoBindIcon(optionBtn2, optionIcon2);
+        optionIcon3 = AutoBindIcon(optionBtn3, optionIcon3);
 
         if (dimImage == null)
         {
@@ -153,6 +162,10 @@ public class SkillSelectPanelController : MonoBehaviour
             }
         }
 
+        optionIcon1 = AutoBindIcon(optionBtn1, optionIcon1);
+        optionIcon2 = AutoBindIcon(optionBtn2, optionIcon2);
+        optionIcon3 = AutoBindIcon(optionBtn3, optionIcon3);
+
         BindOption(0, optionBtn1, optionTxt1);
         BindOption(1, optionBtn2, optionTxt2);
         BindOption(2, optionBtn3, optionTxt3);
@@ -188,6 +201,73 @@ public class SkillSelectPanelController : MonoBehaviour
         {
             text.text = hasOption ? currentOptions[index].name : string.Empty;
         }
+
+        // 아이콘 적용
+        Image icon = index switch { 0 => optionIcon1, 1 => optionIcon2, 2 => optionIcon3, _ => null };
+        ApplyIcon(icon, hasOption ? currentOptions[index] : null);
+    }
+
+    private static void ApplyIcon(Image icon, SkillRow skill)
+    {
+        if (icon == null) return;
+
+        if (skill?.icon != null)
+        {
+            icon.sprite  = skill.icon;
+            icon.color   = Color.white;
+            icon.enabled = true;
+        }
+        else
+        {
+            icon.sprite  = null;
+            // 스킬은 있지만 아이콘 없으면 회색 배경, 없으면 완전 숨김
+            icon.color   = skill != null ? new Color(0.35f, 0.35f, 0.35f, 0.5f) : Color.clear;
+            icon.enabled = skill != null;
+        }
+    }
+
+    /// <summary>
+    /// 버튼에서 아이콘 Image를 자동으로 탐지합니다.
+    /// 탐색 순서: existing → 자식 "Icon" → 자식 Image (텍스트/버튼 제외) → 새로 생성
+    /// </summary>
+    private static Image AutoBindIcon(Button btn, Image existing)
+    {
+        if (existing != null) return existing;
+        if (btn == null) return null;
+
+        // "Icon" 이름 자식 탐색
+        Transform iconChild = btn.transform.Find("Icon");
+        if (iconChild != null)
+        {
+            Image img = iconChild.GetComponent<Image>();
+            if (img != null) { img.raycastTarget = false; return img; }
+        }
+
+        // 버튼 자식 중 Image 자동 탐지 (버튼 자신, TMP_Text 부모 제외)
+        Image[] children = btn.GetComponentsInChildren<Image>(true);
+        foreach (Image child in children)
+        {
+            if (child.gameObject == btn.gameObject) continue;
+            if (child.GetComponent<TMP_Text>() != null) continue;
+            child.raycastTarget = false;
+            return child;
+        }
+
+        // 없으면 새로 생성
+        GameObject go = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+        go.transform.SetParent(btn.transform, false);
+        go.transform.SetAsFirstSibling();
+
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.04f, 0.1f);
+        rt.anchorMax = new Vector2(0.32f, 0.9f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        Image newImg = go.GetComponent<Image>();
+        newImg.raycastTarget = false;
+        newImg.enabled = false;
+        return newImg;
     }
 
     private void HandlePick(int index)
@@ -256,6 +336,10 @@ public class SkillSelectPanelController : MonoBehaviour
 
     private void SetDummyOption(Button button, TMP_Text text, string label, string logMessage)
     {
+        // 더미 옵션에서는 아이콘 숨김
+        Image icon = AutoBindIcon(button, null);
+        if (icon != null) icon.enabled = false;
+
         if (button != null)
         {
             button.gameObject.SetActive(true);

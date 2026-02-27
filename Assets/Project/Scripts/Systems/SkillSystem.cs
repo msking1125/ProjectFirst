@@ -91,7 +91,9 @@ public class SkillSystem
 
         if (skill.castVfxPrefab != null)
         {
-            GameObject castVfx = Object.Instantiate(skill.castVfxPrefab, playerAgent.transform.position, Quaternion.identity);
+            Vector3 spawnPos = playerAgent.transform.position + playerAgent.transform.forward * 1f;
+            Quaternion spawnRot = playerAgent.transform.rotation;
+            GameObject castVfx = Object.Instantiate(skill.castVfxPrefab, spawnPos, spawnRot);
             if (castVfx != null)
             {
                 Object.Destroy(castVfx, 2f);
