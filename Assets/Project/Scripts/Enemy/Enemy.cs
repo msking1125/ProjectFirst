@@ -57,6 +57,13 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float shakeDuration = 0.18f;
     [SerializeField] private float shakeStrength = 0.2f;
 
+    [Header("Hit VFX")]
+    [SerializeField] private GameObject normalHitVfxPrefab;
+    [SerializeField] private GameObject critHitVfxPrefab;
+    [SerializeField] private GameObject passionHitVfxPrefab;
+    [SerializeField] private GameObject intuitionHitVfxPrefab;
+    [SerializeField] private GameObject reasonHitVfxPrefab;
+
     [Header("Motion Blur")]
     [SerializeField] private Volume postProcessVolume;
     [SerializeField] private float critMotionBlurIntensity = 0.85f;
@@ -222,7 +229,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int dmg, bool isCrit)
+    public void TakeDamage(int dmg, bool isCrit, ElementType element)
     {
         if (!isAlive)
         {
@@ -232,6 +239,7 @@ public class Enemy : MonoBehaviour
         currentHP -= dmg;
 
         SpawnDamageText(dmg, isCrit);
+        SpawnHitVfx(isCrit, element);
         PlayHitFeedback(isCrit);
         TrySetAnimatorTrigger(HitTriggerId, hasHitTrigger);
 
@@ -242,9 +250,11 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int dmg) => TakeDamage(dmg, false);
+    public void TakeDamage(int dmg, bool isCrit) => TakeDamage(dmg, isCrit, ElementType.Reason);
 
-    public void TakeDamage(float dmg) => TakeDamage(Mathf.RoundToInt(dmg), false);
+    public void TakeDamage(int dmg) => TakeDamage(dmg, false, ElementType.Reason);
+
+    public void TakeDamage(float dmg) => TakeDamage(Mathf.RoundToInt(dmg), false, ElementType.Reason);
 
     public void Despawn()
     {
@@ -430,6 +440,52 @@ public class Enemy : MonoBehaviour
         if (text != null)
         {
             text.Init(damage, isCrit);
+        }
+    }
+
+    private void SpawnHitVfx(bool isCrit, ElementType element)
+    {
+        GameObject hitVfxPrefab = normalHitVfxPrefab;
+
+        if (isCrit && critHitVfxPrefab != null)
+        {
+            hitVfxPrefab = critHitVfxPrefab;
+        }
+        else
+        {
+            switch (element)
+            {
+                case ElementType.Passion:
+                    if (passionHitVfxPrefab != null)
+                    {
+                        hitVfxPrefab = passionHitVfxPrefab;
+                    }
+                    break;
+                case ElementType.Intuition:
+                    if (intuitionHitVfxPrefab != null)
+                    {
+                        hitVfxPrefab = intuitionHitVfxPrefab;
+                    }
+                    break;
+                case ElementType.Reason:
+                    if (reasonHitVfxPrefab != null)
+                    {
+                        hitVfxPrefab = reasonHitVfxPrefab;
+                    }
+                    break;
+            }
+        }
+
+        if (hitVfxPrefab == null)
+        {
+            return;
+        }
+
+        Vector3 hitVfxPosition = transform.position + Vector3.up * 1.0f;
+        GameObject hitVfx = Instantiate(hitVfxPrefab, hitVfxPosition, Quaternion.identity);
+        if (hitVfx != null)
+        {
+            Destroy(hitVfx, 2f);
         }
     }
 

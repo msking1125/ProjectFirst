@@ -89,6 +89,15 @@ public class SkillSystem
         EnemyManager enemyManager = EnemyManager.Instance;
         if (enemyManager == null) return 0;
 
+        if (skill.castVfxPrefab != null)
+        {
+            GameObject castVfx = Object.Instantiate(skill.castVfxPrefab, playerAgent.transform.position, Quaternion.identity);
+            if (castVfx != null)
+            {
+                Object.Destroy(castVfx, 2f);
+            }
+        }
+
         IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
         int hitCount = 0;
         int atk = Mathf.RoundToInt(playerAgent.AttackPower);
@@ -103,9 +112,10 @@ public class SkillSystem
                 Mathf.RoundToInt(atk * skill.coefficient),
                 enemyDef,
                 playerAgent.CritChance,
-                playerAgent.CritMultiplier);
+                playerAgent.CritMultiplier,
+                out bool isCrit);
 
-            enemy.TakeDamage(finalDamage);
+            enemy.TakeDamage(finalDamage, isCrit, skill.element);
             hitCount++;
         }
 
