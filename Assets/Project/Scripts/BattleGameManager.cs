@@ -47,9 +47,10 @@ public class BattleGameManager : MonoBehaviour
     [Header("HUD")]
     [SerializeField] private Canvas targetCanvas;
     [SerializeField] private TMP_Text statusText;
+    [Tooltip("분리형 HUD (레벨/EXP/골드). 연결하면 statusText 대신 사용됩니다.")]
+    [SerializeField] private StatusHudView statusHudView;
     [SerializeField] private SkillBarController skillBarController;
     [SerializeField] private SkillSelectPanelController skillSelectPanelController;
-    [SerializeField] private ArkBaseHpBarView arkBaseHpBarView;
     [SerializeField] private BattleHUD battleHudPrefab;
     [SerializeField] private BattleHUD battleHudInstance;
     [SerializeField] private SkillBarController skillBarPrefab;
@@ -57,14 +58,7 @@ public class BattleGameManager : MonoBehaviour
 
     [Header("Result UI")]
     [SerializeField] private GameObject resultPanel;
-
-    [Header("Result Panel Text (직접 수정 가능)")]
-    [SerializeField] private string victoryTitle    = "승리!";
-    [SerializeField] private string victorySubtitle = "기지를 지켜냈습니다!";
-    [SerializeField] private string defeatTitle     = "패배...";
-    [SerializeField] private string defeatSubtitle  = "기지가 함락되었습니다.";
-    [SerializeField] private string restartLabel    = "다시 시작";
-    [SerializeField] private string titleLabel      = "타이틀로";
+    [SerializeField] private ResultPanelManager resultPanelManager;
 
     [Header("Scene")]
     [SerializeField] private string titleSceneName = "Title";
@@ -99,8 +93,8 @@ public class BattleGameManager : MonoBehaviour
         InitializeRunSession();
         EnsureBaseHealth();
         EnsureHUD();
-        EnsureBaseHpBarViewBinding();
         EnsureResultUI();
+        EnsureResultPanelManager();
         SetResultUI(false, string.Empty);
         RefreshStatusUI();
     }
@@ -424,17 +418,37 @@ public class BattleGameManager : MonoBehaviour
         gameEnded = true;
         Time.timeScale = 0f;
 
-        int currentWave = Mathf.Max(1, WaveManager.Instance?.CurrentWave ?? 5);
-        int currentGold = runSession?.Gold ?? 0;
-        const int prestige = 10; // 테스트용 고정값
-
-        if (message == "Victory")
+        // UI Toolkit 풀스크린 패널 우선 사용
+        EnsureResultPanelManager();
+        if (resultPanelManager != null)
         {
-            ResultPopupService.ShowWin(currentWave, currentGold, prestige);
+            if (message == "Victory")
+            {
+                resultPanelManager.ShowWin();
+            }
+            else
+            {
+                resultPanelManager.ShowLose();
+            }
             return;
         }
 
-        ResultPopupService.ShowLose(currentWave, currentGold);
+        // 없으면 기존 uGUI 패널 사용
+        SetResultUI(true, message);
+    }
+
+    /// <summary>
+    /// ResultPanelManager(UI Toolkit)를 찾아 연결
+    /// </summary>
+    private void EnsureResultPanelManager()
+    {
+        if (resultPanelManager != null) return;
+
+#if UNITY_2022_2_OR_NEWER
+        resultPanelManager = FindFirstObjectByType<ResultPanelManager>();
+#else
+        resultPanelManager = GameObject.FindObjectOfType<ResultPanelManager>();
+#endif
     }
 
     /// <summary>
@@ -465,13 +479,6 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void EnsureHUD()
     {
-        if (SceneManager.GetActiveScene().name == titleSceneName)
-        {
-            if (battleHudInstance != null) battleHudInstance.gameObject.SetActive(false);
-            if (targetCanvas != null) targetCanvas.gameObject.SetActive(false);
-            return;
-        }
-
         // 1) BattleHUD 프리팹/인스턴스 우선
         if (battleHudInstance == null)
         {
@@ -496,10 +503,6 @@ public class BattleGameManager : MonoBehaviour
             skillSelectPanelController = battleHudInstance.SkillSelectPanelController;
             resultPanel = battleHudInstance.ResultPanel;
             resultText = battleHudInstance.ResultText;
-            if (arkBaseHpBarView == null)
-            {
-                arkBaseHpBarView = battleHudInstance.GetComponentInChildren<ArkBaseHpBarView>(true);
-            }
         }
 
         TryResolveHudReferencesFromCanvas();
@@ -509,36 +512,6 @@ public class BattleGameManager : MonoBehaviour
         if (skillBarController != null)
         {
             skillBarController.Setup(skillSystem);
-        }
-    }
-
-    private void EnsureBaseHpBarViewBinding()
-    {
-        if (baseHealth == null)
-        {
-            return;
-        }
-
-        if (arkBaseHpBarView == null)
-        {
-            if (targetCanvas != null)
-            {
-                arkBaseHpBarView = targetCanvas.GetComponentInChildren<ArkBaseHpBarView>(true);
-            }
-
-            if (arkBaseHpBarView == null)
-            {
-#if UNITY_2022_2_OR_NEWER
-                arkBaseHpBarView = FindFirstObjectByType<ArkBaseHpBarView>();
-#else
-                arkBaseHpBarView = GameObject.FindObjectOfType<ArkBaseHpBarView>();
-#endif
-            }
-        }
-
-        if (arkBaseHpBarView != null)
-        {
-            arkBaseHpBarView.SetTarget(baseHealth);
         }
     }
 
@@ -793,8 +766,6 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void EnsureResultUI()
     {
-        if (SceneManager.GetActiveScene().name == titleSceneName) return;
-
         // BattleHUD 내장 경우 우선 사용
         if (battleHudInstance != null)
         {
@@ -813,39 +784,21 @@ public class BattleGameManager : MonoBehaviour
         // 없으면 동적으로 생성
         if (resultPanel == null)
         {
-            // ── 반투명 Dim 배경 (전체 화면) ─────────────────────────────────
-            GameObject dimObject = new GameObject("ResultDim", typeof(RectTransform), typeof(Image));
-            dimObject.transform.SetParent(targetCanvas.transform, false);
-            RectTransform dimRect = dimObject.GetComponent<RectTransform>();
-            dimRect.anchorMin = Vector2.zero;
-            dimRect.anchorMax = Vector2.one;
-            dimRect.offsetMin = Vector2.zero;
-            dimRect.offsetMax = Vector2.zero;
-            dimRect.SetAsLastSibling();
-            dimObject.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.6f);
-
-            // ── 중앙 패널 (화면 너비 80%, 높이 50%) ─────────────────────────
             resultPanel = new GameObject("ResultPanel", typeof(RectTransform), typeof(Image));
-            resultPanel.transform.SetParent(dimObject.transform, false);
+            resultPanel.transform.SetParent(targetCanvas.transform, false);
 
             RectTransform panelRect = resultPanel.GetComponent<RectTransform>();
-            panelRect.anchorMin = new Vector2(0.1f, 0.25f);
-            panelRect.anchorMax = new Vector2(0.9f, 0.75f);
-            panelRect.offsetMin = Vector2.zero;
-            panelRect.offsetMax = Vector2.zero;
+            panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+            panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRect.pivot = new Vector2(0.5f, 0.5f);
+            panelRect.sizeDelta = new Vector2(560f, 320f);
 
             Image panelImage = resultPanel.GetComponent<Image>();
-            panelImage.color = new Color(0.08f, 0.08f, 0.12f, 0.97f);
+            panelImage.color = new Color(0f, 0f, 0f, 0.85f);
 
-            // ── 제목 텍스트 ──────────────────────────────────────────────────
-            resultText = CreateText("ResultTitle", resultPanel.transform, 0f, new Vector2(0f, 0.22f), 72f, true);
-
-            // ── 부제목 텍스트 ────────────────────────────────────────────────
-            CreateText("ResultSubtitle", resultPanel.transform, 0f, new Vector2(0f, 0.08f), 36f, true);
-
-            // ── 버튼 2개 나란히 ──────────────────────────────────────────────
-            CreateButtonAnchored("RestartButton", restartLabel, new Vector2(0.12f, 0.05f), new Vector2(0.48f, 0.33f), Restart);
-            CreateButtonAnchored("BackButton",    titleLabel,   new Vector2(0.52f, 0.05f), new Vector2(0.88f, 0.33f), BackToTitle);
+            resultText = CreateText("ResultText", resultPanel.transform, 64f, new Vector2(0f, 96f), 56f);
+            CreateButton("RestartButton", "Restart", new Vector2(0f, -12f), Restart);
+            CreateButton("BackButton", "Back To Title", new Vector2(0f, -102f), BackToTitle);
         }
         else if (resultText == null)
         {
@@ -862,54 +815,20 @@ public class BattleGameManager : MonoBehaviour
     /// <summary>
     /// 텍스트 객체 생성 헬퍼
     /// </summary>
-    private TMP_Text CreateText(string objectName, Transform parent, float width, Vector2 pos, float fontSize, bool useAnchor = false)
+    private TMP_Text CreateText(string objectName, Transform parent, float width, Vector2 pos, float fontSize)
     {
         GameObject textObject = new GameObject(objectName, typeof(RectTransform), typeof(TextMeshProUGUI));
         textObject.transform.SetParent(parent, false);
 
         RectTransform textRect = textObject.GetComponent<RectTransform>();
-        if (useAnchor)
-        {
-            // anchoredPosition을 앵커 비율로 해석 (0~1)
-            textRect.anchorMin = new Vector2(0.05f, pos.y - 0.1f);
-            textRect.anchorMax = new Vector2(0.95f, pos.y + 0.1f);
-            textRect.offsetMin = Vector2.zero;
-            textRect.offsetMax = Vector2.zero;
-        }
-        else
-        {
-            textRect.sizeDelta = new Vector2(width > 0f ? width * 6f : 800f, 90f);
-            textRect.anchoredPosition = pos;
-        }
+        textRect.sizeDelta = new Vector2(width * 6f, 90f);
+        textRect.anchoredPosition = pos;
 
         TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
         text.alignment = TextAlignmentOptions.Center;
         text.fontSize = fontSize;
         text.color = Color.white;
         return text;
-    }
-
-    /// <summary>앵커 기반 버튼 생성 (반응형)</summary>
-    private void CreateButtonAnchored(string objectName, string label, Vector2 anchorMin, Vector2 anchorMax, UnityEngine.Events.UnityAction onClick)
-    {
-        GameObject buttonObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(Button));
-        buttonObject.transform.SetParent(resultPanel.transform, false);
-
-        RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
-        buttonRect.anchorMin = anchorMin;
-        buttonRect.anchorMax = anchorMax;
-        buttonRect.offsetMin = new Vector2(8f, 8f);
-        buttonRect.offsetMax = new Vector2(-8f, -8f);
-
-        buttonObject.GetComponent<Image>().color = new Color(0.18f, 0.38f, 0.72f, 1f);
-        buttonObject.GetComponent<Button>().onClick.AddListener(onClick);
-
-        TMP_Text buttonText = CreateText($"{objectName}_Label", buttonObject.transform, 0f, Vector2.zero, 38f, false);
-        buttonText.GetComponent<RectTransform>().anchorMin = Vector2.zero;
-        buttonText.GetComponent<RectTransform>().anchorMax = Vector2.one;
-        buttonText.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-        buttonText.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-        buttonText.text = label;
     }
 
     /// <summary>
@@ -938,8 +857,41 @@ public class BattleGameManager : MonoBehaviour
     private void RefreshStatusUI()
     {
         if (runSession == null) return;
-        if (SceneManager.GetActiveScene().name == titleSceneName) return;
 
+        // ── 1순위: 분리형 StatusHudView ─────────────────────────────────────
+        if (statusHudView == null)
+        {
+            // Canvas 자식에서 자동 탐색
+            if (targetCanvas != null)
+                statusHudView = targetCanvas.GetComponentInChildren<StatusHudView>(true);
+
+            // 씬 전체에서 탐색
+            if (statusHudView == null)
+            {
+#if UNITY_2022_2_OR_NEWER
+                statusHudView = FindFirstObjectByType<StatusHudView>();
+#else
+                statusHudView = FindObjectOfType<StatusHudView>();
+#endif
+            }
+        }
+
+        if (statusHudView != null)
+        {
+            statusHudView.Refresh(
+                runSession.Level,
+                runSession.Exp,
+                runSession.ExpToNextLevel,
+                runSession.Gold);
+
+            // statusText는 숨기거나 비워서 중복 표시 방지
+            if (statusText != null)
+                statusText.text = string.Empty;
+
+            return;
+        }
+
+        // ── 2순위: 기존 statusText fallback ─────────────────────────────────
         if (statusText == null)
         {
             TryResolveStatusTextFallback();
@@ -978,13 +930,6 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void SetResultUI(bool active, string message)
     {
-        // 제목/부제목 갱신
-        if (resultPanel != null)
-        {
-            TMP_Text subtitle = resultPanel.transform.Find("ResultSubtitle")?.GetComponent<TMP_Text>();
-            if (subtitle != null)
-                subtitle.text = (message == "Victory") ? victorySubtitle : defeatSubtitle;
-        }
         if (resultPanel != null)
         {
             resultPanel.SetActive(active);
@@ -992,7 +937,7 @@ public class BattleGameManager : MonoBehaviour
 
         if (resultText != null)
         {
-            resultText.text = (message == "Victory") ? victoryTitle : defeatTitle;
+            resultText.text = message;
         }
     }
 }

@@ -106,10 +106,13 @@ public class ResultPopupService : MonoBehaviour
             _uiDocument = GetComponent<UIDocument>() ?? gameObject.AddComponent<UIDocument>();
             if (_panelSettings == null)
             {
-                _panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
 #if UNITY_EDITOR
-                TryAssignEditorDefaultTheme();
+                _panelSettings = TryFindExistingPanelSettings();
 #endif
+                if (_panelSettings == null)
+                {
+                    _panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
+                }
             }
 
             _uiDocument.panelSettings = _panelSettings;
@@ -158,27 +161,15 @@ public class ResultPopupService : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    private void TryAssignEditorDefaultTheme()
+    private PanelSettings TryFindExistingPanelSettings()
     {
-        if (_panelSettings.themeStyleSheet != null)
-            return;
-
-        string[] candidatePaths =
+        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:PanelSettings");
+        if (guids.Length > 0)
         {
-            "Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss",
-            "Packages/com.unity.ui/PackageResources/StyleSheets/Generated/Default.tss",
-            "Packages/com.unity.ui/Runtime/Themes/DefaultCommonLight.uss"
-        };
-
-        foreach (var path in candidatePaths)
-        {
-            var theme = UnityEditor.AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(path);
-            if (theme == null)
-                continue;
-
-            _panelSettings.themeStyleSheet = theme;
-            return;
+            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<PanelSettings>(path);
         }
+        return null;
     }
 #endif
 
