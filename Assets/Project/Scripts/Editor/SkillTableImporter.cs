@@ -69,9 +69,17 @@ public static class SkillTableImporter
         int coeffIdx       = ColIdx("coefficient");
         int rangeIdx       = ColIdx("range");
         int cooldownIdx    = ColIdx("cooldown");
-        int iconIdx        = ColIdx("icon");          // 파일명(확장자 제외)
-        int vfxIdx         = ColIdx("castVfxPrefab"); // 프리팹 파일명
-        int descIdx        = ColIdx("description");   // 스킬 설명 (선택 컬럼)
+        int iconIdx           = ColIdx("icon");
+        int vfxIdx            = ColIdx("castVfxPrefab");
+        int descIdx           = ColIdx("description");
+        int effectTypeIdx     = ColIdx("effectType");
+        int singleBonusIdx    = ColIdx("singleTargetBonus");
+        int buffStatIdx       = ColIdx("buffStat");
+        int buffMultIdx       = ColIdx("buffMultiplier");
+        int buffDurIdx        = ColIdx("buffDuration");
+        int debuffTypeIdx     = ColIdx("debuffType");
+        int debuffValueIdx    = ColIdx("debuffValue");
+        int debuffDurIdx      = ColIdx("debuffDuration");
 
         int imported = 0;
         for (int i = 1; i < lines.Length; i++)
@@ -87,8 +95,6 @@ public static class SkillTableImporter
             string id = GetCell(cols, idIdx);
             row.FindPropertyRelative("id").stringValue          = id;
             row.FindPropertyRelative("name").stringValue        = GetCell(cols, nameIdx);
-            if (descIdx >= 0)
-                row.FindPropertyRelative("description").stringValue = GetCell(cols, descIdx);
             row.FindPropertyRelative("coefficient").floatValue  = Mathf.Max(0.1f, StrToFloat(GetCell(cols, coeffIdx), 1f));
             row.FindPropertyRelative("range").floatValue        = Mathf.Max(0f,   StrToFloat(GetCell(cols, rangeIdx), 9999f));
 
@@ -116,17 +122,46 @@ public static class SkillTableImporter
                     iconProp.objectReferenceValue = null;
             }
 
-            // ── castVfxPrefab: 파일명으로 Prefab 탐색 ────────────────────────
+            // ── castVfxPrefab ──────────────────────────────────────────────────
             if (vfxIdx >= 0)
             {
                 string vfxName   = GetCell(cols, vfxIdx);
                 GameObject prefab = FindPrefab(vfxName, id);
                 SerializedProperty vfxProp = row.FindPropertyRelative("castVfxPrefab");
-                if (prefab != null)
-                    vfxProp.objectReferenceValue = prefab;
-                else
-                    vfxProp.objectReferenceValue = null;
+                vfxProp.objectReferenceValue = prefab;
             }
+
+            // ── description ────────────────────────────────────────────────
+            if (descIdx >= 0)
+                row.FindPropertyRelative("description").stringValue = GetCell(cols, descIdx);
+
+            // ── effectType & 효과별 수치 ────────────────────────────────────
+            if (effectTypeIdx >= 0)
+            {
+                string etRaw = GetCell(cols, effectTypeIdx);
+                if (System.Enum.TryParse(etRaw, true, out SkillEffectType et))
+                    row.FindPropertyRelative("effectType").enumValueIndex = (int)et;
+            }
+            if (singleBonusIdx >= 0)
+                row.FindPropertyRelative("singleTargetBonus").floatValue = StrToFloat(GetCell(cols, singleBonusIdx), 2f);
+            if (buffStatIdx >= 0)
+            {
+                if (System.Enum.TryParse(GetCell(cols, buffStatIdx), true, out BuffStatType bs))
+                    row.FindPropertyRelative("buffStat").enumValueIndex = (int)bs;
+            }
+            if (buffMultIdx >= 0)
+                row.FindPropertyRelative("buffMultiplier").floatValue = StrToFloat(GetCell(cols, buffMultIdx), 0.3f);
+            if (buffDurIdx >= 0)
+                row.FindPropertyRelative("buffDuration").floatValue = StrToFloat(GetCell(cols, buffDurIdx), 10f);
+            if (debuffTypeIdx >= 0)
+            {
+                if (System.Enum.TryParse(GetCell(cols, debuffTypeIdx), true, out DebuffType dt))
+                    row.FindPropertyRelative("debuffType").enumValueIndex = (int)dt;
+            }
+            if (debuffValueIdx >= 0)
+                row.FindPropertyRelative("debuffValue").floatValue = StrToFloat(GetCell(cols, debuffValueIdx), 0.5f);
+            if (debuffDurIdx >= 0)
+                row.FindPropertyRelative("debuffDuration").floatValue = StrToFloat(GetCell(cols, debuffDurIdx), 5f);
 
             imported++;
         }

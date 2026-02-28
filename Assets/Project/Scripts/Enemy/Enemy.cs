@@ -85,6 +85,13 @@ public class Enemy : MonoBehaviour
     private const float MinimumMoveSpeed = 0.5f;
 
     private float baseMoveSpeed;
+
+    // ── 디버프 ──────────────────────────────────────────────────────────────
+    private float  debuffSpeedFactor    = 1f;
+    private float  debuffAtkFactor      = 1f;
+    private float  debuffDefFactor      = 1f;
+    private float  debuffEndTime        = 0f;
+    private bool   hasDebuff            = false;
     private CombatStats baseCombatStats;
     private CombatStats currentCombatStats;
     private float currentHP;
@@ -151,6 +158,8 @@ public class Enemy : MonoBehaviour
             return;
         }
 
+        UpdateDebuff();
+
         if (!UsesRigidbodyMovement)
         {
             MoveByTransform(Time.deltaTime);
@@ -175,14 +184,16 @@ public class Enemy : MonoBehaviour
     private void MoveByTransform(float dt)
     {
         Vector3 dir = (target.position - transform.position).normalized;
-        Vector3 nextPos = transform.position + dir * moveSpeed * dt;
+        float effectiveSpeed = moveSpeed * (hasDebuff ? debuffSpeedFactor : 1f);
+        Vector3 nextPos = transform.position + dir * effectiveSpeed * dt;
         transform.position = nextPos;
     }
 
     private void MoveByRigidbody(float fixedDt)
     {
         Vector3 dir = (target.position - transform.position).normalized;
-        Vector3 nextPos = transform.position + dir * moveSpeed * fixedDt;
+        float effectiveSpeed = moveSpeed * (hasDebuff ? debuffSpeedFactor : 1f);
+        Vector3 nextPos = transform.position + dir * effectiveSpeed * fixedDt;
         cachedRigidbody.MovePosition(nextPos);
     }
 
@@ -459,6 +470,38 @@ public class Enemy : MonoBehaviour
     /// hitEffectTable이 연결된 경우 테이블을 우선 사용합니다.
     /// isSkillHit=true이면 속성별 VFX를 선택합니다.
     /// </summary>
+    // ── 디버프 API ──────────────────────────────────────────────────────────
+
+    public void ApplyDebuff(DebuffType debuffType, float value, float duration)
+    {
+        if (!isAlive) return;
+        debuffEndTime = Time.unscaledTime + duration;
+        hasDebuff = true;
+        switch (debuffType)
+        {
+            case DebuffType.Slow:
+                debuffSpeedFactor = Mathf.Clamp(1f - value, 0.1f, 1f);
+                break;
+            case DebuffType.WeakenAtk:
+                debuffAtkFactor = Mathf.Clamp(1f - value, 0.1f, 1f);
+                break;
+            case DebuffType.WeakenDef:
+                debuffDefFactor = Mathf.Clamp(1f - value, 0.1f, 1f);
+                break;
+        }
+        Debug.Log($"[Enemy] {gameObject.name} 디버프 적용: {debuffType} {value*100:F0}% / {duration}s");
+    }
+
+    private void UpdateDebuff()
+    {
+        if (!hasDebuff) return;
+        if (Time.unscaledTime >= debuffEndTime)
+        {
+            hasDebuff = false;
+            debuffSpeedFactor = debuffAtkFactor = debuffDefFactor = 1f;
+        }
+    }
+
     private void SpawnHitVfx(bool isCrit, ElementType element, bool isSkillHit = false)
     {
         GameObject hitVfxPrefab;
@@ -497,12 +540,11 @@ public class Enemy : MonoBehaviour
             StopAndDestroyVfx(vfx, 2f);
     }
 
-    private static void StopAndDestroyVfx(GameObject vfx, float delay = 0f)
+    private static void StopAndDestroyVfx(GameObject vfx, float delay)
     {
-        if (vfx == null) return;
         foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
             ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        Destroy(vfx);
+        Destroy(vfx, Mathf.Max(0.05f, delay));
     }
 
     private void PlayHitFeedback(bool isCrit)

@@ -89,42 +89,124 @@ public class SkillSystem
         EnemyManager enemyManager = EnemyManager.Instance;
         if (enemyManager == null) return 0;
 
-        if (skill.castVfxPrefab != null)
-        {
-            Vector3 spawnPos = playerAgent.transform.position + playerAgent.transform.forward * 1f;
-            Quaternion spawnRot = playerAgent.transform.rotation;
-            GameObject castVfx = Object.Instantiate(skill.castVfxPrefab, spawnPos, spawnRot);
-            if (castVfx != null)
-                StopAndDestroyVfx(castVfx, 2f);
-        }
+        // VFX 스폰
+        SpawnCastVfx(skill);
 
-        IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
         int hitCount = 0;
-        int atk = Mathf.RoundToInt(playerAgent.AttackPower);
 
-        for (int i = 0; i < aliveEnemies.Count; i++)
+        switch (skill.effectType)
         {
-            Enemy enemy = aliveEnemies[i];
-            if (enemy == null || !enemy.IsAlive) continue;
-
-            int enemyDef = Mathf.RoundToInt(enemy.Defense);
-            int finalDamage = DamageCalculator.ComputeCharacterDamage(
-                Mathf.RoundToInt(atk * skill.coefficient),
-                enemyDef,
-                playerAgent.CritChance,
-                playerAgent.CritMultiplier,
-                out bool isCrit);
-
-            enemy.TakeDamage(finalDamage, isCrit, skill.element);
-            hitCount++;
+            case SkillEffectType.AllEnemies:
+                hitCount = CastAllEnemies(skill, enemyManager);
+                break;
+            case SkillEffectType.SingleTarget:
+                hitCount = CastSingleTarget(skill, enemyManager);
+                break;
+            case SkillEffectType.Buff:
+                hitCount = CastBuff(skill);
+                break;
+            case SkillEffectType.Debuff:
+                hitCount = CastDebuff(skill, enemyManager);
+                break;
         }
 
         // 쿨타임 시작
         if (skill.cooldown > 0f)
             cooldownEndTimes[slotIndex] = Time.unscaledTime + skill.cooldown;
 
-        Debug.Log($"[SkillSystem] 슬롯 {slotIndex} 스킬 발동: {skill.name}, 적중 {hitCount}마리, 쿨타임 {skill.cooldown}초");
+        Debug.Log($"[SkillSystem] [{skill.effectType}] {skill.name} 발동, 적중/효과 {hitCount}, 쿨 {skill.cooldown}s");
         return hitCount;
+    }
+
+    // ── 효과 타입별 처리 ─────────────────────────────────────────────────────
+
+    /// <summary>범위 공격: 전체/범위 내 모든 적에게 데미지</summary>
+    private int CastAllEnemies(SkillRow skill, EnemyManager enemyManager)
+    {
+        IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
+        int atk = Mathf.RoundToInt(GetEffectiveAtk());
+        int hitCount = 0;
+
+        for (int i = 0; i < aliveEnemies.Count; i++)
+        {
+            Enemy enemy = aliveEnemies[i];
+            if (enemy == null || !enemy.IsAlive) continue;
+            if (skill.range < 9999f)
+            {
+                float dist = Vector3.Distance(playerAgent.transform.position, enemy.transform.position);
+                if (dist > skill.range) continue;
+            }
+
+            int dmg = DamageCalculator.ComputeCharacterDamage(
+                Mathf.RoundToInt(atk * skill.coefficient),
+                Mathf.RoundToInt(enemy.Defense),
+                playerAgent.CritChance, playerAgent.CritMultiplier, out bool isCrit);
+            enemy.TakeDamage(dmg, isCrit, skill.element);
+            hitCount++;
+        }
+        return hitCount;
+    }
+
+    /// <summary>단일 강타: 가장 가까운 적 1명, singleTargetBonus 배율 추가</summary>
+    private int CastSingleTarget(SkillRow skill, EnemyManager enemyManager)
+    {
+        Enemy target = enemyManager.GetClosest(playerAgent.transform.position, skill.range);
+        if (target == null || !target.IsAlive) return 0;
+
+        int atk = Mathf.RoundToInt(GetEffectiveAtk());
+        float totalCoeff = skill.coefficient * skill.singleTargetBonus;
+        int dmg = DamageCalculator.ComputeCharacterDamage(
+            Mathf.RoundToInt(atk * totalCoeff),
+            Mathf.RoundToInt(target.Defense),
+            playerAgent.CritChance, playerAgent.CritMultiplier, out bool isCrit);
+        target.TakeDamage(dmg, isCrit, skill.element);
+        return 1;
+    }
+
+    /// <summary>버프: 플레이어에게 스탯 강화 적용</summary>
+    private int CastBuff(SkillRow skill)
+    {
+        AgentBuffSystem buffSystem = playerAgent.GetComponent<AgentBuffSystem>();
+        if (buffSystem == null)
+            buffSystem = playerAgent.gameObject.AddComponent<AgentBuffSystem>();
+
+        buffSystem.ApplyBuff(skill.buffStat, skill.buffMultiplier, skill.buffDuration);
+        return 1;
+    }
+
+    /// <summary>디버프: 범위/전체 적에게 약화 효과</summary>
+    private int CastDebuff(SkillRow skill, EnemyManager enemyManager)
+    {
+        IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
+        int count = 0;
+        for (int i = 0; i < aliveEnemies.Count; i++)
+        {
+            Enemy enemy = aliveEnemies[i];
+            if (enemy == null || !enemy.IsAlive) continue;
+            if (skill.range < 9999f)
+            {
+                float dist = Vector3.Distance(playerAgent.transform.position, enemy.transform.position);
+                if (dist > skill.range) continue;
+            }
+            enemy.ApplyDebuff(skill.debuffType, skill.debuffValue, skill.debuffDuration);
+            count++;
+        }
+        return count;
+    }
+
+    /// <summary>버프가 적용된 실제 공격력 반환</summary>
+    private float GetEffectiveAtk()
+    {
+        AgentBuffSystem buff = playerAgent.GetComponent<AgentBuffSystem>();
+        return buff != null ? buff.GetBuffedAttackPower() : playerAgent.AttackPower;
+    }
+
+    private void SpawnCastVfx(SkillRow skill)
+    {
+        if (skill.castVfxPrefab == null) return;
+        Vector3 spawnPos = playerAgent.transform.position + playerAgent.transform.forward;
+        GameObject vfx = Object.Instantiate(skill.castVfxPrefab, spawnPos, playerAgent.transform.rotation);
+        if (vfx != null) StopAndDestroyVfx(vfx);
     }
 
     // ── VFX 유틸 ─────────────────────────────────────────────────────────────
@@ -135,7 +217,6 @@ public class SkillSystem
     /// </summary>
     private static void StopAndDestroyVfx(GameObject vfx, float delay = 0f)
     {
-        if (vfx == null) return;
         foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
             ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         Object.Destroy(vfx);
