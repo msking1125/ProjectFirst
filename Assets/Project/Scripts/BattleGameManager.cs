@@ -49,6 +49,7 @@ public class BattleGameManager : MonoBehaviour
     [SerializeField] private TMP_Text statusText;
     [SerializeField] private SkillBarController skillBarController;
     [SerializeField] private SkillSelectPanelController skillSelectPanelController;
+    [SerializeField] private ArkBaseHpBarView arkBaseHpBarView;
     [SerializeField] private BattleHUD battleHudPrefab;
     [SerializeField] private BattleHUD battleHudInstance;
     [SerializeField] private SkillBarController skillBarPrefab;
@@ -98,6 +99,7 @@ public class BattleGameManager : MonoBehaviour
         InitializeRunSession();
         EnsureBaseHealth();
         EnsureHUD();
+        EnsureBaseHpBarViewBinding();
         EnsureResultUI();
         SetResultUI(false, string.Empty);
         RefreshStatusUI();
@@ -487,6 +489,10 @@ public class BattleGameManager : MonoBehaviour
             skillSelectPanelController = battleHudInstance.SkillSelectPanelController;
             resultPanel = battleHudInstance.ResultPanel;
             resultText = battleHudInstance.ResultText;
+            if (arkBaseHpBarView == null)
+            {
+                arkBaseHpBarView = battleHudInstance.GetComponentInChildren<ArkBaseHpBarView>(true);
+            }
         }
 
         TryResolveHudReferencesFromCanvas();
@@ -496,6 +502,36 @@ public class BattleGameManager : MonoBehaviour
         if (skillBarController != null)
         {
             skillBarController.Setup(skillSystem);
+        }
+    }
+
+    private void EnsureBaseHpBarViewBinding()
+    {
+        if (baseHealth == null)
+        {
+            return;
+        }
+
+        if (arkBaseHpBarView == null)
+        {
+            if (targetCanvas != null)
+            {
+                arkBaseHpBarView = targetCanvas.GetComponentInChildren<ArkBaseHpBarView>(true);
+            }
+
+            if (arkBaseHpBarView == null)
+            {
+#if UNITY_2022_2_OR_NEWER
+                arkBaseHpBarView = FindFirstObjectByType<ArkBaseHpBarView>();
+#else
+                arkBaseHpBarView = GameObject.FindObjectOfType<ArkBaseHpBarView>();
+#endif
+            }
+        }
+
+        if (arkBaseHpBarView != null)
+        {
+            arkBaseHpBarView.SetTarget(baseHealth);
         }
     }
 

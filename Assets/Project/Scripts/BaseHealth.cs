@@ -1,18 +1,24 @@
+using System;
 using TMPro;
 using UnityEngine;
 
 public class BaseHealth : MonoBehaviour
 {
-    [SerializeField] private float maxHealth = 100f;
+    [SerializeField] private int maxHealth = 100;
     [SerializeField] private TMP_Text hpText;
 
-    private float currentHealth;
+    private int currentHealth;
     private BattleGameManager gameManager;
+
+    public event Action<int, int> OnHealthChanged;
+
+    public int CurrentHealth => currentHealth;
+    public int MaxHealth => Mathf.Max(1, maxHealth);
 
     private void Awake()
     {
-        currentHealth = Mathf.Max(1f, maxHealth);
-        UpdateUI();
+        currentHealth = MaxHealth;
+        NotifyHealthChanged();
     }
 
     public void BindGameManager(BattleGameManager manager)
@@ -22,16 +28,16 @@ public class BaseHealth : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        if (currentHealth <= 0f)
+        if (currentHealth <= 0)
         {
             return;
         }
 
-        currentHealth -= Mathf.Max(0f, damage);
-        currentHealth = Mathf.Max(0f, currentHealth);
-        UpdateUI();
+        int appliedDamage = Mathf.CeilToInt(Mathf.Max(0f, damage));
+        currentHealth = Mathf.Max(0, currentHealth - appliedDamage);
+        NotifyHealthChanged();
 
-        if (currentHealth <= 0f)
+        if (currentHealth <= 0)
         {
             if (gameManager != null)
             {
@@ -44,11 +50,13 @@ public class BaseHealth : MonoBehaviour
         }
     }
 
-    private void UpdateUI()
+    private void NotifyHealthChanged()
     {
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+
         if (hpText != null)
         {
-            hpText.text = $"BaseHP: {Mathf.CeilToInt(currentHealth)}";
+            hpText.text = $"BaseHP: {CurrentHealth}/{MaxHealth}";
         }
     }
 }
