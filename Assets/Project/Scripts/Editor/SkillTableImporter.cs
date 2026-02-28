@@ -7,141 +7,256 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// SkillTableImporter:
-/// CSV 파일에서 SkillTable ScriptableObject를 매우 쉽게 생성/갱신하는 에디터 유틸리티입니다.
+/// CSV → SkillTable ScriptableObject 임포터.
+/// icon 컬럼: 파일명(확장자 제외) → Assets/Project/UI/Icon/ 에서 Sprite 자동 연결
+/// castVfxPrefab 컬럼: 파일명(확장자 제외) → 프로젝트 전체에서 Prefab 자동 연결
 /// </summary>
 public static class SkillTableImporter
 {
-    // CSV/에셋 파일 경로 정의
-    private const string CsvPath = "Assets/Project/Data/skills.csv";
+    private const string CsvPath   = "Assets/Project/Data/skills.csv";
     private const string AssetPath = "Assets/Project/Data/SkillTable.asset";
 
-    // Skill 필수 컬럼 정의 (누락 시 import 금지)
+    // 아이콘 검색 우선 폴더 (없으면 프로젝트 전체 탐색)
+    private const string IconFolder = "Assets/Project/UI/Icon";
+    // VFX 검색 우선 폴더 (없으면 프로젝트 전체 탐색)
+    private const string VfxFolder  = "Assets/Project/Prefabs/VFX";
+
     private static readonly string[] RequiredColumns = { "id", "name", "element", "coefficient", "range" };
 
-    /// <summary>
-    /// [Tools/Game/Import Skill CSV] 메뉴에서 실행
-    /// CSV를 SkillTable.asset으로 불러옵니다.
-    /// </summary>
     [MenuItem("Tools/Game/Import Skill CSV")]
     public static void Import()
     {
-        // 1. 파일 체크
         if (!File.Exists(CsvPath))
         {
-            Debug.LogError($"Skill CSV 파일이 존재하지 않습니다: {CsvPath}\n* 경로 및 파일명을 확인하세요.");
+            Debug.LogError($"[SkillTableImporter] CSV를 찾을 수 없습니다: {CsvPath}");
             return;
         }
 
-        // 2. CSV 라인 파싱 (헤더+데이터)
-        var lines = File.ReadAllLines(CsvPath);
+        string[] lines = File.ReadAllLines(CsvPath);
         if (lines.Length < 2)
         {
-            Debug.LogError("[SkillTableImporter] Skill CSV에 데이터 행이 없습니다.");
+            Debug.LogError("[SkillTableImporter] 데이터 행이 없습니다.");
             return;
         }
 
-        // 3. SkillTable 에셋 로드/생성
-        SkillTable table = AssetDatabase.LoadAssetAtPath<SkillTable>(AssetPath);
-        if (table == null)
-        {
-            table = ScriptableObject.CreateInstance<SkillTable>();
-            AssetDatabase.CreateAsset(table, AssetPath);
-        }
+        SkillTable table = AssetDatabase.LoadAssetAtPath<SkillTable>(AssetPath)
+                           ?? CreateAsset();
 
-        // 4. 직렬화 rows 필드 초기화
-        SerializedObject so = new SerializedObject(table);
+        SerializedObject so       = new SerializedObject(table);
         SerializedProperty rowsProp = so.FindProperty("rows");
         if (rowsProp == null)
         {
-            Debug.LogError("SkillTable에 'rows' 리스트 필드가 존재하지 않습니다. 필드를 확인하세요.");
+            Debug.LogError("[SkillTableImporter] SkillTable에 'rows' 필드가 없습니다.");
             return;
         }
         rowsProp.ClearArray();
 
-        // 5. 헤더 추출 및 컬럼 검사
-        var header = lines[0].Split(',').Select(x => x.Trim()).ToArray();
-        int ColIdx(string n) => Array.FindIndex(header, h => string.Equals(h, n, StringComparison.OrdinalIgnoreCase));
+        string[] header = lines[0].Split(',').Select(x => x.Trim()).ToArray();
+        int ColIdx(string n) => Array.FindIndex(header, h => h.Equals(n, StringComparison.OrdinalIgnoreCase));
 
-        foreach (var col in RequiredColumns)
+        foreach (string col in RequiredColumns)
         {
             if (ColIdx(col) < 0)
             {
-                Debug.LogError($"[SkillTableImporter] CSV에 '{col}' 컬럼이 없습니다. 헤더를 확인하세요.");
+                Debug.LogError($"[SkillTableImporter] 필수 컬럼 '{col}'이 없습니다.");
                 return;
             }
         }
 
-        // 컬럼 인덱스 캐싱 (cooldown은 옵션)
-        int idIdx = ColIdx("id"),
-            nameIdx = ColIdx("name"),
-            elementIdx = ColIdx("element"),
-            coefficientIdx = ColIdx("coefficient"),
-            rangeIdx = ColIdx("range"),
-            cooldownIdx = ColIdx("cooldown"); // -1이면 없는 컬럼
+        int idIdx          = ColIdx("id");
+        int nameIdx        = ColIdx("name");
+        int elementIdx     = ColIdx("element");
+        int coeffIdx       = ColIdx("coefficient");
+        int rangeIdx       = ColIdx("range");
+        int cooldownIdx    = ColIdx("cooldown");
+        int iconIdx        = ColIdx("icon");          // 파일명(확장자 제외)
+        int vfxIdx         = ColIdx("castVfxPrefab"); // 프리팹 파일명
 
-        // 6. 데이터 행 파싱 & ScriptableObject 반영
-        int importedCount = 0;
+        int imported = 0;
         for (int i = 1; i < lines.Length; i++)
         {
-            var line = lines[i];
-            if (string.IsNullOrWhiteSpace(line))
-                continue;
+            string line = lines[i];
+            if (string.IsNullOrWhiteSpace(line)) continue;
 
-            var cols = line.Split(',').Select(x => x.Trim()).ToArray();
-            if (cols.Length < header.Length)
-            {
-                Debug.LogWarning($"[{i+1}행] 컬럼 수 부족(필요: {header.Length}, 실제: {cols.Length}) → 스킵: {line}");
-                continue;
-            }
+            string[] cols = line.Split(',').Select(x => x.Trim()).ToArray();
 
-            rowsProp.InsertArrayElementAtIndex(importedCount);
-            var row = rowsProp.GetArrayElementAtIndex(importedCount);
+            rowsProp.InsertArrayElementAtIndex(imported);
+            SerializedProperty row = rowsProp.GetArrayElementAtIndex(imported);
 
-            row.FindPropertyRelative("id").stringValue = GetCell(cols, idIdx);
-            row.FindPropertyRelative("name").stringValue = GetCell(cols, nameIdx);
-            row.FindPropertyRelative("coefficient").floatValue = Mathf.Max(0.1f, StrToFloat(GetCell(cols, coefficientIdx), 1f));
-            row.FindPropertyRelative("range").floatValue = Mathf.Max(0f, StrToFloat(GetCell(cols, rangeIdx), 9999f));
+            string id = GetCell(cols, idIdx);
+            row.FindPropertyRelative("id").stringValue          = id;
+            row.FindPropertyRelative("name").stringValue        = GetCell(cols, nameIdx);
+            row.FindPropertyRelative("coefficient").floatValue  = Mathf.Max(0.1f, StrToFloat(GetCell(cols, coeffIdx), 1f));
+            row.FindPropertyRelative("range").floatValue        = Mathf.Max(0f,   StrToFloat(GetCell(cols, rangeIdx), 9999f));
+
             if (cooldownIdx >= 0)
-                row.FindPropertyRelative("cooldown").floatValue = Mathf.Max(0f, StrToFloat(GetCell(cols, cooldownIdx), 0f));
+                row.FindPropertyRelative("cooldown").floatValue = Mathf.Max(0f, StrToFloat(GetCell(cols, cooldownIdx), 5f));
 
+            // ElementType
             string elemRaw = GetCell(cols, elementIdx);
             if (!Enum.TryParse(elemRaw, true, out ElementType element))
             {
-                Debug.LogWarning($"[SkillTableImporter] '{elemRaw}'는 ElementType으로 변환할 수 없습니다(id: {GetCell(cols, idIdx)}). 기본값 Reason으로 대체.");
+                Debug.LogWarning($"[SkillTableImporter] id='{id}' element='{elemRaw}' 파싱 실패 → Reason으로 대체");
                 element = ElementType.Reason;
             }
             row.FindPropertyRelative("element").enumValueIndex = (int)element;
 
-            importedCount++;
+            // ── icon: 파일명으로 Sprite 탐색 ──────────────────────────────────
+            if (iconIdx >= 0)
+            {
+                string iconName = GetCell(cols, iconIdx);
+                Sprite sprite   = FindSprite(iconName, id);
+                SerializedProperty iconProp = row.FindPropertyRelative("icon");
+                if (sprite != null)
+                    iconProp.objectReferenceValue = sprite;
+                else
+                    iconProp.objectReferenceValue = null;
+            }
+
+            // ── castVfxPrefab: 파일명으로 Prefab 탐색 ────────────────────────
+            if (vfxIdx >= 0)
+            {
+                string vfxName   = GetCell(cols, vfxIdx);
+                GameObject prefab = FindPrefab(vfxName, id);
+                SerializedProperty vfxProp = row.FindPropertyRelative("castVfxPrefab");
+                if (prefab != null)
+                    vfxProp.objectReferenceValue = prefab;
+                else
+                    vfxProp.objectReferenceValue = null;
+            }
+
+            imported++;
         }
 
-        // 7. 에셋/변경사항 저장
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(table);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[SkillTableImporter] Skill 데이터 {importedCount}개를 성공적으로 임포트했습니다 → {AssetPath}");
+        Debug.Log($"[SkillTableImporter] {imported}개 스킬 임포트 완료 → {AssetPath}");
+    }
+
+    // ── 에셋 탐색 헬퍼 ───────────────────────────────────────────────────────
+
+    /// <summary>
+    /// 파일명(확장자 없음)으로 Sprite를 탐색합니다.
+    /// 우선 IconFolder 안에서 찾고, 없으면 프로젝트 전체에서 탐색.
+    /// </summary>
+    private static Sprite FindSprite(string assetName, string rowId)
+    {
+        if (string.IsNullOrWhiteSpace(assetName)) return null;
+
+        // 1. IconFolder 내 직접 경로 시도 (jpg / png)
+        foreach (string ext in new[] { ".jpg", ".png", ".jpeg" })
+        {
+            string path = $"{IconFolder}/{assetName}{ext}";
+            // Texture로 로드한 뒤 Sprite로 변환
+            Sprite s = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            if (s != null)
+            {
+                Debug.Log($"[SkillTableImporter] id='{rowId}' icon 연결: {path}");
+                return s;
+            }
+        }
+
+        // 2. 프로젝트 전체 탐색 (t:Sprite)
+        string[] guids = AssetDatabase.FindAssets($"{assetName} t:Sprite");
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            string fileName = Path.GetFileNameWithoutExtension(path);
+            if (fileName.Equals(assetName, StringComparison.OrdinalIgnoreCase))
+            {
+                Sprite s = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                if (s != null)
+                {
+                    Debug.Log($"[SkillTableImporter] id='{rowId}' icon 연결 (전체탐색): {path}");
+                    return s;
+                }
+            }
+        }
+
+        // 3. Texture2D로 찾아 Sprite 변환 시도
+        guids = AssetDatabase.FindAssets($"{assetName} t:Texture2D");
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            string fileName = Path.GetFileNameWithoutExtension(path);
+            if (fileName.Equals(assetName, StringComparison.OrdinalIgnoreCase))
+            {
+                Sprite s = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                if (s != null)
+                {
+                    Debug.Log($"[SkillTableImporter] id='{rowId}' icon 연결 (Texture2D): {path}");
+                    return s;
+                }
+            }
+        }
+
+        Debug.LogWarning(
+            $"[SkillTableImporter] id='{rowId}' icon='{assetName}' 을 찾지 못했습니다.\n" +
+            $"확인: {IconFolder}/{assetName}.jpg|png 이 존재하는지 확인하세요.\n" +
+            $"또한 Texture Import Settings → Sprite Mode = Single 로 설정하세요.");
+        return null;
     }
 
     /// <summary>
-    /// (안전하게) 해당 인덱스 셀 추출. 인덱스 범위 밖이면 빈 문자열 반환.
+    /// 파일명(확장자 없음)으로 Prefab을 탐색합니다.
+    /// 우선 VfxFolder 안에서 찾고, 없으면 프로젝트 전체에서 탐색.
     /// </summary>
+    private static GameObject FindPrefab(string assetName, string rowId)
+    {
+        if (string.IsNullOrWhiteSpace(assetName)) return null;
+
+        // 1. VfxFolder 직접 경로 시도
+        string directPath = $"{VfxFolder}/{assetName}.prefab";
+        GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(directPath);
+        if (go != null)
+        {
+            Debug.Log($"[SkillTableImporter] id='{rowId}' VFX 연결: {directPath}");
+            return go;
+        }
+
+        // 2. 프로젝트 전체 탐색 (t:Prefab)
+        string[] guids = AssetDatabase.FindAssets($"{assetName} t:Prefab");
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            string fileName = Path.GetFileNameWithoutExtension(path);
+            if (fileName.Equals(assetName, StringComparison.OrdinalIgnoreCase))
+            {
+                go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (go != null)
+                {
+                    Debug.Log($"[SkillTableImporter] id='{rowId}' VFX 연결 (전체탐색): {path}");
+                    return go;
+                }
+            }
+        }
+
+        Debug.LogWarning(
+            $"[SkillTableImporter] id='{rowId}' castVfxPrefab='{assetName}' 을 찾지 못했습니다.\n" +
+            $"확인: 프로젝트 어딘가에 '{assetName}.prefab' 이 존재하는지 확인하세요.");
+        return null;
+    }
+
+    // ── 유틸 ─────────────────────────────────────────────────────────────────
+
+    private static SkillTable CreateAsset()
+    {
+        SkillTable t = ScriptableObject.CreateInstance<SkillTable>();
+        AssetDatabase.CreateAsset(t, AssetPath);
+        return t;
+    }
+
     private static string GetCell(string[] arr, int idx)
         => arr == null || idx < 0 || idx >= arr.Length ? string.Empty : arr[idx];
 
-    /// <summary>
-    /// 문자열 → float 변환. 실패 시 기본값 반환.
-    /// </summary>
     private static float StrToFloat(string s, float fallback)
     {
-        if (string.IsNullOrWhiteSpace(s))
-            return fallback;
-        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float v))
-            return v;
-        if (float.TryParse(s, out v))
-            return v;
+        if (string.IsNullOrWhiteSpace(s)) return fallback;
+        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float v)) return v;
+        if (float.TryParse(s, out v)) return v;
         return fallback;
     }
 }
