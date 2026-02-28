@@ -7,6 +7,9 @@ public class Agent : MonoBehaviour
     [SerializeField] private AgentTable agentTable;
     [SerializeField] private AgentStatsTable agentStatsTable;
 
+    [Tooltip("캐릭터 고유 데이터 (공격 VFX, 액티브 스킬 등). 비워두면 기본값 사용.")]
+    [SerializeField] private AgentData agentData;
+
     public float range = 5f;
     public float attackRate = 1f;
 
@@ -34,13 +37,32 @@ public class Agent : MonoBehaviour
     private Animator   cachedAnimator;
     private string     resolvedIdleState   = string.Empty;
     private string     resolvedAttackState = string.Empty;
-    private bool       isAttackPlaying;
-    private float      attackAnimTimer;
-    private float      attackAnimDuration  = 0.5f; // 공격 애니메이션 재생 시간(초)
     private bool       animatorResolved;
 
+    // ── 공격 타이밍 제어 ──────────────────────────────────────────────────────
+    // 애니메이션과 공격 타이밍을 분리하여 끊김 없이 동작합니다.
+    //
+    // ● attackTimer      : 다음 공격까지 남은 시간 (attackRate 주기)
+    // ● animReturnTimer  : 공격 애니 재생 후 Idle 복귀까지 남은 시간
+    // ● pendingHitTimer  : 타격 데미지 발생까지 남은 시간 (hitTiming 기반)
+    //
+    // 핵심 규칙:
+    //   - attackTimer가 0이 되면 Attack 애니 재생 + 타격 예약
+    //   - animReturnTimer가 끝나기 전에 다시 공격이 오면 애니 중단 없이 재시작
+    //   - Idle 복귀는 animReturnTimer로만 결정 (공격 타이밍과 독립)
+
+    private float attackTimer;         // 남은 공격 간격
+    private float animReturnTimer;     // 이 시간 후 Idle로 복귀 (공격 애니 길이)
+    private float attackAnimDuration  = 0.5f;
+
+    // 히트 지연: AgentData.hitTiming 만큼 기다렸다가 실제 데미지 처리
+    private bool  hasPendingHit;
+    private float pendingHitTimer;
+    private Enemy pendingHitTarget;
+    private bool  pendingHitIsCrit;
+    private int   pendingHitDamage;
+
     // ── 기타 ────────────────────────────────────────────────────────────────
-    private float timer;
     private bool  hasLoggedMissingManager;
     private bool  isCombatStarted;
 
@@ -163,8 +185,10 @@ public class Agent : MonoBehaviour
 
     public void StartCombat()
     {
-        isCombatStarted = true;
-        timer = 0f;
+        isCombatStarted  = true;
+        attackTimer      = 0f; // 전투 시작 즉시 첫 공격
+        animReturnTimer  = 0f;
+        hasPendingHit    = false;
         ResolveAnimator();
 
         // 전투 시작 시 Idle 재생
@@ -191,32 +215,40 @@ public class Agent : MonoBehaviour
 
     private void Update()
     {
-        HandleAttackAnimReturn();
+        float dt = Time.deltaTime;
+
+        // ── Idle 복귀 타이머 ──────────────────────────────────────────────
+        if (animReturnTimer > 0f)
+        {
+            animReturnTimer -= dt;
+            if (animReturnTimer <= 0f)
+            {
+                // 다음 공격이 거의 바로 온다면 Idle 전환 생략 (끊김 방지)
+                bool nextAttackImminent = isCombatStarted && (attackTimer <= attackAnimDuration * 0.15f);
+                if (!nextAttackImminent && !string.IsNullOrEmpty(resolvedIdleState))
+                    PlayState(resolvedIdleState);
+            }
+        }
+
+        // ── 히트 지연 처리 ────────────────────────────────────────────────
+        if (hasPendingHit)
+        {
+            pendingHitTimer -= dt;
+            if (pendingHitTimer <= 0f)
+            {
+                hasPendingHit = false;
+                ApplyPendingHit();
+            }
+        }
 
         if (!isCombatStarted) return;
 
-        timer += Time.deltaTime;
-        if (timer >= attackRate)
+        // ── 공격 간격 타이머 ──────────────────────────────────────────────
+        attackTimer -= dt;
+        if (attackTimer <= 0f)
         {
+            attackTimer = attackRate;
             Attack();
-            timer = 0f;
-        }
-    }
-
-    /// <summary>
-    /// 공격 애니메이션이 재생 중이면 시간을 체크하여 Idle로 돌아옵니다.
-    /// </summary>
-    private void HandleAttackAnimReturn()
-    {
-        if (!isAttackPlaying) return;
-
-        attackAnimTimer += Time.deltaTime;
-        if (attackAnimTimer >= attackAnimDuration)
-        {
-            isAttackPlaying = false;
-            attackAnimTimer = 0f;
-            if (!string.IsNullOrEmpty(resolvedIdleState))
-                PlayState(resolvedIdleState);
         }
     }
 
@@ -227,8 +259,15 @@ public class Agent : MonoBehaviour
         Enemy target = FindClosestEnemy();
         if (target == null) return;
 
-        // 공격 애니메이션 재생
+        // ── 애니메이션 재생 ──────────────────────────────────────────────
         PlayAttackAnimation();
+
+        // ── 공격 VFX 즉시 스폰 (애니메이션 이벤트 아님 → Idle에서 절대 발동 안 함) ──
+        SpawnNormalAttackVfx();
+
+        // ── 히트 타이밍 지연 ─────────────────────────────────────────────
+        // AgentData.hitTiming 비율만큼 대기 후 데미지 적용
+        float hitDelay = attackAnimDuration * (agentData != null ? agentData.hitTiming : 0.3f);
 
         bool isCrit;
         int finalDmg = DamageCalculator.ComputeCharacterDamage(
@@ -238,31 +277,67 @@ public class Agent : MonoBehaviour
             stats.critMultiplier,
             out isCrit);
 
-        target.TakeDamage(finalDmg, isCrit);
+        // 이미 대기 중인 히트가 있으면 즉시 처리
+        if (hasPendingHit && pendingHitTarget != null && pendingHitTarget.IsAlive)
+            ApplyPendingHit();
+
+        hasPendingHit     = true;
+        pendingHitTimer   = hitDelay;
+        pendingHitTarget  = target;
+        pendingHitDamage  = finalDmg;
+        pendingHitIsCrit  = isCrit;
+    }
+
+    private void ApplyPendingHit()
+    {
+        if (pendingHitTarget != null && pendingHitTarget.IsAlive)
+            pendingHitTarget.TakeDamage(pendingHitDamage, pendingHitIsCrit);
+        pendingHitTarget = null;
     }
 
     private void PlayAttackAnimation()
     {
         if (string.IsNullOrEmpty(resolvedAttackState)) return;
 
-        PlayState(resolvedAttackState);
-
-        // 공격 애니메이션 길이 측정
-        RuntimeAnimatorController rac = cachedAnimator?.runtimeAnimatorController;
-        if (rac != null)
+        // 공격 애니 길이 측정 (첫 번째 호출 시 1회)
+        if (cachedAnimator != null)
         {
-            foreach (AnimationClip clip in rac.animationClips)
+            RuntimeAnimatorController rac = cachedAnimator.runtimeAnimatorController;
+            if (rac != null)
             {
-                if (clip != null && clip.name == resolvedAttackState)
+                foreach (AnimationClip clip in rac.animationClips)
                 {
-                    attackAnimDuration = Mathf.Max(0.1f, clip.length);
-                    break;
+                    if (clip != null && clip.name == resolvedAttackState)
+                    {
+                        attackAnimDuration = Mathf.Max(0.1f, clip.length);
+                        break;
+                    }
                 }
             }
         }
 
-        isAttackPlaying = true;
-        attackAnimTimer = 0f;
+        // 공격 애니가 재생 중일 때 다시 호출되면 처음부터 재시작 (seamless loop)
+        PlayState(resolvedAttackState);
+        animReturnTimer = attackAnimDuration;
+    }
+
+    /// <summary>
+    /// 기본 공격 VFX를 스폰합니다.
+    /// AgentData에 프리팹이 없으면 아무것도 하지 않습니다.
+    /// 이 메서드는 Attack()에서만 호출 → Idle 재생과 완전히 분리됩니다.
+    /// </summary>
+    private void SpawnNormalAttackVfx()
+    {
+        if (agentData == null || agentData.normalAttackVfxPrefab == null) return;
+
+        Vector3 spawnPos = transform.position
+                         + transform.TransformDirection(agentData.normalAttackVfxOffset);
+
+        GameObject vfx = Object.Instantiate(
+            agentData.normalAttackVfxPrefab, spawnPos, transform.rotation);
+
+        if (vfx != null && agentData.normalAttackVfxLifetime > 0f)
+            Object.Destroy(vfx, agentData.normalAttackVfxLifetime);
     }
 
     private Enemy FindClosestEnemy()

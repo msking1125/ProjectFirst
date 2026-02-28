@@ -78,25 +78,26 @@ public class ResultPanelManager : MonoBehaviour
 
     // ── 공개 API ─────────────────────────────────────────────────────────────
 
-    public void ShowWin()  => Show(winTitleText,  winSubtitleText);
-    public void ShowLose() => Show(loseTitleText, loseSubtitleText);
+    public bool ShowWin()  => Show(winTitleText,  winSubtitleText);
+    public bool ShowLose() => Show(loseTitleText, loseSubtitleText);
 
     // ── 내부 ─────────────────────────────────────────────────────────────────
 
-    private void Show(string title, string subtitle)
+    private bool Show(string title, string subtitle)
     {
         if (!isInitialized) TryInit();
 
         if (root == null)
         {
-            Debug.LogWarning("[ResultPanelManager] root가 설정되지 않아 결과 패널을 표시할 수 없습니다.", this);
-            return;
+            Debug.LogWarning("[ResultPanelManager] UIDocument에 연결된 UXML(Source Asset)이 설정되지 않거나 비어 있어 패널을 표시할 수 없습니다. (fallback uGUI가 대신 사용됩니다.)", this);
+            return false;
         }
 
         if (titleLabel != null) titleLabel.text = title;
         if (descLabel  != null) descLabel.text  = subtitle;
 
         SetVisible(true);
+        return true;
     }
 
     private void SetVisible(bool visible)

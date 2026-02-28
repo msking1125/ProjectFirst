@@ -294,7 +294,7 @@ MonoBehaviour:
   skillBarPrefab: {fileID: 3971674745986000917}
   skillSelectPanelPrefab: {fileID: 2897921023371036348}
   resultPanel: {fileID: 1145678718}
-  resultPanelManager: {fileID: 0}
+  resultPanelManager: {fileID: 1145678719}
   titleSceneName: Title
 --- !u!4 &110781536
 Transform:
