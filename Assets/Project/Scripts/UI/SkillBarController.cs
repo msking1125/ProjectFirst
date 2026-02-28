@@ -37,6 +37,17 @@ public class SkillBarController : MonoBehaviour
     // ── 기본 아이콘 색상 (아이콘 없을 때) ────────────────────────────────────
     [SerializeField] private Color noIconColor = new Color(0.3f, 0.3f, 0.3f, 0.6f);
 
+    [Header("슬롯 레이아웃 (Inspector에서 수정 가능)")]
+    [Tooltip("아이콘 패딩 (버튼 가장자리에서 아이콘까지 거리)")]
+    [SerializeField] private float iconPadding = 2f;
+    [Tooltip("하단 이름 텍스트 영역 높이 비율 (0~1). 0.36 = 하단 36%")]
+    [Range(0.2f, 0.6f)]
+    [SerializeField] private float nameAreaRatio = 0.36f;
+    [Tooltip("이름 텍스트 최대 폰트 크기")]
+    [SerializeField] private float nameMaxFontSize = 13f;
+    [Tooltip("쿨타임 텍스트 폰트 크기")]
+    [SerializeField] private float cooldownFontSize = 28f;
+
     private readonly SkillRow[] slotSkills = new SkillRow[3];
     private SkillSystem skillSystem;
 
@@ -85,8 +96,7 @@ public class SkillBarController : MonoBehaviour
         // 쿨타임 텍스트 표시
         if (cdTxt != null)
         {
-            GameObject toggleGo = cdTxt.transform.parent != null && cdTxt.transform.parent.name == "CooldownOverlay" ? cdTxt.transform.parent.gameObject : cdTxt.gameObject;
-            toggleGo.SetActive(onCD);
+            cdTxt.gameObject.SetActive(onCD);
             if (onCD)
                 cdTxt.text = remaining >= 10f
                     ? $"{Mathf.CeilToInt(remaining)}"
@@ -189,10 +199,7 @@ public class SkillBarController : MonoBehaviour
 
         // 쿨타임 텍스트 초기 숨김
         if (cdTxt != null)
-        {
-            GameObject toggleGo = cdTxt.transform.parent != null && cdTxt.transform.parent.name == "CooldownOverlay" ? cdTxt.transform.parent.gameObject : cdTxt.gameObject;
-            toggleGo.SetActive(false);
-        }
+            cdTxt.gameObject.SetActive(false);
     }
 
     // ── 자동 컴포넌트 생성 ────────────────────────────────────────────────────
@@ -210,8 +217,7 @@ public class SkillBarController : MonoBehaviour
         if (existing != null) return existing;
         if (btn == null) return null;
 
-        // 1순위: Inspector에서 직접 지정된 경우 이미 반환됨 (existing != null)
-        // 2순위: 이름으로 자식 탐색
+        // 이름으로 자식 탐색 (Inspector 또는 이전에 생성된 경우)
         Transform namedChild = btn.transform.Find(childName);
         if (namedChild != null)
         {
@@ -219,34 +225,55 @@ public class SkillBarController : MonoBehaviour
             if (img != null) return img;
         }
 
-        // 3순위: 버튼 자식 중 Image 컴포넌트가 있는 오브젝트 자동 탐지
-        // (슬롯에 이미 아이콘용 Image가 있는 경우 재사용)
-        Image[] childImages = btn.GetComponentsInChildren<Image>(true);
-        foreach (Image childImg in childImages)
-        {
-            // 버튼 자신의 Image는 제외
-            if (childImg.gameObject == btn.gameObject) continue;
-            // TMP_Text가 붙은 오브젝트는 텍스트용이므로 제외
-            if (childImg.GetComponent<TMP_Text>() != null) continue;
-            if (childImg.GetComponentInParent<TMP_Text>() != null) continue;
-            childImg.raycastTarget = false;
-            return childImg;
-        }
-
-        // 4순위: 없으면 새로 생성
+        // SkillSlot은 100×100 정사각형
+        // → 아이콘이 버튼 전체를 채우고, Name 텍스트는 하단 오버레이로 표시
         GameObject go = new GameObject(childName, typeof(RectTransform), typeof(Image));
         go.transform.SetParent(btn.transform, false);
-        go.transform.SetAsFirstSibling(); // 텍스트 뒤에 가리지 않도록
+        go.transform.SetAsFirstSibling(); // 텍스트보다 아래 레이어
 
         RectTransform rt = go.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.05f, 0.4f);
-        rt.anchorMax = new Vector2(0.45f, 0.95f);
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = new Vector2(iconPadding, iconPadding);
+        rt.offsetMax = new Vector2(-iconPadding, -iconPadding);
 
         Image newImg = go.GetComponent<Image>();
         newImg.raycastTarget = false;
+        newImg.preserveAspect = true;
         newImg.enabled = false;
+
+        // Name 텍스트를 하단 오버레이로 재배치
+        TMP_Text nameText = btn.GetComponentInChildren<TMP_Text>();
+        if (nameText != null)
+        {
+            // 텍스트 하단 반투명 배경
+            GameObject bg = new GameObject("NameBG", typeof(RectTransform), typeof(Image));
+            bg.transform.SetParent(btn.transform, false);
+
+            RectTransform bgRt = bg.GetComponent<RectTransform>();
+            bgRt.anchorMin = new Vector2(0f, 0f);
+            bgRt.anchorMax = new Vector2(1f, nameAreaRatio);
+            bgRt.offsetMin = Vector2.zero;
+            bgRt.offsetMax = Vector2.zero;
+
+            Image bgImg = bg.GetComponent<Image>();
+            bgImg.color = new Color(0f, 0f, 0f, 0.6f);
+            bgImg.raycastTarget = false;
+
+            nameText.transform.SetAsLastSibling();
+
+            RectTransform txtRt = nameText.GetComponent<RectTransform>();
+            if (txtRt != null)
+            {
+                txtRt.anchorMin = new Vector2(0f, 0f);
+                txtRt.anchorMax = new Vector2(1f, nameAreaRatio);
+                txtRt.offsetMin = new Vector2(2f, 1f);
+                txtRt.offsetMax = new Vector2(-2f, 0f);
+            }
+            nameText.fontSize           = Mathf.Min(nameText.fontSize, nameMaxFontSize);
+            nameText.alignment          = TMPro.TextAlignmentOptions.Center;
+            nameText.enableWordWrapping = true;
+        }
 
         return newImg;
     }
@@ -264,46 +291,42 @@ public class SkillBarController : MonoBehaviour
         if (existing != null) return existing;
         if (btn == null) return null;
 
-        Transform foundOverlay = btn.transform.Find("CooldownOverlay");
-        if (foundOverlay != null) return foundOverlay.GetComponentInChildren<TMP_Text>();
+        Transform found = btn.transform.Find("CooldownText");
+        if (found != null) return found.GetComponent<TMP_Text>();
 
-        Transform old = btn.transform.Find("CooldownText");
-        if (old != null)
-        {
-            // 과거 버전 오브젝트를 파괴해서 껍데기를 재사용하지 않게 방지
-            Destroy(old.gameObject);
-        }
+        GameObject go = new GameObject("CooldownText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        go.transform.SetParent(btn.transform, false);
 
-        GameObject overlayGo = new GameObject("CooldownOverlay", typeof(RectTransform), typeof(Image));
-        overlayGo.transform.SetParent(btn.transform, false);
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
 
-        RectTransform overlayRt = overlayGo.GetComponent<RectTransform>();
-        overlayRt.anchorMin = Vector2.zero;
-        overlayRt.anchorMax = Vector2.one;
-        overlayRt.offsetMin = Vector2.zero;
-        overlayRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI tmp = go.GetComponent<TextMeshProUGUI>();
+        tmp.alignment     = TextAlignmentOptions.Center;
+        tmp.fontSize      = cooldownFontSize;
+        tmp.fontStyle     = FontStyles.Bold;
+        tmp.color         = Color.white;
+        tmp.raycastTarget = false;
 
-        Image bg = overlayGo.GetComponent<Image>();
+        // 반투명 어두운 배경은 별도 자식 오브젝트로 생성
+        // (TextMeshProUGUI와 Image는 같은 GameObject에 공존 불가)
+        GameObject bgGo = new GameObject("CooldownBG", typeof(RectTransform), typeof(Image));
+        bgGo.transform.SetParent(go.transform, false);
+        bgGo.transform.SetAsFirstSibling();
+
+        RectTransform bgRt = bgGo.GetComponent<RectTransform>();
+        bgRt.anchorMin = Vector2.zero;
+        bgRt.anchorMax = Vector2.one;
+        bgRt.offsetMin = Vector2.zero;
+        bgRt.offsetMax = Vector2.zero;
+
+        Image bg = bgGo.GetComponent<Image>();
         bg.color = new Color(0f, 0f, 0f, 0.55f);
         bg.raycastTarget = false;
 
-        GameObject textGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
-        textGo.transform.SetParent(overlayGo.transform, false);
-
-        RectTransform textRt = textGo.GetComponent<RectTransform>();
-        textRt.anchorMin = Vector2.zero;
-        textRt.anchorMax = Vector2.one;
-        textRt.offsetMin = Vector2.zero;
-        textRt.offsetMax = Vector2.zero;
-
-        TextMeshProUGUI tmp = textGo.GetComponent<TextMeshProUGUI>();
-        tmp.alignment   = TextAlignmentOptions.Center;
-        tmp.fontSize    = 28f;
-        tmp.fontStyle   = FontStyles.Bold;
-        tmp.color       = Color.white;
-        tmp.raycastTarget = false;
-
-        overlayGo.SetActive(false);
+        go.SetActive(false);
         return tmp;
     }
 

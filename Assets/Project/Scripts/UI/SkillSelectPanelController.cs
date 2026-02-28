@@ -20,6 +20,14 @@ public class SkillSelectPanelController : MonoBehaviour
     [SerializeField] private Image dimImage;
     [SerializeField] private CanvasGroup dimCanvasGroup;
 
+    [Header("아이콘 레이아웃 (Inspector에서 수정 가능)")]
+    [Tooltip("아이콘 크기 (픽셀). 버튼 높이보다 작게 설정하세요.")]
+    [SerializeField] private float iconSize = 80f;
+    [Tooltip("아이콘 좌측/상하 패딩 (픽셀)")]
+    [SerializeField] private float iconPadding = 8f;
+    [Tooltip("텍스트 시작 X 위치 (아이콘 오른쪽 여백 포함, 픽셀)")]
+    [SerializeField] private float textLeftOffset = 96f;
+
     private readonly List<SkillRow> currentOptions = new List<SkillRow>(3);
     private Action<SkillRow> onPicked;
     private bool hasLoggedMissingBindings;
@@ -71,7 +79,7 @@ public class SkillSelectPanelController : MonoBehaviour
             optionTxt3 = optionBtn3.transform.Find("Name")?.GetComponent<TMP_Text>();
         }
 
-        // 아이콘 자동 탐지: 버튼의 "Icon" 자식 → 없으면 Image 자식 재사용
+        // 아이콘 자동 탐지
         optionIcon1 = AutoBindIcon(optionBtn1, optionIcon1);
         optionIcon2 = AutoBindIcon(optionBtn2, optionIcon2);
         optionIcon3 = AutoBindIcon(optionBtn3, optionIcon3);
@@ -210,7 +218,6 @@ public class SkillSelectPanelController : MonoBehaviour
     private static void ApplyIcon(Image icon, SkillRow skill)
     {
         if (icon == null) return;
-
         if (skill?.icon != null)
         {
             icon.sprite  = skill.icon;
@@ -220,17 +227,17 @@ public class SkillSelectPanelController : MonoBehaviour
         else
         {
             icon.sprite  = null;
-            // 스킬은 있지만 아이콘 없으면 회색 배경, 없으면 완전 숨김
-            icon.color   = skill != null ? new Color(0.35f, 0.35f, 0.35f, 0.5f) : Color.clear;
+            icon.color   = skill != null ? new Color(0.3f, 0.3f, 0.3f, 0.5f) : Color.clear;
             icon.enabled = skill != null;
         }
     }
 
     /// <summary>
-    /// 버튼에서 아이콘 Image를 자동으로 탐지합니다.
-    /// 탐색 순서: existing → 자식 "Icon" → 자식 Image (텍스트/버튼 제외) → 새로 생성
+    /// OptionButton에서 아이콘 Image를 탐지/생성합니다.
+    /// OptionButton은 500×100 가로형: 아이콘을 좌측 80×80에 배치하고
+    /// Name 텍스트를 아이콘 오른쪽으로 밀어냅니다.
     /// </summary>
-    private static Image AutoBindIcon(Button btn, Image existing)
+    private Image AutoBindIcon(Button btn, Image existing)
     {
         if (existing != null) return existing;
         if (btn == null) return null;
@@ -243,30 +250,38 @@ public class SkillSelectPanelController : MonoBehaviour
             if (img != null) { img.raycastTarget = false; return img; }
         }
 
-        // 버튼 자식 중 Image 자동 탐지 (버튼 자신, TMP_Text 부모 제외)
-        Image[] children = btn.GetComponentsInChildren<Image>(true);
-        foreach (Image child in children)
-        {
-            if (child.gameObject == btn.gameObject) continue;
-            if (child.GetComponent<TMP_Text>() != null) continue;
-            child.raycastTarget = false;
-            return child;
-        }
-
-        // 없으면 새로 생성
+        // ── 새로 생성 ────────────────────────────────────────────────────────
+        // OptionButton: 500×100 → 아이콘 좌측 80×80 고정 크기
         GameObject go = new GameObject("Icon", typeof(RectTransform), typeof(Image));
         go.transform.SetParent(btn.transform, false);
         go.transform.SetAsFirstSibling();
 
         RectTransform rt = go.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.04f, 0.1f);
-        rt.anchorMax = new Vector2(0.32f, 0.9f);
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
+        rt.anchorMin = new Vector2(0f, 0f);
+        rt.anchorMax = new Vector2(0f, 1f);
+        rt.pivot     = new Vector2(0f, 0.5f);
+        rt.offsetMin = new Vector2(iconPadding, iconPadding);
+        rt.offsetMax = new Vector2(iconPadding + iconSize, -iconPadding); // iconSize × iconSize
 
         Image newImg = go.GetComponent<Image>();
-        newImg.raycastTarget = false;
+        newImg.raycastTarget  = false;
+        newImg.preserveAspect = true;
         newImg.enabled = false;
+
+        // Name 텍스트를 아이콘 오른쪽으로 밀기
+        TMP_Text[] texts = btn.GetComponentsInChildren<TMP_Text>(true);
+        foreach (TMP_Text txt in texts)
+        {
+            RectTransform txtRt = txt.GetComponent<RectTransform>();
+            if (txtRt == null) continue;
+            if (txtRt.offsetMin.x >= textLeftOffset - 4f) continue; // 이미 충분한 경우 스킵
+            txtRt.anchorMin = new Vector2(0f, 0f);
+            txtRt.anchorMax = new Vector2(1f, 1f);
+            txtRt.offsetMin = new Vector2(textLeftOffset, 4f);
+            txtRt.offsetMax = new Vector2(-8f, -4f);
+            break;
+        }
+
         return newImg;
     }
 
@@ -336,7 +351,6 @@ public class SkillSelectPanelController : MonoBehaviour
 
     private void SetDummyOption(Button button, TMP_Text text, string label, string logMessage)
     {
-        // 더미 옵션에서는 아이콘 숨김
         Image icon = AutoBindIcon(button, null);
         if (icon != null) icon.enabled = false;
 

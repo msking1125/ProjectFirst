@@ -465,6 +465,13 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void EnsureHUD()
     {
+        if (SceneManager.GetActiveScene().name == titleSceneName)
+        {
+            if (battleHudInstance != null) battleHudInstance.gameObject.SetActive(false);
+            if (targetCanvas != null) targetCanvas.gameObject.SetActive(false);
+            return;
+        }
+
         // 1) BattleHUD 프리팹/인스턴스 우선
         if (battleHudInstance == null)
         {
@@ -929,6 +936,7 @@ public class BattleGameManager : MonoBehaviour
     private void RefreshStatusUI()
     {
         if (runSession == null) return;
+        if (SceneManager.GetActiveScene().name == titleSceneName) return;
 
         if (statusText == null)
         {

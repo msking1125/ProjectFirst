@@ -56,7 +56,7 @@ public class BaseHealth : MonoBehaviour
 
         if (hpText != null)
         {
-            hpText.text = $"BaseHP: {CurrentHealth}/{MaxHealth}";
+            hpText.text = $"HP: {CurrentHealth}/{MaxHealth}";
         }
     }
 }
