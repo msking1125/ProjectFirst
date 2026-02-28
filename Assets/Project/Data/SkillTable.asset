@@ -19,33 +19,45 @@ MonoBehaviour:
     coefficient: 1.2
     cooldown: 4
     range: 9999
+    icon: {fileID: 0}
+    castVfxPrefab: {fileID: 0}
   - id: skill_mind_wave
     name: Mind Wave
     element: 1
     coefficient: 1.35
     cooldown: 5
     range: 9999
+    icon: {fileID: 0}
+    castVfxPrefab: {fileID: 0}
   - id: skill_reason_break
     name: Reason Break
     element: 2
     coefficient: 1.5
     cooldown: 6
     range: 9999
+    icon: {fileID: 0}
+    castVfxPrefab: {fileID: 0}
   - id: skill_inferno
     name: Inferno
     element: 0
     coefficient: 1.8
     cooldown: 8
     range: 9999
+    icon: {fileID: 0}
+    castVfxPrefab: {fileID: 0}
   - id: skill_flash_insight
     name: Flash Insight
     element: 1
     coefficient: 1.6
     cooldown: 7
     range: 9999
+    icon: {fileID: 0}
+    castVfxPrefab: {fileID: 0}
   - id: skill_logic_storm
     name: Logic Storm
     element: 2
     coefficient: 1.7
     cooldown: 7.5
     range: 9999
+    icon: {fileID: 0}
+    castVfxPrefab: {fileID: 0}
