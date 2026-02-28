@@ -85,7 +85,8 @@ public class SkillBarController : MonoBehaviour
         // 쿨타임 텍스트 표시
         if (cdTxt != null)
         {
-            cdTxt.gameObject.SetActive(onCD);
+            GameObject toggleGo = cdTxt.transform.parent != null && cdTxt.transform.parent.name == "CooldownOverlay" ? cdTxt.transform.parent.gameObject : cdTxt.gameObject;
+            toggleGo.SetActive(onCD);
             if (onCD)
                 cdTxt.text = remaining >= 10f
                     ? $"{Mathf.CeilToInt(remaining)}"
@@ -188,7 +189,10 @@ public class SkillBarController : MonoBehaviour
 
         // 쿨타임 텍스트 초기 숨김
         if (cdTxt != null)
-            cdTxt.gameObject.SetActive(false);
+        {
+            GameObject toggleGo = cdTxt.transform.parent != null && cdTxt.transform.parent.name == "CooldownOverlay" ? cdTxt.transform.parent.gameObject : cdTxt.gameObject;
+            toggleGo.SetActive(false);
+        }
     }
 
     // ── 자동 컴포넌트 생성 ────────────────────────────────────────────────────
@@ -260,31 +264,46 @@ public class SkillBarController : MonoBehaviour
         if (existing != null) return existing;
         if (btn == null) return null;
 
-        Transform found = btn.transform.Find("CooldownText");
-        if (found != null) return found.GetComponent<TMP_Text>();
+        Transform foundOverlay = btn.transform.Find("CooldownOverlay");
+        if (foundOverlay != null) return foundOverlay.GetComponentInChildren<TMP_Text>();
 
-        GameObject go = new GameObject("CooldownText", typeof(RectTransform), typeof(TextMeshProUGUI));
-        go.transform.SetParent(btn.transform, false);
+        Transform old = btn.transform.Find("CooldownText");
+        if (old != null)
+        {
+            // 과거 버전 오브젝트를 파괴해서 껍데기를 재사용하지 않게 방지
+            Destroy(old.gameObject);
+        }
 
-        RectTransform rt = go.GetComponent<RectTransform>();
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
+        GameObject overlayGo = new GameObject("CooldownOverlay", typeof(RectTransform), typeof(Image));
+        overlayGo.transform.SetParent(btn.transform, false);
 
-        TextMeshProUGUI tmp = go.GetComponent<TextMeshProUGUI>();
+        RectTransform overlayRt = overlayGo.GetComponent<RectTransform>();
+        overlayRt.anchorMin = Vector2.zero;
+        overlayRt.anchorMax = Vector2.one;
+        overlayRt.offsetMin = Vector2.zero;
+        overlayRt.offsetMax = Vector2.zero;
+
+        Image bg = overlayGo.GetComponent<Image>();
+        bg.color = new Color(0f, 0f, 0f, 0.55f);
+        bg.raycastTarget = false;
+
+        GameObject textGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textGo.transform.SetParent(overlayGo.transform, false);
+
+        RectTransform textRt = textGo.GetComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.offsetMin = Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI tmp = textGo.GetComponent<TextMeshProUGUI>();
         tmp.alignment   = TextAlignmentOptions.Center;
         tmp.fontSize    = 28f;
         tmp.fontStyle   = FontStyles.Bold;
         tmp.color       = Color.white;
         tmp.raycastTarget = false;
 
-        // 반투명 어두운 배경 (쿨타임 오버레이 느낌)
-        Image bg = go.AddComponent<Image>();
-        bg.color = new Color(0f, 0f, 0f, 0.55f);
-        bg.raycastTarget = false;
-
-        go.SetActive(false);
+        overlayGo.SetActive(false);
         return tmp;
     }
 

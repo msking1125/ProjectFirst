@@ -58,6 +58,12 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float shakeStrength = 0.2f;
 
     [Header("Hit VFX")]
+    [Header("Hit Effect (테이블 권장)")]
+    [Tooltip("HitEffectTable을 연결하면 아래 개별 슬롯보다 우선 적용됩니다.\n" +
+             "Assets/Project/Data/HitEffectTable.asset")]
+    [SerializeField] private HitEffectTable hitEffectTable;
+
+    [Header("Hit Effect (개별 설정 - 테이블 미사용 시)")]
     [SerializeField] private GameObject normalHitVfxPrefab;
     [SerializeField] private GameObject critHitVfxPrefab;
     [SerializeField] private GameObject passionHitVfxPrefab;
@@ -229,7 +235,11 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    /// <summary>스킬 피격 (속성 VFX 적용)</summary>
     public void TakeDamage(int dmg, bool isCrit, ElementType element)
+        => TakeDamageInternal(dmg, isCrit, element, isSkillHit: true);
+
+    private void TakeDamageInternal(int dmg, bool isCrit, ElementType element, bool isSkillHit)
     {
         if (!isAlive)
         {
@@ -239,7 +249,7 @@ public class Enemy : MonoBehaviour
         currentHP -= dmg;
 
         SpawnDamageText(dmg, isCrit);
-        SpawnHitVfx(isCrit, element);
+        SpawnHitVfx(isCrit, element, isSkillHit);
         PlayHitFeedback(isCrit);
         TrySetAnimatorTrigger(HitTriggerId, hasHitTrigger);
 
@@ -250,11 +260,12 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int dmg, bool isCrit) => TakeDamage(dmg, isCrit, ElementType.Reason);
+    /// <summary>일반 공격 피격 (스킬 아님)</summary>
+    public void TakeDamage(int dmg, bool isCrit) => TakeDamageInternal(dmg, isCrit, ElementType.Reason, false);
 
-    public void TakeDamage(int dmg) => TakeDamage(dmg, false, ElementType.Reason);
+    public void TakeDamage(int dmg) => TakeDamageInternal(dmg, false, ElementType.Reason, false);
 
-    public void TakeDamage(float dmg) => TakeDamage(Mathf.RoundToInt(dmg), false, ElementType.Reason);
+    public void TakeDamage(float dmg) => TakeDamageInternal(Mathf.RoundToInt(dmg), false, ElementType.Reason, false);
 
     public void Despawn()
     {
@@ -443,50 +454,47 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void SpawnHitVfx(bool isCrit, ElementType element)
+    /// <summary>
+    /// 피격 VFX 스폰.
+    /// hitEffectTable이 연결된 경우 테이블을 우선 사용합니다.
+    /// isSkillHit=true이면 속성별 VFX를 선택합니다.
+    /// </summary>
+    private void SpawnHitVfx(bool isCrit, ElementType element, bool isSkillHit = false)
     {
-        GameObject hitVfxPrefab = normalHitVfxPrefab;
+        GameObject hitVfxPrefab;
 
-        if (isCrit && critHitVfxPrefab != null)
+        // ── 1순위: HitEffectTable ─────────────────────────────────────────────
+        if (hitEffectTable != null)
         {
-            hitVfxPrefab = critHitVfxPrefab;
+            hitVfxPrefab = hitEffectTable.Resolve(isCrit, element, isSkillHit);
         }
+        // ── 2순위: 개별 필드 (기존 방식) ────────────────────────────────────────
         else
         {
-            switch (element)
+            hitVfxPrefab = normalHitVfxPrefab;
+
+            if (isCrit && critHitVfxPrefab != null)
             {
-                case ElementType.Passion:
-                    if (passionHitVfxPrefab != null)
-                    {
-                        hitVfxPrefab = passionHitVfxPrefab;
-                    }
-                    break;
-                case ElementType.Intuition:
-                    if (intuitionHitVfxPrefab != null)
-                    {
-                        hitVfxPrefab = intuitionHitVfxPrefab;
-                    }
-                    break;
-                case ElementType.Reason:
-                    if (reasonHitVfxPrefab != null)
-                    {
-                        hitVfxPrefab = reasonHitVfxPrefab;
-                    }
-                    break;
+                hitVfxPrefab = critHitVfxPrefab;
+            }
+            else if (isSkillHit)
+            {
+                hitVfxPrefab = element switch
+                {
+                    ElementType.Passion   => passionHitVfxPrefab   ?? normalHitVfxPrefab,
+                    ElementType.Intuition => intuitionHitVfxPrefab ?? normalHitVfxPrefab,
+                    ElementType.Reason    => reasonHitVfxPrefab    ?? normalHitVfxPrefab,
+                    _                     => normalHitVfxPrefab
+                };
             }
         }
 
-        if (hitVfxPrefab == null)
-        {
-            return;
-        }
+        if (hitVfxPrefab == null) return;
 
-        Vector3 hitVfxPosition = transform.position + Vector3.up * 1.0f;
-        GameObject hitVfx = Instantiate(hitVfxPrefab, hitVfxPosition, Quaternion.identity);
-        if (hitVfx != null)
-        {
-            Destroy(hitVfx, 2f);
-        }
+        Vector3 pos = transform.position + Vector3.up * 1.0f;
+        GameObject vfx = Instantiate(hitVfxPrefab, pos, Quaternion.identity);
+        if (vfx != null)
+            Destroy(vfx, 2f);
     }
 
     private void PlayHitFeedback(bool isCrit)

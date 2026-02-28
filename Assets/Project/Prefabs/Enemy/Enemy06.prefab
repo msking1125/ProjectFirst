@@ -66,6 +66,12 @@ MonoBehaviour:
   colorRenderer: {fileID: 0}
   shakeDuration: 0.18
   shakeStrength: 0.2
+  hitEffectTable: {fileID: 11400000, guid: a54e99bb344ef274990ee4cc9a2e5a45, type: 2}
+  normalHitVfxPrefab: {fileID: 0}
+  critHitVfxPrefab: {fileID: 0}
+  passionHitVfxPrefab: {fileID: 0}
+  intuitionHitVfxPrefab: {fileID: 0}
+  reasonHitVfxPrefab: {fileID: 0}
   postProcessVolume: {fileID: 0}
   critMotionBlurIntensity: 0.85
   critMotionBlurDuration: 0.12

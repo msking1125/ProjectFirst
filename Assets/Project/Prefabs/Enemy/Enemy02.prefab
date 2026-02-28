@@ -123,6 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12697305e7bef7f4c9f836a3343c4972, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  runStateOverride: 
   moveSpeed: 2
   maxHP: 10
   attackDamage: 32
@@ -140,12 +141,18 @@ MonoBehaviour:
   colorRenderer: {fileID: 0}
   shakeDuration: 0.18
   shakeStrength: 0.2
+  hitEffectTable: {fileID: 11400000, guid: a54e99bb344ef274990ee4cc9a2e5a45, type: 2}
+  normalHitVfxPrefab: {fileID: 0}
+  critHitVfxPrefab: {fileID: 0}
+  passionHitVfxPrefab: {fileID: 0}
+  intuitionHitVfxPrefab: {fileID: 0}
+  reasonHitVfxPrefab: {fileID: 0}
   postProcessVolume: {fileID: 0}
   critMotionBlurIntensity: 0.85
   critMotionBlurDuration: 0.12
-  arriveDistance: 0.6
   useDeathReturnDelay: 1
   deathReturnDelay: 0.45
+  logSpawnAppliedMonsterData: 0
 --- !u!95 &8670285807443093154
 Animator:
   serializedVersion: 5
