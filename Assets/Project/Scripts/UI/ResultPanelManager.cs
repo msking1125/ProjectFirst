@@ -39,19 +39,38 @@ public class ResultPanelManager : MonoBehaviour
         if (isInitialized) return;
 
         uiDoc = GetComponent<UIDocument>();
-        if (uiDoc == null) return;
+        if (uiDoc == null || uiDoc.visualTreeAsset == null)
+        {
+            // visualTreeAsset 자체가 등록 안되어 있으면 어쩔 수 없이 실패
+            return;
+        }
 
         VisualElement docRoot = uiDoc.rootVisualElement;
         if (docRoot == null) return;
 
         // ── root 탐색 ─────────────────────────────────────────────────────
-        root = QueryFirst(docRoot, RootCandidates);
+        // UXML이 로드되면 TemplateContainer 하위에 생성되므로 트리 전체에서 검색합니다.
+        foreach (string n in RootCandidates)
+        {
+            root = docRoot.Q<VisualElement>(n);
+            if (root != null) break;
+        }
 
-        // 이름 매칭 실패 → 첫 번째 자식 VisualElement 사용
+        // 클래스명으로도 한 번 더 찾아봄 (UXML에 등록된 class="result-root")
+        if (root == null)
+        {
+            root = docRoot.Q<VisualElement>(className: "result-root");
+        }
+
+        // 이름 매칭 실패 → 첫 번째 유효한 자식 VisualElement 사용
         if (root == null && docRoot.childCount > 0)
         {
-            root = docRoot[0];
-            Debug.Log($"[ResultPanelManager] root 이름 매칭 실패. 첫 번째 자식 '{root.name}' 을 사용합니다.");
+            // TemplateContainer 내부의 첫번째 요소를 찾음
+            if (docRoot[0].childCount > 0)
+                root = docRoot[0][0];
+            else
+                root = docRoot[0];
+            Debug.Log($"[ResultPanelManager] root 이름 매칭 실패. 대체 요소를 사용합니다: '{root.name}'");
         }
 
         if (root == null)

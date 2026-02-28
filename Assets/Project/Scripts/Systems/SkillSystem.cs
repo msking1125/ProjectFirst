@@ -95,9 +95,7 @@ public class SkillSystem
             Quaternion spawnRot = playerAgent.transform.rotation;
             GameObject castVfx = Object.Instantiate(skill.castVfxPrefab, spawnPos, spawnRot);
             if (castVfx != null)
-            {
-                Object.Destroy(castVfx, 2f);
-            }
+                StopAndDestroyVfx(castVfx, 2f);
         }
 
         IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
@@ -127,6 +125,20 @@ public class SkillSystem
 
         Debug.Log($"[SkillSystem] 슬롯 {slotIndex} 스킬 발동: {skill.name}, 적중 {hitCount}마리, 쿨타임 {skill.cooldown}초");
         return hitCount;
+    }
+
+    // ── VFX 유틸 ─────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// 루프 파티클도 안전하게 소멸시킵니다.
+    /// Stop() 없이 Destroy만 하면 looping 파티클이 씬에 영원히 남습니다.
+    /// </summary>
+    private static void StopAndDestroyVfx(GameObject vfx, float delay = 0f)
+    {
+        if (vfx == null) return;
+        foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        Object.Destroy(vfx);
     }
 
     // ── 후보 뽑기 ─────────────────────────────────────────────────────────────

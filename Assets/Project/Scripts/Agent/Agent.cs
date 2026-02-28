@@ -10,6 +10,9 @@ public class Agent : MonoBehaviour
     [Tooltip("캐릭터 고유 데이터 (공격 VFX, 액티브 스킬 등). 비워두면 기본값 사용.")]
     [SerializeField] private AgentData agentData;
 
+    /// <summary>AgentData 공개 접근자 (CharUltimateController 초기화 시 사용)</summary>
+    public AgentData AgentData => agentData;
+
     public float range = 5f;
     public float attackRate = 1f;
 
@@ -336,8 +339,26 @@ public class Agent : MonoBehaviour
         GameObject vfx = Object.Instantiate(
             agentData.normalAttackVfxPrefab, spawnPos, transform.rotation);
 
-        if (vfx != null && agentData.normalAttackVfxLifetime > 0f)
-            Object.Destroy(vfx, agentData.normalAttackVfxLifetime);
+        if (vfx == null) return;
+
+        float lifetime = agentData.normalAttackVfxLifetime > 0f
+            ? agentData.normalAttackVfxLifetime
+            : attackAnimDuration; // 기본값: 공격 애니 길이
+
+        StopAndDestroyVfx(vfx, lifetime);
+    }
+
+    /// <summary>
+    /// 루프 파티클도 안전하게 소멸시킵니다.
+    /// Stop() 없이 Destroy만 하면 루프 파티클이 씬에 남습니다.
+    /// </summary>
+    private static void StopAndDestroyVfx(GameObject vfx, float delay)
+    {
+        // StopEmittingAndClear: 기존 파티클까지 즉시 제거 (루프 파티클 누적 방지)
+        foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        // 파티클 완전 제거 후 짧은 딜레이로 오브젝트 소멸
+        Object.Destroy(vfx, Mathf.Max(0.05f, delay));
     }
 
     private Enemy FindClosestEnemy()

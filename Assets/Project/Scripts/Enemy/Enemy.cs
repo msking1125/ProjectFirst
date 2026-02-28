@@ -494,7 +494,15 @@ public class Enemy : MonoBehaviour
         Vector3 pos = transform.position + Vector3.up * 1.0f;
         GameObject vfx = Instantiate(hitVfxPrefab, pos, Quaternion.identity);
         if (vfx != null)
-            Destroy(vfx, 2f);
+            StopAndDestroyVfx(vfx, 2f);
+    }
+
+    private static void StopAndDestroyVfx(GameObject vfx, float delay = 0f)
+    {
+        if (vfx == null) return;
+        foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        Destroy(vfx);
     }
 
     private void PlayHitFeedback(bool isCrit)
