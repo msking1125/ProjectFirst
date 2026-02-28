@@ -20,8 +20,8 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private TMP_Text waveText;
     [SerializeField] private TMP_Text aliveEnemyText;
 
-    private int currentWaveIndex = -1;
-    public int CurrentWave => currentWaveIndex + 1;   // 외부에서 읽기용
+    private int currentWaveNum = 0;
+    public int CurrentWave => currentWaveNum;   // 외부에서 읽기용
     private bool waveInProgress;
     private bool gameEnded;
     private bool loggedMissingWaveTable;
@@ -114,9 +114,19 @@ public class WaveManager : MonoBehaviour
 
     public void StartNextWave()
     {
-        currentWaveIndex++;
+        int nextWave = int.MaxValue;
+        if (waveTable != null && waveTable.wave != null)
+        {
+            foreach (var r in waveTable.wave)
+            {
+                if (r != null && r.wave > currentWaveNum && r.wave < nextWave)
+                {
+                    nextWave = r.wave;
+                }
+            }
+        }
 
-        if (waveTable == null || waveTable.wave == null || currentWaveIndex >= waveTable.wave.Count)
+        if (nextWave == int.MaxValue)
         {
             waveInProgress = false;
             gameEnded = true;
@@ -125,39 +135,27 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
-        WaveRow row = waveTable.wave[currentWaveIndex];
-        if (row == null)
+        currentWaveNum = nextWave;
+        System.Collections.Generic.List<WaveRow> currentRows = new System.Collections.Generic.List<WaveRow>();
+
+        if (waveTable != null && waveTable.wave != null)
         {
-            Debug.LogWarning($"[WaveManager] waveTable.wave[{currentWaveIndex}]가 null 입니다. 다음 웨이브로 건너뜁니다.");
-            StartNextWave();
-            return;
+            foreach (var r in waveTable.wave)
+            {
+                if (r != null && r.wave == currentWaveNum)
+                {
+                    currentRows.Add(r);
+                }
+            }
         }
 
-        enemySpawner.ConfigureWave(
-            row.spawnCount,
-            row.spawnInterval,
-            row.enemyHpMul,
-            row.enemySpeedMul,
-            row.enemyDamageMul,
-            row.eliteEvery,
-            row.boss,
-            ResolveWaveMonsterId(row));
-
+        enemySpawner.ConfigureWave(currentRows);
         enemySpawner.BeginWave();
         waveInProgress = true;
         RefreshUI();
     }
 
-    private string ResolveWaveMonsterId(WaveRow row)
-    {
-        if (row == null)
-        {
-            return DefaultMonsterId;
-        }
 
-        string resolved = row.GetMonsterIdOrFallback();
-        return string.IsNullOrWhiteSpace(resolved) ? DefaultMonsterId : resolved.Trim();
-    }
 
     private void NotifyVictory()
     {
@@ -192,8 +190,17 @@ public class WaveManager : MonoBehaviour
     {
         if (waveText != null)
         {
-            int displayWave = Mathf.Max(0, currentWaveIndex + 1);
-            int totalWave = waveTable != null && waveTable.wave != null ? waveTable.wave.Count : 0;
+            int displayWave = Mathf.Max(0, currentWaveNum);
+            int totalWave = 0;
+            if (waveTable != null && waveTable.wave != null)
+            {
+                System.Collections.Generic.HashSet<int> waves = new System.Collections.Generic.HashSet<int>();
+                foreach (var r in waveTable.wave)
+                {
+                    if (r != null) waves.Add(r.wave);
+                }
+                totalWave = waves.Count;
+            }
             waveText.text = $"Wave: {displayWave}/{totalWave}";
         }
 

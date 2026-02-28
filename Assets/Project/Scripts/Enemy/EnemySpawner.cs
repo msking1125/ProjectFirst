@@ -31,26 +31,48 @@ public class EnemySpawner : MonoBehaviour
     [Min(0.01f)]
     public float spawnInterval = 2f;
 
-    private float spawnTimer;
-    private int waveSpawnCount;
-    private int spawnedCount;
-    private float enemyHpMul = 1f;
-    private float enemySpeedMul = 1f;
-    private float enemyDamageMul = 1f;
-    private int eliteEvery;
-    private bool bossWave;
+    private float fallbackSpawnTimer;
     private bool useWaveConfig;
     [SerializeField] private string defaultMonsterId = DefaultMonsterId;
 
-    private string currentEnemyId = DefaultMonsterId;
-    private string lastConfiguredEnemyId = string.Empty;
+    [System.Serializable]
+    public class WaveSession
+    {
+        public int waveSpawnCount;
+        public float spawnInterval;
+        public float enemyHpMul;
+        public float enemySpeedMul;
+        public float enemyDamageMul;
+        public int eliteEvery;
+        public bool bossWave;
+        public string currentEnemyId;
+        public string lastConfiguredEnemyId;
+
+        public float spawnTimer;
+        public int spawnedCount;
+
+        public bool IsCompleted => spawnedCount >= waveSpawnCount;
+    }
+
+    private List<WaveSession> waveSessions = new List<WaveSession>();
 
     private bool loggedMissingPool;
     private bool loggedMissingTarget;
     private bool loggedMissingSpawnPoints;
     private bool loggedMissingMonsterTable;
 
-    public bool IsWaveSpawnCompleted => useWaveConfig && spawnedCount >= waveSpawnCount;
+    public bool IsWaveSpawnCompleted
+    {
+        get
+        {
+            if (!useWaveConfig) return false;
+            foreach (var session in waveSessions)
+            {
+                if (!session.IsCompleted) return false;
+            }
+            return true;
+        }
+    }
 
     void Awake()
     {
@@ -72,33 +94,65 @@ public class EnemySpawner : MonoBehaviour
             return;
         }
 
-        spawnTimer += Time.deltaTime;
-        if (spawnTimer >= spawnInterval)
+        if (useWaveConfig)
         {
-            SpawnEnemy();
-            spawnTimer = 0f;
+            foreach (var session in waveSessions)
+            {
+                if (session.IsCompleted) continue;
+
+                session.spawnTimer += Time.deltaTime;
+                if (session.spawnTimer >= session.spawnInterval)
+                {
+                    SpawnEnemy(session);
+                    session.spawnTimer = 0f;
+                }
+            }
+        }
+        else
+        {
+            fallbackSpawnTimer += Time.deltaTime;
+            if (fallbackSpawnTimer >= spawnInterval)
+            {
+                SpawnEnemyFallback();
+                fallbackSpawnTimer = 0f;
+            }
         }
     }
 
-    public void ConfigureWave(int spawnCount, float interval, float hpMul, float speedMul, float damageMul, int eliteEveryCount, bool isBossWave, string enemyId = DefaultMonsterId)
+    public void ConfigureWave(List<WaveRow> rows)
     {
-        waveSpawnCount = Mathf.Max(0, spawnCount);
-        spawnInterval = Mathf.Max(0.01f, interval);
-        enemyHpMul = Mathf.Max(0f, hpMul);
-        enemySpeedMul = Mathf.Max(0f, speedMul);
-        enemyDamageMul = Mathf.Max(0f, damageMul);
-        eliteEvery = Mathf.Max(0, eliteEveryCount);
-        bossWave = isBossWave;
-        defaultMonsterId = string.IsNullOrWhiteSpace(defaultMonsterId) ? DefaultMonsterId : defaultMonsterId;
-        lastConfiguredEnemyId = enemyId;
-        currentEnemyId = ResolveMonsterIdOrFallback(enemyId, defaultMonsterId);
+        waveSessions.Clear();
         useWaveConfig = true;
+        
+        defaultMonsterId = string.IsNullOrWhiteSpace(defaultMonsterId) ? DefaultMonsterId : defaultMonsterId;
+
+        foreach (var row in rows)
+        {
+            var session = new WaveSession
+            {
+                waveSpawnCount = Mathf.Max(0, row.spawnCount),
+                spawnInterval = Mathf.Max(0.01f, row.spawnInterval),
+                enemyHpMul = Mathf.Max(0f, row.enemyHpMul),
+                enemySpeedMul = Mathf.Max(0f, row.enemySpeedMul),
+                enemyDamageMul = Mathf.Max(0f, row.enemyDamageMul),
+                eliteEvery = Mathf.Max(0, row.eliteEvery),
+                bossWave = row.boss,
+                lastConfiguredEnemyId = row.enemyId,
+                currentEnemyId = ResolveMonsterIdOrFallback(row.GetMonsterIdOrFallback(), defaultMonsterId),
+                spawnTimer = 0f,
+                spawnedCount = 0
+            };
+            waveSessions.Add(session);
+        }
     }
 
     public void BeginWave()
     {
-        spawnTimer = 0f;
-        spawnedCount = 0;
+        foreach (var session in waveSessions)
+        {
+            session.spawnTimer = 0f;
+            session.spawnedCount = 0;
+        }
     }
 
     private bool IsSpawnerReady()
@@ -171,7 +225,46 @@ public class EnemySpawner : MonoBehaviour
         return false;
     }
 
-    private void SpawnEnemy()
+    private void SpawnEnemy(WaveSession session)
+    {
+        Transform spawnPoint = GetRandomSpawnPoint();
+        if (spawnPoint == null) return;
+
+        MonsterGrade grade = ResolveGrade(session);
+        WaveMultipliers multipliers = new WaveMultipliers { hp = session.enemyHpMul, speed = session.enemySpeedMul, damage = session.enemyDamageMul };
+
+        string enemyIdSource = string.IsNullOrWhiteSpace(session.lastConfiguredEnemyId) ? "fallback(defaultMonsterId)" : "waveRow(enemyId/monsterId)";
+        Debug.Log($"[EnemySpawner] 이번 스폰 enemyId='{session.currentEnemyId}' (source={enemyIdSource}, waveValue='{session.lastConfiguredEnemyId}', fallback='{defaultMonsterId}')");
+
+        Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, session.currentEnemyId, grade, multipliers);
+        if (enemy == null)
+        {
+            Debug.LogError("[EnemySpawner] EnemyPool.Get 실패로 적 스폰에 실패했습니다.");
+            return;
+        }
+
+        session.spawnedCount++;
+    }
+
+    private void SpawnEnemyFallback()
+    {
+        Transform spawnPoint = GetRandomSpawnPoint();
+        if (spawnPoint == null) return;
+
+        MonsterGrade grade = MonsterGrade.Normal;
+        WaveMultipliers multipliers = new WaveMultipliers { hp = 1f, speed = 1f, damage = 1f };
+
+        string currentEnemyId = ResolveMonsterIdOrFallback(null, defaultMonsterId);
+
+        Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, grade, multipliers);
+        if (enemy == null)
+        {
+            Debug.LogError("[EnemySpawner] EnemyPool.Get 실패로 적 스폰에 실패했습니다.");
+            return;
+        }
+    }
+
+    private Transform GetRandomSpawnPoint()
     {
         List<Transform> validSpawnPoints = new List<Transform>();
         foreach (Transform point in spawnPoints)
@@ -185,29 +278,11 @@ public class EnemySpawner : MonoBehaviour
         if (validSpawnPoints.Count == 0)
         {
             Debug.LogError("[EnemySpawner] spawnPoints에 유효한 Transform이 없습니다.");
-            return;
+            return null;
         }
 
         int idx = Random.Range(0, validSpawnPoints.Count);
-        Transform spawnPoint = validSpawnPoints[idx];
-
-        MonsterGrade grade = ResolveGrade();
-        WaveMultipliers multipliers = new WaveMultipliers { hp = enemyHpMul, speed = enemySpeedMul, damage = enemyDamageMul };
-
-        string enemyIdSource = string.IsNullOrWhiteSpace(lastConfiguredEnemyId) ? "fallback(defaultMonsterId)" : "waveRow(enemyId/monsterId)";
-        Debug.Log($"[EnemySpawner] 이번 스폰 enemyId='{currentEnemyId}' (source={enemyIdSource}, waveValue='{lastConfiguredEnemyId}', fallback='{defaultMonsterId}')");
-
-        Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, grade, multipliers);
-        if (enemy == null)
-        {
-            Debug.LogError("[EnemySpawner] EnemyPool.Get 실패로 적 스폰에 실패했습니다.");
-            return;
-        }
-
-        if (useWaveConfig)
-        {
-            spawnedCount++;
-        }
+        return validSpawnPoints[idx];
     }
 
 
@@ -225,14 +300,14 @@ public class EnemySpawner : MonoBehaviour
         return waveMonsterId.Trim();
     }
 
-    private MonsterGrade ResolveGrade()
+    private MonsterGrade ResolveGrade(WaveSession session)
     {
-        if (bossWave)
+        if (session.bossWave)
         {
             return MonsterGrade.Boss;
         }
 
-        if (eliteEvery > 0 && (spawnedCount + 1) % eliteEvery == 0)
+        if (session.eliteEvery > 0 && (session.spawnedCount + 1) % session.eliteEvery == 0)
         {
             return MonsterGrade.Elite;
         }
