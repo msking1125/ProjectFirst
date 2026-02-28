@@ -20,6 +20,8 @@ MonoBehaviour:
     cooldown: 4
     range: 9999
     icon: {fileID: 21300000, guid: fa379ff0a881c7249b506d661dbf432a, type: 3}
+    description: "\uC5F4\uC815\uC758 \uBD88\uAF43\uC744 \uD3ED\uBC1C\uC2DC\uCF1C
+      \uBAA8\uB4E0 \uC801\uC5D0\uAC8C \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
     castVfxPrefab: {fileID: 6780458973925837575, guid: 8713459fae0911644a482c434dbbb94e,
       type: 3}
   - id: skill_mind_wave
@@ -29,6 +31,8 @@ MonoBehaviour:
     cooldown: 5
     range: 9999
     icon: {fileID: 21300000, guid: 951382f35fe793246912c2b586eefe7a, type: 3}
+    description: "\uC9C1\uAD00\uC758 \uD30C\uB3D9\uC744 \uBC1C\uC0AC\uD574 \uC801\uB4E4\uC758
+      \uBC29\uC5B4\uB97C \uBB34\uB108\uB728\uB9BD\uB2C8\uB2E4."
     castVfxPrefab: {fileID: 6780458973925837575, guid: 8713459fae0911644a482c434dbbb94e,
       type: 3}
   - id: skill_reason_break
@@ -38,6 +42,8 @@ MonoBehaviour:
     cooldown: 6
     range: 9999
     icon: {fileID: 21300000, guid: 0d7155183934e2640b81abb8e31684ef, type: 3}
+    description: "\uC774\uC131\uC758 \uD798\uC73C\uB85C \uC801\uC758 \uB17C\uB9AC\uB97C
+      \uBD95\uAD34\uC2DC\uD0B5\uB2C8\uB2E4."
     castVfxPrefab: {fileID: 6780458973925837575, guid: 8713459fae0911644a482c434dbbb94e,
       type: 3}
   - id: skill_inferno
@@ -47,6 +53,8 @@ MonoBehaviour:
     cooldown: 8
     range: 9999
     icon: {fileID: 21300000, guid: 29dbf47fb8090b34388f5d367bb7eb2b, type: 3}
+    description: "\uAC70\uB300\uD55C \uD654\uC5FC \uD3ED\uD48D\uC73C\uB85C \uC804\uC7A5\uC744
+      \uBD88\uD0DC\uC6C1\uB2C8\uB2E4."
     castVfxPrefab: {fileID: 6780458973925837575, guid: 8713459fae0911644a482c434dbbb94e,
       type: 3}
   - id: skill_flash_insight
@@ -56,6 +64,8 @@ MonoBehaviour:
     cooldown: 7
     range: 9999
     icon: {fileID: 21300000, guid: 9e7b775134ed8204b9fb1f2b1f9a0995, type: 3}
+    description: "\uBC88\uAC1C \uAC19\uC740 \uD1B5\uCC30\uB85C \uC801\uC758 \uC57D\uC810\uC744
+      \uAFF0\uB6AB\uC2B5\uB2C8\uB2E4."
     castVfxPrefab: {fileID: 6780458973925837575, guid: 8713459fae0911644a482c434dbbb94e,
       type: 3}
   - id: skill_logic_storm
@@ -65,5 +75,7 @@ MonoBehaviour:
     cooldown: 7.5
     range: 9999
     icon: {fileID: 21300000, guid: 72cabfca16680bd4ab1b805ad65376ca, type: 3}
+    description: "\uB17C\uB9AC\uC758 \uD3ED\uD48D\uC73C\uB85C \uC801\uAD70\uC744
+      \uC555\uB3C4\uD569\uB2C8\uB2E4."
     castVfxPrefab: {fileID: 6780458973925837575, guid: 8713459fae0911644a482c434dbbb94e,
       type: 3}

@@ -1,7 +1,7 @@
-id,name,element,coefficient,cooldown,range,icon,castVfxPrefab
-skill_fire_burst,Fire Burst,Passion,1.2,4,9999,Icon_Skill_Btn_01,gunner_railgun
-skill_mind_wave,Mind Wave,Intuition,1.35,5,9999,Icon_Skill_Btn_02,gunner_railgun
-skill_reason_break,Reason Break,Reason,1.5,6,9999,Icon_Skill_Btn_03,gunner_railgun
-skill_inferno,Inferno,Passion,1.8,8,9999,Icon_Skill_Btn_04,gunner_railgun
-skill_flash_insight,Flash Insight,Intuition,1.6,7,9999,Icon_Skill_Btn_05,gunner_railgun
-skill_logic_storm,Logic Storm,Reason,1.7,7.5,9999,Icon_Skill_Btn_06,gunner_railgun
+id,name,element,coefficient,cooldown,range,icon,castVfxPrefab,description
+skill_fire_burst,Fire Burst,Passion,1.2,4,9999,Icon_Skill_Btn_01,gunner_railgun,열정의 불꽃을 폭발시켜 모든 적에게 피해를 줍니다.
+skill_mind_wave,Mind Wave,Intuition,1.35,5,9999,Icon_Skill_Btn_02,gunner_railgun,직관의 파동을 발사해 적들의 방어를 무너뜨립니다.
+skill_reason_break,Reason Break,Reason,1.5,6,9999,Icon_Skill_Btn_03,gunner_railgun,이성의 힘으로 적의 논리를 붕괴시킵니다.
+skill_inferno,Inferno,Passion,1.8,8,9999,Icon_Skill_Btn_04,gunner_railgun,거대한 화염 폭풍으로 전장을 불태웁니다.
+skill_flash_insight,Flash Insight,Intuition,1.6,7,9999,Icon_Skill_Btn_05,gunner_railgun,번개 같은 통찰로 적의 약점을 꿰뚫습니다.
+skill_logic_storm,Logic Storm,Reason,1.7,7.5,9999,Icon_Skill_Btn_06,gunner_railgun,논리의 폭풍으로 적군을 압도합니다.

@@ -14,6 +14,9 @@ public class SkillRow
     [Tooltip("스킬 아이콘 이미지 (Assets/Project/UI/Icon/*.jpg|png)")]
     public Sprite icon;
 
+    [Tooltip("스킬 설명 (스킬 선택 패널에 표시)")]
+    public string description;
+
     [Tooltip("스킬 발동 시 재생할 VFX 프리팹")]
     public GameObject castVfxPrefab;
 }

@@ -793,6 +793,8 @@ public class BattleGameManager : MonoBehaviour
     /// </summary>
     private void EnsureResultUI()
     {
+        if (SceneManager.GetActiveScene().name == titleSceneName) return;
+
         // BattleHUD 내장 경우 우선 사용
         if (battleHudInstance != null)
         {

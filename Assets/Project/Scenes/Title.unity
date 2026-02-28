@@ -684,8 +684,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14168dcc775051c429e9fa77674e6e15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiDocument: {fileID: 1242081213}
   gameSceneName: Battle_Test
+  customFont: {fileID: 11400000, guid: 1cae2869f3beb784c9efaaca72c7f5e3, type: 2}
+  startButtonText: "\uAC8C\uC784 \uC2DC\uC791"
+  settingsButtonText: "\uC124\uC815"
+  quitButtonText: "\uC885\uB8CC"
   startButtonEvent: {fileID: 11400000, guid: 0744463957a17f043bc39ef8df263e64, type: 2}
   settingsButtonEvent: {fileID: 11400000, guid: 58279f22040f87043ad913c9f6e9ec1d,
     type: 2}

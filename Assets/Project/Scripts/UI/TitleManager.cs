@@ -13,6 +13,12 @@ public class TitleManager : MonoBehaviour
     [Header("Scene Settings")]
     [SerializeField] private string gameSceneName = "Battle_Test";
 
+    [Header("UI Texts")]
+    [SerializeField] private TMP_FontAsset customFont;
+    [SerializeField] private string startButtonText = "게임 시작";
+    [SerializeField] private string settingsButtonText = "설정";
+    [SerializeField] private string quitButtonText = "종료";
+
     [Header("Events (Optional)")]
     [SerializeField] private VoidEventChannelSO startButtonEvent;
     [SerializeField] private VoidEventChannelSO settingsButtonEvent;
@@ -60,6 +66,13 @@ public class TitleManager : MonoBehaviour
                 BuildUI();
             }
         }
+        
+        // Hide existing UIDocument if present to remove the old UI at the bottom
+        var uiDoc = FindObjectOfType<UnityEngine.UIElements.UIDocument>();
+        if (uiDoc != null && uiDoc.rootVisualElement != null)
+        {
+            uiDoc.rootVisualElement.style.display = UnityEngine.UIElements.DisplayStyle.None;
+        }
     }
 
     private void BuildUI()
@@ -79,23 +92,7 @@ public class TitleManager : MonoBehaviour
         logoRt.anchorMax = new Vector2(0.5f, 0.7f);
         logoRt.anchoredPosition = Vector2.zero;
 
-        // 임시 로고 텍스트 (실제 이미지가 있다면 이 부분을 Image 컴포넌트로 변경하세요)
-        GameObject logoTextGo = new GameObject("LogoText", typeof(RectTransform), typeof(TextMeshProUGUI), typeof(Shadow));
-        logoTextGo.transform.SetParent(logoRoot.transform, false);
-        RectTransform logoTextRt = logoTextGo.GetComponent<RectTransform>();
-        logoTextRt.sizeDelta = new Vector2(900f, 300f);
-        
-        TextMeshProUGUI logoTmp = logoTextGo.GetComponent<TextMeshProUGUI>();
-        logoTmp.text = "MIND ARK\n<size=60%><color=#88CCFF>IDLE DEFENCE</color></size>";
-        logoTmp.alignment = TextAlignmentOptions.Center;
-        logoTmp.fontSize = 150f;
-        logoTmp.fontStyle = FontStyles.Bold | FontStyles.Italic;
-        logoTmp.color = new Color(0.1f, 0.8f, 1f, 1f); // 네온 시안
-
-        // 로고 글로우/블러(그림자 이용)
-        Shadow logoShadow = logoTextGo.GetComponent<Shadow>();
-        logoShadow.effectColor = new Color(0f, 0.5f, 1f, 0.6f);
-        logoShadow.effectDistance = new Vector2(5f, -5f);
+        // 로고 텍스트는 제거되었습니다 (포스터 이미지 내 로고 사용)
 
         // 3. 버튼 레이아웃 컨테이너 (세로 정렬)
         GameObject buttonGroup = new GameObject("ButtonGroup", typeof(RectTransform));
@@ -106,9 +103,9 @@ public class TitleManager : MonoBehaviour
         groupRt.anchoredPosition = Vector2.zero;
 
         // 버튼 3개 배치 (너비 70%인 약 760px, 높이 110px. 여백은 160px 간격)
-        CreateCyberpunkButton("Btn_Start", buttonGroup.transform, "게임 시작", new Vector2(0f, 160f), new Color(0.1f, 0.5f, 0.9f, 0.9f), OnStartClicked);
-        CreateCyberpunkButton("Btn_Settings", buttonGroup.transform, "설정", new Vector2(0f, 0f), new Color(0.3f, 0.3f, 0.35f, 0.9f), OnSettingsClicked);
-        CreateCyberpunkButton("Btn_Quit", buttonGroup.transform, "종료", new Vector2(0f, -160f), new Color(0.8f, 0.2f, 0.3f, 0.9f), OnQuitClicked);
+        CreateCyberpunkButton("Btn_Start", buttonGroup.transform, startButtonText, new Vector2(0f, 160f), new Color(0.1f, 0.5f, 0.9f, 0.9f), OnStartClicked);
+        CreateCyberpunkButton("Btn_Settings", buttonGroup.transform, settingsButtonText, new Vector2(0f, 0f), new Color(0.3f, 0.3f, 0.35f, 0.9f), OnSettingsClicked);
+        CreateCyberpunkButton("Btn_Quit", buttonGroup.transform, quitButtonText, new Vector2(0f, -160f), new Color(0.8f, 0.2f, 0.3f, 0.9f), OnQuitClicked);
     }
 
     private void CreateCyberpunkButton(string objName, Transform parent, string label, Vector2 pos, Color neonColor, UnityEngine.Events.UnityAction onClick)
@@ -122,6 +119,9 @@ public class TitleManager : MonoBehaviour
         btnRt.anchoredPosition = pos;
 
         Image btnImg = btnGo.GetComponent<Image>();
+        // Assign a default sprite so the color tinting works correctly instead of appearing as a solid white block
+        btnImg.sprite = UnityEditor.AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
+        btnImg.type = Image.Type.Sliced;
         btnImg.color = neonColor;
 
         // 글로우 효과용 그림자
@@ -149,11 +149,20 @@ public class TitleManager : MonoBehaviour
         SetFullScreenStretch(txtGo.GetComponent<RectTransform>());
 
         TextMeshProUGUI tmp = txtGo.GetComponent<TextMeshProUGUI>();
-        tmp.text = label;
-        tmp.fontSize = 44f;
+        
+        // Workaround: TextMeshPro replaces missing \u0020 space with \u0003 (End of Text) which clips the string.
+        // We use rich text <space=xx> instead to force a visual gap without needing the actual space glyph.
+        tmp.text = label.Replace(" ", "<space=0.4em>");
+        
+        if (customFont != null) tmp.font = customFont;
+        tmp.fontSize = 40f;
         tmp.fontStyle = FontStyles.Bold;
         tmp.color = Color.white;
         tmp.alignment = TextAlignmentOptions.Center;
+        tmp.verticalAlignment = VerticalAlignmentOptions.Middle;
+        tmp.enableWordWrapping = false;
+        tmp.enableAutoSizing = false;
+        tmp.overflowMode = TextOverflowModes.Overflow;
     }
 
     private void SetFullScreenStretch(RectTransform rt)

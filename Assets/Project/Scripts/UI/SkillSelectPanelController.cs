@@ -13,6 +13,9 @@ public class SkillSelectPanelController : MonoBehaviour
     [SerializeField] private TMP_Text optionTxt1;
     [SerializeField] private TMP_Text optionTxt2;
     [SerializeField] private TMP_Text optionTxt3;
+    [SerializeField] private TMP_Text optionDesc1;
+    [SerializeField] private TMP_Text optionDesc2;
+    [SerializeField] private TMP_Text optionDesc3;
     [Header("아이콘 Image (없으면 자동 탐지/생성)")]
     [SerializeField] private Image optionIcon1;
     [SerializeField] private Image optionIcon2;
@@ -68,15 +71,35 @@ public class SkillSelectPanelController : MonoBehaviour
 
         if (optionTxt1 == null && optionBtn1 != null)
         {
-            optionTxt1 = optionBtn1.transform.Find("Name")?.GetComponent<TMP_Text>();
+            optionTxt1 = optionBtn1.transform.Find("Name")?.GetComponent<TMP_Text>()
+                      ?? optionBtn1.transform.Find("OptionButton_1_Name")?.GetComponent<TMP_Text>();
         }
         if (optionTxt2 == null && optionBtn2 != null)
         {
-            optionTxt2 = optionBtn2.transform.Find("Name")?.GetComponent<TMP_Text>();
+            optionTxt2 = optionBtn2.transform.Find("Name")?.GetComponent<TMP_Text>()
+                      ?? optionBtn2.transform.Find("OptionButton_2_Name")?.GetComponent<TMP_Text>();
         }
         if (optionTxt3 == null && optionBtn3 != null)
         {
-            optionTxt3 = optionBtn3.transform.Find("Name")?.GetComponent<TMP_Text>();
+            optionTxt3 = optionBtn3.transform.Find("Name")?.GetComponent<TMP_Text>()
+                      ?? optionBtn3.transform.Find("OptionButton_3_Name")?.GetComponent<TMP_Text>();
+        }
+
+        // 설명 텍스트 자동 탐색 (OptionButton_X_Desc 또는 "Desc" 이름)
+        if (optionDesc1 == null && optionBtn1 != null)
+        {
+            optionDesc1 = optionBtn1.transform.Find("OptionButton_1_Desc")?.GetComponent<TMP_Text>()
+                       ?? optionBtn1.transform.Find("Desc")?.GetComponent<TMP_Text>();
+        }
+        if (optionDesc2 == null && optionBtn2 != null)
+        {
+            optionDesc2 = optionBtn2.transform.Find("OptionButton_2_Desc")?.GetComponent<TMP_Text>()
+                       ?? optionBtn2.transform.Find("Desc")?.GetComponent<TMP_Text>();
+        }
+        if (optionDesc3 == null && optionBtn3 != null)
+        {
+            optionDesc3 = optionBtn3.transform.Find("OptionButton_3_Desc")?.GetComponent<TMP_Text>()
+                       ?? optionBtn3.transform.Find("Desc")?.GetComponent<TMP_Text>();
         }
 
         // 아이콘 자동 탐지
@@ -131,22 +154,24 @@ public class SkillSelectPanelController : MonoBehaviour
 
     public void Configure(GameObject root, Button button1, Button button2, Button button3, TMP_Text text1, TMP_Text text2, TMP_Text text3)
     {
+        Configure(root, button1, button2, button3, text1, text2, text3, null, null, null);
+    }
+
+    public void Configure(GameObject root, Button button1, Button button2, Button button3,
+        TMP_Text text1, TMP_Text text2, TMP_Text text3,
+        TMP_Text desc1, TMP_Text desc2, TMP_Text desc3)
+    {
         panelRoot = root;
-        optionBtn1 = button1;
-        optionBtn2 = button2;
-        optionBtn3 = button3;
-        optionTxt1 = text1;
-        optionTxt2 = text2;
-        optionTxt3 = text3;
+        optionBtn1 = button1; optionBtn2 = button2; optionBtn3 = button3;
+        optionTxt1 = text1;   optionTxt2 = text2;   optionTxt3 = text3;
+        optionDesc1 = desc1;  optionDesc2 = desc2;  optionDesc3 = desc3;
         AutoBind();
         WarnIfMissingBindings();
 
         BindButtons();
 
         if (panelRoot != null)
-        {
             panelRoot.SetActive(false);
-        }
 
         SetDimRaycast(false);
     }
@@ -198,6 +223,7 @@ public class SkillSelectPanelController : MonoBehaviour
     private void BindOption(int index, Button button, TMP_Text text)
     {
         bool hasOption = index < currentOptions.Count;
+        SkillRow skill = hasOption ? currentOptions[index] : null;
 
         if (button != null)
         {
@@ -205,14 +231,18 @@ public class SkillSelectPanelController : MonoBehaviour
             button.interactable = hasOption;
         }
 
+        // 이름 텍스트
         if (text != null)
-        {
-            text.text = hasOption ? currentOptions[index].name : string.Empty;
-        }
+            text.text = skill != null ? skill.name : string.Empty;
+
+        // 설명 텍스트
+        TMP_Text desc = index switch { 0 => optionDesc1, 1 => optionDesc2, 2 => optionDesc3, _ => null };
+        if (desc != null)
+            desc.text = skill != null ? skill.description : string.Empty;
 
         // 아이콘 적용
         Image icon = index switch { 0 => optionIcon1, 1 => optionIcon2, 2 => optionIcon3, _ => null };
-        ApplyIcon(icon, hasOption ? currentOptions[index] : null);
+        ApplyIcon(icon, skill);
     }
 
     private static void ApplyIcon(Image icon, SkillRow skill)

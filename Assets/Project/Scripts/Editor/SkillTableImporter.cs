@@ -71,6 +71,7 @@ public static class SkillTableImporter
         int cooldownIdx    = ColIdx("cooldown");
         int iconIdx        = ColIdx("icon");          // 파일명(확장자 제외)
         int vfxIdx         = ColIdx("castVfxPrefab"); // 프리팹 파일명
+        int descIdx        = ColIdx("description");   // 스킬 설명 (선택 컬럼)
 
         int imported = 0;
         for (int i = 1; i < lines.Length; i++)
@@ -86,6 +87,8 @@ public static class SkillTableImporter
             string id = GetCell(cols, idIdx);
             row.FindPropertyRelative("id").stringValue          = id;
             row.FindPropertyRelative("name").stringValue        = GetCell(cols, nameIdx);
+            if (descIdx >= 0)
+                row.FindPropertyRelative("description").stringValue = GetCell(cols, descIdx);
             row.FindPropertyRelative("coefficient").floatValue  = Mathf.Max(0.1f, StrToFloat(GetCell(cols, coeffIdx), 1f));
             row.FindPropertyRelative("range").floatValue        = Mathf.Max(0f,   StrToFloat(GetCell(cols, rangeIdx), 9999f));
 
