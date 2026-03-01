@@ -2460,7 +2460,7 @@ Transform:
   m_GameObject: {fileID: 3024332588621669165}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: -1.741, y: -0.002, z: 0}
+  m_LocalPosition: {x: -0.2159, y: -0.002, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6461,10 +6461,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edd7a7383284f4e4ba0748839160127a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  railgunPrefab: {fileID: 6780458973925837575, guid: 8713459fae0911644a482c434dbbb94e,
-    type: 3}
   firePoint: {fileID: 5708697443269785425}
+  searchRange: 10
+  forwardOffset: 8.3
+  railgunPrefab: {fileID: 6780458973925837575, guid: f16a4d0c0a4cc4648af0ff5ab7cb7a3c,
+    type: 3}
   launchSpeed: 20
+  normalRotationOffset: {x: 0, y: 90, z: 0}
+  normalDestroyTime: 2
+  skillPrefab: {fileID: 6780458973925837575, guid: 8713459fae0911644a482c434dbbb94e,
+    type: 3}
+  skillLaunchSpeed: 30
+  skillRotationOffset: {x: 0, y: 90, z: 0}
+  skillDestroyTime: 3
 --- !u!1 &8930275493904004028
 GameObject:
   m_ObjectHideFlags: 0

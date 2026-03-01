@@ -1,28 +1,75 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class Firerailgun : MonoBehaviour
 {
-    public GameObject railgunPrefab;
+    [Header("ê³µí†µ ì„¤ì •")]
     public Transform firePoint;
-    public float launchSpeed = 30f;
+    public float searchRange = 10f;
+    public float forwardOffset = 0.5f;
 
+    [Header("í‰íƒ€ (ê¸°ë³¸ ê³µê²©)")]
+    public GameObject railgunPrefab;
+    public float launchSpeed = 30f;
+    public Vector3 normalRotationOffset = new Vector3(0, 90, 0);
+    [Tooltip("í‰íƒ€ ì´í™íŠ¸ê°€ í•˜ì´ë¼í‚¤ì—ì„œ ì§€ì›Œì§€ëŠ” ì‹œê°„(ì´ˆ)ì…ë‹ˆë‹¤.")]
+    public float normalDestroyTime = 2f;
+
+    [Header("ìŠ¤í‚¬ (ê¶ê·¹ê¸°)")]
+    public GameObject skillPrefab;
+    public float skillLaunchSpeed = 30f;
+    public Vector3 skillRotationOffset = new Vector3(90, 0, 0);
+    [Tooltip("ìŠ¤í‚¬ ì´í™íŠ¸ê°€ í•˜ì´ë¼í‚¤ì—ì„œ ì§€ì›Œì§€ëŠ” ì‹œê°„(ì´ˆ)ì…ë‹ˆë‹¤.")]
+    public float skillDestroyTime = 3f; // ğŸ‘‰ ìŠ¤í‚¬ ì „ìš© ì‚­ì œ ì‹œê°„!
+
+    // â”€â”€ í‰íƒ€ ë°œì‚¬ â”€â”€
     public void FireRailgun()
     {
-        if (railgunPrefab != null && firePoint != null)
-        {
-            // [À§Ä¡ º¸Á¤] 0.5f¿¡¼­ 1.5f·Î °ªÀ» Å°¿ü½À´Ï´Ù. 
-            // ¿©ÀüÈ÷ ¸öÀ» ¶Õ´Â´Ù¸é ÀÌ ¼ıÀÚ¸¦ 2.0f, 2.5f ½ÄÀ¸·Î ´õ Å°¿ì¼¼¿ä.
-            Vector3 spawnPos = firePoint.position + (firePoint.forward * 1.5f);
+        SpawnProjectile(railgunPrefab, launchSpeed, normalRotationOffset, normalDestroyTime);
+    }
 
-            // [È¸Àü º¸Á¤] XÃàÀ¸·Î ´©¿öÀÖ´Â ÀÌÆåÆ® ¹æÇâ ¼öÁ¤
-            Quaternion correction = Quaternion.Euler(0, 90, 0);
-            GameObject projectile = Instantiate(railgunPrefab, spawnPos, firePoint.rotation * correction);
+    // â”€â”€ ìŠ¤í‚¬ ë°œì‚¬ â”€â”€
+    public void FireSkillRailgun()
+    {
+        SpawnProjectile(skillPrefab, skillLaunchSpeed, skillRotationOffset, skillDestroyTime);
+    }
+
+    // â”€â”€ ë°œì‚¬ ë° ì‚­ì œ ê³µí†µ ë¡œì§ â”€â”€
+    private void SpawnProjectile(GameObject prefab, float speed, Vector3 rotationOffset, float destroyTime)
+    {
+        if (prefab != null && firePoint != null)
+        {
+            Vector3 shootDirection = firePoint.forward;
+
+            if (EnemyManager.Instance != null)
+            {
+                Enemy target = EnemyManager.Instance.GetClosest(transform.position, searchRange);
+                if (target != null)
+                {
+                    // ëª¬ìŠ¤í„°ì˜ ì¤‘ì‹¬(ì‚´ì§ ìœ„ìª½) ì¡°ì¤€
+                    Vector3 targetPos = target.transform.position + Vector3.up * 1f;
+                    shootDirection = (targetPos - firePoint.position).normalized;
+                }
+            }
+
+            Vector3 spawnPos = firePoint.position + (shootDirection * forwardOffset);
+
+            Quaternion targetRotation = Quaternion.LookRotation(shootDirection);
+            Quaternion correction = Quaternion.Euler(rotationOffset);
+
+            GameObject projectile = Instantiate(prefab, spawnPos, targetRotation * correction);
 
             Rigidbody rb = projectile.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.velocity = firePoint.forward * launchSpeed;
+                rb.velocity = shootDirection * speed;
             }
+
+            // [í•µì‹¬] ì„¤ì •ëœ ì‹œê°„(destroyTime)ì´ ì§€ë‚˜ë©´ í´ë¡ ì„ ì™„ë²½í•˜ê²Œ íŒŒê´´í•©ë‹ˆë‹¤!
+            Destroy(projectile, destroyTime);
+        }
+        else
+        {
+            Debug.LogWarning("[Firerailgun] í”„ë¦¬íŒ¹ì´ë‚˜ FirePointê°€ ë¹„ì–´ìˆì–´ ë°œì‚¬í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
         }
     }
-} // °ıÈ£ °³¼ö¸¦ ¸ÂÃç¼­ CS1513 ¿¡·¯¸¦ ÇØ°áÇß½À´Ï´Ù.
+}

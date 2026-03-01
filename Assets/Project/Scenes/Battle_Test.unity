@@ -9819,6 +9819,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b63b36c34aa55ca46a1a1ff388fb7c01, type: 3}
+--- !u!1 &1462734831
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1462734832}
+  m_Layer: 0
+  m_Name: SkillSpawnPonint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1462734832
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1462734831}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 10.04, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1548313232
 GameObject:
   m_ObjectHideFlags: 0
@@ -10955,6 +10986,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: b6f14f364efe9c94687f0e1480c0bd2f,
         type: 2}
+    - target: {fileID: 4478864821926809020, guid: 30655e303fad03e4b96e8b373bded6cf,
+        type: 3}
+      propertyPath: attackRate
+      value: 0.833
+      objectReference: {fileID: 0}
     - target: {fileID: 4478864821926809020, guid: 30655e303fad03e4b96e8b373bded6cf,
         type: 3}
       propertyPath: attackDamage
@@ -12182,6 +12218,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 3971674745986000917}
@@ -12192,12 +12233,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: CastSlot1
       objectReference: {fileID: 0}
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: SkillBarController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
       value: SkillBarController, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
@@ -12232,9 +12283,25 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
+      propertyPath: useSlotPosition
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
       propertyPath: cooldownFontSize
       value: 32
       objectReference: {fileID: 0}
+    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: effectSpawnPoint
+      value: 
+      objectReference: {fileID: 1462734832}
+    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: userSkillFlamePrefab
+      value: 
+      objectReference: {fileID: 7820565583128978761, guid: d172483c9061ac447a13dff041737c71,
+        type: 3}
     - target: {fileID: 2417657457155764768, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
       propertyPath: m_Name
@@ -12671,3 +12738,4 @@ SceneRoots:
   - {fileID: 1145678721}
   - {fileID: 189395614}
   - {fileID: 404325891}
+  - {fileID: 1462734832}
