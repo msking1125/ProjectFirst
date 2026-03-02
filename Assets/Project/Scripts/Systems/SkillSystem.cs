@@ -6,6 +6,7 @@ public class SkillSystem
     private readonly SkillTable skillTable;
     private readonly Agent      playerAgent;
     private readonly SkillRow[] equippedSkills  = new SkillRow[3];
+    private readonly List<Enemy> aliveEnemiesBuffer = new List<Enemy>();
 
     // ── 쿨타임 ───────────────────────────────────────────────────────────────
     // 각 슬롯의 쿨타임 종료 시각 (Time.unscaledTime 기준)
@@ -122,13 +123,13 @@ public class SkillSystem
     /// <summary>범위 공격: 전체/범위 내 모든 적에게 데미지 + 각 적 위치에 VFX</summary>
     private int CastAllEnemies(SkillRow skill, EnemyManager enemyManager)
     {
-        IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
+        enemyManager.FillAliveEnemiesNonAlloc(aliveEnemiesBuffer);
         int atk = Mathf.RoundToInt(GetEffectiveAtk());
         int hitCount = 0;
 
-        for (int i = 0; i < aliveEnemies.Count; i++)
+        for (int i = 0; i < aliveEnemiesBuffer.Count; i++)
         {
-            Enemy enemy = aliveEnemies[i];
+            Enemy enemy = aliveEnemiesBuffer[i];
             if (enemy == null || !enemy.IsAlive) continue;
             if (skill.range < 9999f)
             {
@@ -182,11 +183,11 @@ public class SkillSystem
     /// <summary>디버프: 범위/전체 적에게 약화 효과 + 각 적 위치에 VFX</summary>
     private int CastDebuff(SkillRow skill, EnemyManager enemyManager)
     {
-        IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
+        enemyManager.FillAliveEnemiesNonAlloc(aliveEnemiesBuffer);
         int count = 0;
-        for (int i = 0; i < aliveEnemies.Count; i++)
+        for (int i = 0; i < aliveEnemiesBuffer.Count; i++)
         {
-            Enemy enemy = aliveEnemies[i];
+            Enemy enemy = aliveEnemiesBuffer[i];
             if (enemy == null || !enemy.IsAlive) continue;
             if (skill.range < 9999f)
             {

@@ -6,7 +6,9 @@ public class EnemyManager : MonoBehaviour
     public static EnemyManager Instance;
 
     public List<Enemy> activeEnemies = new List<Enemy>();
-    private readonly List<Enemy> aliveCache = new List<Enemy>();
+    private readonly List<Enemy> _aliveEnemies = new List<Enemy>();
+
+    public IReadOnlyList<Enemy> AliveEnemies => _aliveEnemies;
 
     void Awake()
     {
@@ -54,7 +56,13 @@ public class EnemyManager : MonoBehaviour
 
     public int GetAliveCount()
     {
-        int alive = 0;
+        RefreshAliveEnemies();
+        return _aliveEnemies.Count;
+    }
+
+    private void RefreshAliveEnemies()
+    {
+        _aliveEnemies.Clear();
 
         for (int i = activeEnemies.Count - 1; i >= 0; i--)
         {
@@ -65,10 +73,13 @@ public class EnemyManager : MonoBehaviour
                 continue;
             }
 
-            alive++;
-        }
+            if (!e.IsAlive)
+            {
+                continue;
+            }
 
-        return alive;
+            _aliveEnemies.Add(e);
+        }
     }
 
     public Enemy GetClosest(Vector3 pos, float range)
@@ -98,24 +109,20 @@ public class EnemyManager : MonoBehaviour
 
     public IReadOnlyList<Enemy> GetAliveEnemies()
     {
-        aliveCache.Clear();
+        RefreshAliveEnemies();
+        return _aliveEnemies;
+    }
 
-        for (int i = activeEnemies.Count - 1; i >= 0; i--)
+    public int FillAliveEnemiesNonAlloc(List<Enemy> buffer)
+    {
+        if (buffer == null)
         {
-            Enemy enemy = activeEnemies[i];
-            if (enemy == null || !enemy.gameObject.activeInHierarchy || !enemy.IsAlive)
-            {
-                if (enemy == null || !enemy.gameObject.activeInHierarchy)
-                {
-                    activeEnemies.RemoveAt(i);
-                }
-
-                continue;
-            }
-
-            aliveCache.Add(enemy);
+            return 0;
         }
 
-        return aliveCache;
+        RefreshAliveEnemies();
+        buffer.Clear();
+        buffer.AddRange(_aliveEnemies);
+        return buffer.Count;
     }
 }
