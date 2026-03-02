@@ -249,6 +249,11 @@ public class BattleGameManager : MonoBehaviour
         EnsureResultPanelManager();
         if (resultPanelManager != null)
         {
+            if (!resultPanelManager.gameObject.activeSelf)
+            {
+                resultPanelManager.gameObject.SetActive(true);
+            }
+
             if (pendingResultMessage == "Victory") resultPanelManager.ShowWin();
             else                                   resultPanelManager.ShowLose();
             
