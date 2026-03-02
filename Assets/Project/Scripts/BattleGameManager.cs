@@ -49,6 +49,8 @@ public class BattleGameManager : MonoBehaviour
     [SerializeField] private TMP_Text statusText;
     [Tooltip("캐릭터 고유 액티브 스킬 버튼")]
     [SerializeField] private CharUltimateController charUltimateController;
+    [Tooltip("분리형 상태 HUD (레벨/EXP/골드). 연결하면 statusText 대신 사용됩니다.")]
+    [SerializeField] private StatusHudView statusHudView;
     [SerializeField] private SkillBarController skillBarController;
     [SerializeField] private SkillSelectPanelController skillSelectPanelController;
     [SerializeField] private BattleHUD battleHudPrefab;
@@ -545,33 +547,26 @@ public class BattleGameManager : MonoBehaviour
             WarnDuplicateControllers("SkillBarController", bars);
         }
 
-        if (statusText == null)
+        // StatusHudView가 있으면 statusText 탐색 생략
+        if (statusText == null && statusHudView == null)
+        {
+            // StatusHudView 자동 탐색
+            statusHudView = targetCanvas.GetComponentInChildren<StatusHudView>(true);
+        }
+
+        if (statusHudView == null && statusText == null)
         {
             TMP_Text[] texts = targetCanvas.GetComponentsInChildren<TMP_Text>(true);
             List<TMP_Text> matchedTexts = new List<TMP_Text>();
             foreach (TMP_Text text in texts)
             {
                 if (text != null && text.name.Contains("RunStatusText"))
-                {
                     matchedTexts.Add(text);
-                }
             }
-
             if (matchedTexts.Count > 0)
-            {
                 statusText = matchedTexts[0];
-            }
-
             if (matchedTexts.Count >= 2)
-            {
-                List<string> names = new List<string>(matchedTexts.Count);
-                foreach (TMP_Text text in matchedTexts)
-                {
-                    names.Add(text.name);
-                }
-
-                Debug.LogWarning($"[BattleGameManager] Found {matchedTexts.Count} RunStatusText TMP_Text instances in canvas hierarchy: {string.Join(", ", names)}", this);
-            }
+                Debug.LogWarning($"[BattleGameManager] RunStatusText 중복 발견: {matchedTexts.Count}개", this);
         }
     }
 
@@ -938,6 +933,19 @@ public class BattleGameManager : MonoBehaviour
     {
         if (runSession == null) return;
 
+        // 1순위: StatusHudView
+        if (statusHudView == null && targetCanvas != null)
+            statusHudView = targetCanvas.GetComponentInChildren<StatusHudView>(true);
+
+        if (statusHudView != null)
+        {
+            statusHudView.Refresh(runSession.Level, runSession.Exp, runSession.ExpToNextLevel, runSession.Gold);
+            if (statusText != null)
+                statusText.text = string.Empty;
+            return;
+        }
+
+        // 2순위: statusText fallback
         if (statusText == null)
         {
             TryResolveStatusTextFallback();

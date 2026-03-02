@@ -422,6 +422,7 @@ MonoBehaviour:
   targetCanvas: {fileID: 404325890}
   statusText: {fileID: 0}
   charUltimateController: {fileID: 323268831}
+  statusHudView: {fileID: 1599195891}
   skillBarController: {fileID: 3971674745986000917}
   skillSelectPanelController: {fileID: 2897921023371036348}
   battleHudPrefab: {fileID: 0}
@@ -9388,10 +9389,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1228e0decc64ac7b4dc5f22ed356dfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 2949128697757491358, guid: b50c9244563d27848b31b5207e55f78a,
-    type: 3}
-  initialSize: 30
-  warmUpMonsterTable: {fileID: 11400000, guid: d34bf551d405e8b4d9b90151ceb6e88f, type: 2}
   poolRoot: {fileID: 1054668062}
 --- !u!4 &1054668062
 Transform:
