@@ -420,13 +420,10 @@ MonoBehaviour:
   skillTable: {fileID: 11400000, guid: 519161c05be1ebf4b98228abf28e2d96, type: 2}
   playerAgent: {fileID: 1868366109}
   targetCanvas: {fileID: 404325890}
-  statusText: {fileID: 0}
-  charUltimateController: {fileID: 323268831}
   statusHudView: {fileID: 1599195891}
+  charUltimateController: {fileID: 323268831}
   skillBarController: {fileID: 3971674745986000917}
   skillSelectPanelController: {fileID: 2897921023371036348}
-  battleHudPrefab: {fileID: 0}
-  battleHudInstance: {fileID: 0}
   skillBarPrefab: {fileID: 3971674745986000917}
   skillSelectPanelPrefab: {fileID: 2897921023371036348}
   resultPanel: {fileID: 1145678718}
@@ -1054,7 +1051,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 19ee6cdf385fc994d9035ecacdf481e6, type: 3}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9517,6 +9514,7 @@ MonoBehaviour:
   winSubtitleText: "\uAE30\uC9C0\uB97C \uC9C0\uCF1C\uB0C8\uC2B5\uB2C8\uB2E4!"
   loseTitleText: "\uD328\uBC30"
   loseSubtitleText: "\uAE30\uC9C0\uAC00 \uD30C\uAD34\uB418\uC5C8\uC2B5\uB2C8\uB2E4..."
+  sortOrder: 100
 --- !u!114 &1145678720
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9533,7 +9531,7 @@ MonoBehaviour:
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 03d50a82a1d870647b4921667a506423,
     type: 3}
-  m_SortingOrder: 0
+  m_SortingOrder: 100
 --- !u!4 &1145678721
 Transform:
   m_ObjectHideFlags: 0
@@ -12105,7 +12103,22 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 465217012148829824, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
+      propertyPath: m_Padding.m_Left
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 465217012148829824, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_Padding.m_Right
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 465217012148829824, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
       propertyPath: m_Padding.m_Bottom
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 465217012148829824, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_ReverseArrangement
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 645156008418574465, guid: 228c0596941a77a4ea7c27d1402d8fc7,
@@ -12215,22 +12228,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 3971674745986000917}
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
@@ -12245,60 +12248,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: SkillBarController, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 1731717614881508171, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
-      propertyPath: cooldownTxt1
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
-      propertyPath: cooldownTxt2
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
-      propertyPath: cooldownTxt3
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
-      propertyPath: nameAreaRatio
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
-      propertyPath: nameMaxFontSize
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
-      propertyPath: useSlotPosition
+      propertyPath: enableSlotsOnStartForTest
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
-      propertyPath: cooldownFontSize
-      value: 32
-      objectReference: {fileID: 0}
-    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
-      propertyPath: effectSpawnPoint
-      value: 
-      objectReference: {fileID: 1462734832}
-    - target: {fileID: 1786543492908041106, guid: 228c0596941a77a4ea7c27d1402d8fc7,
-        type: 3}
-      propertyPath: userSkillFlamePrefab
-      value: 
-      objectReference: {fileID: 7820565583128978761, guid: d172483c9061ac447a13dff041737c71,
-        type: 3}
     - target: {fileID: 2417657457155764768, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
       propertyPath: m_Name
@@ -12372,7 +12329,7 @@ PrefabInstance:
     - target: {fileID: 2649832269133162220, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 200
+      value: 250
       objectReference: {fileID: 0}
     - target: {fileID: 2649832269133162220, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}
@@ -12503,6 +12460,52 @@ PrefabInstance:
         type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 5563831820260493059, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5563831820260493059, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3a4505a2c92658d4a9bd24e1ed38a4e4,
+        type: 3}
+    - target: {fileID: 5563831820260493059, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5563831820260493059, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5563831820260493059, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5563831820260493059, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5563831820260493059, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_Maskable
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5563831820260493059, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_RaycastTarget
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5563831820260493059, guid: 228c0596941a77a4ea7c27d1402d8fc7,
+        type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6480393007082137178, guid: 228c0596941a77a4ea7c27d1402d8fc7,
         type: 3}

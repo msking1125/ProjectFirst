@@ -24,6 +24,8 @@ public class BattleGameManager : MonoBehaviour
 
     [Header("HUD")]
     [SerializeField] private Canvas targetCanvas;
+    [Tooltip("시네마틱 중 숨길 UI CanvasGroup (비우면 targetCanvas에 자동 추가)")]
+    [SerializeField] private CanvasGroup uiCanvasGroup;
     [SerializeField] private StatusHudView statusHudView;
     [SerializeField] private CharUltimateController charUltimateController;
     [SerializeField] private SkillBarController skillBarController;
@@ -49,6 +51,9 @@ public class BattleGameManager : MonoBehaviour
     private bool hasLoggedZeroRewardWarning;
 
     // ── 생명주기 ─────────────────────────────────────────────────────────────
+
+    // 시네마틱 상태
+    private bool isCinematicActive;
 
     private void Awake()
     {
@@ -233,13 +238,54 @@ public class BattleGameManager : MonoBehaviour
         EnsureResultPanelManager();
         if (resultPanelManager != null)
         {
-            bool handled = message == "Victory" ? resultPanelManager.ShowWin() : resultPanelManager.ShowLose();
-            if (handled) return;
+            if (message == "Victory") resultPanelManager.ShowWin();
+            else                      resultPanelManager.ShowLose();
+            return;
         }
         SetResultUI(true, message);
     }
 
     // ── HUD 초기화 ───────────────────────────────────────────────────────────
+
+    private void Update()
+    {
+        CheckCinematicVisibility();
+    }
+
+    // ── 시네마틱 UI 숨김 ────────────────────────────────────────────────────────
+
+    private void CheckCinematicVisibility()
+    {
+        if (playerAgent == null) return;
+
+        Animator anim = playerAgent.GetComponentInChildren<Animator>();
+        bool inCinematic = false;
+        if (anim != null)
+        {
+            AnimatorStateInfo si = anim.GetCurrentAnimatorStateInfo(0);
+            inCinematic = si.IsName("Tabi_skill_action") || si.IsName("Tabi_skill");
+        }
+
+        if (inCinematic == isCinematicActive) return;
+        isCinematicActive = inCinematic;
+        SetUIVisible(!inCinematic);
+    }
+
+    /// <summary>UI Canvas 전체를 즉시 표시/숨깁니다.</summary>
+    public void SetUIVisible(bool visible)
+    {
+        if (uiCanvasGroup == null && targetCanvas != null)
+        {
+            uiCanvasGroup = targetCanvas.GetComponent<CanvasGroup>();
+            if (uiCanvasGroup == null)
+                uiCanvasGroup = targetCanvas.gameObject.AddComponent<CanvasGroup>();
+        }
+        if (uiCanvasGroup == null) return;
+
+        uiCanvasGroup.alpha          = visible ? 1f : 0f;
+        uiCanvasGroup.interactable   = visible;
+        uiCanvasGroup.blocksRaycasts = visible;
+    }
 
     private void EnsureHUD()
     {
@@ -323,36 +369,14 @@ public class BattleGameManager : MonoBehaviour
         EnemyManager em = EnemyManager.Instance;
         if (em == null) return;
 
-        // VFX
-        GameObject vfxPrefab = playerAgent.AgentData?.characterSkillVfxPrefab ?? skill.castVfxPrefab;
-        if (vfxPrefab != null)
-        {
-            var vfx = Instantiate(vfxPrefab,
-                playerAgent.transform.position + playerAgent.transform.forward,
-                playerAgent.transform.rotation);
-            if (vfx != null)
-            {
-                foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
-                    ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                Destroy(vfx);
-            }
-        }
+        // AgentData.characterSkillVfxPrefab 우선, 없으면 SkillRow.castVfxPrefab 사용
+        GameObject vfxOverride = playerAgent.AgentData?.characterSkillVfxPrefab;
 
-        // 전체 적 데미지
-        int atk = Mathf.RoundToInt(playerAgent.AttackPower);
-        var alive = em.GetAliveEnemies();
-        for (int i = 0; i < alive.Count; i++)
-        {
-            Enemy e = alive[i];
-            if (e == null || !e.IsAlive) continue;
-            int dmg = DamageCalculator.ComputeCharacterDamage(
-                Mathf.RoundToInt(atk * skill.coefficient),
-                Mathf.RoundToInt(e.Defense),
-                playerAgent.CritChance, playerAgent.CritMultiplier, out bool isCrit);
-            e.TakeDamage(dmg, isCrit, skill.element);
-        }
+        // SkillSystem에 직접 캐스트 위임 (VFX + 데미지 + 버프/디버프 로직 재사용)
+        skillSystem.CastDirect(skill, vfxOverride);
 
         charUltimateController.StartCooldown();
+        Debug.Log($"[BGM] 캐릭터 스킬 발동: {skill.name}");
     }
 
     // ── 상태 UI ──────────────────────────────────────────────────────────────
@@ -390,10 +414,8 @@ public class BattleGameManager : MonoBehaviour
     {
         if (resultPanel != null)
         {
-            resultText = resultPanel.GetComponentInChildren<TMP_Text>(true);
-            if (resultText != null) return;
-            // If resultPanel doesn't have TMP_Text, it might be the UIDocument object. Clear it so we generate a uGUI fallback.
-            resultPanel = null;
+            resultText ??= resultPanel.GetComponentInChildren<TMP_Text>(true);
+            return;
         }
         if (targetCanvas == null) return;
 
@@ -411,12 +433,7 @@ public class BattleGameManager : MonoBehaviour
 
     private void SetResultUI(bool active, string message)
     {
-        Debug.Log($"[BattleGameManager] SetResultUI called. active={active}, message={message}, resultPanel={(resultPanel != null ? resultPanel.name : "null")}");
-        if (resultPanel != null)
-        {
-            resultPanel.SetActive(active);
-            if (active) resultPanel.transform.SetAsLastSibling(); // Ensure it's on top
-        }
+        resultPanel?.SetActive(active);
         if (resultText != null) resultText.text = message;
     }
 

@@ -263,6 +263,50 @@ public class SkillSystem
 
     // ── VFX 유틸 ─────────────────────────────────────────────────────────────
 
+    // ── 직접 캐스트 (CharUltimate 등 슬롯 없는 스킬용) ──────────────────────────
+
+    /// <summary>
+    /// 슬롯 쿨타임 없이 SkillRow를 직접 발동합니다.
+    /// CharUltimateController에서 호출하며, 쿨타임은 컨트롤러가 관리합니다.
+    /// vfxOverride가 있으면 SkillRow.castVfxPrefab 대신 사용합니다.
+    /// </summary>
+    public int CastDirect(SkillRow skill, GameObject vfxOverride = null)
+    {
+        if (skill == null || playerAgent == null) return 0;
+
+        EnemyManager enemyManager = EnemyManager.Instance;
+        if (enemyManager == null) return 0;
+
+        // VFX 프리팹 임시 교체
+        GameObject originalVfx = skill.castVfxPrefab;
+        if (vfxOverride != null)
+            skill.castVfxPrefab = vfxOverride;
+
+        int hitCount = 0;
+        switch (skill.effectType)
+        {
+            case SkillEffectType.AllEnemies:
+                hitCount = CastAllEnemies(skill, enemyManager);
+                break;
+            case SkillEffectType.SingleTarget:
+                hitCount = CastSingleTarget(skill, enemyManager);
+                break;
+            case SkillEffectType.Buff:
+                SpawnVfxAt(skill, playerAgent.transform.position);
+                hitCount = CastBuff(skill);
+                break;
+            case SkillEffectType.Debuff:
+                hitCount = CastDebuff(skill, enemyManager);
+                break;
+        }
+
+        // VFX 프리팹 원복
+        if (vfxOverride != null)
+            skill.castVfxPrefab = originalVfx;
+
+        return hitCount;
+    }
+
     // ── 후보 뽑기 ─────────────────────────────────────────────────────────────
 
     public List<SkillRow> GetRandomCandidates(int count)
