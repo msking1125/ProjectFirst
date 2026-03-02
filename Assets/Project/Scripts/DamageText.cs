@@ -38,6 +38,12 @@ public class DamageText : MonoBehaviour
 
         if (valueText != null)
         {
+            // 전역 기본 폰트(TMP Settings)가 있다면 자동으로 적용합니다.
+            if (TMP_Settings.defaultFontAsset != null)
+            {
+                valueText.font = TMP_Settings.defaultFontAsset;
+            }
+
             valueText.text = damage.ToString();
             valueText.color = isCrit ? critColor : normalColor;
             valueText.transform.localScale = Vector3.one;
