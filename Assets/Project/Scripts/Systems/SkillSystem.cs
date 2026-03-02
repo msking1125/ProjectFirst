@@ -89,9 +89,6 @@ public class SkillSystem
         EnemyManager enemyManager = EnemyManager.Instance;
         if (enemyManager == null) return 0;
 
-        // VFX 스폰
-        SpawnCastVfx(skill);
-
         int hitCount = 0;
 
         switch (skill.effectType)
@@ -103,6 +100,8 @@ public class SkillSystem
                 hitCount = CastSingleTarget(skill, enemyManager);
                 break;
             case SkillEffectType.Buff:
+                // 버프는 플레이어 위치에 VFX 스폰
+                SpawnVfxAt(skill, playerAgent.transform.position);
                 hitCount = CastBuff(skill);
                 break;
             case SkillEffectType.Debuff:
@@ -120,7 +119,7 @@ public class SkillSystem
 
     // ── 효과 타입별 처리 ─────────────────────────────────────────────────────
 
-    /// <summary>범위 공격: 전체/범위 내 모든 적에게 데미지</summary>
+    /// <summary>범위 공격: 전체/범위 내 모든 적에게 데미지 + 각 적 위치에 VFX</summary>
     private int CastAllEnemies(SkillRow skill, EnemyManager enemyManager)
     {
         IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
@@ -137,6 +136,9 @@ public class SkillSystem
                 if (dist > skill.range) continue;
             }
 
+            // 각 적 위치에 VFX 스폰
+            SpawnVfxAt(skill, enemy.transform.position);
+
             int dmg = DamageCalculator.ComputeCharacterDamage(
                 Mathf.RoundToInt(atk * skill.coefficient),
                 Mathf.RoundToInt(enemy.Defense),
@@ -147,11 +149,14 @@ public class SkillSystem
         return hitCount;
     }
 
-    /// <summary>단일 강타: 가장 가까운 적 1명, singleTargetBonus 배율 추가</summary>
+    /// <summary>단일 강타: 가장 가까운 적 1명, singleTargetBonus 배율 추가 + 타겟 위치에 VFX</summary>
     private int CastSingleTarget(SkillRow skill, EnemyManager enemyManager)
     {
         Enemy target = enemyManager.GetClosest(playerAgent.transform.position, skill.range);
         if (target == null || !target.IsAlive) return 0;
+
+        // 타겟 위치에 VFX 스폰
+        SpawnVfxAt(skill, target.transform.position);
 
         int atk = Mathf.RoundToInt(GetEffectiveAtk());
         float totalCoeff = skill.coefficient * skill.singleTargetBonus;
@@ -174,7 +179,7 @@ public class SkillSystem
         return 1;
     }
 
-    /// <summary>디버프: 범위/전체 적에게 약화 효과</summary>
+    /// <summary>디버프: 범위/전체 적에게 약화 효과 + 각 적 위치에 VFX</summary>
     private int CastDebuff(SkillRow skill, EnemyManager enemyManager)
     {
         IReadOnlyList<Enemy> aliveEnemies = enemyManager.GetAliveEnemies();
@@ -188,6 +193,8 @@ public class SkillSystem
                 float dist = Vector3.Distance(playerAgent.transform.position, enemy.transform.position);
                 if (dist > skill.range) continue;
             }
+            // 각 적 위치에 VFX 스폰
+            SpawnVfxAt(skill, enemy.transform.position);
             enemy.ApplyDebuff(skill.debuffType, skill.debuffValue, skill.debuffDuration);
             count++;
         }
@@ -201,26 +208,59 @@ public class SkillSystem
         return buff != null ? buff.GetBuffedAttackPower() : playerAgent.AttackPower;
     }
 
-    private void SpawnCastVfx(SkillRow skill)
+    /// <summary>
+    /// 지정된 월드 위치에 스킬 VFX를 스폰합니다.
+    /// 타겟 중심(Collider 중심 또는 +0.5f)에 배치하고,
+    /// 파티클이 자연스럽게 재생된 뒤 자동 소멸합니다.
+    /// </summary>
+    private void SpawnVfxAt(SkillRow skill, Vector3 worldPos)
     {
         if (skill.castVfxPrefab == null) return;
-        Vector3 spawnPos = playerAgent.transform.position + playerAgent.transform.forward;
-        GameObject vfx = Object.Instantiate(skill.castVfxPrefab, spawnPos, playerAgent.transform.rotation);
-        if (vfx != null) StopAndDestroyVfx(vfx);
+
+        // 타겟 중심 높이 보정 (Collider가 없을 때 +0.5f)
+        Vector3 spawnPos = new Vector3(worldPos.x, worldPos.y + 0.5f, worldPos.z);
+
+        // 플레이어 → 타겟 방향으로 회전
+        Vector3 dir = spawnPos - playerAgent.transform.position;
+        dir.y = 0;
+        Quaternion rot = dir != Vector3.zero
+            ? Quaternion.LookRotation(dir.normalized)
+            : playerAgent.transform.rotation;
+
+        GameObject vfx = Object.Instantiate(skill.castVfxPrefab, spawnPos, rot);
+        if (vfx == null) return;
+
+        // 파티클 최대 재생 시간 계산 후 자동 소멸
+        float lifetime = GetVfxLifetime(vfx);
+        AutoDestroyVfx(vfx, lifetime);
+    }
+
+    /// <summary>VFX 오브젝트 내 모든 ParticleSystem의 최대 재생 시간을 반환합니다.</summary>
+    private static float GetVfxLifetime(GameObject vfx)
+    {
+        float maxDuration = 2f; // 파티클이 없을 때 기본값
+        foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ParticleSystem.MainModule main = ps.main;
+            float duration = main.duration + main.startLifetime.constantMax;
+            if (duration > maxDuration) maxDuration = duration;
+        }
+        return maxDuration;
+    }
+
+    /// <summary>지정 시간 후 VFX를 안전하게 소멸시킵니다. (루프 파티클 포함)</summary>
+    private static void AutoDestroyVfx(GameObject vfx, float delay)
+    {
+        // 루프 파티클은 강제로 Stop 후 소멸
+        foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            if (ps.main.loop)
+                ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        }
+        Object.Destroy(vfx, Mathf.Max(0.1f, delay));
     }
 
     // ── VFX 유틸 ─────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// 루프 파티클도 안전하게 소멸시킵니다.
-    /// Stop() 없이 Destroy만 하면 looping 파티클이 씬에 영원히 남습니다.
-    /// </summary>
-    private static void StopAndDestroyVfx(GameObject vfx, float delay = 0f)
-    {
-        foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
-            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        Object.Destroy(vfx);
-    }
 
     // ── 후보 뽑기 ─────────────────────────────────────────────────────────────
 

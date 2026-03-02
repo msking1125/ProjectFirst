@@ -20,5 +20,6 @@ MonoBehaviour:
   normalAttackVfxLifetime: 2
   hitTiming: 0.3
   characterSkillId: skill_mind_wave
-  characterSkillIcon: {fileID: 21300000, guid: 19ee6cdf385fc994d9035ecacdf481e6, type: 3}
-  characterSkillVfxPrefab: {fileID: 0}
+  characterSkillIcon: {fileID: 21300000, guid: 013b0bce6a1b3ad459228602aa2e1d7c, type: 3}
+  characterSkillVfxPrefab: {fileID: 7820565583128978761, guid: d172483c9061ac447a13dff041737c71,
+    type: 3}

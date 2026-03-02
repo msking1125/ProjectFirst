@@ -175,9 +175,7 @@ public class SkillBarController : MonoBehaviour
         if (skillSystem == null || index < 0 || index >= slotSkills.Length) return;
         if (slotSkills[index] == null) return;
 
-        // 🔥 이펙트 먼저
-        PlaySkillEffect(index);
-
+        // VFX는 SkillSystem.Cast 내부에서 SkillRow.castVfxPrefab 기준으로 스폰됩니다.
         skillSystem.Cast(index);
     }
 

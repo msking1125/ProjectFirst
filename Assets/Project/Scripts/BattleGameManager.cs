@@ -233,9 +233,8 @@ public class BattleGameManager : MonoBehaviour
         EnsureResultPanelManager();
         if (resultPanelManager != null)
         {
-            if (message == "Victory") resultPanelManager.ShowWin();
-            else                      resultPanelManager.ShowLose();
-            return;
+            bool handled = message == "Victory" ? resultPanelManager.ShowWin() : resultPanelManager.ShowLose();
+            if (handled) return;
         }
         SetResultUI(true, message);
     }
@@ -410,7 +409,12 @@ public class BattleGameManager : MonoBehaviour
 
     private void SetResultUI(bool active, string message)
     {
-        resultPanel?.SetActive(active);
+        Debug.Log($"[BattleGameManager] SetResultUI called. active={active}, message={message}, resultPanel={(resultPanel != null ? resultPanel.name : "null")}");
+        if (resultPanel != null)
+        {
+            resultPanel.SetActive(active);
+            if (active) resultPanel.transform.SetAsLastSibling(); // Ensure it's on top
+        }
         if (resultText != null) resultText.text = message;
     }
 
