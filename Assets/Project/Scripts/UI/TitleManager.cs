@@ -71,10 +71,19 @@ public class TitleManager : MonoBehaviour
         }
 
         // Hide existing UIDocument if present to remove the old UI at the bottom
-        var uiDoc = FindObjectOfType<UnityEngine.UIElements.UIDocument>();
-        if (uiDoc != null && uiDoc.rootVisualElement != null)
+        var uiDocuments = FindObjectsOfType<UnityEngine.UIElements.UIDocument>();
+        foreach (var uiDoc in uiDocuments)
         {
-            uiDoc.rootVisualElement.style.display = UnityEngine.UIElements.DisplayStyle.None;
+            if (uiDoc != null)
+            {
+                uiDoc.gameObject.SetActive(false);
+            }
+        }
+
+        // 유니티 UI(uGUI)의 버튼 클릭 이벤트를 처리하기 위해서는 EventSystem이 필수적입니다.
+        if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            new GameObject("EventSystem", typeof(UnityEngine.EventSystems.EventSystem), typeof(UnityEngine.EventSystems.StandaloneInputModule));
         }
     }
 
