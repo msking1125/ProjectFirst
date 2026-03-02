@@ -390,8 +390,10 @@ public class BattleGameManager : MonoBehaviour
     {
         if (resultPanel != null)
         {
-            resultText ??= resultPanel.GetComponentInChildren<TMP_Text>(true);
-            return;
+            resultText = resultPanel.GetComponentInChildren<TMP_Text>(true);
+            if (resultText != null) return;
+            // If resultPanel doesn't have TMP_Text, it might be the UIDocument object. Clear it so we generate a uGUI fallback.
+            resultPanel = null;
         }
         if (targetCanvas == null) return;
 
