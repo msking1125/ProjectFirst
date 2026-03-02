@@ -25,6 +25,11 @@ public class SkillBarController : MonoBehaviour
     [SerializeField] private TMP_Text cooldownTxt2;
     [SerializeField] private TMP_Text cooldownTxt3;
 
+    [Header("쿨타임 딤 오버레이 (없으면 자동 생성)")]
+    [SerializeField] private Image dimOverlay1;
+    [SerializeField] private Image dimOverlay2;
+    [SerializeField] private Image dimOverlay3;
+
     [Header("스킬 이펙트")]
     [SerializeField] private GameObject userSkillFlamePrefab;
     [SerializeField] private Transform effectSpawnPoint;
@@ -40,10 +45,66 @@ public class SkillBarController : MonoBehaviour
 
     private void Awake()
     {
+        AutoBind();
         EnsureIconComponents();
         EnsureCooldownComponents();
+        EnsureDimOverlays();
+        EnsureNameTextLayout();
         BindButtons();
         Refresh();
+    }
+
+    /// <summary>
+    /// Inspector 연결이 비어 있을 때 자식 오브젝트 이름으로 자동 탐색합니다.
+    /// SkillSlot_1 / SkillSlot_2 / SkillSlot_3 → Button, Name(TMP_Text), Icon(Image), CooldownText(TMP_Text)
+    /// </summary>
+    private void AutoBind()
+    {
+        // 자식 이름으로 슬롯 탐색
+        string[] slotNames = { "SkillSlot_1", "SkillSlot_2", "SkillSlot_3" };
+
+        for (int i = 0; i < slotNames.Length; i++)
+        {
+            Transform slot = transform.Find(slotNames[i]);
+            if (slot == null) continue;
+
+            // Button
+            if (GetSlotButton(i) == null)
+            {
+                Button btn = slot.GetComponent<Button>();
+                switch (i) { case 0: slotBtn1 = btn; break; case 1: slotBtn2 = btn; break; case 2: slotBtn3 = btn; break; }
+            }
+
+            // TMP_Text (Name 자식)
+            if (GetSlotText(i) == null)
+            {
+                TMP_Text txt = slot.Find("Name")?.GetComponent<TMP_Text>()
+                            ?? slot.GetComponentInChildren<TMP_Text>(true);
+                switch (i) { case 0: slotTxt1 = txt; break; case 1: slotTxt2 = txt; break; case 2: slotTxt3 = txt; break; }
+            }
+
+            // Icon Image (Icon 자식) - 배경으로 사용하므로 sibling 0으로 내림
+            if (GetSlotIcon(i) == null)
+            {
+                Transform iconTr = slot.Find("Icon");
+                Image icon = iconTr?.GetComponent<Image>();
+                if (icon != null)
+                {
+                    // Name 텍스트가 아이콘 위에 렌더링되도록 Icon을 첫 번째 자식(배경)으로 이동
+                    iconTr.SetSiblingIndex(0);
+                    icon.raycastTarget = false;
+                }
+                switch (i) { case 0: slotIcon1 = icon; break; case 1: slotIcon2 = icon; break; case 2: slotIcon3 = icon; break; }
+            }
+
+            // CooldownText
+            if (GetCooldownText(i) == null)
+            {
+                TMP_Text cd = slot.Find("CooldownText")?.GetComponent<TMP_Text>()
+                           ?? slot.Find("CoolTime")?.GetComponent<TMP_Text>();
+                switch (i) { case 0: cooldownTxt1 = cd; break; case 1: cooldownTxt2 = cd; break; case 2: cooldownTxt3 = cd; break; }
+            }
+        }
     }
 
     private void Update()
@@ -69,6 +130,8 @@ public class SkillBarController : MonoBehaviour
 
         EnsureIconComponents();
         EnsureCooldownComponents();
+        EnsureDimOverlays();
+        EnsureNameTextLayout();
         BindButtons();
         Refresh();
     }
@@ -127,9 +190,16 @@ public class SkillBarController : MonoBehaviour
         bool onCD = skillSystem.IsOnCooldown(index);
         float remaining = skillSystem.GetRemainingCooldown(index);
 
+        // 버튼 상호작용 차단
         if (btn != null)
             btn.interactable = !onCD;
 
+        // 딤 오버레이로 어둡게 처리
+        Image dim = GetDimOverlay(index);
+        if (dim != null)
+            dim.gameObject.SetActive(onCD);
+
+        // 쿨타임 숫자 텍스트
         if (cdTxt != null)
         {
             cdTxt.gameObject.SetActive(onCD);
@@ -197,15 +267,23 @@ public class SkillBarController : MonoBehaviour
 
     private Image EnsureIcon(Button btn, Image existing)
     {
-        if (existing != null) return existing;
+        if (existing != null)
+        {
+            // 기존 아이콘을 배경으로 내려 Name 텍스트가 위에 렌더링되도록 보장
+            existing.transform.SetSiblingIndex(0);
+            existing.raycastTarget = false;
+            return existing;
+        }
         if (btn == null) return null;
 
         GameObject go = new GameObject("Icon", typeof(RectTransform), typeof(Image));
         go.transform.SetParent(btn.transform, false);
+        go.transform.SetSiblingIndex(0); // 배경으로 배치
 
         RectTransform rt = go.GetComponent<RectTransform>();
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
+        rt.offsetMin = rt.offsetMax = Vector2.zero;
 
         Image img = go.GetComponent<Image>();
         img.raycastTarget = false;
@@ -256,7 +334,105 @@ public class SkillBarController : MonoBehaviour
 
     // ===================== 헬퍼 =====================
 
-    private Button GetSlotButton(int i) => i switch { 0 => slotBtn1, 1 => slotBtn2, 2 => slotBtn3, _ => null };
-    private TMP_Text GetSlotText(int i) => i switch { 0 => slotTxt1, 1 => slotTxt2, 2 => slotTxt3, _ => null };
-    private Image GetSlotIcon(int i) => i switch { 0 => slotIcon1, 1 => slotIcon2, 2 => slotIcon3, _ => null };
+    private Button   GetSlotButton(int i)    => i switch { 0 => slotBtn1,      1 => slotBtn2,      2 => slotBtn3,      _ => null };
+    private TMP_Text GetSlotText(int i)      => i switch { 0 => slotTxt1,      1 => slotTxt2,      2 => slotTxt3,      _ => null };
+    private Image    GetSlotIcon(int i)      => i switch { 0 => slotIcon1,     1 => slotIcon2,     2 => slotIcon3,     _ => null };
+    private TMP_Text GetCooldownText(int i)  => i switch { 0 => cooldownTxt1,  1 => cooldownTxt2,  2 => cooldownTxt3,  _ => null };
+    private Image    GetDimOverlay(int i)    => i switch { 0 => dimOverlay1,   1 => dimOverlay2,   2 => dimOverlay3,   _ => null };
+
+    // ── 딤 오버레이 생성 ────────────────────────────────────────────────────────
+
+    private void EnsureDimOverlays()
+    {
+        dimOverlay1 = EnsureDim(slotBtn1, dimOverlay1);
+        dimOverlay2 = EnsureDim(slotBtn2, dimOverlay2);
+        dimOverlay3 = EnsureDim(slotBtn3, dimOverlay3);
+    }
+
+    private Image EnsureDim(Button btn, Image existing)
+    {
+        if (existing != null) return existing;
+        if (btn == null) return null;
+
+        // "CooldownDim" 이름 자식 탐색
+        Transform found = btn.transform.Find("CooldownDim");
+        if (found != null) return found.GetComponent<Image>();
+
+        // 새로 생성: 버튼 전체를 덮는 반투명 검정 오버레이
+        GameObject go = new GameObject("CooldownDim", typeof(RectTransform), typeof(Image));
+        go.transform.SetParent(btn.transform, false);
+
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = rt.offsetMax = Vector2.zero;
+
+        Image img = go.GetComponent<Image>();
+        img.color = new Color(0f, 0f, 0f, 0.6f); // 60% 불투명 검정
+        img.raycastTarget = false;
+
+        go.SetActive(false); // 평소에는 숨김
+
+        // CooldownText, Icon 위에 렌더링되도록 최상위 sibling으로
+        go.transform.SetAsLastSibling();
+
+        return img;
+    }
+
+    // ── Name 텍스트 하단 배치 ────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Name 텍스트를 슬롯 하단에 배치합니다. (anchorMin.y=0, anchorMax.y=0.35)
+    /// 아이콘은 슬롯 전체를 채우고 이름은 하단 35% 영역에 반투명 배경과 함께 표시됩니다.
+    /// </summary>
+    private void EnsureNameTextLayout()
+    {
+        ApplyBottomLayout(slotBtn1, slotTxt1);
+        ApplyBottomLayout(slotBtn2, slotTxt2);
+        ApplyBottomLayout(slotBtn3, slotTxt3);
+    }
+
+    private static void ApplyBottomLayout(Button btn, TMP_Text txt)
+    {
+        if (btn == null || txt == null) return;
+
+        RectTransform rt = txt.GetComponent<RectTransform>();
+        if (rt == null) return;
+
+        // 하단 35% 영역에 배치
+        rt.anchorMin = new Vector2(0f, 0f);
+        rt.anchorMax = new Vector2(1f, 0.38f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        rt.pivot     = new Vector2(0.5f, 0f);
+
+        txt.alignment       = TextAlignmentOptions.Center;
+        txt.fontSize        = 22f;
+        txt.enableWordWrapping = true;
+        txt.color           = Color.white;
+
+        // 텍스트 가독성을 위한 반투명 배경 추가 (없을 때만)
+        Transform bgTr = btn.transform.Find("NameBg");
+        if (bgTr == null)
+        {
+            GameObject bg = new GameObject("NameBg", typeof(RectTransform), typeof(Image));
+            bg.transform.SetParent(btn.transform, false);
+
+            RectTransform bgRt = bg.GetComponent<RectTransform>();
+            bgRt.anchorMin = new Vector2(0f, 0f);
+            bgRt.anchorMax = new Vector2(1f, 0.38f);
+            bgRt.offsetMin = bgRt.offsetMax = Vector2.zero;
+            bgRt.pivot     = new Vector2(0.5f, 0f);
+
+            Image bgImg = bg.GetComponent<Image>();
+            bgImg.color = new Color(0f, 0f, 0f, 0.55f);
+            bgImg.raycastTarget = false;
+
+            // txt 바로 아래(배경으로)
+            bg.transform.SetSiblingIndex(txt.transform.GetSiblingIndex());
+        }
+
+        // txt는 NameBg 위에
+        txt.transform.SetAsLastSibling();
+    }
 }

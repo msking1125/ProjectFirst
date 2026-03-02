@@ -108,7 +108,7 @@ public class ResultPanelManager : MonoBehaviour
 
         if (root == null)
         {
-            Debug.LogWarning("[ResultPanelManager] UIDocument에 연결된 UXML(Source Asset)이 설정되지 않거나 비어 있어 패널을 표시할 수 없습니다. (fallback uGUI가 대신 사용됩니다.)", this);
+            Debug.Log("[ResultPanelManager] UIDocument에 연결된 UXML(Source Asset)이 설정되지 않거나 비어 있어 패널을 표시할 수 없습니다. (fallback uGUI가 대신 사용됩니다.)");
             return false;
         }
 

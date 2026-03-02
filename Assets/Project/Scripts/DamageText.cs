@@ -11,6 +11,13 @@ public class DamageText : MonoBehaviour
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color critColor = Color.red;
 
+    private Camera cam;
+
+    private void Awake()
+    {
+        cam = Camera.main;
+    }
+
     public void Init(int damage, bool isCrit)
     {
         if (valueText == null)
@@ -21,6 +28,12 @@ public class DamageText : MonoBehaviour
         if (canvasGroup == null)
         {
             canvasGroup = GetComponent<CanvasGroup>();
+        }
+
+        // 텍스트 위치 무작위 흔들림 또는 오프셋 초기화 보장
+        if (valueText != null && valueText.rectTransform != null)
+        {
+            valueText.rectTransform.anchoredPosition = Vector2.zero;
         }
 
         if (valueText != null)
@@ -40,7 +53,22 @@ public class DamageText : MonoBehaviour
             canvasGroup.DOFade(0f, duration);
         }
 
+        // 빌보드 처리 (항상 카메라를 바라보도록)
+        if (cam != null)
+        {
+            transform.forward = cam.transform.forward;
+        }
+
         transform.DOMoveY(transform.position.y + moveY, duration).SetEase(Ease.OutQuad)
             .OnComplete(() => Destroy(gameObject));
+    }
+
+    private void LateUpdate()
+    {
+        // 텍스트가 위로 올라가는 동안에도 빌보드 유지
+        if (cam != null)
+        {
+            transform.forward = cam.transform.forward;
+        }
     }
 }
