@@ -1,73 +1,109 @@
+/* 
+    1080x1920(세로형/모바일 풀스크린) 해상도에서도 어색하지 않도록  
+    팝업이 "너무 짧거나 좁아보임", "버튼끼리 너무 붙어있음", "텍스트/버튼이 작음" 문제 없이  
+    시각적으로 넉넉하고 중심이 잘 잡힌 UI가 되도록 크기·여백·텍스트·버튼 스타일을 조정한 USS입니다.
+
+    주요 개선점:
+    - 팝업 panel의 최소·최대 가로/세로 비율, 패딩, 내부 여백을 더 넉넉히 조정
+    - 버튼은 한 줄에 2개씩 "최대폭 제한" & "한 줄 2개 이상 시 wrap" 구조를 유지해 너무 늘어지거나 좁지 않게
+    - title/subtitle/통계 텍스트 크기를 소폭 확대(특히 세로 해상도에서 작아보이지 않게)
+    - 버튼 크기 및 텍스트 좀 더 확대·여백 강화(터치 환경 대비)
+    - close 버튼 등 인터랙티브 엘리먼트 터치 영역 충분히 확보
+    
+    - min/max-width, max-height를 명확히 지정하여 "좁은 기기/넓은 기기" 모두 자연스럽게
+
+    * 참고: min/max 값 등은 실제 기기에서 시각적으로 확인 후 추가적으로 다듬어야 할 수 있음 *
+*/
+
 .result-popup-root {
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
+    display: flex;
     justify-content: center;
     align-items: center;
-    padding: 18px;
+    padding: 0; /* 패딩 제거: 1080x1920에서 팝업이 작아지지 않도록 */
     background-color: rgba(7, 10, 20, 0.78);
-    display: none;
-    opacity: 0;
+    /* display: none; // 유동 표시라면 js에서 토글 */
 }
 
 .result-popup-panel {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
-    width: 92%;
-    max-width: 560px;
-    min-height: 60%;
-    padding: 22px 22px 28px 22px;
-    border-radius: 24px;
+    width: 96%;
+    min-width: 320px;
+    max-width: 540px;
+    min-height: 540px;
+    max-height: 92%;
+    padding: 36px 36px 40px 36px;
+    border-radius: 28px;
     border-width: 2px;
-    border-color: rgba(255, 255, 255, 0.1);
-    background-color: rgba(19, 26, 52, 0.97);
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(19, 26, 52, 0.98);
+    box-sizing: border-box;
+    box-shadow: 0 6px 32px 0 rgba(0,0,0,0.27);
 }
 
 .result-popup-close {
     align-self: flex-end;
-    width: 44px;
-    height: 44px;
-    font-size: 22px;
+    width: 54px;
+    height: 54px;
+    font-size: 28px;
     color: #eef2ff;
     background-color: rgba(255, 255, 255, 0.12);
-    border-radius: 22px;
+    border-radius: 27px;
     border-width: 0;
-    margin-bottom: 8px;
+    border-style: none;
+    margin-bottom: 10px;
+    margin-right: -8px;
+    margin-top: -8px;
+    transition: background-color 0.13s;
 }
-
 .result-popup-close:hover {
     background-color: rgba(255, 255, 255, 0.24);
 }
 
 .result-popup-title {
     -unity-font-style: bold;
-    font-size: 52px;
+    font-size: 56px;
     color: #ffffff;
-    -unity-text-align: middle-center;
-    margin-bottom: 6px;
+    -unity-text-align: center;
+    margin-bottom: 12px;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
 }
-
 .result-popup-description {
-    font-size: 24px;
+    font-size: 29px;
     color: #d2dcff;
-    -unity-text-align: middle-center;
-    margin-bottom: 16px;
+    -unity-text-align: center;
+    margin-bottom: 22px;
+    margin-top: 0;
+    letter-spacing: 0.2px;
 }
 
 .result-popup-stat-box {
-    padding: 16px 14px;
-    border-radius: 14px;
-    background-color: rgba(255, 255, 255, 0.06);
-    margin-bottom: 16px;
+    padding: 21px 12px 18px 12px;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.08);
+    margin-bottom: 28px;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
 }
 
 .result-popup-stat {
-    font-size: 24px;
+    font-size: 27px;
     color: #eef2ff;
-    margin-bottom: 6px;
-    -unity-text-align: middle-center;
+    margin-bottom: 0;
+    margin-top: 0;
+    -unity-text-align: center;
+    letter-spacing: 0.2px;
 }
 
 .result-popup-stat-prestige {
@@ -76,22 +112,30 @@
 
 .result-popup-button-row {
     margin-top: auto;
+    display: flex;
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
+    gap: 14px 16px;
 }
 
 .result-popup-button {
-    width: 46%;
-    min-width: 180px;
-    height: 62px;
-    margin: 8px;
-    border-radius: 12px;
+    width: 45%;
+    min-width: 170px;
+    max-width: 250px;
+    height: 66px;
+    margin: 0;
+    border-radius: 14px;
     border-width: 0;
-    font-size: 24px;
+    border-style: none;
+    font-size: 28px;
     -unity-font-style: bold;
     color: #ffffff;
     background-color: #537df7;
+    box-sizing: border-box;
+    letter-spacing: 0.15px;
+    transition: background-color 0.14s;
+    /* 터치/마우스 모두 클릭 범위 충분히 확보 */
 }
 
 .result-popup-button:hover {

@@ -227,22 +227,37 @@ public class BattleGameManager : MonoBehaviour
         }
     }
 
+    private string pendingResultMessage;
+
     // ── 게임 종료 ────────────────────────────────────────────────────────────
 
     private void EndGame(string message)
     {
         if (gameEnded) return;
         gameEnded = true;
+        
+        // Invoke를 위해 Time.timeScale = 0f는 지연 호출 안으로 이동하거나 Coroutine을 써야 하지만, 
+        // 우선 기존 플로우 유지를 위해 Invoke 전에 호출되었던 timescale을 지연 함수 안으로 옮깁니다.
+        pendingResultMessage = message;
+        Invoke("ShowResultDelayed", 0.3f);
+    }
+
+    private void ShowResultDelayed()
+    {
         Time.timeScale = 0f;
 
         EnsureResultPanelManager();
         if (resultPanelManager != null)
         {
-            if (message == "Victory") resultPanelManager.ShowWin();
-            else                      resultPanelManager.ShowLose();
+            if (pendingResultMessage == "Victory") resultPanelManager.ShowWin();
+            else                                   resultPanelManager.ShowLose();
+            
+            pendingResultMessage = null;
             return;
         }
-        SetResultUI(true, message);
+        
+        SetResultUI(true, pendingResultMessage);
+        pendingResultMessage = null;
     }
 
     // ── HUD 초기화 ───────────────────────────────────────────────────────────

@@ -1,52 +1,86 @@
+/* 
+    [1080x1920(세로/모바일 풀스크린) 환경에서도 시각적으로 어색하지 않게 개선]
+    - 팝업 panel의 최대/최소 가로/세로, 패딩, 내부 여백을 여유롭게 조정
+    - 버튼은 한 줄에 여유 있게, 최대폭 제한 & 적당한 마진 부여(터치 환경 대응)
+    - title/subtitle 텍스트 크기 확대 (모바일에서 작아보이지 않게)
+    - 버튼 및 텍스트 여백 강화
+    - min/max-width, max-height 등을 지정하여 양쪽(좁은/넓은) 해상도에서 자연스럽게
+    - flex-wrap으로 버튼 갯수 늘어나도 이상 없음 (row 유지)
+*/
+
 .result-root {
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
+    display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.78);
+    /* 동적 제어용 display: none은 유지, 필요하면 js에서 대체 */
     display: none;
 }
 
 .result-panel {
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 32px 48px;
-    background-color: rgba(15, 15, 18, 0.95);
-    border-radius: 12px;
+    align-items: stretch;
+    width: 92%;
+    min-width: 300px;
+    max-width: 460px;
+    min-height: 380px;
+    max-height: 92%;
+    padding: 38px 32px 36px 32px;
+    background-color: rgba(15, 15, 18, 0.96);
+    border-radius: 20px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 28px 0 rgba(0,0,0,0.18);
 }
 
 .result-title {
     -unity-font-style: bold;
-    font-size: 40px;
+    font-size: 48px;
     color: #ffffff;
-    margin-bottom: 8px;
+    margin-bottom: 14px;
+    margin-top: 2px;
+    letter-spacing: 0.2px;
+    -unity-text-align: center;
 }
 
 .result-subtitle {
-    font-size: 18px;
+    font-size: 24px;
     color: #d0d0d0;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
+    margin-top: 0;
+    letter-spacing: 0.1px;
+    -unity-text-align: center;
 }
 
 .result-button-container {
+    display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: 0px 16px;
+    margin-top: 8px;
 }
 
 .result-button {
-    width: 180px;
-    height: 40px;
-    font-size: 18px;
+    min-width: 140px;
+    max-width: 220px;
+    width: 45%;
+    height: 56px;
+    font-size: 22px;
     -unity-font-style: bold;
     background-color: #3a7bd5;
     color: #ffffff;
-    border-radius: 6px;
+    border-radius: 8px;
     border-width: 0;
-    margin-left: 8px;
-    margin-right: 8px;
+    border-style: none;
+    margin: 7px 4px;
+    transition: background-color 0.14s;
+    box-sizing: border-box;
 }
 
 .result-button:hover {
@@ -56,4 +90,3 @@
 .result-button:active {
     background-color: #2c5ea4;
 }
-

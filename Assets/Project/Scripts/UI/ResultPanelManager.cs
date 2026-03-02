@@ -29,6 +29,10 @@ public class ResultPanelManager : MonoBehaviour
     private bool   pendingShow;
     private string pendingTitle;
     private string pendingSubtitle;
+    
+    // 초기화 재시도 관리
+    private int initRetryCount;
+    private const int MaxInitRetries = 20;
 
     // ── 요소 이름 후보 목록 ──────────────────────────────────────────────────
     private static readonly string[] RootCandidates     = { "result-popup-root", "result-root", "root", "ResultRoot", "panel", "container" };
@@ -40,49 +44,74 @@ public class ResultPanelManager : MonoBehaviour
 
     // ────────────────────────────────────────────────────────────────────────
 
-    private void Awake() => TryInit();
+    private void OnEnable()
+    {
+        TryInit();
+        if (!isInitialized)
+        {
+            InvokeRepeating(nameof(TryInit), 0.1f, 0.1f);
+        }
+    }
 
     private void Start()
     {
-        TryInit();
         ApplySortOrder();
     }
 
     private void Update()
     {
-        // rootVisualElement가 Awake/Start에서 아직 준비되지 않은 경우 매 프레임 재시도
-        if (isInitialized) return;
-
-        TryInit();
-
         if (isInitialized && pendingShow)
         {
-            pendingShow = false;
             ShowInternal(pendingTitle, pendingSubtitle);
+            pendingShow = false;
         }
     }
 
     private void ApplySortOrder()
     {
         if (uiDoc != null && uiDoc.panelSettings != null)
+        {
             uiDoc.panelSettings.sortingOrder = sortOrder;
+        }
     }
 
     private void TryInit()
     {
-        if (isInitialized) return;
-
-        uiDoc = GetComponent<UIDocument>();
-        if (uiDoc == null) return;
-
-        if (uiDoc.visualTreeAsset == null)
+        if (isInitialized)
         {
-            Debug.LogWarning("[ResultPanelManager] UIDocument에 Source Asset(UXML)이 없습니다.", this);
+            CancelInvoke(nameof(TryInit));
             return;
         }
 
+        if (uiDoc == null)
+            uiDoc = GetComponent<UIDocument>();
+
+        if (uiDoc == null)
+            return;
+
+        if (uiDoc.visualTreeAsset == null)
+            return;
+
+        // UI Toolkit이 자동으로 UXML을 붙여 주지 못하는 경우 대비
         VisualElement docRoot = uiDoc.rootVisualElement;
-        if (docRoot == null) return; // 아직 준비 안 됨 → Update에서 재시도
+        
+        if (docRoot == null && initRetryCount < MaxInitRetries)
+        {
+            initRetryCount++;
+            return;
+        }
+
+        if (docRoot == null)
+        {
+            docRoot = new VisualElement();
+        }
+
+        if (docRoot.childCount == 0 && uiDoc.visualTreeAsset != null)
+        {
+            VisualElement cloned = uiDoc.visualTreeAsset.CloneTree();
+            docRoot.Add(cloned);
+            docRoot = cloned;
+        }
 
         // ── root 탐색 ─────────────────────────────────────────────────────
         foreach (string n in RootCandidates)
@@ -92,21 +121,27 @@ public class ResultPanelManager : MonoBehaviour
         }
 
         if (root == null)
+        {
             root = docRoot.Q<VisualElement>(className: "result-root")
                 ?? docRoot.Q<VisualElement>(className: "result-popup");
+        }
 
         // 이름 매칭 실패 → TemplateContainer 하위 첫 번째 요소 사용
         if (root == null)
         {
             VisualElement container = docRoot.childCount > 0 ? docRoot[0] : null;
             root = (container?.childCount > 0) ? container[0] : container;
-            if (root != null)
-                Debug.Log($"[ResultPanelManager] root 이름 매칭 실패. 대체 사용: '{root.name}'", this);
         }
 
         if (root == null)
         {
-            Debug.LogError("[ResultPanelManager] root VisualElement를 찾지 못했습니다. UXML 구조를 확인하세요.", this);
+            initRetryCount++;
+            if (initRetryCount >= MaxInitRetries)
+            {
+                CancelInvoke(nameof(TryInit));
+                Debug.LogError("[ResultPanelManager] 초기화 미완으로 결과창 표시를 재시도했으나 실패했습니다 (최대 횟수 도달). UXML 구조를 확인하세요.", this);
+                pendingShow = false;
+            }
             return;
         }
 
@@ -121,6 +156,9 @@ public class ResultPanelManager : MonoBehaviour
         SetVisible(false);
 
         isInitialized = true;
+        CancelInvoke(nameof(TryInit));
+        ApplySortOrder();
+        
         Debug.Log($"[ResultPanelManager] 초기화 완료. root='{root.name}' title={titleLabel?.name} desc={descLabel?.name}", this);
     }
 
@@ -135,14 +173,18 @@ public class ResultPanelManager : MonoBehaviour
     {
         if (!isInitialized) TryInit();
 
+        if (uiDoc == null || uiDoc.visualTreeAsset == null)
+        {
+            Debug.Log("[ResultPanelManager] UXML 미할당. 대체(fallback) UI를 사용합니다.");
+            return false;
+        }
+
         if (!isInitialized || root == null)
         {
-            // 초기화 미완 → Update에서 대기 처리
             pendingShow     = true;
             pendingTitle    = title;
             pendingSubtitle = subtitle;
-            Debug.LogWarning("[ResultPanelManager] 초기화 미완. 대기 후 재시도합니다.", this);
-            return false;
+            return true; // Return true as we're handling it via delay
         }
 
         ShowInternal(title, subtitle);
@@ -151,8 +193,6 @@ public class ResultPanelManager : MonoBehaviour
 
     private void ShowInternal(string title, string subtitle)
     {
-        ApplySortOrder();
-
         if (titleLabel != null) titleLabel.text = title;
         if (descLabel  != null) descLabel.text  = subtitle;
 
@@ -162,6 +202,7 @@ public class ResultPanelManager : MonoBehaviour
     private void SetVisible(bool visible)
     {
         if (root == null) return;
+        
         root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         root.style.opacity = visible ? 1f : 0f;
         root.pickingMode   = visible ? PickingMode.Position : PickingMode.Ignore;

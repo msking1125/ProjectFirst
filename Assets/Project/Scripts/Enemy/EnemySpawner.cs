@@ -9,7 +9,7 @@ using UnityEngine;
 [AddComponentMenu("Enemy/Enemy Spawner")]
 public class EnemySpawner : MonoBehaviour
 {
-    private const string DefaultMonsterId = "1";
+    private const string DefaultMonsterId = "Monster1";
 
     [Header("Enemy Pool (필수)")]
     [Tooltip("EnemyPool 컴포넌트를 연결하세요.")]
@@ -289,15 +289,18 @@ public class EnemySpawner : MonoBehaviour
     private string ResolveMonsterIdOrFallback(string waveMonsterId, string fallbackMonsterId)
     {
         string fallback = string.IsNullOrWhiteSpace(fallbackMonsterId) ? DefaultMonsterId : fallbackMonsterId.Trim();
+        if (fallback == "1") fallback = "Monster1";
 
         if (string.IsNullOrWhiteSpace(waveMonsterId))
         {
             return fallback;
         }
 
-        // 숫자/문자 혼합 ID (Monster1, slime_01 등) 모두 허용
-        // 공백만 제거하여 그대로 사용
-        return waveMonsterId.Trim();
+        string trimmed = waveMonsterId.Trim();
+        if (trimmed == "1") return "Monster1";
+        if (trimmed == "2") return "Monster2";
+        if (trimmed == "3") return "Monster3";
+        return trimmed;
     }
 
     private MonsterGrade ResolveGrade(WaveSession session)
