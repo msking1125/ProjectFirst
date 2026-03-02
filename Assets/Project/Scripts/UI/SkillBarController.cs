@@ -30,11 +30,6 @@ public class SkillBarController : MonoBehaviour
     [SerializeField] private Image dimOverlay2;
     [SerializeField] private Image dimOverlay3;
 
-    [Header("스킬 이펙트")]
-    [SerializeField] private GameObject userSkillFlamePrefab;
-    [SerializeField] private Transform effectSpawnPoint;
-    [SerializeField] private bool useSlotPosition = true;
-
     [Header("테스트")]
     [SerializeField] private bool enableSlotsOnStartForTest;
 
@@ -140,28 +135,6 @@ public class SkillBarController : MonoBehaviour
     {
         skillSystem = system;
         Refresh();
-    }
-
-    // ===================== 이펙트 =====================
-
-    private void PlaySkillEffect(int index)
-    {
-        if (userSkillFlamePrefab == null) return;
-
-        Vector3 pos = Vector3.zero;
-
-        if (useSlotPosition)
-        {
-            Button btn = GetSlotButton(index);
-            if (btn != null)
-                pos = btn.transform.position;
-        }
-        else if (effectSpawnPoint != null)
-        {
-            pos = effectSpawnPoint.position;
-        }
-
-        Instantiate(userSkillFlamePrefab, pos, Quaternion.identity);
     }
 
     // ===================== 스킬 사용 =====================
