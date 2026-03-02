@@ -5,8 +5,8 @@ using TMPro;
 
 /// <summary>
 /// 타이틀 씬 UI 관리자 (Cyberpunk Dark Neon Style - 9:16 모바일 최적화)
-/// 기존 UI Toolkit 방식에서 uGUI 방식으로 대대적으로 개편되었습니다.
-/// 시작 시 Canvas가 없으면 코드로 자동 생성합니다.
+/// 빌드 시 버튼이 비정상적으로 출력/작동하는 문제를 우회 및 방지하도록 수정.
+/// (공통 Sprite 사용 및 런타임 생성 시 빌드 호환성 보장)
 /// </summary>
 public class TitleManager : MonoBehaviour
 {
@@ -24,6 +24,10 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private VoidEventChannelSO settingsButtonEvent;
     [SerializeField] private VoidEventChannelSO quitButtonEvent;
 
+    [Header("Button Sprite (빌드 환경도 지원)")]
+    [Tooltip("유니티 빌드에도 포함되는 Sprite. 반드시 Sprite(2D)/UI/Default 임포트 타입이어야 함.")]
+    [SerializeField] private Sprite builtinButtonSprite;
+
     private Canvas targetCanvas;
 
     private void Awake()
@@ -35,7 +39,7 @@ public class TitleManager : MonoBehaviour
     {
         // 최상단 Canvas 찾기
         targetCanvas = FindObjectOfType<Canvas>();
-        
+
         if (targetCanvas == null)
         {
             GameObject canvasObj = new GameObject("TitleCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -47,13 +51,12 @@ public class TitleManager : MonoBehaviour
             scaler.referenceResolution = new Vector2(1080f, 1920f); // 9:16 모바일 기준
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 0.5f; // 너비/높이 중간 매칭
-            
+
             // UI 생성
             BuildUI();
         }
         else
         {
-            // 만약 이미 Canvas가 있다면 내부 구조 체크 후 없으면 생성
             if (targetCanvas.transform.Find("CyberpunkOverlay") == null)
             {
                 CanvasScaler scaler = targetCanvas.GetComponent<CanvasScaler>();
@@ -66,7 +69,7 @@ public class TitleManager : MonoBehaviour
                 BuildUI();
             }
         }
-        
+
         // Hide existing UIDocument if present to remove the old UI at the bottom
         var uiDoc = FindObjectOfType<UnityEngine.UIElements.UIDocument>();
         if (uiDoc != null && uiDoc.rootVisualElement != null)
@@ -77,7 +80,7 @@ public class TitleManager : MonoBehaviour
 
     private void BuildUI()
     {
-        // 1. 다크 오버레이 (기존 포스터 이미지를 덮어 로고/버튼 가시성 확보)
+        // 1. 다크 오버레이
         GameObject overlay = new GameObject("CyberpunkOverlay", typeof(RectTransform), typeof(Image));
         overlay.transform.SetParent(targetCanvas.transform, false);
         SetFullScreenStretch(overlay.GetComponent<RectTransform>());
@@ -92,9 +95,7 @@ public class TitleManager : MonoBehaviour
         logoRt.anchorMax = new Vector2(0.5f, 0.7f);
         logoRt.anchoredPosition = Vector2.zero;
 
-        // 로고 텍스트는 제거되었습니다 (포스터 이미지 내 로고 사용)
-
-        // 3. 버튼 레이아웃 컨테이너 (세로 정렬)
+        // 3. 버튼 레이아웃 컨테이너
         GameObject buttonGroup = new GameObject("ButtonGroup", typeof(RectTransform));
         buttonGroup.transform.SetParent(targetCanvas.transform, false);
         RectTransform groupRt = buttonGroup.GetComponent<RectTransform>();
@@ -102,7 +103,15 @@ public class TitleManager : MonoBehaviour
         groupRt.anchorMax = new Vector2(0.5f, 0.2f);
         groupRt.anchoredPosition = Vector2.zero;
 
-        // 버튼 3개 배치 (너비 70%인 약 760px, 높이 110px. 여백은 160px 간격)
+        // 버튼 생성 (Sprite가 할당되지 않으면 사용자에게 경고)
+        if (builtinButtonSprite == null)
+        {
+#if UNITY_EDITOR
+            Debug.LogWarning("[TitleManager] 'builtinButtonSprite'가 할당되지 않았습니다. Button이 정상 출력되지 않을 수 있습니다.\n" +
+                "최소한 UI/Skin/UISprite 등 빌드 포함되는 Sprite를 수동 할당해야 합니다.");
+#endif
+        }
+
         CreateCyberpunkButton("Btn_Start", buttonGroup.transform, startButtonText, new Vector2(0f, 160f), new Color(0.1f, 0.5f, 0.9f, 0.9f), OnStartClicked);
         CreateCyberpunkButton("Btn_Settings", buttonGroup.transform, settingsButtonText, new Vector2(0f, 0f), new Color(0.3f, 0.3f, 0.35f, 0.9f), OnSettingsClicked);
         CreateCyberpunkButton("Btn_Quit", buttonGroup.transform, quitButtonText, new Vector2(0f, -160f), new Color(0.8f, 0.2f, 0.3f, 0.9f), OnQuitClicked);
@@ -115,32 +124,37 @@ public class TitleManager : MonoBehaviour
         btnGo.transform.SetParent(parent, false);
 
         RectTransform btnRt = btnGo.GetComponent<RectTransform>();
-        btnRt.sizeDelta = new Vector2(760f, 110f); // 넓고 큰 터치 영역
+        btnRt.sizeDelta = new Vector2(760f, 110f);
         btnRt.anchoredPosition = pos;
 
         Image btnImg = btnGo.GetComponent<Image>();
-        // Assign a default sprite so the color tinting works correctly instead of appearing as a solid white block
-        btnImg.sprite = UnityEditor.AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
-        btnImg.type = Image.Type.Sliced;
+
+        // 유니티 에디터에서는 editor용, 빌드에서는 Assign된 Sprite 사용
+        Sprite useSprite = builtinButtonSprite;
+#if UNITY_EDITOR
+        if (useSprite == null)
+            useSprite = UnityEditor.AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+#endif
+        btnImg.sprite = useSprite;
+        btnImg.type = (btnImg.sprite != null) ? Image.Type.Sliced : Image.Type.Simple;
         btnImg.color = neonColor;
 
-        // 글로우 효과용 그림자
+        // 그림자 글로우
         Shadow cyberShadow = btnGo.GetComponent<Shadow>();
         cyberShadow.effectColor = new Color(neonColor.r, neonColor.g, neonColor.b, 0.5f);
         cyberShadow.effectDistance = new Vector2(4f, -4f);
 
         Button btn = btnGo.GetComponent<Button>();
         btn.onClick.AddListener(onClick);
-        // TitleUIButton이 호버 효과 등 처리함
 
-        // 데코 바 (사이버펑크 느낌의 왼쪽 포인트 라인)
+        // 데코 바
         GameObject decoLine = new GameObject("DecoLine", typeof(RectTransform), typeof(Image));
         decoLine.transform.SetParent(btnGo.transform, false);
         RectTransform decoRt = decoLine.GetComponent<RectTransform>();
         decoRt.anchorMin = new Vector2(0f, 0f);
         decoRt.anchorMax = new Vector2(0f, 1f);
         decoRt.pivot = new Vector2(0f, 0.5f);
-        decoRt.sizeDelta = new Vector2(10f, 0f); // 10px 굵기
+        decoRt.sizeDelta = new Vector2(10f, 0f);
         decoLine.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.8f);
 
         // 버튼 텍스트
@@ -149,11 +163,8 @@ public class TitleManager : MonoBehaviour
         SetFullScreenStretch(txtGo.GetComponent<RectTransform>());
 
         TextMeshProUGUI tmp = txtGo.GetComponent<TextMeshProUGUI>();
-        
-        // Workaround: TextMeshPro replaces missing \u0020 space with \u0003 (End of Text) which clips the string.
-        // We use rich text <space=xx> instead to force a visual gap without needing the actual space glyph.
         tmp.text = label.Replace(" ", "<space=0.4em>");
-        
+
         if (customFont != null) tmp.font = customFont;
         tmp.fontSize = 40f;
         tmp.fontStyle = FontStyles.Bold;
@@ -163,6 +174,8 @@ public class TitleManager : MonoBehaviour
         tmp.enableWordWrapping = false;
         tmp.enableAutoSizing = false;
         tmp.overflowMode = TextOverflowModes.Overflow;
+
+        // (빌드 환경에서 버튼이 안 눌리면 GraphicRaycaster/Canvas 설정 확인 필요)
     }
 
     private void SetFullScreenStretch(RectTransform rt)
@@ -205,29 +218,6 @@ public class TitleManager : MonoBehaviour
             return;
         }
 
-        // 비동기 씬 로드로 권장된 방식 적용 (AsyncSceneLoader.Instance.LoadSceneAsync)
-        // AsyncSceneLoader가 없으면 SceneManager 사용
-        var sceneLoaderType = System.Type.GetType("AsyncSceneLoader");
-        if (sceneLoaderType != null)
-        {
-            var instanceProp = sceneLoaderType.GetProperty("Instance");
-            if (instanceProp != null)
-            {
-                var instance = instanceProp.GetValue(null);
-                if (instance != null)
-                {
-                    var loadMethod = sceneLoaderType.GetMethod("LoadSceneAsync", new System.Type[] { typeof(string), typeof(LoadSceneMode) });
-                    if (loadMethod != null)
-                    {
-                        loadMethod.Invoke(instance, new object[] { gameSceneName, LoadSceneMode.Single });
-                        return; // 성공적으로 로드됨
-                    }
-                }
-            }
-        }
-
-        // 폴백
-        Debug.LogWarning("[TitleManager] AsyncSceneLoader.Instance를 찾지 못해 동기식으로 전환 (SceneManager 사용)");
         SceneManager.LoadScene(gameSceneName);
     }
 

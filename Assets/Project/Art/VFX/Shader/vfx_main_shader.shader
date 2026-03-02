@@ -1,4 +1,4 @@
-// Made with Amplify Shader Editor v1.9.9.8
+﻿// Made with Amplify Shader Editor v1.9.9.8
 // Available at the Unity Asset Store - http://u3d.as/y3X 
 Shader "vfx_main_shader"
 {
@@ -539,7 +539,7 @@ Shader "vfx_main_shader"
 				float temp_output_75_0 = ( tex2DNode74.r * _Noise_Control );
 				float4 temp_cast_0 = (1.0).xxxx;
 				float fresnelNdotV152 = dot( NormalWS, ViewDirWS );
-				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( 1.0 - fresnelNdotV152, _Fresnel_Power ) );
+				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( abs(1.0 - fresnelNdotV152), _Fresnel_Power ) );
 				#ifdef _USE_FRESNEL_ON
 				float staticSwitch151 = fresnelNode152;
 				#else
@@ -561,7 +561,7 @@ Shader "vfx_main_shader"
 				#endif
 				float lerpResult89 = lerp( _Dissolve_Tex_Range , 1.0 , staticSwitch87);
 				float smoothstepResult94 = smoothstep( saturate( ( 1.0 - lerpResult77 ) ) , 1.0 , lerpResult89);
-				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( lerpResult133 , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
+				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( abs(lerpResult133) , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
 				
 				float3 BakedAlbedo = 0;
 				float3 BakedEmission = 0;
@@ -919,7 +919,7 @@ Shader "vfx_main_shader"
 				float3 ase_viewDirWS = normalize( ase_viewVectorWS );
 				float3 ase_normalWS = input.ase_texcoord1.xyz;
 				float fresnelNdotV152 = dot( ase_normalWS, ase_viewDirWS );
-				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( 1.0 - fresnelNdotV152, _Fresnel_Power ) );
+				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( abs(1.0 - fresnelNdotV152), _Fresnel_Power ) );
 				#ifdef _USE_FRESNEL_ON
 				float staticSwitch151 = fresnelNode152;
 				#else
@@ -947,7 +947,7 @@ Shader "vfx_main_shader"
 				#endif
 				float lerpResult89 = lerp( _Dissolve_Tex_Range , 1.0 , staticSwitch87);
 				float smoothstepResult94 = smoothstep( saturate( ( 1.0 - lerpResult77 ) ) , 1.0 , lerpResult89);
-				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( lerpResult133 , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
+				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( abs(lerpResult133) , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
 				
 
 				float Alpha = temp_output_58_0;
@@ -1249,7 +1249,7 @@ Shader "vfx_main_shader"
 				float3 ase_viewDirWS = normalize( ase_viewVectorWS );
 				float3 ase_normalWS = input.ase_texcoord1.xyz;
 				float fresnelNdotV152 = dot( ase_normalWS, ase_viewDirWS );
-				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( 1.0 - fresnelNdotV152, _Fresnel_Power ) );
+				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( abs(1.0 - fresnelNdotV152), _Fresnel_Power ) );
 				#ifdef _USE_FRESNEL_ON
 				float staticSwitch151 = fresnelNode152;
 				#else
@@ -1277,7 +1277,7 @@ Shader "vfx_main_shader"
 				#endif
 				float lerpResult89 = lerp( _Dissolve_Tex_Range , 1.0 , staticSwitch87);
 				float smoothstepResult94 = smoothstep( saturate( ( 1.0 - lerpResult77 ) ) , 1.0 , lerpResult89);
-				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( lerpResult133 , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
+				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( abs(lerpResult133) , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
 				
 
 				float Alpha = temp_output_58_0;
@@ -1583,7 +1583,7 @@ Shader "vfx_main_shader"
 				float3 ase_viewDirWS = normalize( ase_viewVectorWS );
 				float3 ase_normalWS = input.ase_texcoord1.xyz;
 				float fresnelNdotV152 = dot( ase_normalWS, ase_viewDirWS );
-				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( 1.0 - fresnelNdotV152, _Fresnel_Power ) );
+				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( abs(1.0 - fresnelNdotV152), _Fresnel_Power ) );
 				#ifdef _USE_FRESNEL_ON
 				float staticSwitch151 = fresnelNode152;
 				#else
@@ -1611,7 +1611,7 @@ Shader "vfx_main_shader"
 				#endif
 				float lerpResult89 = lerp( _Dissolve_Tex_Range , 1.0 , staticSwitch87);
 				float smoothstepResult94 = smoothstep( saturate( ( 1.0 - lerpResult77 ) ) , 1.0 , lerpResult89);
-				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( lerpResult133 , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
+				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( abs(lerpResult133) , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
 				
 
 				surfaceDescription.Alpha = temp_output_58_0;
@@ -1909,7 +1909,7 @@ Shader "vfx_main_shader"
 				float3 ase_viewDirWS = normalize( ase_viewVectorWS );
 				float3 ase_normalWS = input.ase_texcoord1.xyz;
 				float fresnelNdotV152 = dot( ase_normalWS, ase_viewDirWS );
-				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( 1.0 - fresnelNdotV152, _Fresnel_Power ) );
+				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( abs(1.0 - fresnelNdotV152), _Fresnel_Power ) );
 				#ifdef _USE_FRESNEL_ON
 				float staticSwitch151 = fresnelNode152;
 				#else
@@ -1937,7 +1937,7 @@ Shader "vfx_main_shader"
 				#endif
 				float lerpResult89 = lerp( _Dissolve_Tex_Range , 1.0 , staticSwitch87);
 				float smoothstepResult94 = smoothstep( saturate( ( 1.0 - lerpResult77 ) ) , 1.0 , lerpResult89);
-				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( lerpResult133 , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
+				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( abs(lerpResult133) , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
 				
 
 				surfaceDescription.Alpha = temp_output_58_0;
@@ -2267,7 +2267,7 @@ Shader "vfx_main_shader"
 				float3 ase_viewVectorWS = ( ( unity_OrthoParams.w == 0 ) ? _WorldSpaceCameraPos - ase_positionWS : UNITY_MATRIX_V[ 2 ].xyz );
 				float3 ase_viewDirWS = normalize( ase_viewVectorWS );
 				float fresnelNdotV152 = dot( NormalWS, ase_viewDirWS );
-				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( 1.0 - fresnelNdotV152, _Fresnel_Power ) );
+				float fresnelNode152 = ( 0.0 + _Fresnel_Scale * pow( abs(1.0 - fresnelNdotV152), _Fresnel_Power ) );
 				#ifdef _USE_FRESNEL_ON
 				float staticSwitch151 = fresnelNode152;
 				#else
@@ -2295,7 +2295,7 @@ Shader "vfx_main_shader"
 				#endif
 				float lerpResult89 = lerp( _Dissolve_Tex_Range , 1.0 , staticSwitch87);
 				float smoothstepResult94 = smoothstep( saturate( ( 1.0 - lerpResult77 ) ) , 1.0 , lerpResult89);
-				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( lerpResult133 , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
+				float temp_output_58_0 = saturate( ( input.ase_color.a * ( staticSwitch151 * ( ( pow( abs(lerpResult133) , _Alpha_POW ) * _Alpha_Intensity ) * ( smoothstepResult94 / 0.8 ) ) ) ) );
 				
 
 				float Alpha = temp_output_58_0;

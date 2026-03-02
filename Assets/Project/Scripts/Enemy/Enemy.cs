@@ -122,7 +122,9 @@ public class Enemy : MonoBehaviour
     private string appliedMonsterId = string.Empty;
     private MonsterGrade appliedMonsterGrade = MonsterGrade.Normal;
     private string appliedMoveSpeedSource = "default";
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
     private bool hasLoggedMoveSpeedForSpawn;
+#endif
 
     private bool UsesRigidbodyMovement => cachedRigidbody != null && cachedRigidbody.isKinematic && cachedRigidbody.gameObject.activeInHierarchy;
 
@@ -217,7 +219,9 @@ public class Enemy : MonoBehaviour
         }
 
         string resolvedMonsterId = string.IsNullOrWhiteSpace(monsterId) ? defaultMonsterId : monsterId;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         hasLoggedMoveSpeedForSpawn = false;
+#endif
         ApplyMonsterBase(monsterTable, resolvedMonsterId, grade);
         ApplyGradeScale(grade);
         ApplyWaveMultipliers(waveMultipliers);
