@@ -1960,6 +1960,7 @@ GameObject:
   - component: {fileID: 2949128697757491358}
   - component: {fileID: 5914553275290092675}
   - component: {fileID: 1784770156656527568}
+  - component: {fileID: 3441633210261425961}
   m_Layer: 0
   m_Name: EnemyBoss
   m_TagString: Untagged
@@ -2077,6 +2078,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &3441633210261425961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6625581550472697319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b2b12e9e5a0b4540a7d14aacc839c65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  "\uB0A0\uC544\uAC00\uB294\uD798": 12
+  "\uC704\uB85C\uC62C\uB9AC\uB294\uACC4\uC218": 0.3
+  "\uC5F0\uCD9C\uC804\uCCB4\uC2DC\uAC04": 1
+  "\uCD95\uC18C\uC2DC\uC791\uBE44\uC728": 0.3
 --- !u!1 &7278802535926553080
 GameObject:
   m_ObjectHideFlags: 0
