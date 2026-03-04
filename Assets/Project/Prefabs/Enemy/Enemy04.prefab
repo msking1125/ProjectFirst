@@ -451,10 +451,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b2b12e9e5a0b4540a7d14aacc839c65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  "\uB0A0\uC544\uAC00\uB294\uD798": 12
-  "\uC704\uB85C\uC62C\uB9AC\uB294\uACC4\uC218": 0.3
-  "\uC5F0\uCD9C\uC804\uCCB4\uC2DC\uAC04": 1
-  "\uCD95\uC18C\uC2DC\uC791\uBE44\uC728": 0.3
+  flyPower: 12
+  upwardRatio: 0.3
+  totalDuration: 1.5
+  shrinkStartRatio: 0.4
+  glitchDeathMaterial: {fileID: 2100000, guid: f733c5ff3267bf24f9c0f1f7809cf9d7, type: 2}
+  glitchIntensityMax: 0.8
+  chromaShiftMax: 0.04
+  glitchEmissionColor: {r: 0, g: 1, b: 0.8, a: 1}
+  glitchStartDelay: 0.1
+  glitchRampDuration: 0.35
+  dissolveStartRatio: 0.45
+  deathSparksPrefab: {fileID: 1000011396044746, guid: 96b2ec0239d11fa4b9792311efceb8ed,
+    type: 3}
+  sparksLifetime: 1.5
 --- !u!1 &3094938174762107368
 GameObject:
   m_ObjectHideFlags: 0

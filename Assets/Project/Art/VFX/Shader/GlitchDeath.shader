@@ -164,27 +164,9 @@ Shader "Custom/GlitchDeath"
             ENDHLSL
         }
 
-        // ── Shadow Caster (그림자 유지) ───────────────────────────────────
-        Pass
-        {
-            Name "ShadowCaster"
-            Tags { "LightMode" = "ShadowCaster" }
-
-            ZWrite On
-            ZTest LEqual
-            ColorMask 0
-            Cull [_Cull]
-
-            HLSLPROGRAM
-            #pragma vertex   ShadowPassVertex
-            #pragma fragment ShadowPassFragment
-            #pragma multi_compile_instancing
-
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
-            ENDHLSL
-        }
     }
 
+    // 투명 소멸 이펙트용 셰이더이므로 그림자 캐스팅 불필요
     FallBack "Hidden/Universal Render Pipeline/FallbackError"
 }
+
