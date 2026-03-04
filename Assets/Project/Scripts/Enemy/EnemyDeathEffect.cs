@@ -3,119 +3,125 @@ using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// 몬스터가 사망할 때 물리적으로 날아가고, 작아지면서 사라지는 연출을 담당합니다.
-/// Enemy 프리팹에 선택적으로 부착합니다.
+/// 몬스터 사망 시 물리적으로 날아가며 축소되어 사라지는 연출 담당.
+/// Enemy 프리팹에 부착(선택).
 /// </summary>
 public class EnemyDeathEffect : MonoBehaviour
 {
-    [Header("날아가는 힘")]
-    [Tooltip("충격으로 날아가는 수평 힘입니다. 높을수록 멀리 튕깁니다.")]
-    [SerializeField] private float 날아가는힘 = 12f;
+    [Header("날아가는 힘 (수평)")]
+    [Tooltip("충격으로 날아가는 수평 힘. 클수록 멀리 튕김.")]
+    [SerializeField] private float flyPower = 12f;
 
-    [Header("올라가는 비율(y축 반영)")]
-    [Tooltip("위쪽으로 올라가는 힘의 비율입니다. 작을수록 수평으로 낮게 날아갑니다.")]
-    [SerializeField] private float 위로올리는계수 = 0.3f;
+    [Header("올라가는 계수 (Y축)")]
+    [Tooltip("위쪽 상승 힘 계수. 작으면 수평에 가깝게 날아감.")]
+    [SerializeField] private float upwardRatio = 0.3f;
 
     [Header("연출 타이밍")]
     [Tooltip("전체 사망 연출(물리+축소) 시간(초)")]
-    [SerializeField] private float 연출전체시간 = 1.5f;
+    [SerializeField] private float totalDuration = 1.5f;
 
-    [Tooltip("축소(사라짐) 효과가 시작되는 타이밍 비율 [0.1~0.9]")]
-    [Range(0.1f, 0.9f)]
-    [SerializeField] private float 축소시작비율 = 0.4f;
+    [Tooltip("축소 시작 타이밍 비율 [0.1~0.9]")]
+    [Range(0.1f, 0.9f)] [SerializeField] private float shrinkStartRatio = 0.4f;
 
-    private Rigidbody 리지드;
-    private Animator 애니메이터;
-    private Collider 콜라이더;
-    private Transform 플레이어위치;
+    // 캐싱용
+    private Rigidbody _rb;
+    private Animator _anim;
+    private Collider _collider;
+    private Transform _attacker;
 
-    void Awake()
+    private static readonly Vector3 VectorZero = Vector3.zero;
+    private static readonly Vector3 VectorOne = Vector3.one;
+
+    private void Awake()
     {
-        리지드 = GetComponent<Rigidbody>();
-        애니메이터 = GetComponentInChildren<Animator>();
-        콜라이더 = GetComponent<Collider>();
+        // 비싼 GetComponent 캐싱
+        _rb = GetComponent<Rigidbody>();
+        _anim = GetComponentInChildren<Animator>();
+        _collider = GetComponent<Collider>();
     }
 
     /// <summary>
-    /// 공격자(플레이어 등) 방향을 지정합니다.
+    /// 공격자 대상 transform 지정
     /// </summary>
     public void SetTarget(Transform attacker)
     {
-        플레이어위치 = attacker;
+        _attacker = attacker;
     }
 
     /// <summary>
-    /// 사망(물리) 연출을 실행합니다. 연출 종료 시 onComplete가 호출됩니다.
+    /// 사망 연출 실행. 연출 종료 시 onComplete 호출.
     /// </summary>
     public void Play(Action onComplete)
     {
-        // 1. 애니메이터 비활성화
-        if (애니메이터 != null)
-            애니메이터.enabled = false;
+        // 애니메이터/콜라이더 비활성화
+        if (_anim) _anim.enabled = false;
+        if (_collider) _collider.enabled = false;
 
-        // 2. 콜라이더 비활성화
-        if (콜라이더 != null)
-            콜라이더.enabled = false;
-
-        // 3. Rigidbody 물리 활성화
-        if (리지드 != null)
+        // Rigidbody 활성화 및 연출 처리
+        if (_rb)
         {
-            리지드.isKinematic = false;
+            _rb.isKinematic = false;
+            _rb.constraints = RigidbodyConstraints.FreezeRotation;
 
-            // 모든 축 회전 고정 — 총알에 맞고 날아가는 연출 (뒤집히지 않음)
-            리지드.constraints = RigidbodyConstraints.FreezeRotation;
-
-            // 공격자 반대 방향(XZ 평면)으로 날아감
-            Vector3 방향 = Vector3.zero;
-            if (플레이어위치 != null)
+            // 반대 방향(XZ 평면)으로 날아감, Y는 0으로
+            Vector3 direction = VectorZero;
+            if (_attacker)
             {
-                Vector3 차이 = transform.position - 플레이어위치.position;
-                차이.y = 0f;
-                방향 = 차이.normalized;
+                direction = (transform.position - _attacker.position);
+                direction.y = 0f;
+                if (direction.sqrMagnitude > 0.01f)
+                    direction.Normalize();
+                else
+                    direction = Vector3.forward; // fallback 방향
             }
 
-            // 수평 날아가기 + 약간의 상승 (총알 피격 느낌)
-            Vector3 힘 = new Vector3(
-                방향.x * 날아가는힘,
-                날아가는힘 * 위로올리는계수,
-                방향.z * 날아가는힘
+            // 적용할 물리 힘 계산
+            Vector3 force = new Vector3(
+                direction.x * flyPower,
+                flyPower * upwardRatio,
+                direction.z * flyPower
             );
-
-            리지드.AddForce(힘, ForceMode.Impulse);
+            _rb.velocity = VectorZero;
+            _rb.angularVelocity = VectorZero;
+            _rb.AddForce(force, ForceMode.Impulse);
         }
 
-        // 4. 마지막 일정 시간만큼 천천히 축소 → 완전 사라지면 콜백(onComplete)
-        float 축소대기시간 = 연출전체시간 * (1f - 축소시작비율);
-        float 축소시간 = 연출전체시간 * 축소시작비율;
+        // 연출 타이밍 계산 및 DOTween 축소
+        float shrinkDelay = totalDuration * (1f - shrinkStartRatio);
+        float shrinkDuration = totalDuration * shrinkStartRatio;
 
-        transform.DOScale(Vector3.zero, 축소시간)
-            .SetDelay(축소대기시간)
+        // 기존 Tween kill 방지 및 onComplete 보장
+        transform.DOKill();
+        transform.DOScale(VectorZero, shrinkDuration)
+            .SetDelay(shrinkDelay)
             .SetEase(Ease.InBack)
             .OnComplete(() => onComplete?.Invoke());
     }
 
     /// <summary>
-    /// 풀로 반환시 상태를 초기화합니다. Enemy.ResetForPool()에서 호출하세요.
+    /// 풀 반환(재사용) 시 상태 초기화. Enemy.ResetForPool()에서 호출 필요.
     /// </summary>
     public void ResetState()
     {
+        // Tween 모두 해제, 스케일 복원
         transform.DOKill();
-        transform.localScale = Vector3.one;
+        transform.localScale = VectorOne;
 
-        if (리지드 != null)
+        // Rigidbody/Collider/Animator 활성화 및 초기화
+        if (_rb)
         {
-            // velocity/angularVelocity는 kinematic 상태에서 설정 불가
-            // → 먼저 dynamic으로 전환 후 초기화, 이후 kinematic 복원
-            리지드.isKinematic = false;
-            리지드.velocity = Vector3.zero;
-            리지드.angularVelocity = Vector3.zero;
-            리지드.constraints = RigidbodyConstraints.None;
-            리지드.isKinematic = true;
+            // dynamic 전환 후 속도 초기화, 다시 kinematic
+            _rb.isKinematic = false;
+            _rb.velocity = VectorZero;
+            _rb.angularVelocity = VectorZero;
+            _rb.constraints = RigidbodyConstraints.None;
+            _rb.isKinematic = true;
         }
 
-        if (콜라이더 != null)
-            콜라이더.enabled = true;
-        if (애니메이터 != null)
-            애니메이터.enabled = true;
+        if (_collider) _collider.enabled = true;
+        if (_anim) _anim.enabled = true;
+
+        // 공격자 캐싱 리셋
+        _attacker = null;
     }
 }
