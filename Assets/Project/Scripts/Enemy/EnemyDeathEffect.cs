@@ -20,12 +20,18 @@ public class EnemyDeathEffect : MonoBehaviour
     private Rigidbody rb;
     private Animator  anim;
     private Collider  col;
+    private Transform agentTarget;
 
     void Awake()
     {
         rb   = GetComponent<Rigidbody>();
         anim = GetComponentInChildren<Animator>();
         col  = GetComponent<Collider>();
+    }
+
+    public void SetTarget(Transform target)
+    {
+        agentTarget = target;
     }
 
     /// <summary>
@@ -43,10 +49,20 @@ public class EnemyDeathEffect : MonoBehaviour
         if (rb != null)
         {
             rb.isKinematic = false;
+
+            // Agent 반대 방향(XZ 평면)으로 날아가기
+            Vector3 awayDir = Vector3.zero;
+            if (agentTarget != null)
+            {
+                Vector3 diff = transform.position - agentTarget.position;
+                diff.y = 0f;
+                awayDir = diff.normalized;
+            }
+
             Vector3 force = new Vector3(
-                UnityEngine.Random.Range(-flyForce, flyForce),
+                awayDir.x * flyForce,
                 flyForce * upwardBias,
-                UnityEngine.Random.Range(-flyForce * 0.5f, flyForce * 0.5f)
+                awayDir.z * flyForce
             );
             rb.AddForce(force, ForceMode.Impulse);
             rb.AddTorque(UnityEngine.Random.insideUnitSphere * flyForce * 2f, ForceMode.Impulse);

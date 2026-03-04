@@ -239,6 +239,7 @@ public class Enemy : MonoBehaviour
         appliedMonsterGrade = grade;
 
         target = arkTarget;
+        deathEffect?.SetTarget(target);
         currentHP = currentCombatStats.hp;
         isAlive = true;
         isInPool = false;
