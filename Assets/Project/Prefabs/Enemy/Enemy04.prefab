@@ -451,10 +451,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b2b12e9e5a0b4540a7d14aacc839c65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  "\uD295\uAE30\uB294\uD798": 10
-  "\uC704\uCABD\uBCF4\uC815": 1
-  "\uC5F0\uCD9C\uC804\uCCB4\uC2DC\uAC04": 1
-  "\uCD95\uC18C\uC2DC\uC791\uBE44\uC728": 0.2
+  "\uB0A0\uC544\uAC00\uB294\uD798": 20
+  "\uC704\uB85C\uC62C\uB9AC\uB294\uACC4\uC218": 0.5
+  "\uC5F0\uCD9C\uC804\uCCB4\uC2DC\uAC04": 0.5
+  "\uCD95\uC18C\uC2DC\uC791\uBE44\uC728": 0.35
 --- !u!1 &3094938174762107368
 GameObject:
   m_ObjectHideFlags: 0
