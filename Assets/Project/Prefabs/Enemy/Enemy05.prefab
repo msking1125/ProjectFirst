@@ -951,6 +951,7 @@ GameObject:
   - component: {fileID: 2865456423461824238}
   - component: {fileID: 3036320318842488719}
   - component: {fileID: 3062993244644821320}
+  - component: {fileID: -451292819885985024}
   m_Layer: 0
   m_Name: Enemy05
   m_TagString: Untagged
@@ -1067,6 +1068,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &-451292819885985024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6013794693491469871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b2b12e9e5a0b4540a7d14aacc839c65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flyForce: 5
+  upwardBias: 1.5
+  ragdollDuration: 1.5
+  shrinkStartRatio: 0.4
 --- !u!1 &6111008230082963639
 GameObject:
   m_ObjectHideFlags: 0
