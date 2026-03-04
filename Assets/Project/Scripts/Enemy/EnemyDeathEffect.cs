@@ -8,35 +8,26 @@ using UnityEngine;
 /// </summary>
 public class EnemyDeathEffect : MonoBehaviour
 {
-    [Header("물리 날아가기(튕김) 세기")]
-    [Tooltip("몬스터가 날아가는 힘의 크기입니다. 높을수록 멀리 튕깁니다.")]
-    [SerializeField] private float 날아가는힘 = 5f;
+    [Header("날아가는 힘")]
+    [Tooltip("충격으로 날아가는 수평 힘입니다. 높을수록 멀리 튕깁니다.")]
+    [SerializeField] private float 날아가는힘 = 12f;
 
     [Header("올라가는 비율(y축 반영)")]
-    [Tooltip("위쪽으로 올라가는 힘의 비율입니다. 클수록 더 높이 뜹니다.")]
-    [SerializeField] private float 위로올리는계수 = 1.5f;
+    [Tooltip("위쪽으로 올라가는 힘의 비율입니다. 작을수록 수평으로 낮게 날아갑니다.")]
+    [SerializeField] private float 위로올리는계수 = 0.3f;
 
-    [Header("쓰러지는 회전 세기")]
-    [Tooltip("날아가는 방향으로 몸이 앞으로 쓰러지는(드롭) 회전 강도입니다.\n음수로 지정하면 반대 방향으로 기울어집니다.")]
-    [SerializeField] private float 드롭회전계수 = 2.5f;
-    
     [Header("연출 타이밍")]
     [Tooltip("전체 사망 연출(물리+축소) 시간(초)")]
     [SerializeField] private float 연출전체시간 = 1.5f;
 
     [Tooltip("축소(사라짐) 효과가 시작되는 타이밍 비율 [0.1~0.9]")]
     [Range(0.1f, 0.9f)]
-    [SerializeField] private float 축소시작비율 = 0.4f; // 마지막 N%에서 축소 시작
-    
-    /// <summary>
-    /// • Agent(플레이어)가 가까이 있으면 그 반대 방향으로 날아갑니다.
-    /// • Enemy 프리팹에 이 컴포넌트가 있으면 물리 죽음 연출이 실행됩니다.
-    /// </summary>
+    [SerializeField] private float 축소시작비율 = 0.4f;
 
     private Rigidbody 리지드;
     private Animator 애니메이터;
     private Collider 콜라이더;
-    private Transform 플레이어위치; // 공격자
+    private Transform 플레이어위치;
 
     void Awake()
     {
@@ -56,21 +47,23 @@ public class EnemyDeathEffect : MonoBehaviour
     /// <summary>
     /// 사망(물리) 연출을 실행합니다. 연출 종료 시 onComplete가 호출됩니다.
     /// </summary>
-    /// <param name="onComplete">연출이 완전히 끝났을 때 호출할 콜백</param>
     public void Play(Action onComplete)
     {
-        // 1. 애니메이터 비활성화(기존 애니 동작 정지)
+        // 1. 애니메이터 비활성화
         if (애니메이터 != null)
             애니메이터.enabled = false;
 
-        // 2. 콜라이더 비활성화(중복 처리 방지, 베이스 재트리거 차단)
+        // 2. 콜라이더 비활성화
         if (콜라이더 != null)
             콜라이더.enabled = false;
 
-        // 3. Rigidbody 물리 활성화 + 힘/회전 적용
+        // 3. Rigidbody 물리 활성화
         if (리지드 != null)
         {
             리지드.isKinematic = false;
+
+            // 모든 축 회전 고정 — 총알에 맞고 날아가는 연출 (뒤집히지 않음)
+            리지드.constraints = RigidbodyConstraints.FreezeRotation;
 
             // 공격자 반대 방향(XZ 평면)으로 날아감
             Vector3 방향 = Vector3.zero;
@@ -81,6 +74,7 @@ public class EnemyDeathEffect : MonoBehaviour
                 방향 = 차이.normalized;
             }
 
+            // 수평 날아가기 + 약간의 상승 (총알 피격 느낌)
             Vector3 힘 = new Vector3(
                 방향.x * 날아가는힘,
                 날아가는힘 * 위로올리는계수,
@@ -88,19 +82,6 @@ public class EnemyDeathEffect : MonoBehaviour
             );
 
             리지드.AddForce(힘, ForceMode.Impulse);
-
-            // Y축(좌우) 회전 고정 — 상하 좌우로 빙빙 도는 현상 방지
-            리지드.constraints = RigidbodyConstraints.FreezeRotationY;
-
-            // 날아가는 방향 기준 수직 축으로만 토크 적용
-            // → 몸이 충격 방향으로 축 쳐지면서 쓰러지는 연출
-            if (방향.sqrMagnitude > 0.01f)
-            {
-                // Cross(이동방향, up) = 이동 방향 기준 왼쪽 수평 축
-                // 이 축으로 양의 토크를 주면 몸의 위쪽이 이동 방향으로 쏠림(앞으로 드롭)
-                Vector3 드롭축 = Vector3.Cross(방향, Vector3.up);
-                리지드.AddTorque(드롭축 * 날아가는힘 * 드롭회전계수, ForceMode.Impulse);
-            }
         }
 
         // 4. 마지막 일정 시간만큼 천천히 축소 → 완전 사라지면 콜백(onComplete)
