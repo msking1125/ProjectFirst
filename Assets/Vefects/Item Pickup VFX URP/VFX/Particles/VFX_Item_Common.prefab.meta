@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e9a61902ec4cb8f42b1b2a59fe27cf07
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317042
+  packageName: URP Complete VFX Bundle
+  packageVersion: 1.0.0
+  assetPath: Assets/Vefects/Item Pickup VFX URP/VFX/Particles/VFX_Item_Common.prefab
+  uploadId: 752243
