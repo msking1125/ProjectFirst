@@ -123,6 +123,9 @@ public class EnemyDeathEffect : MonoBehaviour
 
         if (리지드 != null)
         {
+            // velocity/angularVelocity는 kinematic 상태에서 설정 불가
+            // → 먼저 dynamic으로 전환 후 초기화, 이후 kinematic 복원
+            리지드.isKinematic = false;
             리지드.velocity = Vector3.zero;
             리지드.angularVelocity = Vector3.zero;
             리지드.constraints = RigidbodyConstraints.None;
