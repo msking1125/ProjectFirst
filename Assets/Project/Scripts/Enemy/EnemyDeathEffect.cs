@@ -15,6 +15,10 @@ public class EnemyDeathEffect : MonoBehaviour
     [Header("올라가는 비율(y축 반영)")]
     [Tooltip("위쪽으로 올라가는 힘의 비율입니다. 클수록 더 높이 뜹니다.")]
     [SerializeField] private float 위로올리는계수 = 1.5f;
+
+    [Header("쓰러지는 회전 세기")]
+    [Tooltip("날아가는 방향으로 몸이 앞으로 쓰러지는(드롭) 회전 강도입니다.\n음수로 지정하면 반대 방향으로 기울어집니다.")]
+    [SerializeField] private float 드롭회전계수 = 2.5f;
     
     [Header("연출 타이밍")]
     [Tooltip("전체 사망 연출(물리+축소) 시간(초)")]
@@ -84,7 +88,19 @@ public class EnemyDeathEffect : MonoBehaviour
             );
 
             리지드.AddForce(힘, ForceMode.Impulse);
-            리지드.AddTorque(UnityEngine.Random.insideUnitSphere * 날아가는힘 * 2f, ForceMode.Impulse);
+
+            // Y축(좌우) 회전 고정 — 상하 좌우로 빙빙 도는 현상 방지
+            리지드.constraints = RigidbodyConstraints.FreezeRotationY;
+
+            // 날아가는 방향 기준 수직 축으로만 토크 적용
+            // → 몸이 충격 방향으로 축 쳐지면서 쓰러지는 연출
+            if (방향.sqrMagnitude > 0.01f)
+            {
+                // Cross(이동방향, up) = 이동 방향 기준 왼쪽 수평 축
+                // 이 축으로 양의 토크를 주면 몸의 위쪽이 이동 방향으로 쏠림(앞으로 드롭)
+                Vector3 드롭축 = Vector3.Cross(방향, Vector3.up);
+                리지드.AddTorque(드롭축 * 날아가는힘 * 드롭회전계수, ForceMode.Impulse);
+            }
         }
 
         // 4. 마지막 일정 시간만큼 천천히 축소 → 완전 사라지면 콜백(onComplete)
@@ -109,6 +125,7 @@ public class EnemyDeathEffect : MonoBehaviour
         {
             리지드.velocity = Vector3.zero;
             리지드.angularVelocity = Vector3.zero;
+            리지드.constraints = RigidbodyConstraints.None;
             리지드.isKinematic = true;
         }
 
