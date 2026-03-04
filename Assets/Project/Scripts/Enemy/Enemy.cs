@@ -116,6 +116,7 @@ public class Enemy : MonoBehaviour
     private bool hasDieTrigger;
     private bool hasWarnedAnimatorMissing;
     private bool isDeathReturning;
+    private EnemyDeathEffect deathEffect;
     private bool hasMonsterRunState;
     private bool hasPlayedRunFallback;
     private bool hasHitBarrier;
@@ -151,6 +152,7 @@ public class Enemy : MonoBehaviour
         appliedMonsterId = defaultMonsterId;
         appliedMoveSpeedSource = "default";
         currentCombatStats = baseCombatStats;
+        deathEffect = GetComponent<EnemyDeathEffect>();
     }
 
     void Update()
@@ -300,6 +302,7 @@ public class Enemy : MonoBehaviour
         RestoreBaseHitColor();
         transform.DOKill();
         isDeathReturning = false;
+        deathEffect?.ResetState();
         ResetMotion();
     }
 
@@ -436,6 +439,20 @@ public class Enemy : MonoBehaviour
         MonsterGrade grade = Grade;
         Debug.Log($"[Enemy] Killed. id={monsterId} grade={grade}");
         EnemyKilled?.Invoke(this);
+
+        // EnemyDeathEffect 컴포넌트가 있으면 래그돌 연출로 대체
+        if (deathEffect != null)
+        {
+            isDeathReturning = true;
+            deathEffect.Play(() =>
+            {
+                isDeathReturning = false;
+                ReturnToPool();
+            });
+            return;
+        }
+
+        // 기존 동작: Die 애니 + 지연 반환
         TrySetAnimatorTrigger(DieTriggerId, hasDieTrigger);
 
         if (!useDeathReturnDelay || deathReturnDelay <= 0f)
