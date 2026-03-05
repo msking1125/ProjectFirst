@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 
 /// <summary>
 /// 몬스터 데이터 테이블(인덱스 최적화 및 직관적인 구조)
@@ -8,7 +10,9 @@ using Sirenix.OdinInspector;
 [CreateAssetMenu(menuName = "Game/Monster Table")]
 public class MonsterTable : ScriptableObject
 {
+#if ODIN_INSPECTOR
     [TableList]
+#endif
     public List<MonsterRow> rows = new();
 
     // ID, 이름 별로 MonsterRow를 빠르게 탐색하기 위한 인덱스
