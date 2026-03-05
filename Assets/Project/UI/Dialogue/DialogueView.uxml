@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="project://database/Assets/Project/UI/Dialogue/DialogueView.uss" />
+    <ui:VisualElement class="dialogue-root">
+        <ui:VisualElement name="background" class="background" />
+        
+        <ui:VisualElement class="character-container">
+            <ui:VisualElement name="character-left" class="character" />
+            <ui:VisualElement name="character-right" class="character" />
+        </ui:VisualElement>
+        
+        <ui:VisualElement class="dialogue-box">
+            <ui:Label name="speaker" class="speaker" text="이름" />
+            <ui:Label name="dialogue-text" class="text" text="대사 내용" />
+        </ui:VisualElement>
+        
+        <ui:VisualElement name="choice-container" class="choice-container" />
+    </ui:VisualElement>
+</ui:UXML>

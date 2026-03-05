@@ -1,0 +1,62 @@
+.dialogue-root {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+}
+
+.character-container {
+    position: absolute;
+    bottom: 220px;
+    width: 100%;
+    height: 400px;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.character {
+    width: 380px;
+    height: 400px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.dialogue-box {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    right: 40px;
+    height: 180px;
+    background-color: rgba(0,0,0,0.85);
+    border-radius: 12px;
+    padding: 20px;
+    flex-direction: column;
+}
+
+.speaker {
+    font-size: 22px;
+    color: #ffd700;
+    margin-bottom: 8px;
+}
+
+.text {
+    font-size: 18px;
+    color: white;
+    white-space: normal;
+    -unity-text-align: middle-left;
+}
+
+.choice-container {
+    position: absolute;
+    bottom: 260px;
+    left: 40px;
+    right: 40px;
+    flex-direction: column;
+    gap: 12px;
+}
