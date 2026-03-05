@@ -3,7 +3,22 @@ guid: f95c50c45b534cef81e0f272681381b1
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - baseHealth: {instanceID: 0}
+  - monsterTable: {instanceID: 0}
+  - skillTable: {instanceID: 0}
+  - playerAgent: {instanceID: 0}
+  - playerData: {fileID: 11400000, guid: bad569521735f674cac1004ea6b159fe, type: 2}
+  - targetCanvas: {instanceID: 0}
+  - uiCanvasGroup: {instanceID: 0}
+  - statusHudView: {instanceID: 0}
+  - charUltimateController: {instanceID: 0}
+  - skillBarController: {instanceID: 0}
+  - skillSelectPanelController: {instanceID: 0}
+  - skillBarPrefab: {instanceID: 0}
+  - skillSelectPanelPrefab: {instanceID: 0}
+  - resultPanel: {instanceID: 0}
+  - resultPanelManager: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

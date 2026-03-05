@@ -112,13 +112,13 @@ public class LobbyManager : MonoBehaviour
     private void OnEnable()
     {
         if (playerData != null)
-            playerData.OnCurrencyChanged += RefreshCurrencyUI;
+            playerData.OnCurrencyChanged += OnCurrencyChangedHandler;
     }
 
     private void OnDisable()
     {
         if (playerData != null)
-            playerData.OnCurrencyChanged -= RefreshCurrencyUI;
+            playerData.OnCurrencyChanged -= OnCurrencyChangedHandler;
     }
 
     private void Start()
@@ -128,6 +128,9 @@ public class LobbyManager : MonoBehaviour
     }
 
     // ── UI 갱신 ───────────────────────────────────────────────
+
+    // OnCurrencyChanged 이벤트 핸들러 (Action<CurrencyType> -> void 브리지)
+    private void OnCurrencyChangedHandler(CurrencyType _) => RefreshCurrencyUI();
 
     private void RefreshCurrencyUI()
     {
@@ -265,6 +268,4 @@ public class LobbyManager : MonoBehaviour
         if (value >= 1_000)     return $"{value / 1_000f:F1}K";
         return value.ToString();
     }
-
-    private enum CurrencyType { Ticket, Gold, Diamond }
 }

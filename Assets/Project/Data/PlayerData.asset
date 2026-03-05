@@ -9,13 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-<<<<<<<< HEAD:Assets/AddressableAssetsData/AssetGroups/Schemas/Battle_Test_ContentUpdateGroupSchema.asset
-  m_Script: {fileID: 11500000, guid: 5834b5087d578d24c926ce20cd31e6d6, type: 3}
-  m_Name: Battle_Test_ContentUpdateGroupSchema
-  m_EditorClassIdentifier: 
-  m_Group: {fileID: 11400000, guid: 5ce43a45091e2e144a6d60fa9d6242b9, type: 2}
-  m_StaticContent: 0
-========
   m_Script: {fileID: 11500000, guid: 232bc23f494efce4cad5482b2958d623, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: 
@@ -24,5 +17,4 @@ MonoBehaviour:
   diamond: 50
   currentStageIndex: 0
   currentAgentIndex: 0
-  lastIdleRewardTime: 
->>>>>>>> claude/fix-basehealthbar-namespace-OJE4K:Assets/Project/Data/PlayerData.asset
+  lastIdleRewardTime:

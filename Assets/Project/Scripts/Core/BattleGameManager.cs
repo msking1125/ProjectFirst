@@ -25,6 +25,13 @@ public class BattleGameManager : MonoBehaviour
     [SerializeField] private SkillTable skillTable;
     [SerializeField] private Agent playerAgent;
 
+    [Header("Player Data")]
+    [Tooltip("승리 보상 골드를 귀속시킬 PlayerData 에셋을 연결하세요.")]
+    [SerializeField] private PlayerData playerData;
+    [Tooltip("패배 시에도 획득 골드의 이 비율만큼 지급합니다. (0 = 미지급, 0.5 = 50%)")]
+    [Range(0f, 1f)]
+    [SerializeField] private float defeatGoldRatio = 0f;
+
     [Header("HUD")]
     [SerializeField] private Canvas targetCanvas;
     [Tooltip("시네마틱 중 숨길 UI CanvasGroup (비우면 targetCanvas에 자동 추가)")]
@@ -238,11 +245,36 @@ public class BattleGameManager : MonoBehaviour
     {
         if (gameEnded) return;
         gameEnded = true;
-        
-        // Invoke를 위해 Time.timeScale = 0f는 지연 호출 안으로 이동하거나 Coroutine을 써야 하지만, 
-        // 우선 기존 플로우 유지를 위해 Invoke 전에 호출되었던 timescale을 지연 함수 안으로 옮깁니다.
+
+        // 배틀 보상 골드를 PlayerData에 귀속
+        GrantBattleGold(message == "Victory");
+
         pendingResultMessage = message;
         Invoke("ShowResultDelayed", 0.3f);
+    }
+
+    /// <summary>
+    /// 배틀 결과에 따라 획득한 골드를 PlayerData에 저장합니다.
+    /// </summary>
+    private void GrantBattleGold(bool isVictory)
+    {
+        if (playerData == null || runSession == null)
+        {
+            Debug.LogWarning("[BattleGameManager] PlayerData 또는 RunSession이 null — 골드 귀속 스킵.");
+            return;
+        }
+
+        int earnedGold = runSession.Gold;
+        if (earnedGold <= 0) return;
+
+        int grantedGold = isVictory
+            ? earnedGold
+            : Mathf.FloorToInt(earnedGold * defeatGoldRatio);
+
+        if (grantedGold <= 0) return;
+
+        playerData.AddGold(grantedGold);
+        Debug.Log($"[BattleGameManager] 골드 귀속: {grantedGold} ({(isVictory ? "승리" : "패배")}) -> PlayerData.gold={playerData.gold}");
     }
 
     private void ShowResultDelayed()
