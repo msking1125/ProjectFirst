@@ -35,6 +35,45 @@ Unity 3D Idle Defence Game
 - **Cinemachine**(카메라 연출)
 - **TextMeshPro**(UI)
 
+### 현재 프로젝트 패키지/에셋(사용 기준)
+
+앞으로 기능 구현 시 아래 패키지가 이미 설치되어 있다는 전제로 활용합니다.
+
+- Cysharp: `UniTask 2.5.10`
+- OccaSoftware: `Motion Blur 3.2.1`
+- Unity: `Addressables 1.22.3`
+- Unity: `AI Navigation 1.1.7`
+- Unity: `Alembic 2.3.2`
+- Unity: `Autodesk FBX SDK for Unity 4.2.1`
+- Unity: `Burst 1.8.21`
+- Unity: `Cinemachine 2.10.6`
+- Unity: `Code Coverage 1.2.7`
+- Unity: `Core RP Library 14.0.12`
+- Unity: `Custom NUnit 1.0.6`
+- Unity: `Editor Coroutines 1.0.1`
+- Unity: `FBX Exporter 4.2.1`
+- Unity: `JetBrains Rider Editor 3.0.39`
+- Unity: `Mathematics 1.2.6`
+- Unity: `Newtonsoft Json 3.2.2`
+- Unity: `Post Processing 3.4.0`
+- Unity: `Profile Analyzer 1.2.4`
+- Unity: `Recorder 4.0.3`
+- Unity: `Scriptable Build Pipeline 1.21.25`
+- Unity: `Searcher 4.9.2`
+- Unity: `Sequences 2.0.1`
+- Unity: `Settings Manager 2.1.1`
+- Unity: `Shader Graph 14.0.12`
+- Unity: `Test Framework 1.1.33`
+- Unity: `TextMeshPro 3.0.9`
+- Unity: `Timeline 1.7.7`
+- Unity: `Unity UI 1.0.0`
+- Unity: `Unity Version Control 2.11.2`
+- Unity: `Universal RP 14.0.12`
+- Unity: `Universal RP Config 14.0.10`
+- Unity: `Visual Scripting 1.9.10`
+- Unity: `Visual Studio Code Editor 1.2.5`
+- Unity: `Visual Studio Editor 2.0.27`
+
 ---
 
 ## 시스템 설계(초안)
