@@ -68,6 +68,7 @@ public class LobbyManager : MonoBehaviour
 
     [SerializeField] private Button mailButton;
     [SerializeField] private Button settingsButton;
+    [SerializeField] private SettingPanel settingPanel;
 
     // ── 하단 네비 ─────────────────────────────────────────────
 
@@ -106,6 +107,7 @@ public class LobbyManager : MonoBehaviour
 
     private void Awake()
     {
+        ResolveSettingPanel();
         BindButtons();
     }
 
@@ -162,6 +164,16 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
+    private void ResolveSettingPanel()
+    {
+        if (settingPanel != null)
+            return;
+
+        SettingPanel[] panels = FindObjectsOfType<SettingPanel>(true);
+        if (panels != null && panels.Length > 0)
+            settingPanel = panels[0];
+    }
+
     // ── 버튼 바인딩 ───────────────────────────────────────────
 
     private void BindButtons()
@@ -208,6 +220,12 @@ public class LobbyManager : MonoBehaviour
     private void OnSettingsClicked()
     {
         Debug.Log("[LobbyManager] 설정 클릭");
+
+        if (settingPanel != null)
+            settingPanel.OpenPanel();
+        else
+            Debug.LogWarning("[LobbyManager] SettingPanel 참조가 없습니다. Inspector 또는 자동 탐색 결과를 확인하세요.");
+
         onSettingsClicked?.RaiseEvent();
     }
 

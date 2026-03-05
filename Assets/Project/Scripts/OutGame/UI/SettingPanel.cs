@@ -64,6 +64,10 @@ public class SettingPanel : MonoBehaviour
     [Header("Optional Events")]
     [SerializeField] private VoidEventChannelSO onLogoutClicked;
 
+    [Header("Panel Control")]
+    [Tooltip("Awake에서 패널을 자동으로 닫아 초기 상태를 숨김으로 유지합니다.")]
+    [SerializeField] private bool hideOnAwake = true;
+
     private FrameLevel currentFrameLevel = FrameLevel.Mid;
 
     private void Awake()
@@ -77,6 +81,9 @@ public class SettingPanel : MonoBehaviour
         LoadPrefs();
 
         OpenGraphicTab();
+
+        if (hideOnAwake)
+            gameObject.SetActive(false);
     }
 
     private void BindTabs()
@@ -164,6 +171,18 @@ public class SettingPanel : MonoBehaviour
     }
 
     // ── 탭 오픈 ───────────────────────────────────────────────
+
+    public void OpenPanel()
+    {
+        gameObject.SetActive(true);
+        LoadPrefs();
+        OpenGraphicTab();
+    }
+
+    public void ClosePanel()
+    {
+        gameObject.SetActive(false);
+    }
 
     public void OpenGraphicTab() => SetTab(graphicTabRoot, soundTabRoot, accountTabRoot);
     public void OpenSoundTab() => SetTab(soundTabRoot, graphicTabRoot, accountTabRoot);
