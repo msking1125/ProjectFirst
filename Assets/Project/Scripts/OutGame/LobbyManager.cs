@@ -68,6 +68,7 @@ public class LobbyManager : MonoBehaviour
 
     [SerializeField] private Button mailButton;
     [SerializeField] private Button settingsButton;
+    [SerializeField] private SettingPanel settingPanel;
 
     // ── 하단 네비 ─────────────────────────────────────────────
 
@@ -200,6 +201,10 @@ public class LobbyManager : MonoBehaviour
     private void OnSettingsClicked()
     {
         Debug.Log("[LobbyManager] 설정 클릭");
+
+        if (settingPanel != null)
+            settingPanel.OpenPanel();
+
         onSettingsClicked?.RaiseEvent();
     }
 
