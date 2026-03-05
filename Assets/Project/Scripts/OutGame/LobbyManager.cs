@@ -83,6 +83,11 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private Button missionButton;
     [SerializeField] private Button idleRewardButton;
 
+    // ── 시스템 연결 ───────────────────────────────────────────
+
+    [Header("Systems")]
+    [SerializeField] private IdleRewardManager idleRewardManager;
+
     // ── 씬 이름 ───────────────────────────────────────────────
 
     [Header("Scene Names")]
@@ -243,13 +248,11 @@ public class LobbyManager : MonoBehaviour
 
     private void OnIdleRewardClicked()
     {
-        if (playerData == null) return;
+        if (idleRewardManager != null)
+            idleRewardManager.OpenPopup();
+        else
+            Debug.LogWarning("[LobbyManager] IdleRewardManager가 연결되지 않았습니다.");
 
-        System.TimeSpan elapsed = playerData.GetIdleElapsed();
-        Debug.Log($"[LobbyManager] 방치 보상 클릭 — 경과 시간: {elapsed.TotalMinutes:F1}분");
-
-        // TODO: elapsed 기반으로 보상 계산 후 지급
-        playerData.MarkIdleRewardClaimed();
         onIdleRewardClaimed?.RaiseEvent();
     }
 

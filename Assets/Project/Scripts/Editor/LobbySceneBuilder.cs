@@ -19,8 +19,10 @@ using TMPro;
 /// </summary>
 public static class LobbySceneBuilder
 {
-    private const string ScenePath      = "Assets/Project/Scenes/Lobby.unity";
-    private const string PlayerDataPath = "Assets/Project/Data/PlayerData.asset";
+    private const string ScenePath          = "Assets/Project/Scenes/Lobby.unity";
+    private const string PlayerDataPath     = "Assets/Project/Data/PlayerData.asset";
+    private const string IdleConfigPath     = "Assets/Project/Data/IdleRewardConfig.asset";
+    private const string MailBoxPath        = "Assets/Project/Data/MailBox.asset";
 
     // 레퍼런스 해상도 (9:16 모바일)
     private static readonly Vector2 RefResolution = new Vector2(1080f, 1920f);
@@ -57,14 +59,19 @@ public static class LobbySceneBuilder
         // 새 씬 생성
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-        // PlayerData 에셋 준비
-        PlayerData playerData = EnsurePlayerData();
+        // 에셋 준비
+        PlayerData playerData       = EnsurePlayerData();
+        IdleRewardConfig idleConfig = EnsureIdleRewardConfig();
+        MailBox mailBox             = EnsureMailBox();
 
         // UI 계층 빌드
         var refs = BuildSceneHierarchy();
 
         // LobbyManager 배치 및 연결
         WireLobbyManager(refs, playerData);
+
+        // IdleRewardManager 배치 및 연결
+        WireIdleRewardManager(refs, playerData, idleConfig, mailBox);
 
         // 씬 저장
         EditorSceneManager.SaveScene(scene, ScenePath);
@@ -114,6 +121,15 @@ public static class LobbySceneBuilder
         public Button       petManageButton;
         public Button       missionButton;
         public Button       idleRewardButton;
+        // 방치보상 팝업
+        public GameObject   idlePopupRoot;
+        public TMP_Text     idleElapsedText;
+        public TMP_Text     idleGoldText;
+        public TMP_Text     idleTicketText;
+        public TMP_Text     idleDiamondText;
+        public Button       idleClaimButton;
+        public Button       idleCloseButton;
+        public GameObject   idleRewardAnimRoot;
     }
 
     private static SceneRefs BuildSceneHierarchy()
@@ -168,6 +184,9 @@ public static class LobbySceneBuilder
 
         // ── 우측 사이드 ───────────────────────────────────────
         BuildSidePanel(canvasTr, ref refs);
+
+        // ── 방치 보상 팝업 (초기 비활성) ─────────────────────
+        BuildIdleRewardPopup(canvasTr, ref refs);
 
         return refs;
     }
@@ -346,6 +365,195 @@ public static class LobbySceneBuilder
         refs.idleRewardButton = CreateIconButton(panelTr, "Btn_IdleReward", "방치보상", new Vector2(0f, -30f), new Vector2(110f, 110f), ColSideBtn);
     }
 
+    // ── 에셋 생성 헬퍼 ───────────────────────────────────────
+
+    private static IdleRewardConfig EnsureIdleRewardConfig()
+    {
+        IdleRewardConfig cfg = AssetDatabase.LoadAssetAtPath<IdleRewardConfig>(IdleConfigPath);
+        if (cfg == null)
+        {
+            cfg = ScriptableObject.CreateInstance<IdleRewardConfig>();
+            // 기본값: goldPerHour=100, maxOfflineHours=12 (클래스 기본값 사용)
+            AssetDatabase.CreateAsset(cfg, IdleConfigPath);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[LobbySceneBuilder] IdleRewardConfig.asset 생성 → {IdleConfigPath}");
+        }
+        return cfg;
+    }
+
+    private static MailBox EnsureMailBox()
+    {
+        MailBox mb = AssetDatabase.LoadAssetAtPath<MailBox>(MailBoxPath);
+        if (mb == null)
+        {
+            mb = ScriptableObject.CreateInstance<MailBox>();
+            AssetDatabase.CreateAsset(mb, MailBoxPath);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[LobbySceneBuilder] MailBox.asset 생성 → {MailBoxPath}");
+        }
+        return mb;
+    }
+
+    // ── 방치 보상 팝업 빌드 ───────────────────────────────────
+
+    private static void BuildIdleRewardPopup(Transform canvas, ref SceneRefs refs)
+    {
+        var colPopupBg    = new Color(0f,    0f,    0f,    0.75f);
+        var colPanel      = new Color(0.10f, 0.12f, 0.18f, 1.00f);
+        var colDivider    = new Color(0.30f, 0.30f, 0.40f, 1.00f);
+        var colRowBg      = new Color(0.06f, 0.06f, 0.10f, 0.90f);
+        var colClaimBtn   = new Color(0.20f, 0.60f, 0.95f, 1.00f);
+        var colCloseBtn   = new Color(0.35f, 0.35f, 0.40f, 1.00f);
+
+        // ── 팝업 루트 (풀스크린, 초기 비활성) ─────────────────
+        var popupGo = new GameObject("IdleRewardPopup",
+            typeof(RectTransform), typeof(Image), typeof(Button));
+        popupGo.transform.SetParent(canvas, false);
+        popupGo.GetComponent<Image>().color = colPopupBg;
+        // 뒷배경 터치 시 팝업 닫기 (CloseButton 역할 겸용, 실제 연결은 WireIdleRewardManager)
+        StretchFull(popupGo.GetComponent<RectTransform>());
+        popupGo.SetActive(false);
+        refs.idlePopupRoot = popupGo;
+
+        // ── 카드 패널 ─────────────────────────────────────────
+        var panelGo = new GameObject("Panel", typeof(RectTransform), typeof(Image));
+        panelGo.transform.SetParent(popupGo.transform, false);
+        panelGo.GetComponent<Image>().color = colPanel;
+        var panelRt = panelGo.GetComponent<RectTransform>();
+        panelRt.anchorMin        = new Vector2(0.5f, 0.5f);
+        panelRt.anchorMax        = new Vector2(0.5f, 0.5f);
+        panelRt.pivot            = new Vector2(0.5f, 0.5f);
+        panelRt.anchoredPosition = Vector2.zero;
+        panelRt.sizeDelta        = new Vector2(700f, 760f);
+        Transform panelTr = panelGo.transform;
+
+        // 제목
+        var titleGo = MakeText(panelTr, "Title", "방치 보상",
+            new Vector2(0f, 320f), new Vector2(600f, 80f),
+            fontSize: 48f, bold: true, color: Color.white);
+
+        // 경과 시간
+        var elapsedGo = MakeText(panelTr, "ElapsedText", "0분",
+            new Vector2(0f, 240f), new Vector2(600f, 54f),
+            fontSize: 32f, bold: false, color: new Color(0.75f, 0.85f, 1f, 1f));
+        refs.idleElapsedText = elapsedGo.GetComponent<TextMeshProUGUI>();
+
+        // 구분선
+        var divGo = new GameObject("Divider", typeof(RectTransform), typeof(Image));
+        divGo.transform.SetParent(panelTr, false);
+        divGo.GetComponent<Image>().color = colDivider;
+        var divRt = divGo.GetComponent<RectTransform>();
+        divRt.anchorMin = new Vector2(0.5f, 0.5f);
+        divRt.anchorMax = new Vector2(0.5f, 0.5f);
+        divRt.pivot     = new Vector2(0.5f, 0.5f);
+        divRt.anchoredPosition = new Vector2(0f, 175f);
+        divRt.sizeDelta = new Vector2(620f, 2f);
+
+        // 보상 행: 골드 / 티켓 / 다이아
+        refs.idleGoldText    = BuildRewardRow(panelTr, "GoldRow",    "골드",   colRowBg, 100f);
+        refs.idleTicketText  = BuildRewardRow(panelTr, "TicketRow",  "티켓",   colRowBg,   0f);
+        refs.idleDiamondText = BuildRewardRow(panelTr, "DiamondRow", "다이아", colRowBg, -100f);
+
+        // 받기 버튼
+        var claimGo = new GameObject("Btn_Claim",
+            typeof(RectTransform), typeof(Image), typeof(Button));
+        claimGo.transform.SetParent(panelTr, false);
+        claimGo.GetComponent<Image>().color = colClaimBtn;
+        var claimRt = claimGo.GetComponent<RectTransform>();
+        claimRt.anchorMin = new Vector2(0.5f, 0.5f);
+        claimRt.anchorMax = new Vector2(0.5f, 0.5f);
+        claimRt.pivot     = new Vector2(0.5f, 0.5f);
+        claimRt.anchoredPosition = new Vector2(0f, -260f);
+        claimRt.sizeDelta = new Vector2(540f, 100f);
+        MakeText(claimGo.transform, "Text", "받기",
+            Vector2.zero, Vector2.zero, 40f, true, Color.white, stretch: true);
+        refs.idleClaimButton = claimGo.GetComponent<Button>();
+
+        // 닫기 버튼 (✕)
+        var closeGo = new GameObject("Btn_Close",
+            typeof(RectTransform), typeof(Image), typeof(Button));
+        closeGo.transform.SetParent(panelTr, false);
+        closeGo.GetComponent<Image>().color = colCloseBtn;
+        var closeRt = closeGo.GetComponent<RectTransform>();
+        closeRt.anchorMin = new Vector2(1f, 1f);
+        closeRt.anchorMax = new Vector2(1f, 1f);
+        closeRt.pivot     = new Vector2(0.5f, 0.5f);
+        closeRt.anchoredPosition = new Vector2(-20f, -20f);
+        closeRt.sizeDelta = new Vector2(60f, 60f);
+        MakeText(closeGo.transform, "Text", "✕",
+            Vector2.zero, Vector2.zero, 30f, true, Color.white, stretch: true);
+        refs.idleCloseButton = closeGo.GetComponent<Button>();
+
+        // 보상 연출 루트 (비활성 — Animator / Particle 추가용)
+        var animGo = new GameObject("RewardAnim", typeof(RectTransform));
+        animGo.transform.SetParent(panelTr, false);
+        var animRt = animGo.GetComponent<RectTransform>();
+        animRt.anchorMin = new Vector2(0.5f, 0.5f);
+        animRt.anchorMax = new Vector2(0.5f, 0.5f);
+        animRt.pivot     = new Vector2(0.5f, 0.5f);
+        animRt.anchoredPosition = Vector2.zero;
+        animRt.sizeDelta = new Vector2(400f, 400f);
+        animGo.SetActive(false);
+        refs.idleRewardAnimRoot = animGo;
+    }
+
+    private static TMP_Text BuildRewardRow(Transform parent, string rowName,
+        string label, Color rowBg, float yOffset)
+    {
+        var rowGo = new GameObject(rowName, typeof(RectTransform), typeof(Image));
+        rowGo.transform.SetParent(parent, false);
+        rowGo.GetComponent<Image>().color = rowBg;
+        var rowRt = rowGo.GetComponent<RectTransform>();
+        rowRt.anchorMin = new Vector2(0.5f, 0.5f);
+        rowRt.anchorMax = new Vector2(0.5f, 0.5f);
+        rowRt.pivot     = new Vector2(0.5f, 0.5f);
+        rowRt.anchoredPosition = new Vector2(0f, yOffset);
+        rowRt.sizeDelta = new Vector2(620f, 76f);
+
+        // 라벨
+        MakeText(rowGo.transform, "Label", label,
+            new Vector2(-180f, 0f), new Vector2(200f, 76f),
+            fontSize: 28f, bold: false, color: new Color(0.7f, 0.7f, 0.7f, 1f));
+
+        // 값 텍스트
+        var valGo = MakeText(rowGo.transform, "Value", "+0",
+            new Vector2(90f, 0f), new Vector2(320f, 76f),
+            fontSize: 36f, bold: true, color: new Color(1f, 0.85f, 0.3f, 1f));
+        return valGo.GetComponent<TextMeshProUGUI>();
+    }
+
+    // ── IdleRewardManager 연결 ────────────────────────────────
+
+    private static void WireIdleRewardManager(SceneRefs refs,
+        PlayerData playerData, IdleRewardConfig config, MailBox mailBox)
+    {
+        var mgrGo = new GameObject("IdleRewardManager");
+        var mgr   = mgrGo.AddComponent<IdleRewardManager>();
+
+        var so = new SerializedObject(mgr);
+        so.FindProperty("playerData")        .objectReferenceValue = playerData;
+        so.FindProperty("config")            .objectReferenceValue = config;
+        so.FindProperty("mailBox")           .objectReferenceValue = mailBox;
+        so.FindProperty("popupRoot")         .objectReferenceValue = refs.idlePopupRoot;
+        so.FindProperty("elapsedTimeText")   .objectReferenceValue = refs.idleElapsedText;
+        so.FindProperty("rewardGoldText")    .objectReferenceValue = refs.idleGoldText;
+        so.FindProperty("rewardTicketText")  .objectReferenceValue = refs.idleTicketText;
+        so.FindProperty("rewardDiamondText") .objectReferenceValue = refs.idleDiamondText;
+        so.FindProperty("claimButton")       .objectReferenceValue = refs.idleClaimButton;
+        so.FindProperty("closeButton")       .objectReferenceValue = refs.idleCloseButton;
+        so.FindProperty("rewardAnimRoot")    .objectReferenceValue = refs.idleRewardAnimRoot;
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        // LobbyManager에 idleRewardManager 연결
+        var lobbyMgr = UnityEngine.Object.FindObjectOfType<LobbyManager>();
+        if (lobbyMgr != null)
+        {
+            var lobbySo = new SerializedObject(lobbyMgr);
+            lobbySo.FindProperty("idleRewardManager").objectReferenceValue = mgr;
+            lobbySo.ApplyModifiedPropertiesWithoutUndo();
+        }
+    }
+
     // ── LobbyManager 연결 ─────────────────────────────────────
 
     private static void WireLobbyManager(SceneRefs refs, PlayerData playerData)
@@ -373,11 +581,42 @@ public static class LobbySceneBuilder
         so.FindProperty("petManageButton")         .objectReferenceValue = refs.petManageButton;
         so.FindProperty("missionButton")           .objectReferenceValue = refs.missionButton;
         so.FindProperty("idleRewardButton")        .objectReferenceValue = refs.idleRewardButton;
+        // idleRewardManager 는 WireIdleRewardManager() 에서 별도 연결
 
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
     // ── 공통 생성 헬퍼 ────────────────────────────────────────
+
+    /// <summary>TMP_Text GameObject 생성. stretch=true 이면 부모를 가득 채웁니다.</summary>
+    private static GameObject MakeText(Transform parent, string name, string text,
+        Vector2 pos, Vector2 size, float fontSize, bool bold,
+        Color color, bool stretch = false)
+    {
+        var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
+        go.transform.SetParent(parent, false);
+        var rt = go.GetComponent<RectTransform>();
+        if (stretch)
+        {
+            StretchFull(rt);
+        }
+        else
+        {
+            rt.anchorMin        = new Vector2(0.5f, 0.5f);
+            rt.anchorMax        = new Vector2(0.5f, 0.5f);
+            rt.pivot            = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta        = size;
+        }
+        var tmp = go.GetComponent<TextMeshProUGUI>();
+        tmp.text               = text;
+        tmp.fontSize           = fontSize;
+        tmp.fontStyle          = bold ? FontStyles.Bold : FontStyles.Normal;
+        tmp.color              = color;
+        tmp.alignment          = TextAlignmentOptions.Center;
+        tmp.enableWordWrapping = false;
+        return go;
+    }
 
     /// <summary>아이콘(텍스트) 버튼 생성. anchor 기본값은 좌상단 (0,1).</summary>
     private static Button CreateIconButton(Transform parent, string name, string label,
