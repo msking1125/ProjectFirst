@@ -1,4 +1,4 @@
-/* 
+/*
     [1080x1920(세로/모바일 풀스크린) 환경에서도 시각적으로 어색하지 않게 개선]
     - 팝업 panel의 최대/최소 가로/세로, 패딩, 내부 여백을 여유롭게 조정
     - 버튼은 한 줄에 여유 있게, 최대폭 제한 & 적당한 마진 부여(터치 환경 대응)
@@ -34,8 +34,6 @@
     padding: 38px 32px 36px 32px;
     background-color: rgba(15, 15, 18, 0.96);
     border-radius: 20px;
-    box-sizing: border-box;
-    box-shadow: 0 4px 28px 0 rgba(0,0,0,0.18);
 }
 
 .result-title {
@@ -45,7 +43,7 @@
     margin-bottom: 14px;
     margin-top: 2px;
     letter-spacing: 0.2px;
-    -unity-text-align: center;
+    -unity-text-align: middle-center;
 }
 
 .result-subtitle {
@@ -54,7 +52,7 @@
     margin-bottom: 28px;
     margin-top: 0;
     letter-spacing: 0.1px;
-    -unity-text-align: center;
+    -unity-text-align: middle-center;
 }
 
 .result-button-container {
@@ -62,7 +60,8 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0px 16px;
+    row-gap: 0px;
+    column-gap: 16px;
     margin-top: 8px;
 }
 
@@ -77,10 +76,8 @@
     color: #ffffff;
     border-radius: 8px;
     border-width: 0;
-    border-style: none;
     margin: 7px 4px;
     transition: background-color 0.14s;
-    box-sizing: border-box;
 }
 
 .result-button:hover {
