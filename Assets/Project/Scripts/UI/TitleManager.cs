@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using TMPro;
+using Cysharp.Threading.Tasks;
+using UnityEngine.AddressableAssets;
 
 /// <summary>
 /// 타이틀 씬 UI 관리자 (Cyberpunk Dark Neon Style - 9:16 모바일 최적화)
@@ -11,7 +12,7 @@ using TMPro;
 public class TitleManager : MonoBehaviour
 {
     [Header("Scene Settings")]
-    [SerializeField] private string gameSceneName = "Battle_Test";
+    [SerializeField] private string gameSceneName = "Assets/Project/Scenes/Battle_Test.unity";
 
     [Header("UI Texts")]
     [SerializeField] private TMP_FontAsset customFont;
@@ -199,9 +200,9 @@ public class TitleManager : MonoBehaviour
 
     private void OnStartClicked()
     {
-        Debug.Log("[TitleManager] 게임 시작 클릭 -> AsyncSceneLoader 실행");
+        Debug.Log("[TitleManager] 게임 시작 클릭 -> AsyncSceneLoader(Addressables.LoadSceneAsync) 실행");
         startButtonEvent?.RaiseEvent();
-        LoadGameScene();
+        LoadGameSceneAsync().Forget();
     }
 
     private void OnSettingsClicked()
@@ -217,9 +218,12 @@ public class TitleManager : MonoBehaviour
         QuitGame();
     }
 
-    // ── Public 메서드 ─────────────────────────────────────────
+    // ── Public/Async 메서드 ─────────────────────────────────────────
 
-    public void LoadGameScene()
+    /// <summary>
+    /// Addressables 기반 Async 씬 로딩 (빌드/에디터 모두 지원)
+    /// </summary>
+    private async UniTaskVoid LoadGameSceneAsync()
     {
         if (string.IsNullOrEmpty(gameSceneName))
         {
@@ -227,7 +231,14 @@ public class TitleManager : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene(gameSceneName);
+        // Addressables로 씬 비동기 로드 (빌드 세팅 미포함/번들 문제 방지)
+        var handle = Addressables.LoadSceneAsync(gameSceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
+        while (!handle.IsDone)
+        {
+            // UI 업데이트하려면 진행 바 노출 추가 가능
+            await UniTask.Yield();
+        }
+        // 로딩 완료 후 UI 등 처리 위치 (별도 화면 없음)
     }
 
     public void QuitGame()
