@@ -1,9 +1,7 @@
 /* ========================================
    Title Screen - 9:16 세로 레이아웃
-   뿌연 막 완전 제거 버전
    ======================================== */
 
-/* 루트: 화면 전체, 완전 투명 */
 .title-root {
     width: 100%;
     height: 100%;
@@ -14,17 +12,46 @@
     padding-left: 16px;
     padding-right: 16px;
     background-color: rgba(0, 0, 0, 0);
-    /* 배경색 지정 방식 명시 - 완전 투명 */
-    -unity-background-scale-mode: scale-and-crop;
 }
 
-/* spacer: 완전 투명, 배경 이미지 영역 */
 .spacer {
     flex-grow: 1;
     background-color: rgba(0, 0, 0, 0);
 }
 
-/* 하단 버튼 컨테이너: 가로(row) 배치 */
+/* ==================== 로딩 영역 (gradient 경고 해결) ==================== */
+.loading-container {
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 24px;
+    background-color: rgba(0, 0, 0, 0);
+    width: 100%;
+}
+
+.loading-log {
+    color: #ffffff;
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    margin-bottom: 8px;
+    opacity: 0.85;
+}
+
+.progress-bar-container {
+    width: 80%;
+    height: 6px;
+    background-color: rgba(255,255,255,0.15);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: #1976d2;           /* gradient 대신 solid 색상 (UI Toolkit 호환) */
+    transition: width 0.1s linear;
+}
+
+/* 버튼 영역 (기존 유지) */
 .button-container {
     flex-direction: row;
     justify-content: space-between;
@@ -35,7 +62,6 @@
     background-color: rgba(0, 0, 0, 0);
 }
 
-/* 버튼 공통 스타일 */
 .title-button {
     flex-grow: 1;
     height: 56px;
@@ -50,29 +76,11 @@
     margin-right: 5px;
 }
 
-.title-button:hover {
-    background-color: rgba(83, 148, 240, 0.97);
-}
+.title-button:hover { background-color: rgba(83, 148, 240, 0.97); }
+.title-button:active { background-color: rgba(44, 94, 164, 1.0); }
 
-.title-button:active {
-    background-color: rgba(44, 94, 164, 1.0);
-}
+#start-button { background-color: rgba(25, 118, 210, 0.93); }
+#start-button:hover { background-color: rgba(66, 165, 245, 0.98); }
 
-/* 게임 시작: 강조 */
-#start-button {
-    background-color: rgba(25, 118, 210, 0.93);
-    font-size: 20px;
-}
-
-#start-button:hover {
-    background-color: rgba(66, 165, 245, 0.98);
-}
-
-/* 종료: 차분한 색 */
-#quit-button {
-    background-color: rgba(60, 70, 80, 0.90);
-}
-
-#quit-button:hover {
-    background-color: rgba(90, 105, 120, 0.97);
-}
+#quit-button { background-color: rgba(60, 70, 80, 0.90); }
+#quit-button:hover { background-color: rgba(90, 105, 120, 0.97); }
