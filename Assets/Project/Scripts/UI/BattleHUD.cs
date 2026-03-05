@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using Project;
 
 [DisallowMultipleComponent]
 public class BattleHUD : MonoBehaviour
