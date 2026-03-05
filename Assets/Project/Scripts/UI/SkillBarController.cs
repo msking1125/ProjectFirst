@@ -3,6 +3,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+namespace Project
+{
+
 public class SkillBarController : MonoBehaviour
 {
     [Header("슬롯 버튼")]
@@ -407,3 +410,4 @@ public class SkillBarController : MonoBehaviour
         txt.transform.SetAsLastSibling();
     }
 }
+} // namespace Project

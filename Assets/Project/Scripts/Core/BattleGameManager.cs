@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+namespace Project
+{
+
 /// <summary>
 /// BattleGameManager: 전투 씬의 게임 흐름, 보상, UI를 관리하는 싱글턴.
 /// </summary>
@@ -551,3 +554,4 @@ public class BattleGameManager : MonoBehaviour
         t.text = label;
     }
 }
+} // namespace Project

@@ -3,6 +3,9 @@ using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 
+namespace Project
+{
+
 /// <summary>
 /// 몬스터 사망 시 물리적으로 날아가며 + 글리치 이펙트로 소멸하는 연출 담당.
 /// Enemy 프리팹에 부착(선택).
@@ -374,3 +377,4 @@ public class EnemyDeathEffect : MonoBehaviour
         Destroy(sparks, Mathf.Max(0.1f, sparksLifetime));
     }
 }
+} // namespace Project

@@ -6,6 +6,9 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using Sirenix.OdinInspector;
 
+namespace Project
+{
+
 public struct WaveMultipliers
 {
     public float hp;
@@ -937,3 +940,4 @@ public class Enemy : MonoBehaviour
         cachedAnimator.SetTrigger(triggerId);
     }
 }
+} // namespace Project

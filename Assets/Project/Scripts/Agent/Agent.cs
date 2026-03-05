@@ -1,5 +1,8 @@
 using UnityEngine;
 
+namespace Project
+{
+
 public class Agent : MonoBehaviour
 {
     [Header("Data")]
@@ -321,4 +324,5 @@ public class Agent : MonoBehaviour
         if (manager == null) return null;
         return manager.GetClosest(transform.position, range);
     }
+}
 }

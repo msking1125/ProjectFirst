@@ -2,6 +2,9 @@ using System;
 using TMPro;
 using UnityEngine;
 
+namespace Project
+{
+
 [AddComponentMenu("Enemy/Wave Manager")]
 public class WaveManager : MonoBehaviour
 {
@@ -210,3 +213,4 @@ public class WaveManager : MonoBehaviour
         }
     }
 }
+} // namespace Project

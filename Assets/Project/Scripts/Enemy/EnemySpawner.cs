@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace Project
+{
+
 /// <summary>
 /// EnemySpawner
 /// - 기본적으로 spawnInterval(초)마다 spawnPoints 중 임의 위치에서 EnemyPool.Get으로 적 생성
@@ -318,3 +321,4 @@ public class EnemySpawner : MonoBehaviour
         return MonsterGrade.Normal;
     }
 }
+} // namespace Project

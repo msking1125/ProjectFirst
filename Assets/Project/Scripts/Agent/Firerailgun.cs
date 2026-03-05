@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+namespace Project
+{
+
 public class Firerailgun : MonoBehaviour
 {
     [Header("공통 설정")]
@@ -73,3 +76,4 @@ public class Firerailgun : MonoBehaviour
         }
     }
 }
+} // namespace Project

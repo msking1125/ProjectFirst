@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace Project
+{
+
 public class SkillSystem
 {
     private readonly SkillTable skillTable;
@@ -340,3 +343,4 @@ public class SkillSystem
         return result;
     }
 }
+} // namespace Project

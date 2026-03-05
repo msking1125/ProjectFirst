@@ -2,6 +2,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+namespace Project
+{
+
 public class SkillButtonSlot : MonoBehaviour
 {
     [SerializeField] private Button button;
@@ -62,3 +65,4 @@ public class SkillButtonSlot : MonoBehaviour
         }
     }
 }
+} // namespace Project

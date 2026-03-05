@@ -2,6 +2,9 @@ using System;
 using TMPro;
 using UnityEngine;
 
+namespace Project
+{
+
 public class BaseHealth : MonoBehaviour
 {
     [SerializeField] private int maxHealth = 100;
@@ -60,3 +63,4 @@ public class BaseHealth : MonoBehaviour
         }
     }
 }
+} // namespace Project

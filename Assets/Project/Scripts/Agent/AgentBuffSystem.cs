@@ -1,13 +1,16 @@
 using System.Collections;
 using UnityEngine;
 
+namespace Project
+{
+
 /// <summary>
 /// Agent에 버프/디버프 효과를 일시적으로 적용하는 컴포넌트.
 /// Agent 오브젝트에 자동으로 추가됩니다.
 /// </summary>
 public class AgentBuffSystem : MonoBehaviour
 {
-    private Agent agent;
+    private Project.Agent agent;
 
     // 현재 활성 버프 코루틴 (같은 타입 재발동 시 기존 덮어쓰기)
     private Coroutine atkBuffCoroutine;
@@ -78,3 +81,4 @@ public class AgentBuffSystem : MonoBehaviour
 
     public bool HasAnyBuff => AtkBuffMultiplier > 1f || DefBuffMultiplier > 1f || SpdBuffMultiplier > 1f;
 }
+} // namespace Project

@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace Project
+{
+
 /// <summary>
 /// EnemyPool
 /// - 적 프리팹(Enemy)을 미리 여러 개 생성해 놓고 필요할 때 꺼내 쓰고, 다시 반환하여 재사용하는 오브젝트 풀
@@ -146,3 +149,4 @@ public class EnemyPool : MonoBehaviour
         GetOrCreatePool(prefab).Enqueue(enemy);
     }
 }
+} // namespace Project

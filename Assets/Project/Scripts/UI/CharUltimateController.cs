@@ -2,6 +2,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+namespace Project
+{
+
 /// <summary>
 /// 캐릭터 고유 액티브 스킬 버튼 컨트롤러.
 ///
@@ -235,3 +238,4 @@ public class CharUltimateController : MonoBehaviour
         return null;
     }
 }
+} // namespace Project

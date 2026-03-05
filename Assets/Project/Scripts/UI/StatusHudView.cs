@@ -2,6 +2,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+namespace Project
+{
+
 /// <summary>
 /// 레벨 · 경험치 · 골드를 각각 분리된 영역으로 표시하는 HUD 컴포넌트.
 ///
@@ -330,3 +333,4 @@ public class StatusHudView : MonoBehaviour
         goldText.raycastTarget = false;
     }
 }
+} // namespace Project

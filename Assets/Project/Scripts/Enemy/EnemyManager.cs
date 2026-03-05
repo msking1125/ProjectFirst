@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace Project
+{
+
 public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager Instance;
@@ -126,3 +129,4 @@ public class EnemyManager : MonoBehaviour
         return buffer.Count;
     }
 }
+} // namespace Project

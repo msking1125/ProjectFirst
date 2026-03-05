@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
+namespace Project
+{
+
 /// <summary>
 /// ResultUI 오브젝트에 부착.
 /// UIDocument에서 root VisualElement를 찾아 승/패 결과를 표시합니다.
@@ -247,3 +250,4 @@ public class ResultPanelManager : MonoBehaviour
         }
     }
 }
+} // namespace Project
