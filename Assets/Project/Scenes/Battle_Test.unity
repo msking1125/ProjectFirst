@@ -420,6 +420,7 @@ MonoBehaviour:
   skillTable: {fileID: 11400000, guid: 519161c05be1ebf4b98228abf28e2d96, type: 2}
   playerAgent: {fileID: 1868366109}
   targetCanvas: {fileID: 404325890}
+  uiCanvasGroup: {fileID: 0}
   statusHudView: {fileID: 1599195891}
   charUltimateController: {fileID: 323268831}
   skillBarController: {fileID: 3971674745986000917}
