@@ -87,6 +87,41 @@ Assets/Project/
 
 ---
 
+## Package Stack (확정 목록 — 구현 시 우선 활용)
+
+### Third-Party
+| 패키지 | 버전 | 활용 시스템 |
+|---|---|---|
+| **UniTask** (Cysharp) | 2.5.10 Git | AsyncSceneLoader, AgentBuffSystem, BGM 페이드 등 비동기 처리 |
+| **Motion Blur** (OccaSoftware) | 3.2.1 Custom | URP Post-processing 카메라 연출 |
+
+### Unity Packages (주요)
+| 패키지 | 버전 | 활용 시스템 |
+|---|---|---|
+| **Addressables** | 1.22.3 | 에셋 비동기 로드 (프리팹, 사운드, VFX) |
+| **AI Navigation** | 1.1.7 | 적 이동 경로(NavMesh) |
+| **Burst** | 1.8.21 | 연산 집약 로직 성능 최적화 |
+| **Cinemachine** | 2.10.6 | 카메라 연출 (스킬 컷씬, 결과 화면) |
+| **Mathematics** | 1.2.6 | Burst 연동 고성능 수학 연산 |
+| **Newtonsoft Json** | 3.2.2 | 세이브 데이터 직렬화 |
+| **Post Processing** | 3.4.0 | 화면 이펙트 (Bloom, Vignette 등) |
+| **TextMeshPro** | 3.0.9 | DamageText, BattleHUD, UI 전반 |
+| **Timeline** | 1.7.7 | SkillEffectTrigger, 스킬 컷씬 |
+| **Universal RP** | 14.0.12 | 렌더 파이프라인 (URP) |
+| **Shader Graph** | 14.0.12 | 커스텀 셰이더 (적 사망 이펙트 등) |
+| **Settings Manager** | 2.1.1 | 게임 설정 저장/불러오기 |
+
+### 패키지 활용 원칙
+- **비동기 처리**: 코루틴 신규 작성 금지 → `UniTask` + `async/await` 사용
+- **씬 전환**: `AsyncSceneLoader` 유지, 내부는 UniTask로 전환 가능
+- **카메라**: Cinemachine Virtual Camera 기반으로 연출 구성
+- **적 이동**: AI Navigation(NavMesh)으로 경로 계산
+- **에셋 로드**: 런타임 동적 로드는 Addressables 사용
+- **UI 텍스트**: 반드시 TextMeshPro 사용 (Legacy Text 금지)
+- **수학/최적화**: 벡터/행렬 연산은 `Unity.Mathematics` + Burst 고려
+
+---
+
 ## Coding Conventions
 
 - **Namespace**: none enforced project-wide; follow existing file conventions
