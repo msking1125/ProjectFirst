@@ -175,6 +175,7 @@ public class SettingPanel : MonoBehaviour
     public void OpenPanel()
     {
         gameObject.SetActive(true);
+        LoadPrefs();
         OpenGraphicTab();
     }
 
