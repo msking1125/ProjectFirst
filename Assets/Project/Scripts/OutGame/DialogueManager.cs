@@ -82,8 +82,19 @@ public class DialogueManager : MonoBehaviour
 
     private async UniTask<List<DialogueData>> LoadDialogueTable(string groupId)
     {
-        // 실제 구현은 CSV Importer 연동 (기존 SkillTableImporter 참고)
-        await UniTask.Delay(100); // 예시
-        return new List<DialogueData>(); // 실제 테이블 반환
+        // Addressables를 통해 DialogueTable 로드
+        var handle = Addressables.LoadAssetAsync<DialogueTable>(dialogueTablePath);
+        await handle;
+        
+        if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+        {
+            DialogueTable table = handle.Result;
+            return table.GetByGroupId(groupId);
+        }
+        else
+        {
+            Debug.LogError($"[DialogueManager] DialogueTable 로드 실패: {dialogueTablePath}");
+            return new List<DialogueData>();
+        }
     }
 }

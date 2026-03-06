@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "DialogueData", menuName = "MindArk/Dialogue Data")]
-public class DialogueData : ScriptableObject
+[System.Serializable]
+public class DialogueData
 {
+    public string groupId;              // 대화 그룹 식별자
     public string dialogueId;
     public string speakerName;
+    [TextArea(3, 10)]
     public string text;
     public string background;           // 배경 이미지 이름 (Addressables 키)
     public string characterL;           // 왼쪽 캐릭터 이미지 이름
