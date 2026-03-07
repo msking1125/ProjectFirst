@@ -18,7 +18,8 @@ public class TitleLoadingManager : MonoBehaviour
         Debug.Log("[TitleLoadingManager] OnEnable 호출됨 → 스크립트 정상 작동 확인");
 
         var root = GetComponent<UIDocument>().rootVisualElement;
-        
+        if (root == null) return; // UIDocument가 비활성화된 경우 안전하게 종료
+
         loadingContainer = root.Q<VisualElement>("loading-container");
         progressBar = root.Q<VisualElement>("progress-bar");
         loadingLog = root.Q<Label>("loading-log");

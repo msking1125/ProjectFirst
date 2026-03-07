@@ -91,15 +91,9 @@ public class TitleManager : MonoBehaviour
             }
         }
 
-        // Hide existing UIDocument if present to remove the old UI at the bottom
-        var uiDocuments = FindObjectsOfType<UnityEngine.UIElements.UIDocument>();
-        foreach (var uiDoc in uiDocuments)
-        {
-            if (uiDoc != null)
-            {
-                uiDoc.gameObject.SetActive(false);
-            }
-        }
+        // TitleView.uxml UIDocument만 비활성화 — LoginUI 등 타 UIDocument는 건드리지 않음
+        var ownUIDoc = GetComponent<UnityEngine.UIElements.UIDocument>();
+        if (ownUIDoc != null) ownUIDoc.enabled = false;
 
         // 유니티 UI(uGUI)의 버튼 클릭 이벤트를 처리하기 위해서는 EventSystem이 필수적입니다.
         if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
@@ -154,7 +148,8 @@ public class TitleManager : MonoBehaviour
         setRt.anchorMax = new Vector2(1f, 1f);
         setRt.pivot = new Vector2(1f, 1f);
         setRt.anchoredPosition = new Vector2(-40f, -40f);
-        settingsBtnGo.SetActive(false);
+        // 로그인과 무관하게 설정은 항상 접근 가능
+        settingsBtnGo.SetActive(true);
 
         CreateCyberpunkButton("Btn_Settings_Inner", settingsBtnGo.transform, settingsButtonText, Vector2.zero, new Color(0.3f, 0.3f, 0.35f, 0.9f), OnSettingsClicked, new Vector2(250f, 100f), 30f);
 
