@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 [RequireComponent(typeof(UIDocument))]
 public class TitleLoadingManager : MonoBehaviour
 {
-    [SerializeField] private string targetSceneName = "Battle_Test"; // 로비씬 없으므로 기존 Battle_Test 사용
+    [SerializeField] private string targetSceneName = "Lobby";
     
     private VisualElement progressBar;
     private Label loadingLog;
@@ -69,6 +69,6 @@ public class TitleLoadingManager : MonoBehaviour
         progressBar.style.width = new Length(100, LengthUnit.Percent);
         
         await UniTask.Delay(300);
-        Debug.Log("[TitleLoadingManager] 로딩 완료 → Battle_Test 씬으로 이동");
+        Debug.Log("[TitleLoadingManager] 로딩 완료 → Lobby 씬으로 이동");
     }
 }
