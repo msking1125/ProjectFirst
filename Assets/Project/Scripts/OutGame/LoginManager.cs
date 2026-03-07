@@ -55,6 +55,11 @@ namespace ProjectFirst.OutGame
         private void OnEnable()
         {
             if (uiDocument == null) return;
+
+            // LoginView.uxml이 uGUI ScreenSpaceOverlay Canvas 위에 렌더링되도록 sortingOrder 설정
+            if (uiDocument.panelSettings != null)
+                uiDocument.panelSettings.sortingOrder = 10;
+
             var root = uiDocument.rootVisualElement;
 
             // 1. Login Panel
@@ -358,16 +363,16 @@ namespace ProjectFirst.OutGame
                     PlayerPrefs.SetString("lastServer", serverInfo.serverId);
                     PlayerPrefs.Save();
 
-                    Debug.Log("[LoginManager] 접속 성공, Lobby 씬으로 이동합니다.");
-                    
-                    // 싱글톤 어드레서블 씬 로더 활용 (Lobby)
+                    Debug.Log("[LoginManager] 접속 성공, Battle_Test 씬으로 이동합니다.");
+
+                    // 싱글톤 어드레서블 씬 로더 활용 (Battle_Test)
                     if (AsyncSceneLoader.Instance != null)
                     {
-                        AsyncSceneLoader.Instance.LoadSceneAsync("Lobby", UnityEngine.SceneManagement.LoadSceneMode.Single);
+                        AsyncSceneLoader.Instance.LoadSceneAsync("Battle_Test", UnityEngine.SceneManagement.LoadSceneMode.Single);
                     }
                     else
                     {
-                        UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
+                        UnityEngine.SceneManagement.SceneManager.LoadScene("Battle_Test");
                     }
                 }
                 else
