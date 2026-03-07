@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <!-- 기본 스타일 (다크 테마 느낌) -->
+    <ui:Style>
+        .container {
+            flex-grow: 1;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(5, 5, 12, 0.85); /* 딥 다크 블루 오버레이 */
+        }
+        
+        .panel {
+            width: 800px;
+            padding: 40px;
+            background-color: rgba(20, 20, 30, 0.95);
+            border-radius: 20px;
+            border-width: 2px;
+            border-color: rgba(50, 150, 250, 0.5); /* 네온 강조 테두리 */
+            align-items: center;
+        }
+
+        .title {
+            font-size: 60px;
+            -unity-font-style: bold;
+            color: rgb(220, 220, 220);
+            margin-bottom: 50px;
+        }
+
+        .cyber-button {
+            width: 600px;
+            height: 100px;
+            font-size: 40px;
+            -unity-font-style: bold;
+            color: white;
+            background-color: rgba(25, 125, 225, 0.8);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition-duration: 0.2s;
+        }
+        
+        .cyber-button:hover {
+            background-color: rgba(50, 150, 250, 1);
+            scale: 1.05;
+        }
+
+        .cyber-input {
+            width: 600px;
+            height: 80px;
+            font-size: 35px;
+            margin-bottom: 20px;
+            background-color: rgba(10, 10, 15, 0.9);
+            color: white;
+            border-color: rgba(50, 150, 250, 0.5);
+            border-radius: 10px;
+            padding-left: 20px;
+        }
+
+        .dropdown {
+            width: 600px;
+            height: 80px;
+            margin-bottom: 40px;
+        }
+        
+        .dropdown > .unity-popup-field__label {
+            display: none;
+        }
+
+        .dropdown > .unity-popup-field__input {
+            font-size: 35px;
+            height: 80px;
+            background-color: rgba(10, 10, 15, 0.9);
+            color: white;
+            border-color: rgba(50, 150, 250, 0.5);
+            border-radius: 10px;
+        }
+
+        .error-label {
+            font-size: 30px;
+            color: rgb(255, 80, 80);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </ui:Style>
+
+    <ui:VisualElement class="container">
+        
+        <!-- 1. 로그인 팝업 -->
+        <ui:VisualElement name="LoginPanel" class="panel">
+            <ui:Label text="SYSTEM LOGIN" class="title" />
+            <ui:Button name="BtnGoogle" text="Google Login" class="cyber-button" style="background-color: rgba(220, 60, 60, 0.8);" />
+            <ui:Button name="BtnApple" text="Sign In with Apple" class="cyber-button" style="background-color: rgba(50, 50, 50, 0.8);" />
+            <ui:Button name="BtnGuest" text="Guest Login" class="cyber-button" style="background-color: rgba(100, 100, 100, 0.8);" />
+        </ui:VisualElement>
+
+        <!-- 2. 신규 유저 닉네임 생성 팝업 -->
+        <ui:VisualElement name="NicknamePanel" class="panel hidden">
+            <ui:Label text="NEW AGENT REGISTRATION" class="title" />
+            <ui:TextField name="InputNickname" class="cyber-input" text="" />
+            <ui:Label name="LblNicknameError" text="닉네임은 8자 이하의 한/영/숫자만 가능합니다." class="error-label" />
+            <ui:Button name="BtnCreateNickname" text="계정 생성" class="cyber-button" />
+            <ui:Button name="BtnBackToLogin" text="뒤로가기" class="cyber-button" style="background-color: rgba(100, 100, 100, 0.8); margin-top: 10px;" />
+        </ui:VisualElement>
+
+        <!-- 3. 기존 유저 서버 선택 팝업 -->
+        <ui:VisualElement name="ServerSelectPanel" class="panel hidden">
+            <ui:Label text="SELECT SERVER" class="title" />
+            <ui:Label name="LblWelcome" text="환영합니다, [User]님" style="font-size:35px; color:white; margin-bottom: 30px;" />
+            
+            <ui:DropdownField name="DropdownServer" class="dropdown" />
+            
+            <ui:Label name="LblServerError" text="서버 접속 실패" class="error-label" />
+            
+            <ui:Button name="BtnConnect" text="확인" class="cyber-button" />
+            <ui:Button name="BtnLogout" text="닫기" class="cyber-button" style="background-color: rgba(100, 100, 100, 0.8); margin-top: 10px;" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

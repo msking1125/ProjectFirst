@@ -1,355 +1,388 @@
 using System;
-using System.Collections;
 using System.Text.RegularExpressions;
-using TMPro;
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Cysharp.Threading.Tasks;
 
-/// <summary>
-/// 로그인 씬 메인 관리자.
-///
-/// ── 흐름 ──────────────────────────────────────────────────────
-///  [로그인 팝업] 구글/애플/게스트 선택
-///       ↓ 인증 성공
-///  [서버 선택 팝업] 서버 리스트 표시
-///       ↓ 서버 선택
-///  기존 유저 → 로비 씬 이동
-///  신규 유저 → [닉네임 입력 팝업] → 중복 확인 → 로비 씬 이동
-///
-/// ── Inspector 연결 가이드 ─────────────────────────────────────
-/// [Data]
-///   playerData        : PlayerData.asset
-///   serverList        : ServerList.asset
-///   lobbySceneName    : "Lobby" (씬 이름)
-///
-/// [Login Popup]
-///   loginPopup        : 로그인 선택 팝업 루트 GameObject
-///   googleButton      : 구글 로그인 Button
-///   appleButton       : 애플 로그인 Button
-///   guestButton       : 게스트 로그인 Button
-///
-/// [Server Popup]
-///   serverPopup       : 서버 선택 팝업 루트 GameObject
-///   serverItemPrefab  : 서버 항목 프리팹 (ServerListItem 컴포넌트 필요)
-///   serverListContent : 서버 항목이 추가될 Scroll View Content Transform
-///   serverConfirmBtn  : 서버 선택 확인 Button
-///   refreshButton     : 서버 목록 새로고침 Button
-///
-/// [Nickname Popup]
-///   nicknamePopup     : 닉네임 입력 팝업 루트 GameObject
-///   nicknameInput     : TMP_InputField (최대 8자 자동 제한)
-///   charCountText     : "0/8" 형태로 글자 수 표시하는 TMP_Text
-///   duplicateCheckBtn : 중복 확인 Button
-///   nicknameConfirmBtn: 완료 Button
-///   nicknameStatusText: 중복 결과 안내 TMP_Text
-/// </summary>
-[DisallowMultipleComponent]
-public class LoginManager : MonoBehaviour
+using ProjectFirst.OutGame.Data;
+using ProjectFirst.Network;
+
+namespace ProjectFirst.OutGame
 {
-    // ── 상수 ──────────────────────────────────────────────────
-
-    private const int NicknameMaxLength = 8;
-    // 한글(완성형+자모)+영문+숫자+언더스코어 허용
-    private static readonly Regex NicknameRegex = new(@"^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9_]+$");
-
-    // ── Data ──────────────────────────────────────────────────
-
-    [Header("Data")]
-    [SerializeField] private PlayerData playerData;
-    [SerializeField] private ServerListSO serverList;
-    [SerializeField] private string lobbySceneName = "Lobby";
-
-    // ── Login Popup ───────────────────────────────────────────
-
-    [Header("Login Popup")]
-    [SerializeField] private GameObject loginPopup;
-    [SerializeField] private Button googleButton;
-    [SerializeField] private Button appleButton;
-    [SerializeField] private Button guestButton;
-
-    // ── Server Popup ──────────────────────────────────────────
-
-    [Header("Server List Popup")]
-    [SerializeField] private GameObject serverPopup;
-    [SerializeField] private ServerListItem serverItemPrefab;
-    [SerializeField] private Transform serverListContent;
-    [SerializeField] private Button serverConfirmBtn;
-    [SerializeField] private Button refreshButton;
-
-    // ── Nickname Popup ────────────────────────────────────────
-
-    [Header("Nickname Popup")]
-    [SerializeField] private GameObject nicknamePopup;
-    [SerializeField] private TMP_InputField nicknameInput;
-    [SerializeField] private TMP_Text charCountText;
-    [SerializeField] private Button duplicateCheckBtn;
-    [SerializeField] private Button nicknameConfirmBtn;
-    [SerializeField] private TMP_Text nicknameStatusText;
-
-    // ── 런타임 상태 ───────────────────────────────────────────
-
-    private string selectedServerId;
-    private bool isDuplicateChecked;
-    private bool isDuplicateOk;
-    private LoginProvider currentProvider;
-
-    public enum LoginProvider { Google, Apple, Guest }
-
-    // ── 생명주기 ──────────────────────────────────────────────
-
-    private void Awake()
+    public class LoginManager : MonoBehaviour
     {
-        BindButtons();
-        ShowPopup(loginPopup);
-        HidePopup(serverPopup);
-        HidePopup(nicknamePopup);
-    }
+        public static LoginManager Instance { get; private set; }
 
-    // ── 버튼 바인딩 ───────────────────────────────────────────
+        [Header("UI Document")]
+        [SerializeField] private UIDocument uiDocument;
 
-    private void BindButtons()
-    {
-        googleButton?.onClick.AddListener(() => OnLoginClicked(LoginProvider.Google));
-        appleButton?.onClick.AddListener(()  => OnLoginClicked(LoginProvider.Apple));
-        guestButton?.onClick.AddListener(()  => OnLoginClicked(LoginProvider.Guest));
+        [Header("Data References")]
+        [SerializeField] private global::ServerListSO serverListSO;
+        [SerializeField] private TextAsset badWordsCSV;
 
-        serverConfirmBtn?.onClick.AddListener(OnServerConfirmed);
-        refreshButton?.onClick.AddListener(RefreshServerList);
+        // UI Elements
+        private VisualElement loginPanel;
+        private Button btnGoogle;
+        private Button btnApple;
+        private Button btnGuest;
 
-        duplicateCheckBtn?.onClick.AddListener(OnDuplicateCheckClicked);
-        nicknameConfirmBtn?.onClick.AddListener(OnNicknameConfirmed);
+        private VisualElement nicknamePanel;
+        private TextField inputNickname;
+        private Label lblNicknameError;
+        private Button btnCreateNickname;
+        private Button btnBackToLogin;
 
-        if (nicknameInput != null)
+        private VisualElement serverSelectPanel;
+        private Label lblWelcome;
+        private DropdownField dropdownServer;
+        private Label lblServerError;
+        private Button btnConnect;
+        private Button btnLogout;
+
+        // State & Dependencies
+        private BadWordData badWordData;
+        private INicknameCheckAPI nicknameAPI;
+        private IServerConnectionAPI serverConnectionAPI;
+
+        private void Awake()
         {
-            nicknameInput.characterLimit = NicknameMaxLength;
-            nicknameInput.onValueChanged.AddListener(OnNicknameInputChanged);
+            Instance = this;
+            InitializeDependencies();
         }
 
-        // 확인 버튼 초기 비활성화
-        if (serverConfirmBtn)   serverConfirmBtn.interactable   = false;
-        if (nicknameConfirmBtn) nicknameConfirmBtn.interactable = false;
-    }
-
-    // ── 로그인 ────────────────────────────────────────────────
-
-    private void OnLoginClicked(LoginProvider provider)
-    {
-        currentProvider = provider;
-        Debug.Log($"[LoginManager] 로그인 시도: {provider}");
-
-        // TODO: 실제 SDK 인증 호출 (Firebase Auth 등)
-        // 아래는 즉시 성공 처리 (더미)
-        SimulateAuthentication(provider);
-    }
-
-    /// <summary>
-    /// 인증 성공 후 처리. 실제 구현 시 SDK 콜백에서 호출하세요.
-    /// </summary>
-    public void OnAuthSuccess(bool isNewUser)
-    {
-        Debug.Log($"[LoginManager] 인증 성공 (신규: {isNewUser})");
-        HidePopup(loginPopup);
-        ShowServerListPopup();
-
-        // isNewUser 정보를 서버 선택 이후에 사용하기 위해 저장
-        PlayerPrefs.SetInt("IsNewUser", isNewUser ? 1 : 0);
-    }
-
-    private void SimulateAuthentication(LoginProvider provider)
-    {
-        // 에디터 더미: 게스트는 항상 신규 유저, 나머지는 기존 유저
-        bool isNew = provider == LoginProvider.Guest;
-        OnAuthSuccess(isNew);
-    }
-
-    // ── 서버 선택 ─────────────────────────────────────────────
-
-    private void ShowServerListPopup()
-    {
-        ShowPopup(serverPopup);
-        RefreshServerList();
-    }
-
-    private void RefreshServerList()
-    {
-        if (serverListContent == null || serverItemPrefab == null) return;
-
-        // 기존 목록 제거
-        foreach (Transform child in serverListContent)
-            Destroy(child.gameObject);
-
-        selectedServerId = null;
-        if (serverConfirmBtn) serverConfirmBtn.interactable = false;
-
-        if (serverList == null || serverList.servers == null) return;
-
-        foreach (var data in serverList.servers)
+        private void OnEnable()
         {
-            ServerListItem item = Instantiate(serverItemPrefab, serverListContent);
-            item.Setup(data, OnServerItemSelected);
-        }
-    }
+            if (uiDocument == null) return;
+            var root = uiDocument.rootVisualElement;
 
-    private void OnServerItemSelected(string serverId)
-    {
-        selectedServerId = serverId;
-        if (serverConfirmBtn) serverConfirmBtn.interactable = !string.IsNullOrEmpty(serverId);
-        Debug.Log($"[LoginManager] 서버 선택: {serverId}");
-    }
+            // 1. Login Panel
+            loginPanel = root.Q<VisualElement>("LoginPanel");
+            btnGoogle = root.Q<Button>("BtnGoogle");
+            btnApple = root.Q<Button>("BtnApple");
+            btnGuest = root.Q<Button>("BtnGuest");
 
-    private void OnServerConfirmed()
-    {
-        if (string.IsNullOrEmpty(selectedServerId)) return;
+            if (btnGoogle != null) btnGoogle.clicked += OnGoogleLogin;
+            if (btnApple != null) btnApple.clicked += OnAppleLogin;
+            if (btnGuest != null) btnGuest.clicked += OnGuestLogin;
 
-        Debug.Log($"[LoginManager] 서버 확정: {selectedServerId}");
-        HidePopup(serverPopup);
+            // 2. Nickname Panel
+            nicknamePanel = root.Q<VisualElement>("NicknamePanel");
+            inputNickname = root.Q<TextField>("InputNickname");
+            lblNicknameError = root.Q<Label>("LblNicknameError");
+            btnCreateNickname = root.Q<Button>("BtnCreateNickname");
+            btnBackToLogin = root.Q<Button>("BtnBackToLogin");
 
-        bool isNewUser = PlayerPrefs.GetInt("IsNewUser", 0) == 1;
-        if (isNewUser)
-            ShowNicknamePopup();
-        else
-            GoToLobby();
-    }
+            if (btnCreateNickname != null) btnCreateNickname.clicked += OnCreateNicknameClicked;
+            if (btnBackToLogin != null) btnBackToLogin.clicked += ShowLoginPanel;
+            
+            // 3. Server Select Panel
+            serverSelectPanel = root.Q<VisualElement>("ServerSelectPanel");
+            lblWelcome = root.Q<Label>("LblWelcome");
+            dropdownServer = root.Q<DropdownField>("DropdownServer");
+            lblServerError = root.Q<Label>("LblServerError");
+            btnConnect = root.Q<Button>("BtnConnect");
+            btnLogout = root.Q<Button>("BtnLogout");
 
-    // ── 닉네임 입력 ───────────────────────────────────────────
+            if (btnConnect != null) btnConnect.clicked += OnConfirmServerClicked;
+            if (btnLogout != null) btnLogout.clicked += HideAllPanels; // "닫기" 버튼
 
-    private void ShowNicknamePopup()
-    {
-        ShowPopup(nicknamePopup);
-        isDuplicateChecked = false;
-        isDuplicateOk      = false;
-        if (nicknameInput)       nicknameInput.text = string.Empty;
-        if (nicknameStatusText)  nicknameStatusText.text = string.Empty;
-        if (nicknameConfirmBtn)  nicknameConfirmBtn.interactable = false;
-        UpdateCharCount(string.Empty);
-    }
-
-    private void OnNicknameInputChanged(string value)
-    {
-        // 입력이 바뀌면 중복 확인 초기화
-        isDuplicateChecked = false;
-        isDuplicateOk      = false;
-        if (nicknameConfirmBtn) nicknameConfirmBtn.interactable = false;
-        if (nicknameStatusText) nicknameStatusText.text = string.Empty;
-
-        UpdateCharCount(value);
-    }
-
-    private void UpdateCharCount(string value)
-    {
-        if (charCountText)
-            charCountText.text = $"{value.Length}/{NicknameMaxLength}";
-    }
-
-    private void OnDuplicateCheckClicked()
-    {
-        string nickname = nicknameInput != null ? nicknameInput.text.Trim() : string.Empty;
-
-        if (string.IsNullOrEmpty(nickname))
-        {
-            SetNicknameStatus("닉네임을 입력해주세요.", Color.red);
-            return;
+            ShowLoginPanel();
         }
 
-        if (nickname.Length < 2)
+        private void InitializeDependencies()
         {
-            SetNicknameStatus("닉네임은 2자 이상이어야 합니다.", Color.red);
-            return;
+            // 모의 API 인스턴스화
+            nicknameAPI = new MockNicknameCheckAPI();
+            serverConnectionAPI = new MockServerConnectionAPI();
+
+            // 금칙어 데이터 로드
+            if (badWordsCSV != null)
+            {
+                badWordData = new BadWordData(badWordsCSV);
+            }
+            else
+            {
+                Debug.LogWarning("[LoginManager] BadWords CSV 파일이 할당되지 않았습니다. 금칙어 검사를 건너뜁니다.");
+            }
         }
 
-        if (!NicknameRegex.IsMatch(nickname))
+        private void HideAllPanels()
         {
-            SetNicknameStatus("한글, 영문, 숫자, '_'만 사용 가능합니다.", Color.red);
-            return;
+            loginPanel?.AddToClassList("hidden");
+            nicknamePanel?.AddToClassList("hidden");
+            serverSelectPanel?.AddToClassList("hidden");
         }
 
-        Debug.Log($"[LoginManager] 중복 확인 요청: {nickname}");
-        StartCoroutine(RequestDuplicateCheck(nickname));
-    }
-
-    /// <summary>
-    /// 중복 확인 API 호출 구조.
-    /// 실제 서버 연동 시 이 코루틴 안에서 UnityWebRequest 또는 HttpClient를 사용하세요.
-    /// </summary>
-    private IEnumerator RequestDuplicateCheck(string nickname)
-    {
-        if (duplicateCheckBtn) duplicateCheckBtn.interactable = false;
-        SetNicknameStatus("확인 중...", Color.gray);
-
-        // ── 실제 API 호출 위치 ──────────────────────────────
-        // string url = $"https://your-api.com/nickname/check?name={nickname}";
-        // using var req = UnityWebRequest.Get(url);
-        // yield return req.SendWebRequest();
-        // bool available = /* JSON 파싱 */ req.downloadHandler.text == "{\"available\":true}";
-        // ────────────────────────────────────────────────────
-
-        // 더미: 0.5초 대기 후 항상 사용 가능
-        yield return new WaitForSeconds(0.5f);
-        bool available = true;
-
-        isDuplicateChecked = true;
-        isDuplicateOk      = available;
-
-        if (available)
+        private void ShowLoginPanel()
         {
-            SetNicknameStatus("사용 가능한 닉네임입니다.", new Color(0.2f, 0.8f, 0.3f));
-            if (nicknameConfirmBtn) nicknameConfirmBtn.interactable = true;
-        }
-        else
-        {
-            SetNicknameStatus("이미 사용 중인 닉네임입니다.", Color.red);
-            if (nicknameConfirmBtn) nicknameConfirmBtn.interactable = false;
+            HideAllPanels();
+            loginPanel?.RemoveFromClassList("hidden");
         }
 
-        if (duplicateCheckBtn) duplicateCheckBtn.interactable = true;
-    }
-
-    private void OnNicknameConfirmed()
-    {
-        if (!isDuplicateChecked || !isDuplicateOk)
+        private void ShowNicknamePanel()
         {
-            SetNicknameStatus("중복 확인을 먼저 해주세요.", Color.red);
-            return;
+            HideAllPanels();
+            
+            if (lblNicknameError != null)
+            {
+                lblNicknameError.style.display = DisplayStyle.None;
+            }
+            
+            if (inputNickname != null)
+            {
+                inputNickname.value = string.Empty;
+            }
+
+            nicknamePanel?.RemoveFromClassList("hidden");
         }
 
-        string nickname = nicknameInput != null ? nicknameInput.text.Trim() : string.Empty;
-        if (string.IsNullOrEmpty(nickname)) return;
+        private void ShowServerSelectPanel()
+        {
+            HideAllPanels();
 
-        // PlayerData 또는 PlayerPrefs에 닉네임 저장
-        PlayerPrefs.SetString("PlayerNickname", nickname);
-        PlayerPrefs.SetInt("IsNewUser", 0);
-        PlayerPrefs.Save();
+            string currentNickname = PlayerPrefs.GetString("nickname", "Unknown");
+            if (lblWelcome != null)
+            {
+                lblWelcome.text = $"환영합니다, {currentNickname}님";
+            }
 
-        Debug.Log($"[LoginManager] 닉네임 확정: {nickname}");
-        HidePopup(nicknamePopup);
-        GoToLobby();
-    }
+            if (lblServerError != null)
+            {
+                lblServerError.style.display = DisplayStyle.None;
+            }
 
-    // ── 씬 전환 ───────────────────────────────────────────────
+            PopulateServerDropdown();
+            serverSelectPanel?.RemoveFromClassList("hidden");
+        }
 
-    private void GoToLobby()
-    {
-        Debug.Log($"[LoginManager] 로비 씬 이동: {lobbySceneName}");
-        SceneManager.LoadScene(lobbySceneName);
-    }
+        private void PopulateServerDropdown()
+        {
+            if (dropdownServer == null || serverListSO == null) return;
 
-    // ── 유틸 ──────────────────────────────────────────────────
+            List<string> serverNames = new List<string>();
+            foreach (var server in serverListSO.servers)
+            {
+                serverNames.Add($"{server.displayName} ({server.CongestionLabel})");
+            }
 
-    private void ShowPopup(GameObject popup)
-    {
-        if (popup != null) popup.SetActive(true);
-    }
+            dropdownServer.choices = serverNames;
+            
+            string lastServerId = PlayerPrefs.GetString("lastServer", string.Empty);
+            int indexToSelect = 0;
+            
+            if (!string.IsNullOrEmpty(lastServerId))
+            {
+                int foundIndex = serverListSO.servers.FindIndex(s => s.serverId == lastServerId);
+                if (foundIndex >= 0) indexToSelect = foundIndex;
+            }
 
-    private void HidePopup(GameObject popup)
-    {
-        if (popup != null) popup.SetActive(false);
-    }
+            if (serverNames.Count > 0)
+            {
+                dropdownServer.index = indexToSelect;
+            }
+        }
 
-    private void SetNicknameStatus(string message, Color color)
-    {
-        if (nicknameStatusText == null) return;
-        nicknameStatusText.text  = message;
-        nicknameStatusText.color = color;
+        // --- Login Actions ---
+
+        private void OnGoogleLogin() => ProcessLogin("google");
+        private void OnAppleLogin() => ProcessLogin("apple");
+        private void OnGuestLogin() => ProcessLogin("guest");
+
+        private void ProcessLogin(string provider)
+        {
+            Debug.Log($"[LoginManager] {provider} 플랫폼으로 로그인 시도");
+
+            // 유저 UID 체크
+            if (!PlayerPrefs.HasKey("uid"))
+            {
+                // 신규 유저
+                Debug.Log("[LoginManager] 등록된 UID가 없습니다. 신규 유저 가입 절차를 진행합니다.");
+                string newUid = Guid.NewGuid().ToString();
+                PlayerPrefs.SetString("uid_temp", newUid); // 아직 확정 전
+                ShowNicknamePanel();
+            }
+            else
+            {
+                // 기존 유저
+                Debug.Log("[LoginManager] 기존 UID를 확인했습니다. 타이틀 화면으로 진입합니다.");
+                OnLoginComplete();
+            }
+        }
+
+        private void OnLoginComplete()
+        {
+            HideAllPanels();
+            if (TitleManager.Instance != null)
+            {
+                TitleManager.Instance.ShowTitleButtons();
+            }
+        }
+
+        // --- Nickname ---
+
+        private void OnCreateNicknameClicked()
+        {
+            string nick = inputNickname?.value?.Trim();
+            ValidateAndCreateNicknameAsync(nick).Forget();
+        }
+
+        private async UniTaskVoid ValidateAndCreateNicknameAsync(string nickname)
+        {
+            if (btnCreateNickname != null) btnCreateNickname.SetEnabled(false);
+
+            try
+            {
+                // 1. 형식 유효성 검사 (길이 1~8)
+                if (string.IsNullOrEmpty(nickname) || nickname.Length > 8)
+                {
+                    ShowNicknameError("닉네임은 1~8자 사이여야 합니다.");
+                    return;
+                }
+
+                // 2. 정규식 검사 (한글/영문/숫자, 공백 및 특문 제외)
+                if (!Regex.IsMatch(nickname, @"^[가-힣a-zA-Z0-9]+$"))
+                {
+                    ShowNicknameError("공백 및 특수문자는 사용할 수 없습니다.");
+                    return;
+                }
+
+                // 3. 로컬 금칙어 검사
+                if (badWordData != null && badWordData.ContainsBadWord(nickname))
+                {
+                    ShowNicknameError("사용할 수 없는 단어가 포함되어 있습니다.");
+                    return;
+                }
+
+                // 4. 모의 서버 API 중복 검사
+                bool isAvailable = await nicknameAPI.CheckDuplicateAsync(nickname);
+                if (!isAvailable)
+                {
+                    ShowNicknameError("이미 사용 중인 닉네임입니다.");
+                    return;
+                }
+
+                // 5. 완료 및 저장
+                string allocatedUid = PlayerPrefs.GetString("uid_temp", Guid.NewGuid().ToString());
+                
+                PlayerPrefs.SetString("uid", allocatedUid);
+                PlayerPrefs.SetString("nickname", nickname);
+                PlayerPrefs.SetInt("isNewUser", 0); // false
+                PlayerPrefs.DeleteKey("uid_temp");
+                PlayerPrefs.Save();
+
+                Debug.Log($"[LoginManager] 닉네임 '{nickname}' 프로필 생성 완료");
+                OnLoginComplete();
+            }
+            finally
+            {
+                if (btnCreateNickname != null) btnCreateNickname.SetEnabled(true);
+            }
+        }
+
+        private void ShowNicknameError(string msg)
+        {
+            if (lblNicknameError == null) return;
+            lblNicknameError.text = msg;
+            lblNicknameError.style.display = DisplayStyle.Flex;
+        }
+
+        // --- Server Select ---
+
+        public void ShowServerSelectPopup()
+        {
+            ShowServerSelectPanel();
+        }
+
+        private void OnConfirmServerClicked()
+        {
+            if (dropdownServer == null || serverListSO == null) return;
+
+            int selectedIndex = dropdownServer.index;
+            if (selectedIndex < 0 || selectedIndex >= serverListSO.servers.Count) return;
+
+            var selectedServer = serverListSO.servers[selectedIndex];
+            
+            // 선택한 서버 저장
+            PlayerPrefs.SetString("lastServer", selectedServer.serverId);
+            PlayerPrefs.Save();
+            
+            Debug.Log($"[LoginManager] 서버 선택 완료: {selectedServer.displayName}");
+            HideAllPanels();
+        }
+
+        public void ConnectToSelectedServer()
+        {
+            string lastServerId = PlayerPrefs.GetString("lastServer", string.Empty);
+            
+            ServerData targetServer = null;
+            if (serverListSO != null && serverListSO.servers.Count > 0)
+            {
+                targetServer = serverListSO.servers.FirstOrDefault(s => s.serverId == lastServerId) ?? serverListSO.servers[0];
+            }
+
+            if (targetServer != null)
+            {
+                // IServerConnectionAPI uses its own ServerInfo, map it
+                var apiServerInfo = new ServerInfo
+                {
+                    serverId = targetServer.serverId,
+                    serverName = targetServer.displayName,
+                    // Mock data properties
+                    serverIP = "127.0.0.1",
+                    port = 8080,
+                    status = targetServer.LoadRatio < 0.5f ? ServerStatus.Smooth : 
+                             targetServer.LoadRatio < 0.85f ? ServerStatus.Busy : ServerStatus.Full
+                };
+                ConnectToServerAsync(apiServerInfo).Forget();
+            }
+            else
+            {
+                Debug.LogError("[LoginManager] 접속 가능한 서버 정보를 찾을 수 없습니다.");
+            }
+        }
+
+        private async UniTaskVoid ConnectToServerAsync(ServerInfo serverInfo)
+        {
+            if (btnConnect != null) btnConnect.SetEnabled(false);
+            if (lblServerError != null) lblServerError.style.display = DisplayStyle.None;
+
+            try
+            {
+                bool success = await serverConnectionAPI.ConnectToAsync(serverInfo);
+                
+                if (success)
+                {
+                    // 최근 접속 서버 저장
+                    PlayerPrefs.SetString("lastServer", serverInfo.serverId);
+                    PlayerPrefs.Save();
+
+                    Debug.Log("[LoginManager] 접속 성공, Lobby 씬으로 이동합니다.");
+                    
+                    // 싱글톤 어드레서블 씬 로더 활용 (Lobby)
+                    if (AsyncSceneLoader.Instance != null)
+                    {
+                        AsyncSceneLoader.Instance.LoadSceneAsync("Lobby", UnityEngine.SceneManagement.LoadSceneMode.Single);
+                    }
+                    else
+                    {
+                        UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
+                    }
+                }
+                else
+                {
+                    if (lblServerError != null)
+                    {
+                        lblServerError.text = "서버 접속이 원활하지 않습니다. (포화 상태)";
+                        lblServerError.style.display = DisplayStyle.Flex;
+                    }
+                }
+            }
+            finally
+            {
+                if (btnConnect != null) btnConnect.SetEnabled(true);
+            }
+        }
     }
 }
