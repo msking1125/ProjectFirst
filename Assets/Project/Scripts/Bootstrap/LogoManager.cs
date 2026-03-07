@@ -29,6 +29,13 @@ public class LogoManager : MonoBehaviour
 
     private void Start()
     {
+        // 로고 씬의 배경을 검은색으로 고정합니다.
+        if (Camera.main != null)
+        {
+            Camera.main.clearFlags = CameraClearFlags.SolidColor;
+            Camera.main.backgroundColor = Color.black;
+        }
+
         LoadLogoSprites();
 
         companyLogoGroup.alpha = 0f;
@@ -104,8 +111,41 @@ public class LogoManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[LogoManager] AsyncSceneLoader 인스턴스가 없어 SceneManager.LoadScene으로 직접 전환합니다.");
-            SceneManager.LoadScene(titleSceneName);
+            // AsyncSceneLoader가 없으면 새로 생성 후 사용
+            EnsureAsyncSceneLoader();
+
+            if (AsyncSceneLoader.Instance != null)
+            {
+                AsyncSceneLoader.Instance.LoadSceneAsync(titleSceneName, LoadSceneMode.Single);
+            }
+            else
+            {
+                Debug.LogWarning("[LogoManager] AsyncSceneLoader 생성에 실패하여 SceneManager.LoadScene으로 직접 전환합니다.");
+                SceneManager.LoadScene(titleSceneName);
+            }
         }
+    }
+
+    private void EnsureAsyncSceneLoader()
+    {
+        if (AsyncSceneLoader.Instance != null)
+        {
+            return;
+        }
+
+        // 씬 내(비활성 포함) 기존 AsyncSceneLoader 탐색
+        AsyncSceneLoader existingLoader = FindObjectOfType<AsyncSceneLoader>(true);
+        if (existingLoader != null)
+        {
+            Debug.Log("[LogoManager] 기존 AsyncSceneLoader를 발견했습니다.");
+            return;
+        }
+
+        // 없으면 새로 생성
+        GameObject loaderObject = new GameObject("AsyncSceneLoader");
+        loaderObject.AddComponent<AsyncSceneLoader>();
+        DontDestroyOnLoad(loaderObject);
+
+        Debug.Log("[LogoManager] AsyncSceneLoader가 없어 새 GameObject를 생성하고 AddComponent<AsyncSceneLoader>()로 초기화했습니다.");
     }
 }
