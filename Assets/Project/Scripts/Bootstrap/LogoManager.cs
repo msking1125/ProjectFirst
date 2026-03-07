@@ -39,24 +39,31 @@ public class LogoManager : MonoBehaviour
 
     private void LoadLogoSprites()
     {
-        Sprite companySprite = Resources.Load<Sprite>(LogoResourcePath + "CompanyLogo");
-        if (companySprite != null)
+        // 인스펙터에 이미 스프라이트가 할당되어 있다면 Resources.Load를 건너뜁니다.
+        if (companyLogoImage.sprite == null)
         {
-            companyLogoImage.sprite = companySprite;
-        }
-        else
-        {
-            Debug.LogWarning($"[LogoManager] CompanyLogo 스프라이트를 찾을 수 없습니다: {LogoResourcePath}CompanyLogo");
+            Sprite companySprite = Resources.Load<Sprite>(LogoResourcePath + "CompanyLogo");
+            if (companySprite != null)
+            {
+                companyLogoImage.sprite = companySprite;
+            }
+            else
+            {
+                Debug.LogWarning($"[LogoManager] CompanyLogo 스프라이트를 찾을 수 없습니다: {LogoResourcePath}CompanyLogo\nResources 폴더 내부에 에셋이 있는지 확인하거나 인스펙터에서 직접 할당해주세요.");
+            }
         }
 
-        Sprite gameSprite = Resources.Load<Sprite>(LogoResourcePath + "GameLogo");
-        if (gameSprite != null)
+        if (gameLogoImage.sprite == null)
         {
-            gameLogoImage.sprite = gameSprite;
-        }
-        else
-        {
-            Debug.LogWarning($"[LogoManager] GameLogo 스프라이트를 찾을 수 없습니다: {LogoResourcePath}GameLogo");
+            Sprite gameSprite = Resources.Load<Sprite>(LogoResourcePath + "GameLogo");
+            if (gameSprite != null)
+            {
+                gameLogoImage.sprite = gameSprite;
+            }
+            else
+            {
+                Debug.LogWarning($"[LogoManager] GameLogo 스프라이트를 찾을 수 없습니다: {LogoResourcePath}GameLogo\nResources 폴더 내부에 에셋이 있는지 확인하거나 인스펙터에서 직접 할당해주세요.");
+            }
         }
     }
 
