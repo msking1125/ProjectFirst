@@ -12,7 +12,7 @@ using UnityEngine.AddressableAssets;
 public class TitleManager : MonoBehaviour
 {
     [Header("Scene Settings")]
-    [SerializeField] private string gameSceneName = "Assets/Project/Scenes/Battle_Test.unity";
+    [SerializeField] private string gameSceneName = "Lobby";
 
     [Header("UI Texts")]
     [SerializeField] private TMP_FontAsset customFont;
