@@ -11,6 +11,10 @@ using UnityEngine.AddressableAssets;
 /// </summary>
 public class TitleManager : MonoBehaviour
 {
+    private const string PrefKeyBgmVolume = "setting.sound.bgm";
+    private const string PrefKeySfxVolume = "setting.sound.sfx";
+    private const string PrefKeyMute = "setting.sound.mute";
+
     [Header("Scene Settings")]
     [SerializeField] private string gameSceneName = "Lobby";
 
@@ -30,6 +34,14 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private Sprite builtinButtonSprite;
 
     private Canvas targetCanvas;
+
+    // 런타임 설정 패널(기존 SettingPanel의 PlayerPrefs 키/동작을 타이틀에서도 동일 적용)
+    private GameObject settingsPanel;
+    private Slider bgmSlider;
+    private Slider sfxSlider;
+    private Toggle muteToggle;
+    private TMP_Text bgmValueText;
+    private TMP_Text sfxValueText;
 
     private void Awake()
     {
@@ -125,6 +137,62 @@ public class TitleManager : MonoBehaviour
         CreateCyberpunkButton("Btn_Start", buttonGroup.transform, startButtonText, new Vector2(0f, 160f), new Color(0.1f, 0.5f, 0.9f, 0.9f), OnStartClicked);
         CreateCyberpunkButton("Btn_Settings", buttonGroup.transform, settingsButtonText, new Vector2(0f, 0f), new Color(0.3f, 0.3f, 0.35f, 0.9f), OnSettingsClicked);
         CreateCyberpunkButton("Btn_Quit", buttonGroup.transform, quitButtonText, new Vector2(0f, -160f), new Color(0.8f, 0.2f, 0.3f, 0.9f), OnQuitClicked);
+
+        BuildSettingsPanel();
+    }
+
+    private void BuildSettingsPanel()
+    {
+        settingsPanel = new GameObject("SettingPanel_Runtime", typeof(RectTransform), typeof(Image));
+        settingsPanel.transform.SetParent(targetCanvas.transform, false);
+
+        RectTransform panelRt = settingsPanel.GetComponent<RectTransform>();
+        SetFullScreenStretch(panelRt);
+        Image panelDim = settingsPanel.GetComponent<Image>();
+        panelDim.color = new Color(0f, 0f, 0f, 0.68f);
+
+        GameObject window = new GameObject("Window", typeof(RectTransform), typeof(Image));
+        window.transform.SetParent(settingsPanel.transform, false);
+        RectTransform windowRt = window.GetComponent<RectTransform>();
+        windowRt.anchorMin = windowRt.anchorMax = new Vector2(0.5f, 0.5f);
+        windowRt.sizeDelta = new Vector2(860f, 840f);
+        window.GetComponent<Image>().color = new Color(0.08f, 0.1f, 0.16f, 0.95f);
+
+        CreatePanelLabel(window.transform, "Title", "설정", new Vector2(0f, 345f), 56f, true);
+
+        CreatePanelLabel(window.transform, "BgmLabel", "BGM", new Vector2(-280f, 190f), 38f, true, TextAlignmentOptions.MidlineLeft);
+        bgmSlider = CreatePanelSlider(window.transform, "BgmSlider", new Vector2(90f, 190f));
+        bgmValueText = CreatePanelLabel(window.transform, "BgmValue", "80", new Vector2(335f, 190f), 34f, true);
+
+        CreatePanelLabel(window.transform, "SfxLabel", "SFX", new Vector2(-280f, 95f), 38f, true, TextAlignmentOptions.MidlineLeft);
+        sfxSlider = CreatePanelSlider(window.transform, "SfxSlider", new Vector2(90f, 95f));
+        sfxValueText = CreatePanelLabel(window.transform, "SfxValue", "80", new Vector2(335f, 95f), 34f, true);
+
+        muteToggle = CreatePanelToggle(window.transform, "MuteToggle", "음소거", new Vector2(0f, -20f));
+
+        Button closeButton = CreatePanelButton(window.transform, "CloseButton", "닫기", new Vector2(0f, -300f), new Vector2(340f, 100f));
+        closeButton.onClick.AddListener(CloseSettingsPanel);
+
+        if (bgmSlider != null)
+        {
+            bgmSlider.minValue = 0f;
+            bgmSlider.maxValue = 100f;
+            bgmSlider.wholeNumbers = true;
+            bgmSlider.onValueChanged.AddListener(OnBgmChanged);
+        }
+
+        if (sfxSlider != null)
+        {
+            sfxSlider.minValue = 0f;
+            sfxSlider.maxValue = 100f;
+            sfxSlider.wholeNumbers = true;
+            sfxSlider.onValueChanged.AddListener(OnSfxChanged);
+        }
+
+        if (muteToggle != null)
+            muteToggle.onValueChanged.AddListener(OnMuteChanged);
+
+        settingsPanel.SetActive(false);
     }
 
     private void CreateCyberpunkButton(string objName, Transform parent, string label, Vector2 pos, Color neonColor, UnityEngine.Events.UnityAction onClick)
@@ -188,6 +256,116 @@ public class TitleManager : MonoBehaviour
         // (빌드 환경에서 버튼이 안 눌리면 GraphicRaycaster/Canvas 설정 확인 필요)
     }
 
+    private TMP_Text CreatePanelLabel(Transform parent, string name, string text, Vector2 pos, float size, bool bold,
+        TextAlignmentOptions alignment = TextAlignmentOptions.Center)
+    {
+        GameObject labelGo = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
+        labelGo.transform.SetParent(parent, false);
+        RectTransform rt = labelGo.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = new Vector2(760f, 64f);
+
+        TextMeshProUGUI tmp = labelGo.GetComponent<TextMeshProUGUI>();
+        if (customFont != null) tmp.font = customFont;
+        tmp.text = text;
+        tmp.fontSize = size;
+        tmp.fontStyle = bold ? FontStyles.Bold : FontStyles.Normal;
+        tmp.color = Color.white;
+        tmp.alignment = alignment;
+        tmp.enableWordWrapping = false;
+        return tmp;
+    }
+
+    private Slider CreatePanelSlider(Transform parent, string name, Vector2 pos)
+    {
+        GameObject sliderGo = new GameObject(name, typeof(RectTransform), typeof(Slider));
+        sliderGo.transform.SetParent(parent, false);
+        RectTransform sliderRt = sliderGo.GetComponent<RectTransform>();
+        sliderRt.anchorMin = sliderRt.anchorMax = new Vector2(0.5f, 0.5f);
+        sliderRt.anchoredPosition = pos;
+        sliderRt.sizeDelta = new Vector2(430f, 36f);
+
+        GameObject bg = new GameObject("Background", typeof(RectTransform), typeof(Image));
+        bg.transform.SetParent(sliderGo.transform, false);
+        SetFullScreenStretch(bg.GetComponent<RectTransform>());
+        bg.GetComponent<Image>().color = new Color(0.2f, 0.25f, 0.35f, 1f);
+
+        GameObject fillArea = new GameObject("Fill Area", typeof(RectTransform));
+        fillArea.transform.SetParent(sliderGo.transform, false);
+        SetFullScreenStretch(fillArea.GetComponent<RectTransform>());
+
+        GameObject fill = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+        fill.transform.SetParent(fillArea.transform, false);
+        SetFullScreenStretch(fill.GetComponent<RectTransform>());
+        fill.GetComponent<Image>().color = new Color(0.1f, 0.65f, 1f, 1f);
+
+        GameObject handleArea = new GameObject("Handle Slide Area", typeof(RectTransform));
+        handleArea.transform.SetParent(sliderGo.transform, false);
+        SetFullScreenStretch(handleArea.GetComponent<RectTransform>());
+
+        GameObject handle = new GameObject("Handle", typeof(RectTransform), typeof(Image));
+        handle.transform.SetParent(handleArea.transform, false);
+        RectTransform handleRt = handle.GetComponent<RectTransform>();
+        handleRt.sizeDelta = new Vector2(30f, 48f);
+        handle.GetComponent<Image>().color = Color.white;
+
+        Slider slider = sliderGo.GetComponent<Slider>();
+        slider.fillRect = fill.GetComponent<RectTransform>();
+        slider.handleRect = handleRt;
+        slider.targetGraphic = handle.GetComponent<Image>();
+        slider.direction = Slider.Direction.LeftToRight;
+
+        return slider;
+    }
+
+    private Toggle CreatePanelToggle(Transform parent, string name, string label, Vector2 pos)
+    {
+        GameObject toggleGo = new GameObject(name, typeof(RectTransform), typeof(Toggle));
+        toggleGo.transform.SetParent(parent, false);
+        RectTransform rt = toggleGo.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = new Vector2(300f, 60f);
+
+        GameObject bg = new GameObject("Background", typeof(RectTransform), typeof(Image));
+        bg.transform.SetParent(toggleGo.transform, false);
+        RectTransform bgRt = bg.GetComponent<RectTransform>();
+        bgRt.anchorMin = new Vector2(0f, 0.5f);
+        bgRt.anchorMax = new Vector2(0f, 0.5f);
+        bgRt.sizeDelta = new Vector2(40f, 40f);
+        bgRt.anchoredPosition = new Vector2(30f, 0f);
+        bg.GetComponent<Image>().color = new Color(0.15f, 0.2f, 0.3f, 1f);
+
+        GameObject check = new GameObject("Checkmark", typeof(RectTransform), typeof(Image));
+        check.transform.SetParent(bg.transform, false);
+        SetFullScreenStretch(check.GetComponent<RectTransform>());
+        check.GetComponent<Image>().color = new Color(0.1f, 0.8f, 0.95f, 1f);
+
+        CreatePanelLabel(toggleGo.transform, "Label", label, new Vector2(80f, 0f), 34f, true, TextAlignmentOptions.MidlineLeft);
+
+        Toggle toggle = toggleGo.GetComponent<Toggle>();
+        toggle.graphic = check.GetComponent<Image>();
+        toggle.targetGraphic = bg.GetComponent<Image>();
+        return toggle;
+    }
+
+    private Button CreatePanelButton(Transform parent, string name, string text, Vector2 pos, Vector2 size)
+    {
+        GameObject btnGo = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+        btnGo.transform.SetParent(parent, false);
+
+        RectTransform rt = btnGo.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = size;
+
+        btnGo.GetComponent<Image>().color = new Color(0.12f, 0.55f, 0.9f, 0.95f);
+        CreatePanelLabel(btnGo.transform, "Text", text, Vector2.zero, 36f, true);
+
+        return btnGo.GetComponent<Button>();
+    }
+
     private void SetFullScreenStretch(RectTransform rt)
     {
         rt.anchorMin = Vector2.zero;
@@ -207,8 +385,9 @@ public class TitleManager : MonoBehaviour
 
     private void OnSettingsClicked()
     {
-        Debug.Log("[TitleManager] 설정 클릭 (현재 더미 로그)");
+        Debug.Log("[TitleManager] 설정 클릭");
         settingsButtonEvent?.RaiseEvent();
+        OpenSettingsPanel();
     }
 
     private void OnQuitClicked()
@@ -216,6 +395,65 @@ public class TitleManager : MonoBehaviour
         Debug.Log("[TitleManager] 종료 클릭");
         quitButtonEvent?.RaiseEvent();
         QuitGame();
+    }
+
+    private void OpenSettingsPanel()
+    {
+        if (settingsPanel == null)
+            return;
+
+        LoadSettingPrefs();
+        settingsPanel.SetActive(true);
+    }
+
+    private void CloseSettingsPanel()
+    {
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+    }
+
+    private void LoadSettingPrefs()
+    {
+        int bgm = PlayerPrefs.GetInt(PrefKeyBgmVolume, 80);
+        int sfx = PlayerPrefs.GetInt(PrefKeySfxVolume, 80);
+        bool mute = PlayerPrefs.GetInt(PrefKeyMute, 0) == 1;
+
+        if (bgmSlider != null) bgmSlider.SetValueWithoutNotify(Mathf.Clamp(bgm, 0, 100));
+        if (sfxSlider != null) sfxSlider.SetValueWithoutNotify(Mathf.Clamp(sfx, 0, 100));
+        if (muteToggle != null) muteToggle.SetIsOnWithoutNotify(mute);
+
+        RefreshSoundTexts();
+        AudioListener.pause = mute;
+    }
+
+    private void OnBgmChanged(float value)
+    {
+        PlayerPrefs.SetInt(PrefKeyBgmVolume, Mathf.RoundToInt(value));
+        PlayerPrefs.Save();
+        RefreshSoundTexts();
+    }
+
+    private void OnSfxChanged(float value)
+    {
+        PlayerPrefs.SetInt(PrefKeySfxVolume, Mathf.RoundToInt(value));
+        PlayerPrefs.Save();
+        RefreshSoundTexts();
+    }
+
+    private void OnMuteChanged(bool isMuted)
+    {
+        PlayerPrefs.SetInt(PrefKeyMute, isMuted ? 1 : 0);
+        PlayerPrefs.Save();
+        AudioListener.pause = isMuted;
+    }
+
+    private void RefreshSoundTexts()
+    {
+        if (bgmValueText != null && bgmSlider != null)
+            bgmValueText.text = Mathf.RoundToInt(bgmSlider.value).ToString();
+
+        if (sfxValueText != null && sfxSlider != null)
+            sfxValueText.text = Mathf.RoundToInt(sfxSlider.value).ToString();
     }
 
     // ── Public/Async 메서드 ─────────────────────────────────────────
