@@ -12,9 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 232bc23f494efce4cad5482b2958d623, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: 
-  ticket: 10
-  gold: 1000
-  diamond: 50
+  uid: 
+  nickname: 
+  accountLevel: 0
+  accountExp: 0
+  mainCharacterId: 1
+  stageProgress: 0
+  currentChapter: 0
+  currentStage: 0
   currentStageIndex: 0
   currentAgentIndex: 0
-  lastIdleRewardTime:
+  stamina: 0
+  staminaMax: 0
+  gold: 1000
+  gem: 0
+  ticket: 10
+  diamond: 50
+  ownedCharacterIds: 
+  ownedPetIds: 
+  ownedEquipmentIds: 
+  lastIdleRewardTime: 
+  onCurrencyChanged: {fileID: 0}
+  onCharacterChanged: {fileID: 0}

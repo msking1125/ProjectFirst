@@ -20,7 +20,7 @@ MonoBehaviour:
     critMultiplier: 1.5
   defaultElement: 2
   rows:
-  - id: agent01
+  - id: 1
     name: agent01
     hp: 100
     atk: 10
@@ -28,7 +28,7 @@ MonoBehaviour:
     critChance: 0.3
     critMultiplier: 1.5
     element: 0
-  - id: agent02
+  - id: 2
     name: agent02
     hp: 100
     atk: 5
@@ -36,7 +36,7 @@ MonoBehaviour:
     critChance: 0.3
     critMultiplier: 1.5
     element: 1
-  - id: agent03
+  - id: 3
     name: agent03
     hp: 100
     atk: 5
