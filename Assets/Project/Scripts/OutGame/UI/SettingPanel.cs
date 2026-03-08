@@ -1,362 +1,439 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 /// <summary>
-/// 로비/타이틀에서 사용하는 환경설정 팝업 패널입니다.
-/// - 탭: 그래픽 / 사운드 / 계정
-/// - 설정값은 PlayerPrefs에 저장됩니다.
+/// UIToolkit(UIDocument) 기반 설정 패널.
+///
+/// [Inspector 연결 가이드]
+/// ┌ uiDocument        : 이 GameObject의 UIDocument 컴포넌트
+/// ├ audioMixer        : 프로젝트 AudioMixer (BGMVolume / SFXVolume 파라미터 필요)
+/// ├ playerData        : PlayerData.asset (계정 탭 UID 표시용, 선택)
+/// └ defaultLoginMethod: "Guest" 등 로그인 방식 기본값
+///
+/// [LobbyManager 연동]
+/// LobbyManager.settingPanel 에 이 컴포넌트를 연결하면
+/// 설정 버튼 클릭 시 OpenPanel()이 자동 호출됩니다.
+///
+/// [AudioMixer 파라미터]
+/// Exposed Parameter 이름을 반드시 "BGMVolume", "SFXVolume" 으로 지정하세요.
 /// </summary>
 [DisallowMultipleComponent]
 public class SettingPanel : MonoBehaviour
 {
-    private const string PrefKeyFrameLevel = "setting.frame.level";
-    private const string PrefKeyShake = "setting.graphic.shake";
-    private const string PrefKeyBloom = "setting.graphic.bloom";
-    private const string PrefKeyBlur = "setting.graphic.blur";
+    public static SettingPanel Instance { get; private set; }
 
-    private const string PrefKeyBgmVolume = "setting.sound.bgm";
-    private const string PrefKeySfxVolume = "setting.sound.sfx";
-    private const string PrefKeyMute = "setting.sound.mute";
+    // ── Inspector ──────────────────────────────────────────
 
-    [Header("Tabs")]
-    [SerializeField] private Button graphicTabButton;
-    [SerializeField] private Button soundTabButton;
-    [SerializeField] private Button accountTabButton;
+    [Header("UI")]
+    [SerializeField] private UIDocument uiDocument;
 
-    [SerializeField] private GameObject graphicTabRoot;
-    [SerializeField] private GameObject soundTabRoot;
-    [SerializeField] private GameObject accountTabRoot;
+    [Header("Audio")]
+    [SerializeField] private AudioMixer audioMixer;
 
-    [Header("Graphic")]
-    [SerializeField] private Button frameHighButton;
-    [SerializeField] private Button frameMidButton;
-    [SerializeField] private Button frameLowButton;
+    [Header("Account (선택)")]
+    [SerializeField] private PlayerData playerData;
+    [SerializeField] private string defaultLoginMethod = "Guest";
 
-    [SerializeField] private Toggle shakeToggle;
-    [SerializeField] private Toggle bloomToggle;
-    [SerializeField] private Toggle blurToggle;
+    // ── PlayerPrefs 키 ─────────────────────────────────────
 
-    [SerializeField] private TMP_Text frameStateText;
+    private const string KEY_BGM_VOL  = "bgmVol";
+    private const string KEY_SFX_VOL  = "sfxVol";
+    private const string KEY_BGM_MUTE = "bgmMute";
+    private const string KEY_SFX_MUTE = "sfxMute";
+    private const string KEY_FRAME    = "frameQuality";
+    private const string KEY_SHAKE    = "shakeOn";
+    private const string KEY_BLOOM    = "bloomOn";
+    private const string KEY_BLUR     = "blurOn";
 
-    [Header("Sound")]
-    [SerializeField] private Slider bgmSlider;
-    [SerializeField] private Slider sfxSlider;
-    [SerializeField] private TMP_Text bgmValueText;
-    [SerializeField] private TMP_Text sfxValueText;
+    // AudioMixer Exposed Parameter 이름
+    private const string MIXER_BGM = "BGMVolume";
+    private const string MIXER_SFX = "SFXVolume";
 
-    [SerializeField] private Toggle muteToggle;
+    // ── UI 캐시 ────────────────────────────────────────────
 
-    [Tooltip("BGM AudioSource(선택). 연결 시 슬라이더 값이 반영됩니다.")]
-    [SerializeField] private AudioSource bgmAudioSource;
+    // 배경/루트
+    private VisualElement _backdrop;
 
-    [Tooltip("SFX AudioSource(선택). 연결 시 슬라이더 값이 반영됩니다.")]
-    [SerializeField] private AudioSource sfxAudioSource;
+    // 탭 버튼
+    private Button _tabGraphicsBtn;
+    private Button _tabSoundBtn;
+    private Button _tabAccountBtn;
 
-    [Header("Account")]
-    [SerializeField] private TMP_Text uidText;
-    [SerializeField] private TMP_Text loginMethodText;
-    [SerializeField] private Button logoutButton;
+    // 탭 콘텐츠
+    private VisualElement _graphicsTab;
+    private VisualElement _soundTab;
+    private VisualElement _accountTab;
 
-    [SerializeField] private string uid = "UID-000000";
-    [SerializeField] private string loginMethod = "Guest";
+    // 그래픽: 프레임 라디오 [0]=상(60fps) [1]=중(30fps) [2]=하(저화질)
+    private RadioButton[] _frameButtons;
+    private Toggle        _shakeToggle;
+    private Toggle        _bloomToggle;
+    private Toggle        _blurToggle;
 
-    [Header("Optional Events")]
-    [SerializeField] private VoidEventChannelSO onLogoutClicked;
+    // 사운드
+    private Slider _bgmSlider;
+    private Slider _sfxSlider;
+    private Label  _bgmValueLabel;
+    private Label  _sfxValueLabel;
+    private Toggle _bgmMuteToggle;
+    private Toggle _sfxMuteToggle;
 
-    [Header("Panel Control")]
-    [Tooltip("Awake에서 패널을 자동으로 닫아 초기 상태를 숨김으로 유지합니다.")]
-    [SerializeField] private bool hideOnAwake = true;
+    // 음소거 전 볼륨 캐시 (슬라이더 수치 유지, 출력만 0)
+    private float _bgmVolCache;
+    private float _sfxVolCache;
 
-    private FrameLevel currentFrameLevel = FrameLevel.Mid;
+    // 계정
+    private Label  _uidLabel;
+    private Label  _loginMethodLabel;
+    private Button _logoutBtn;
+    private Button _copyBtn;
+
+    // 로그아웃 확인 팝업
+    private VisualElement _confirmOverlay;
+    private Button        _confirmYesBtn;
+    private Button        _confirmNoBtn;
+
+    // ─────────────────────────────────────────────────────────
 
     private void Awake()
     {
-        BindTabs();
-        BindGraphic();
-        BindSound();
-        BindAccount();
-
-        ConfigureSliderRange();
-        LoadPrefs();
-
-        OpenGraphicTab();
-
-        if (hideOnAwake)
-            gameObject.SetActive(false);
-    }
-
-    private void BindTabs()
-    {
-        graphicTabButton?.onClick.AddListener(OpenGraphicTab);
-        soundTabButton?.onClick.AddListener(OpenSoundTab);
-        accountTabButton?.onClick.AddListener(OpenAccountTab);
-    }
-
-    private void BindGraphic()
-    {
-        frameHighButton?.onClick.AddListener(SetFrameHigh);
-        frameMidButton?.onClick.AddListener(SetFrameMid);
-        frameLowButton?.onClick.AddListener(SetFrameLow);
-
-        if (shakeToggle != null)
-            shakeToggle.onValueChanged.AddListener(OnShakeChanged);
-
-        if (bloomToggle != null)
-            bloomToggle.onValueChanged.AddListener(OnBloomChanged);
-
-        if (blurToggle != null)
-            blurToggle.onValueChanged.AddListener(OnBlurChanged);
-    }
-
-    private void BindSound()
-    {
-        if (bgmSlider != null)
-            bgmSlider.onValueChanged.AddListener(OnBgmSliderChanged);
-
-        if (sfxSlider != null)
-            sfxSlider.onValueChanged.AddListener(OnSfxSliderChanged);
-
-        if (muteToggle != null)
-            muteToggle.onValueChanged.AddListener(OnMuteChanged);
-    }
-
-    private void BindAccount()
-    {
-        logoutButton?.onClick.AddListener(OnLogoutClicked);
-    }
-
-    private void ConfigureSliderRange()
-    {
-        if (bgmSlider != null)
+        if (Instance != null && Instance != this)
         {
-            bgmSlider.minValue = 0f;
-            bgmSlider.maxValue = 100f;
-            bgmSlider.wholeNumbers = true;
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
+        BindUI();
+        Hide();
+    }
+
+    // ── 공개 API ─────────────────────────────────────────────
+
+    /// <summary>설정 패널을 표시하고 저장된 값으로 초기화합니다.</summary>
+    public void Show()
+    {
+        if (_backdrop == null) return;
+
+        _backdrop.style.display = DisplayStyle.Flex;
+        LoadSettings();
+        SwitchTab(0);
+    }
+
+    /// <summary>모든 설정을 저장하고 패널을 숨깁니다.</summary>
+    public void Hide()
+    {
+        if (_backdrop == null) return;
+
+        SaveAllSettings();
+        _backdrop.style.display = DisplayStyle.None;
+    }
+
+    /// <summary>LobbyManager 호환 — Show()와 동일합니다.</summary>
+    public void OpenPanel() => Show();
+
+    /// <summary>LobbyManager 호환 — Hide()와 동일합니다.</summary>
+    public void ClosePanel() => Hide();
+
+    // ── UI 바인딩 ─────────────────────────────────────────────
+
+    private void BindUI()
+    {
+        if (uiDocument == null)
+        {
+            Debug.LogError("[SettingPanel] UIDocument가 할당되지 않았습니다.");
+            return;
         }
 
-        if (sfxSlider != null)
+        var root = uiDocument.rootVisualElement;
+
+        _backdrop = root.Q<VisualElement>("setting-backdrop");
+
+        // 헤더 닫기
+        root.Q<Button>("close-btn")?.RegisterCallback<ClickEvent>(_ => Hide());
+
+        // 탭 버튼
+        _tabGraphicsBtn = root.Q<Button>("tab-graphics");
+        _tabSoundBtn    = root.Q<Button>("tab-sound");
+        _tabAccountBtn  = root.Q<Button>("tab-account");
+
+        _tabGraphicsBtn?.RegisterCallback<ClickEvent>(_ => SwitchTab(0));
+        _tabSoundBtn?.RegisterCallback<ClickEvent>(_    => SwitchTab(1));
+        _tabAccountBtn?.RegisterCallback<ClickEvent>(_  => SwitchTab(2));
+
+        // 탭 콘텐츠
+        _graphicsTab = root.Q<VisualElement>("graphics-tab");
+        _soundTab    = root.Q<VisualElement>("sound-tab");
+        _accountTab  = root.Q<VisualElement>("account-tab");
+
+        // ── 그래픽 ──────────────────────────────────────────
+
+        _frameButtons = new RadioButton[]
         {
-            sfxSlider.minValue = 0f;
-            sfxSlider.maxValue = 100f;
-            sfxSlider.wholeNumbers = true;
-        }
+            root.Q<RadioButton>("frame-high"),
+            root.Q<RadioButton>("frame-mid"),
+            root.Q<RadioButton>("frame-low"),
+        };
+
+        _frameButtons[0]?.RegisterValueChangedCallback(e => { if (e.newValue) ApplyGraphicsSettings(0); });
+        _frameButtons[1]?.RegisterValueChangedCallback(e => { if (e.newValue) ApplyGraphicsSettings(1); });
+        _frameButtons[2]?.RegisterValueChangedCallback(e => { if (e.newValue) ApplyGraphicsSettings(2); });
+
+        _shakeToggle = root.Q<Toggle>("shake-toggle");
+        _bloomToggle = root.Q<Toggle>("bloom-toggle");
+        _blurToggle  = root.Q<Toggle>("blur-toggle");
+
+        _shakeToggle?.RegisterValueChangedCallback(e => PlayerPrefs.SetInt(KEY_SHAKE, e.newValue ? 1 : 0));
+        _bloomToggle?.RegisterValueChangedCallback(e => PlayerPrefs.SetInt(KEY_BLOOM, e.newValue ? 1 : 0));
+        _blurToggle?.RegisterValueChangedCallback(e  => PlayerPrefs.SetInt(KEY_BLUR,  e.newValue ? 1 : 0));
+
+        // ── 사운드 ──────────────────────────────────────────
+
+        _bgmSlider     = root.Q<Slider>("bgm-slider");
+        _sfxSlider     = root.Q<Slider>("sfx-slider");
+        _bgmValueLabel = root.Q<Label>("bgm-value-label");
+        _sfxValueLabel = root.Q<Label>("sfx-value-label");
+        _bgmMuteToggle = root.Q<Toggle>("bgm-mute-toggle");
+        _sfxMuteToggle = root.Q<Toggle>("sfx-mute-toggle");
+
+        _bgmSlider?.RegisterValueChangedCallback(OnBgmSliderChanged);
+        _sfxSlider?.RegisterValueChangedCallback(OnSfxSliderChanged);
+        _bgmMuteToggle?.RegisterValueChangedCallback(OnBgmMuteToggled);
+        _sfxMuteToggle?.RegisterValueChangedCallback(OnSfxMuteToggled);
+
+        // ── 계정 ────────────────────────────────────────────
+
+        _uidLabel         = root.Q<Label>("uid-label");
+        _loginMethodLabel = root.Q<Label>("login-method-label");
+        _logoutBtn        = root.Q<Button>("logout-btn");
+        _copyBtn          = root.Q<Button>("copy-btn");
+
+        _logoutBtn?.RegisterCallback<ClickEvent>(_ => ShowConfirmDialog());
+        _copyBtn?.RegisterCallback<ClickEvent>(_   => CopyUid());
+
+        // ── 확인 팝업 ────────────────────────────────────────
+
+        _confirmOverlay = root.Q<VisualElement>("confirm-overlay");
+        _confirmYesBtn  = root.Q<Button>("confirm-yes-btn");
+        _confirmNoBtn   = root.Q<Button>("confirm-no-btn");
+
+        _confirmYesBtn?.RegisterCallback<ClickEvent>(_ => OnLogoutConfirmed());
+        _confirmNoBtn?.RegisterCallback<ClickEvent>(_  => HideConfirmDialog());
     }
 
-    private void LoadPrefs()
+    // ── 탭 전환 ──────────────────────────────────────────────
+
+    /// <param name="tabIndex">0=그래픽, 1=사운드, 2=계정</param>
+    private void SwitchTab(int tabIndex)
     {
-        currentFrameLevel = (FrameLevel)PlayerPrefs.GetInt(PrefKeyFrameLevel, (int)FrameLevel.Mid);
-        bool shake = PlayerPrefs.GetInt(PrefKeyShake, 1) == 1;
-        bool bloom = PlayerPrefs.GetInt(PrefKeyBloom, 1) == 1;
-        bool blur = PlayerPrefs.GetInt(PrefKeyBlur, 0) == 1;
+        SetTabVisible(_graphicsTab, tabIndex == 0);
+        SetTabVisible(_soundTab,    tabIndex == 1);
+        SetTabVisible(_accountTab,  tabIndex == 2);
 
-        int bgm = PlayerPrefs.GetInt(PrefKeyBgmVolume, 80);
-        int sfx = PlayerPrefs.GetInt(PrefKeySfxVolume, 80);
-        bool mute = PlayerPrefs.GetInt(PrefKeyMute, 0) == 1;
+        SetTabActive(_tabGraphicsBtn, tabIndex == 0);
+        SetTabActive(_tabSoundBtn,    tabIndex == 1);
+        SetTabActive(_tabAccountBtn,  tabIndex == 2);
 
-        SetToggleSilently(shakeToggle, shake);
-        SetToggleSilently(bloomToggle, bloom);
-        SetToggleSilently(blurToggle, blur);
-
-        SetSliderSilently(bgmSlider, bgm);
-        SetSliderSilently(sfxSlider, sfx);
-        SetToggleSilently(muteToggle, mute);
-
-        ApplyFrameLevel(currentFrameLevel, false);
-        ApplySoundVolumes(false);
-        ApplyMute(mute, false);
-
-        UpdateSoundTexts();
-        RefreshAccountTexts();
+        if (tabIndex == 2)
+            RefreshAccountInfo();
     }
 
-    // ── 탭 오픈 ───────────────────────────────────────────────
-
-    public void OpenPanel()
+    private static void SetTabVisible(VisualElement el, bool visible)
     {
-        gameObject.SetActive(true);
-        LoadPrefs();
-        OpenGraphicTab();
+        if (el != null)
+            el.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
-    public void ClosePanel()
+    private static void SetTabActive(Button btn, bool active)
     {
-        gameObject.SetActive(false);
+        if (btn == null) return;
+        if (active) btn.AddToClassList("tab-active");
+        else        btn.RemoveFromClassList("tab-active");
     }
 
-    public void OpenGraphicTab() => SetTab(graphicTabRoot, soundTabRoot, accountTabRoot);
-    public void OpenSoundTab() => SetTab(soundTabRoot, graphicTabRoot, accountTabRoot);
-    public void OpenAccountTab() => SetTab(accountTabRoot, graphicTabRoot, soundTabRoot);
+    // ── 설정 로드 ─────────────────────────────────────────────
 
-    private static void SetTab(GameObject openTab, GameObject closeA, GameObject closeB)
+    private void LoadSettings()
     {
-        if (openTab != null) openTab.SetActive(true);
-        if (closeA != null) closeA.SetActive(false);
-        if (closeB != null) closeB.SetActive(false);
+        float bgm    = PlayerPrefs.GetFloat(KEY_BGM_VOL,  80f);
+        float sfx    = PlayerPrefs.GetFloat(KEY_SFX_VOL,  80f);
+        bool bgmMute = PlayerPrefs.GetInt(KEY_BGM_MUTE, 0) == 1;
+        bool sfxMute = PlayerPrefs.GetInt(KEY_SFX_MUTE, 0) == 1;
+        int  frame   = Mathf.Clamp(PlayerPrefs.GetInt(KEY_FRAME, 1), 0, 2);
+        bool shake   = PlayerPrefs.GetInt(KEY_SHAKE, 1) == 1;
+        bool bloom   = PlayerPrefs.GetInt(KEY_BLOOM, 1) == 1;
+        bool blur    = PlayerPrefs.GetInt(KEY_BLUR,  0) == 1;
+
+        _bgmVolCache = bgm;
+        _sfxVolCache = sfx;
+
+        // 슬라이더 — 이벤트 없이 세팅
+        _bgmSlider?.SetValueWithoutNotify(bgm);
+        _sfxSlider?.SetValueWithoutNotify(sfx);
+        UpdateBgmLabel(bgm);
+        UpdateSfxLabel(sfx);
+
+        // 음소거 토글 — 이벤트 없이 세팅
+        _bgmMuteToggle?.SetValueWithoutNotify(bgmMute);
+        _sfxMuteToggle?.SetValueWithoutNotify(sfxMute);
+
+        // 프레임 라디오 — 이벤트 없이 세팅
+        for (int i = 0; i < _frameButtons.Length; i++)
+            _frameButtons[i]?.SetValueWithoutNotify(i == frame);
+
+        // 그래픽 토글 — 이벤트 없이 세팅
+        _shakeToggle?.SetValueWithoutNotify(shake);
+        _bloomToggle?.SetValueWithoutNotify(bloom);
+        _blurToggle?.SetValueWithoutNotify(blur);
+
+        // 실제 적용
+        ApplyBgmVolume(bgmMute ? 0f : bgm);
+        ApplySfxVolume(sfxMute ? 0f : sfx);
+        ApplyGraphicsSettingsSilent(frame);
     }
 
-    // ── 그래픽 ───────────────────────────────────────────────
+    // ── 설정 저장 ─────────────────────────────────────────────
 
-    public void SetFrameHigh() => ApplyFrameLevel(FrameLevel.High, true);
-    public void SetFrameMid() => ApplyFrameLevel(FrameLevel.Mid, true);
-    public void SetFrameLow() => ApplyFrameLevel(FrameLevel.Low, true);
-
-    private void ApplyFrameLevel(FrameLevel level, bool save)
+    private void SaveAllSettings()
     {
-        currentFrameLevel = level;
+        if (_bgmSlider     != null) PlayerPrefs.SetFloat(KEY_BGM_VOL,  _bgmSlider.value);
+        if (_sfxSlider     != null) PlayerPrefs.SetFloat(KEY_SFX_VOL,  _sfxSlider.value);
+        if (_bgmMuteToggle != null) PlayerPrefs.SetInt(KEY_BGM_MUTE, _bgmMuteToggle.value ? 1 : 0);
+        if (_sfxMuteToggle != null) PlayerPrefs.SetInt(KEY_SFX_MUTE, _sfxMuteToggle.value ? 1 : 0);
+        if (_shakeToggle   != null) PlayerPrefs.SetInt(KEY_SHAKE, _shakeToggle.value ? 1 : 0);
+        if (_bloomToggle   != null) PlayerPrefs.SetInt(KEY_BLOOM, _bloomToggle.value ? 1 : 0);
+        if (_blurToggle    != null) PlayerPrefs.SetInt(KEY_BLUR,  _blurToggle.value  ? 1 : 0);
 
-        switch (level)
+        for (int i = 0; i < _frameButtons.Length; i++)
         {
-            case FrameLevel.High:
-                Application.targetFrameRate = 60;
-                SetFrameText("상 (60 FPS)");
+            if (_frameButtons[i] != null && _frameButtons[i].value)
+            {
+                PlayerPrefs.SetInt(KEY_FRAME, i);
                 break;
-            case FrameLevel.Mid:
-                Application.targetFrameRate = 45;
-                SetFrameText("중 (45 FPS)");
-                break;
-            case FrameLevel.Low:
-                Application.targetFrameRate = 30;
-                SetFrameText("하 (30 FPS)");
-                break;
+            }
         }
 
-        if (save)
-        {
-            PlayerPrefs.SetInt(PrefKeyFrameLevel, (int)level);
-            PlayerPrefs.Save();
-        }
-    }
-
-    private void OnShakeChanged(bool isOn)
-    {
-        PlayerPrefs.SetInt(PrefKeyShake, isOn ? 1 : 0);
         PlayerPrefs.Save();
     }
 
-    private void OnBloomChanged(bool isOn)
+    // ── 사운드 핸들러 ─────────────────────────────────────────
+
+    private void OnBgmSliderChanged(ChangeEvent<float> evt)
     {
-        PlayerPrefs.SetInt(PrefKeyBloom, isOn ? 1 : 0);
+        // 음소거 중이 아닐 때만 캐시 갱신 (음소거 해제 시 복원용)
+        if (_bgmMuteToggle == null || !_bgmMuteToggle.value)
+            _bgmVolCache = evt.newValue;
+
+        ApplyBgmVolume(_bgmMuteToggle != null && _bgmMuteToggle.value ? 0f : evt.newValue);
+        UpdateBgmLabel(evt.newValue);
+    }
+
+    private void OnSfxSliderChanged(ChangeEvent<float> evt)
+    {
+        if (_sfxMuteToggle == null || !_sfxMuteToggle.value)
+            _sfxVolCache = evt.newValue;
+
+        ApplySfxVolume(_sfxMuteToggle != null && _sfxMuteToggle.value ? 0f : evt.newValue);
+        UpdateSfxLabel(evt.newValue);
+    }
+
+    private void OnBgmMuteToggled(ChangeEvent<bool> evt)
+    {
+        // ON : 출력만 0 (슬라이더 수치 유지)
+        // OFF: 캐시로 복원
+        ApplyBgmVolume(evt.newValue ? 0f : _bgmVolCache);
+    }
+
+    private void OnSfxMuteToggled(ChangeEvent<bool> evt)
+    {
+        ApplySfxVolume(evt.newValue ? 0f : _sfxVolCache);
+    }
+
+    private void ApplyBgmVolume(float vol)
+    {
+        float db = vol > 0f ? Mathf.Log10(vol / 100f) * 20f : -80f;
+        audioMixer?.SetFloat(MIXER_BGM, db);
+    }
+
+    private void ApplySfxVolume(float vol)
+    {
+        float db = vol > 0f ? Mathf.Log10(vol / 100f) * 20f : -80f;
+        audioMixer?.SetFloat(MIXER_SFX, db);
+    }
+
+    private void UpdateBgmLabel(float val)
+    {
+        if (_bgmValueLabel != null)
+            _bgmValueLabel.text = Mathf.RoundToInt(val).ToString();
+    }
+
+    private void UpdateSfxLabel(float val)
+    {
+        if (_sfxValueLabel != null)
+            _sfxValueLabel.text = Mathf.RoundToInt(val).ToString();
+    }
+
+    // ── 그래픽 핸들러 ─────────────────────────────────────────
+
+    private void ApplyGraphicsSettings(int frameLevel)
+    {
+        PlayerPrefs.SetInt(KEY_FRAME, frameLevel);
+        ApplyGraphicsSettingsSilent(frameLevel);
+    }
+
+    private static void ApplyGraphicsSettingsSilent(int frameLevel)
+    {
+        // 0=상(60fps), 1=중(30fps), 2=하(30fps + 최저 품질)
+        Application.targetFrameRate = frameLevel == 0 ? 60 : 30;
+        QualitySettings.SetQualityLevel(frameLevel == 2 ? 0 : 2, true);
+    }
+
+    // ── 계정 탭 ───────────────────────────────────────────────
+
+    private void RefreshAccountInfo()
+    {
+        string uid = playerData != null && !string.IsNullOrEmpty(playerData.uid)
+            ? playerData.uid
+            : "UID-000000";
+
+        if (_uidLabel         != null) _uidLabel.text         = uid;
+        if (_loginMethodLabel != null) _loginMethodLabel.text = defaultLoginMethod;
+    }
+
+    private void CopyUid()
+    {
+        if (_uidLabel == null) return;
+        GUIUtility.systemCopyBuffer = _uidLabel.text;
+        Debug.Log($"[SettingPanel] UID 복사: {_uidLabel.text}");
+    }
+
+    // ── 로그아웃 확인 팝업 ───────────────────────────────────
+
+    private void ShowConfirmDialog()
+    {
+        if (_confirmOverlay != null)
+            _confirmOverlay.style.display = DisplayStyle.Flex;
+    }
+
+    private void HideConfirmDialog()
+    {
+        if (_confirmOverlay != null)
+            _confirmOverlay.style.display = DisplayStyle.None;
+    }
+
+    private void OnLogoutConfirmed()
+    {
+        HideConfirmDialog();
+        Debug.Log("[SettingPanel] 로그아웃 확인 → PlayerPrefs 초기화 후 Title 씬 이동");
+
+        PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
-    }
 
-    private void OnBlurChanged(bool isOn)
-    {
-        PlayerPrefs.SetInt(PrefKeyBlur, isOn ? 1 : 0);
-        PlayerPrefs.Save();
-    }
-
-    // ── 사운드 ───────────────────────────────────────────────
-
-    private void OnBgmSliderChanged(float value)
-    {
-        int saved = Mathf.RoundToInt(value);
-        PlayerPrefs.SetInt(PrefKeyBgmVolume, saved);
-        PlayerPrefs.Save();
-
-        ApplySoundVolumes(true);
-        UpdateSoundTexts();
-    }
-
-    private void OnSfxSliderChanged(float value)
-    {
-        int saved = Mathf.RoundToInt(value);
-        PlayerPrefs.SetInt(PrefKeySfxVolume, saved);
-        PlayerPrefs.Save();
-
-        ApplySoundVolumes(true);
-        UpdateSoundTexts();
-    }
-
-    private void OnMuteChanged(bool isMuted)
-    {
-        PlayerPrefs.SetInt(PrefKeyMute, isMuted ? 1 : 0);
-        PlayerPrefs.Save();
-
-        ApplyMute(isMuted, true);
-    }
-
-    private void ApplySoundVolumes(bool includeAudioSources)
-    {
-        float bgm01 = GetBgmVolume01();
-        float sfx01 = GetSfxVolume01();
-
-        if (includeAudioSources)
-        {
-            if (bgmAudioSource != null)
-                bgmAudioSource.volume = bgm01;
-
-            if (sfxAudioSource != null)
-                sfxAudioSource.volume = sfx01;
-        }
-    }
-
-    private static void ApplyMute(bool isMuted, bool includeDebugLog)
-    {
-        // 음소거는 수치(BGM/SFX) 자체를 변경하지 않고 출력만 차단합니다.
-        AudioListener.pause = isMuted;
-
-        if (includeDebugLog)
-            Debug.Log($"[SettingPanel] 음소거: {(isMuted ? "ON" : "OFF")}");
-    }
-
-    private float GetBgmVolume01()
-    {
-        return (bgmSlider == null ? 80f : bgmSlider.value) / 100f;
-    }
-
-    private float GetSfxVolume01()
-    {
-        return (sfxSlider == null ? 80f : sfxSlider.value) / 100f;
-    }
-
-    private void UpdateSoundTexts()
-    {
-        if (bgmValueText != null && bgmSlider != null)
-            bgmValueText.text = Mathf.RoundToInt(bgmSlider.value).ToString();
-
-        if (sfxValueText != null && sfxSlider != null)
-            sfxValueText.text = Mathf.RoundToInt(sfxSlider.value).ToString();
-    }
-
-    // ── 계정 ────────────────────────────────────────────────
-
-    private void RefreshAccountTexts()
-    {
-        if (uidText != null) uidText.text = uid;
-        if (loginMethodText != null) loginMethodText.text = loginMethod;
-    }
-
-    private void OnLogoutClicked()
-    {
-        Debug.Log("[SettingPanel] 로그아웃 버튼 클릭");
-        onLogoutClicked?.RaiseEvent();
-    }
-
-    // ── 유틸 ────────────────────────────────────────────────
-
-    private static void SetSliderSilently(Slider slider, int value)
-    {
-        if (slider == null) return;
-        slider.SetValueWithoutNotify(Mathf.Clamp(value, 0, 100));
-    }
-
-    private static void SetToggleSilently(Toggle toggle, bool value)
-    {
-        if (toggle == null) return;
-        toggle.SetIsOnWithoutNotify(value);
-    }
-
-    private void SetFrameText(string text)
-    {
-        if (frameStateText != null)
-            frameStateText.text = text;
-    }
-
-    private enum FrameLevel
-    {
-        Low = 0,
-        Mid = 1,
-        High = 2
+        if (AsyncSceneLoader.Instance != null)
+            AsyncSceneLoader.Instance.LoadSceneAsync("Title", LoadSceneMode.Single);
+        else
+            SceneManager.LoadScene("Title");
     }
 }

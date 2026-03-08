@@ -1,0 +1,131 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="project://database/Assets/Project/UI/Setting/SettingView.uss" />
+
+    <!-- 전체 화면 반투명 배경 오버레이 -->
+    <ui:VisualElement name="setting-backdrop" class="setting-backdrop">
+
+        <!-- ── 중앙 모달 700×500 ─────────────────────────────── -->
+        <ui:VisualElement name="setting-panel" class="setting-panel">
+
+            <!-- 헤더: 타이틀 + 닫기 버튼 -->
+            <ui:VisualElement name="setting-header" class="setting-header">
+                <ui:Label name="setting-title" class="setting-title" text="설정" />
+                <ui:Button name="close-btn" class="close-btn" text="✕" />
+            </ui:VisualElement>
+
+            <!-- 탭 버튼 행 -->
+            <ui:VisualElement name="tab-row" class="tab-row">
+                <ui:Button name="tab-graphics" class="tab-btn tab-active" text="그래픽" />
+                <ui:Button name="tab-sound"    class="tab-btn"            text="사운드" />
+                <ui:Button name="tab-account"  class="tab-btn"            text="계정"   />
+            </ui:VisualElement>
+
+            <!-- ── 콘텐츠 영역 ──────────────────────────────── -->
+            <ui:VisualElement name="content-area" class="content-area">
+
+                <!-- ▶ 그래픽 탭 (기본 표시) -->
+                <ui:VisualElement name="graphics-tab" class="tab-content">
+
+                    <!-- 프레임 선택 (상/중/하 라디오) -->
+                    <ui:VisualElement name="frame-row" class="setting-row">
+                        <ui:Label class="setting-label" text="프레임" />
+                        <ui:VisualElement name="frame-group" class="radio-group">
+                            <ui:RadioButton name="frame-high" label="상 (60fps)" />
+                            <ui:RadioButton name="frame-mid"  label="중 (30fps)" value="true" />
+                            <ui:RadioButton name="frame-low"  label="하 (저화질)" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- 화면 흔들림 -->
+                    <ui:VisualElement name="shake-row" class="setting-row">
+                        <ui:Label class="setting-label" text="화면 흔들림" />
+                        <ui:Toggle name="shake-toggle" value="true" />
+                    </ui:VisualElement>
+
+                    <!-- 블룸 효과 -->
+                    <ui:VisualElement name="bloom-row" class="setting-row">
+                        <ui:Label class="setting-label" text="블룸 효과" />
+                        <ui:Toggle name="bloom-toggle" value="true" />
+                    </ui:VisualElement>
+
+                    <!-- 모션 블러 -->
+                    <ui:VisualElement name="blur-row" class="setting-row">
+                        <ui:Label class="setting-label" text="모션 블러" />
+                        <ui:Toggle name="blur-toggle" />
+                    </ui:VisualElement>
+
+                </ui:VisualElement>
+                <!-- end graphics-tab -->
+
+                <!-- ▶ 사운드 탭 (기본 숨김) -->
+                <ui:VisualElement name="sound-tab" class="tab-content" style="display: none;">
+
+                    <!-- BGM 슬라이더 -->
+                    <ui:VisualElement name="bgm-row" class="setting-row sound-row">
+                        <ui:Label class="setting-label" text="BGM" />
+                        <ui:Slider name="bgm-slider" class="vol-slider"
+                                   low-value="0" high-value="100" value="80" />
+                        <ui:Label name="bgm-value-label" class="vol-value" text="80" />
+                        <ui:Toggle name="bgm-mute-toggle" label="음소거" />
+                    </ui:VisualElement>
+
+                    <!-- SFX 슬라이더 -->
+                    <ui:VisualElement name="sfx-row" class="setting-row sound-row">
+                        <ui:Label class="setting-label" text="효과음" />
+                        <ui:Slider name="sfx-slider" class="vol-slider"
+                                   low-value="0" high-value="100" value="80" />
+                        <ui:Label name="sfx-value-label" class="vol-value" text="80" />
+                        <ui:Toggle name="sfx-mute-toggle" label="음소거" />
+                    </ui:VisualElement>
+
+                </ui:VisualElement>
+                <!-- end sound-tab -->
+
+                <!-- ▶ 계정 탭 (기본 숨김) -->
+                <ui:VisualElement name="account-tab" class="tab-content" style="display: none;">
+
+                    <!-- UID + 복사 -->
+                    <ui:VisualElement name="uid-row" class="setting-row">
+                        <ui:Label class="setting-label" text="UID" />
+                        <ui:Label name="uid-label" class="account-value" text="UID-000000" />
+                        <ui:Button name="copy-btn" class="small-btn" text="복사" />
+                    </ui:VisualElement>
+
+                    <!-- 로그인 방식 -->
+                    <ui:VisualElement name="login-row" class="setting-row">
+                        <ui:Label class="setting-label" text="로그인" />
+                        <ui:Label name="login-method-label" class="account-value" text="Guest" />
+                    </ui:VisualElement>
+
+                    <!-- 로그아웃 -->
+                    <ui:Button name="logout-btn" class="logout-btn" text="로그아웃" />
+
+                </ui:VisualElement>
+                <!-- end account-tab -->
+
+            </ui:VisualElement>
+            <!-- end content-area -->
+
+            <!-- ── 로그아웃 확인 팝업 (기본 숨김) ──────────── -->
+            <ui:VisualElement name="confirm-overlay" class="confirm-overlay"
+                              style="display: none;">
+                <ui:VisualElement name="confirm-dialog" class="confirm-dialog">
+                    <ui:Label name="confirm-message" class="confirm-message"
+                              text="로그아웃 하시겠습니까?&#10;모든 데이터가 초기화됩니다." />
+                    <ui:VisualElement name="confirm-buttons" class="confirm-buttons">
+                        <ui:Button name="confirm-yes-btn" class="confirm-btn confirm-yes"
+                                   text="확인" />
+                        <ui:Button name="confirm-no-btn"  class="confirm-btn confirm-no"
+                                   text="취소" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <!-- end confirm-overlay -->
+
+        </ui:VisualElement>
+        <!-- end setting-panel -->
+
+    </ui:VisualElement>
+    <!-- end setting-backdrop -->
+
+</ui:UXML>
