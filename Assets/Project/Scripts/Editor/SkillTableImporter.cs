@@ -24,8 +24,7 @@ public static class SkillTableImporter
 
     private static readonly string[] RequiredColumns = { "id", "name", "element", "coefficient", "range" };
 
-    [MenuItem("Tools/Game/Import Skill CSV")]
-    public static void Import()
+        public static void Import()
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {

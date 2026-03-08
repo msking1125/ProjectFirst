@@ -17,8 +17,7 @@ public static class MonsterTableImporter
         "id", "grade", "name", "hp", "atk", "def", "critChance", "critMultiplier", "moveSpeed", "element", "prefab"
     };
 
-    [MenuItem("Tools/Game/Import Monster CSV")]
-    public static void Import()
+        public static void Import()
     {
         // Allow for either 'monsters.csv' or 'Monsters.csv' for case-insensitivity
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))

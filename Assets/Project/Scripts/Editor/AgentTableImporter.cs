@@ -19,8 +19,7 @@ public static class AgentTableImporter
         "id", "name", "hp", "atk", "def", "critChance", "critMultiplier", "element", "portrait"
     };
 
-    [MenuItem("Tools/Game/Import Agent CSV")]
-    public static void Import()
+        public static void Import()
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {

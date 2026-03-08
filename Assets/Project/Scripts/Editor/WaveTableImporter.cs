@@ -14,8 +14,7 @@ public static class WaveTableImporter
     private const string CsvPathUpper = "Assets/Project/Data/Wave.csv";
     private const string AssetPath = "Assets/Project/Data/WaveTable.asset";
 
-    [MenuItem("Tools/Game/Import Wave CSV")]
-    public static void Import()
+        public static void Import()
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
