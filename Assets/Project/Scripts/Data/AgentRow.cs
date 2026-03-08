@@ -1,3 +1,4 @@
+using UnityEngine;
 using System;
 
 [Serializable]
@@ -11,6 +12,7 @@ public class AgentRow
     public float critChance;
     public float critMultiplier = 1.5f;
     public ElementType element = ElementType.Reason;
+    public Sprite portrait;
 
     public CombatStats ToCombatStats()
     {

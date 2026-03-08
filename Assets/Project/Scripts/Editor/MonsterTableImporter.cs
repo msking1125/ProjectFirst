@@ -21,15 +21,13 @@ public static class MonsterTableImporter
     public static void Import()
     {
         // Allow for either 'monsters.csv' or 'Monsters.csv' for case-insensitivity
-        string csvPath = File.Exists(CsvPathLower) ? CsvPathLower : (File.Exists(CsvPathUpper) ? CsvPathUpper : null);
-        if (string.IsNullOrEmpty(csvPath))
+        if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
             Debug.LogError($"Monster CSV not found at: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
-        string[] lines = File.ReadAllLines(csvPath);
-        if (lines.Length < 2)
+        if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
             Debug.LogError("Monster CSV has no data rows.");
             return;
@@ -44,8 +42,8 @@ public static class MonsterTableImporter
 
         table.rows.Clear();
 
-        string[] header = lines[0].Split(',').Select(h => h.Trim()).ToArray();
-        int idx(string name) => Array.FindIndex(header, h => string.Equals(h, name, StringComparison.OrdinalIgnoreCase));
+        string[] header = CsvImportUtility.ParseHeader(lines[0]);
+        int idx(string name) => CsvImportUtility.FindColumn(header, name);
 
         foreach (string col in RequiredColumns)
         {
@@ -76,12 +74,7 @@ public static class MonsterTableImporter
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
-            string[] cols = line.Split(',').Select(c => c.Trim()).ToArray();
-            // Ensure columns are at least as long as header (when trailing empty columns present)
-            if (cols.Length < header.Length)
-            {
-                Array.Resize(ref cols, header.Length);
-            }
+            string[] cols = CsvImportUtility.ParseRow(line, header.Length);
 
             string id = SafeGet(cols, idIdx);
             string name = SafeGet(cols, nameIdx);
@@ -114,7 +107,7 @@ public static class MonsterTableImporter
             };
 
             string gradeRaw = SafeGet(cols, gradeIdx);
-            if (TryParseEnumInsensitive(gradeRaw, out MonsterGrade grade))
+            if (CsvImportUtility.TryParseEnumInsensitive(gradeRaw, out MonsterGrade grade))
             {
                 row.grade = grade;
             }
@@ -135,7 +128,7 @@ public static class MonsterTableImporter
             }
 
             string elementRaw = SafeGet(cols, elementIdx);
-            if (TryParseEnumInsensitive(elementRaw, out ElementType element))
+            if (CsvImportUtility.TryParseEnumInsensitive(elementRaw, out ElementType element))
             {
                 row.element = element;
             }
@@ -212,33 +205,6 @@ public static class MonsterTableImporter
         if (float.TryParse(s, out v))
             return true;
         v = 0f;
-        return false;
-    }
-
-    private static bool TryParseEnumInsensitive<TEnum>(string raw, out TEnum value) where TEnum : struct, Enum
-    {
-        string normalized = string.IsNullOrWhiteSpace(raw) ? string.Empty : raw.Trim();
-        if (Enum.TryParse(normalized, true, out value))
-        {
-            return true;
-        }
-
-        string compact = normalized.Replace(" ", string.Empty).Replace("_", string.Empty);
-        if (!string.IsNullOrEmpty(compact))
-        {
-            string[] names = Enum.GetNames(typeof(TEnum));
-            for (int i = 0; i < names.Length; i++)
-            {
-                string candidate = names[i].Replace("_", string.Empty);
-                if (string.Equals(candidate, compact, StringComparison.OrdinalIgnoreCase))
-                {
-                    value = (TEnum)Enum.Parse(typeof(TEnum), names[i]);
-                    return true;
-                }
-            }
-        }
-
-        value = default;
         return false;
     }
 

@@ -1,0 +1,4 @@
+id,name,hp,atk,def,critChance,critMultiplier,element,portrait,prefab
+agent01,캐릭터A,100,10,4,0.3,1.5,Passion,player1,Tabi_prefab
+agent02,캐릭터B,100,5,5,0.3,1.5,Intuition,player2,
+agent03,캐릭터C,100,5,6,0.3,1.5,Reason,player1,
