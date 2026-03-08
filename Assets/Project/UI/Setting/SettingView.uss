@@ -1,0 +1,274 @@
+/* SettingView.uss — 설정 패널 스타일 */
+
+/* ── 배경 오버레이 ─────────────────────────────────────── */
+
+.setting-backdrop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.70);
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── 모달 패널 ─────────────────────────────────────────── */
+
+.setting-panel {
+    width: 700px;
+    height: 500px;
+    background-color: rgb(28, 30, 46);
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.12);
+    flex-direction: column;
+}
+
+/* ── 헤더 ──────────────────────────────────────────────── */
+
+.setting-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px 12px 20px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.10);
+}
+
+.setting-title {
+    font-size: 20px;
+    color: rgb(230, 230, 230);
+    -unity-font-style: bold;
+}
+
+.close-btn {
+    width: 32px;
+    height: 32px;
+    background-color: transparent;
+    border-width: 0;
+    color: rgb(160, 160, 160);
+    font-size: 18px;
+    border-radius: 4px;
+}
+
+.close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+    color: rgb(240, 240, 240);
+}
+
+/* ── 탭 행 ─────────────────────────────────────────────── */
+
+.tab-row {
+    flex-direction: row;
+    padding: 0 20px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.tab-btn {
+    flex: 1;
+    height: 44px;
+    background-color: transparent;
+    border-width: 0;
+    border-bottom-width: 2px;
+    border-bottom-color: transparent;
+    color: rgb(140, 140, 155);
+    font-size: 14px;
+    border-radius: 0;
+}
+
+.tab-btn:hover {
+    color: rgb(200, 200, 210);
+}
+
+.tab-btn.tab-active {
+    color: rgb(255, 218, 90);
+    border-bottom-color: rgb(255, 218, 90);
+}
+
+/* ── 콘텐츠 영역 ────────────────────────────────────────── */
+
+.content-area {
+    flex: 1;
+    padding: 12px 20px 16px 20px;
+    overflow: hidden;
+}
+
+.tab-content {
+    flex: 1;
+    flex-direction: column;
+}
+
+/* ── 설정 행 공통 ───────────────────────────────────────── */
+
+.setting-row {
+    flex-direction: row;
+    align-items: center;
+    height: 52px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+    padding: 0 2px;
+}
+
+.setting-label {
+    width: 110px;
+    color: rgb(195, 195, 205);
+    font-size: 14px;
+}
+
+/* ── 라디오 그룹 (프레임 선택) ──────────────────────────── */
+
+.radio-group {
+    flex-direction: row;
+    flex: 1;
+}
+
+.radio-group .unity-radio-button {
+    margin-right: 16px;
+    color: rgb(170, 170, 180);
+    font-size: 13px;
+}
+
+.radio-group .unity-radio-button:checked {
+    color: rgb(255, 218, 90);
+}
+
+/* ── 사운드 행 ─────────────────────────────────────────── */
+
+.sound-row {
+    height: 58px;
+}
+
+.vol-slider {
+    flex: 1;
+    margin: 0 10px;
+}
+
+.vol-slider .unity-base-slider__tracker {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    height: 4px;
+}
+
+.vol-slider .unity-base-slider__dragger {
+    background-color: rgb(255, 218, 90);
+    border-radius: 6px;
+    width: 14px;
+    height: 14px;
+    border-width: 0;
+    margin-top: -5px;
+}
+
+.vol-value {
+    width: 30px;
+    color: rgb(195, 195, 205);
+    font-size: 13px;
+    -unity-text-align: middle-center;
+}
+
+/* ── 계정 탭 ───────────────────────────────────────────── */
+
+.account-value {
+    flex: 1;
+    color: rgb(170, 170, 180);
+    font-size: 13px;
+}
+
+.small-btn {
+    height: 26px;
+    padding: 0 10px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.18);
+    border-radius: 4px;
+    color: rgb(190, 190, 200);
+    font-size: 12px;
+}
+
+.small-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.logout-btn {
+    align-self: flex-start;
+    margin-top: 14px;
+    height: 36px;
+    padding: 0 20px;
+    background-color: rgba(210, 55, 55, 0.25);
+    border-width: 1px;
+    border-color: rgba(210, 55, 55, 0.55);
+    border-radius: 6px;
+    color: rgb(255, 110, 110);
+    font-size: 14px;
+}
+
+.logout-btn:hover {
+    background-color: rgba(210, 55, 55, 0.45);
+}
+
+/* ── 로그아웃 확인 팝업 ─────────────────────────────────── */
+
+.confirm-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.confirm-dialog {
+    width: 340px;
+    background-color: rgb(38, 40, 58);
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.18);
+    padding: 28px 24px 20px 24px;
+    align-items: center;
+}
+
+.confirm-message {
+    color: rgb(210, 210, 215);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 22px;
+}
+
+.confirm-buttons {
+    flex-direction: row;
+    justify-content: center;
+}
+
+.confirm-btn {
+    height: 36px;
+    padding: 0 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin: 0 6px;
+    border-width: 1px;
+}
+
+.confirm-yes {
+    background-color: rgba(210, 55, 55, 0.30);
+    border-color: rgba(210, 55, 55, 0.60);
+    color: rgb(255, 110, 110);
+}
+
+.confirm-yes:hover {
+    background-color: rgba(210, 55, 55, 0.50);
+}
+
+.confirm-no {
+    background-color: rgba(90, 90, 100, 0.30);
+    border-color: rgba(140, 140, 155, 0.40);
+    color: rgb(175, 175, 185);
+}
+
+.confirm-no:hover {
+    background-color: rgba(90, 90, 100, 0.50);
+}
