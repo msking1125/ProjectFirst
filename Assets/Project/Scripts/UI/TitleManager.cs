@@ -19,6 +19,10 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private TitleUIManager uiManager;
     [SerializeField] private TitleSettingsManager settingsManager;
 
+    [Header("Setting Panel (UIToolkit)")]
+    [Tooltip("SettingPanel 컴포넌트가 붙은 GameObject를 연결하세요.\n비워두면 TitleSettingsManager 폴백으로 동작합니다.")]
+    [SerializeField] private SettingPanel settingPanel;
+
     [Header("Events (Optional)")]
     [SerializeField] private VoidEventChannelSO startButtonEvent;
     [SerializeField] private VoidEventChannelSO settingsButtonEvent;
@@ -101,7 +105,13 @@ public class TitleManager : MonoBehaviour
     {
         Debug.Log("[TitleManager] 설정 클릭");
         settingsButtonEvent?.RaiseEvent();
-        if (settingsManager != null)
+
+        // 새 UIToolkit 설정 패널 우선, 없으면 레거시 UGUI 폴백
+        if (settingPanel != null)
+        {
+            settingPanel.OpenPanel();
+        }
+        else if (settingsManager != null)
         {
             settingsManager.OpenSettingsPanel();
         }
