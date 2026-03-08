@@ -66,11 +66,14 @@ public class SettingPanel : MonoBehaviour
     private VisualElement _soundTab;
     private VisualElement _accountTab;
 
-    // 그래픽: 프레임 라디오 [0]=상(60fps) [1]=중(30fps) [2]=하(저화질)
-    private RadioButton[] _frameButtons;
-    private Toggle        _shakeToggle;
-    private Toggle        _bloomToggle;
-    private Toggle        _blurToggle;
+    // 그래픽: 프레임 선택 (RadioButtonGroup — value=0:상 1:중 2:하)
+    private RadioButtonGroup _frameGroup;
+    private Toggle           _shakeToggle;
+    private Toggle           _bloomToggle;
+    private Toggle           _blurToggle;
+
+    // AudioMixer 파라미터 사용 가능 여부 (Exposed 미설정 시 false)
+    private bool _audioReady;
 
     // 사운드
     private Slider _bgmSlider;
@@ -107,6 +110,7 @@ public class SettingPanel : MonoBehaviour
         Instance = this;
 
         BindUI();
+        ValidateAudio();
         Hide();
     }
 
@@ -116,6 +120,10 @@ public class SettingPanel : MonoBehaviour
     public void Show()
     {
         if (_backdrop == null) return;
+
+        // 다른 UIDocument보다 위에 렌더링되도록 Sort Order 우선 설정
+        if (uiDocument != null)
+            uiDocument.sortingOrder = 100;
 
         _backdrop.style.display = DisplayStyle.Flex;
         LoadSettings();
@@ -170,16 +178,8 @@ public class SettingPanel : MonoBehaviour
 
         // ── 그래픽 ──────────────────────────────────────────
 
-        _frameButtons = new RadioButton[]
-        {
-            root.Q<RadioButton>("frame-high"),
-            root.Q<RadioButton>("frame-mid"),
-            root.Q<RadioButton>("frame-low"),
-        };
-
-        _frameButtons[0]?.RegisterValueChangedCallback(e => { if (e.newValue) ApplyGraphicsSettings(0); });
-        _frameButtons[1]?.RegisterValueChangedCallback(e => { if (e.newValue) ApplyGraphicsSettings(1); });
-        _frameButtons[2]?.RegisterValueChangedCallback(e => { if (e.newValue) ApplyGraphicsSettings(2); });
+        _frameGroup = root.Q<RadioButtonGroup>("frame-group");
+        _frameGroup?.RegisterValueChangedCallback(e => ApplyGraphicsSettings(e.newValue));
 
         _shakeToggle = root.Q<Toggle>("shake-toggle");
         _bloomToggle = root.Q<Toggle>("bloom-toggle");
@@ -280,8 +280,7 @@ public class SettingPanel : MonoBehaviour
         _sfxMuteToggle?.SetValueWithoutNotify(sfxMute);
 
         // 프레임 라디오 — 이벤트 없이 세팅
-        for (int i = 0; i < _frameButtons.Length; i++)
-            _frameButtons[i]?.SetValueWithoutNotify(i == frame);
+        _frameGroup?.SetValueWithoutNotify(frame);
 
         // 그래픽 토글 — 이벤트 없이 세팅
         _shakeToggle?.SetValueWithoutNotify(shake);
@@ -302,18 +301,10 @@ public class SettingPanel : MonoBehaviour
         if (_sfxSlider     != null) PlayerPrefs.SetFloat(KEY_SFX_VOL,  _sfxSlider.value);
         if (_bgmMuteToggle != null) PlayerPrefs.SetInt(KEY_BGM_MUTE, _bgmMuteToggle.value ? 1 : 0);
         if (_sfxMuteToggle != null) PlayerPrefs.SetInt(KEY_SFX_MUTE, _sfxMuteToggle.value ? 1 : 0);
-        if (_shakeToggle   != null) PlayerPrefs.SetInt(KEY_SHAKE, _shakeToggle.value ? 1 : 0);
-        if (_bloomToggle   != null) PlayerPrefs.SetInt(KEY_BLOOM, _bloomToggle.value ? 1 : 0);
-        if (_blurToggle    != null) PlayerPrefs.SetInt(KEY_BLUR,  _blurToggle.value  ? 1 : 0);
-
-        for (int i = 0; i < _frameButtons.Length; i++)
-        {
-            if (_frameButtons[i] != null && _frameButtons[i].value)
-            {
-                PlayerPrefs.SetInt(KEY_FRAME, i);
-                break;
-            }
-        }
+        if (_shakeToggle != null) PlayerPrefs.SetInt(KEY_SHAKE, _shakeToggle.value ? 1 : 0);
+        if (_bloomToggle != null) PlayerPrefs.SetInt(KEY_BLOOM, _bloomToggle.value ? 1 : 0);
+        if (_blurToggle  != null) PlayerPrefs.SetInt(KEY_BLUR,  _blurToggle.value  ? 1 : 0);
+        if (_frameGroup  != null) PlayerPrefs.SetInt(KEY_FRAME, _frameGroup.value);
 
         PlayerPrefs.Save();
     }
@@ -351,16 +342,35 @@ public class SettingPanel : MonoBehaviour
         ApplySfxVolume(evt.newValue ? 0f : _sfxVolCache);
     }
 
+    /// <summary>
+    /// AudioMixer Exposed Parameter 존재 여부를 한 번만 검증합니다.
+    /// AudioMixer가 없거나 파라미터가 노출되지 않았으면 볼륨 제어를 건너뜁니다.
+    /// </summary>
+    private void ValidateAudio()
+    {
+        if (audioMixer == null) return;
+
+        bool bgmOk = audioMixer.GetFloat(MIXER_BGM, out _);
+        bool sfxOk = audioMixer.GetFloat(MIXER_SFX, out _);
+        _audioReady = bgmOk && sfxOk;
+
+        if (!_audioReady)
+            Debug.LogWarning("[SettingPanel] AudioMixer에 'BGMVolume' / 'SFXVolume' " +
+                             "Exposed Parameter를 설정하세요. 볼륨 제어가 비활성화됩니다.");
+    }
+
     private void ApplyBgmVolume(float vol)
     {
+        if (!_audioReady) return;
         float db = vol > 0f ? Mathf.Log10(vol / 100f) * 20f : -80f;
-        audioMixer?.SetFloat(MIXER_BGM, db);
+        audioMixer.SetFloat(MIXER_BGM, db);
     }
 
     private void ApplySfxVolume(float vol)
     {
+        if (!_audioReady) return;
         float db = vol > 0f ? Mathf.Log10(vol / 100f) * 20f : -80f;
-        audioMixer?.SetFloat(MIXER_SFX, db);
+        audioMixer.SetFloat(MIXER_SFX, db);
     }
 
     private void UpdateBgmLabel(float val)

@@ -29,11 +29,9 @@
                     <!-- 프레임 선택 (상/중/하 라디오) -->
                     <ui:VisualElement name="frame-row" class="setting-row">
                         <ui:Label class="setting-label" text="프레임" />
-                        <ui:VisualElement name="frame-group" class="radio-group">
-                            <ui:RadioButton name="frame-high" label="상 (60fps)" />
-                            <ui:RadioButton name="frame-mid"  label="중 (30fps)" value="true" />
-                            <ui:RadioButton name="frame-low"  label="하 (저화질)" />
-                        </ui:VisualElement>
+                        <ui:RadioButtonGroup name="frame-group" class="radio-group"
+                                             choices="상 (60fps),중 (30fps),하 (저화질)"
+                                             value="1" />
                     </ui:VisualElement>
 
                     <!-- 화면 흔들림 -->
