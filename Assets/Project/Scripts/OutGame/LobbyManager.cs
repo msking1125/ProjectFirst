@@ -1,37 +1,29 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using TMPro;
+using UnityEngine.UIElements;
 
 /// <summary>
-/// 로비 씬 메인 관리자.
+/// 로비 씬 메인 관리자 — UI Toolkit(UIDocument) 기반.
 ///
 /// [Inspector 연결 가이드]
 /// ┌ Data
-/// │  └ playerData          : PlayerData.asset
-/// ├ Center
-/// │  ├ backgroundImage     : 배경 전체를 채우는 Image
-/// │  ├ characterImage      : 중앙 캐릭터 스프라이트 Image
-/// │  ├ stageBackgrounds[]  : 스테이지 인덱스 순 배경 Sprite 배열
-/// │  └ characterSprites[]  : 캐릭터 인덱스 순 캐릭터 Sprite 배열
-/// ├ Top Bar
-/// │  ├ myInfoButton        : 좌상단 '내 정보' 버튼
-/// │  ├ ticketText          : 티켓 수치 TMP
-/// │  ├ goldText            : 골드 수치 TMP
-/// │  ├ diamondText         : 다이아 수치 TMP
-/// │  ├ ticketPlusButton    : 티켓 '+' 버튼
-/// │  ├ goldPlusButton      : 골드 '+' 버튼
-/// │  ├ diamondPlusButton   : 다이아 '+' 버튼
-/// │  ├ mailButton          : 우편 버튼
-/// │  └ settingsButton      : 설정 버튼
-/// ├ Bottom Navigation
-/// │  ├ enterGameButton     : 게임 진입 버튼
-/// │  ├ characterManageButton: 캐릭터 관리 버튼
-/// │  ├ shopButton          : 상점 버튼
-/// │  └ petManageButton     : 펫 관리 버튼
-/// └ Side Buttons
-///    ├ missionButton       : 미션 버튼 (우측)
-///    └ idleRewardButton    : 방치 보상 버튼 (우측)
+/// │  └ playerData         : PlayerData.asset
+/// ├ UI
+/// │  └ uiDocument         : Scene 의 UIDocument 컴포넌트
+/// ├ Character
+/// │  ├ characterSpawnPoint: 캐릭터 프리팹을 인스턴스화할 Transform
+/// │  └ agentTable         : AgentTable.asset (mainCharacterId 룩업용)
+/// ├ Background
+/// │  └ backgroundSprites[]: 스테이지 진행도 10단계 배경 Sprite 배열 (10개)
+/// ├ Side Systems
+/// │  ├ idleRewardManager  : IdleRewardManager 컴포넌트
+/// │  └ settingPanel       : SettingPanel 컴포넌트 (선택, 자동 탐색 가능)
+/// └ Events (Optional)
+///    ├ onMyInfoClicked
+///    ├ onMailClicked
+///    ├ onSettingsClicked
+///    ├ onMissionClicked
+///    └ onIdleRewardClaimed
 /// </summary>
 [DisallowMultipleComponent]
 public class LobbyManager : MonoBehaviour
@@ -41,60 +33,31 @@ public class LobbyManager : MonoBehaviour
     [Header("Data")]
     [SerializeField] private PlayerData playerData;
 
-    // ── 중앙 영역 ─────────────────────────────────────────────
+    // ── UI ────────────────────────────────────────────────────
 
-    [Header("Center")]
-    [SerializeField] private Image backgroundImage;
-    [SerializeField] private Image characterImage;
+    [Header("UI")]
+    [SerializeField] private UIDocument uiDocument;
 
-    [Tooltip("스테이지 인덱스 순서대로 배경 Sprite를 등록하세요 (PlayerData.currentStageIndex 기준으로 선택됩니다).")]
-    [SerializeField] private Sprite[] stageBackgrounds;
+    // ── Character ─────────────────────────────────────────────
 
-    [Tooltip("캐릭터 인덱스 순서대로 캐릭터 Sprite를 등록하세요 (PlayerData.currentAgentIndex 기준으로 선택됩니다).")]
-    [SerializeField] private Sprite[] characterSprites;
+    [Header("Character")]
+    [SerializeField] private Transform characterSpawnPoint;
+    [SerializeField] private AgentTable agentTable;
 
-    // ── 탑바 ─────────────────────────────────────────────────
+    // ── Background ────────────────────────────────────────────
 
-    [Header("Top Bar")]
-    [SerializeField] private Button myInfoButton;
+    [Header("Background")]
+    [Tooltip("스테이지 진행도를 10구간으로 나눈 배경 Sprite (최대 10개). " +
+             "인덱스 = stageProgress / 10으로 선택됩니다.")]
+    [SerializeField] private Sprite[] backgroundSprites;
 
-    [SerializeField] private TMP_Text ticketText;
-    [SerializeField] private TMP_Text goldText;
-    [SerializeField] private TMP_Text diamondText;
+    // ── Side Systems ──────────────────────────────────────────
 
-    [SerializeField] private Button ticketPlusButton;
-    [SerializeField] private Button goldPlusButton;
-    [SerializeField] private Button diamondPlusButton;
-
-    [SerializeField] private Button mailButton;
-    [SerializeField] private Button settingsButton;
+    [Header("Side Systems")]
+    [SerializeField] private IdleRewardManager idleRewardManager;
     [SerializeField] private SettingPanel settingPanel;
 
-    // ── 하단 네비 ─────────────────────────────────────────────
-
-    [Header("Bottom Navigation")]
-    [SerializeField] private Button enterGameButton;
-    [SerializeField] private Button characterManageButton;
-    [SerializeField] private Button shopButton;
-    [SerializeField] private Button petManageButton;
-
-    // ── 우측 사이드 ───────────────────────────────────────────
-
-    [Header("Side Buttons")]
-    [SerializeField] private Button missionButton;
-    [SerializeField] private Button idleRewardButton;
-
-    // ── 시스템 연결 ───────────────────────────────────────────
-
-    [Header("Systems")]
-    [SerializeField] private IdleRewardManager idleRewardManager;
-
-    // ── 씬 이름 ───────────────────────────────────────────────
-
-    [Header("Scene Names")]
-    [SerializeField] private string battleSceneName = "Battle_Test";
-
-    // ── 이벤트 채널 ───────────────────────────────────────────
+    // ── Events (Optional) ─────────────────────────────────────
 
     [Header("Events (Optional)")]
     [SerializeField] private VoidEventChannelSO onMyInfoClicked;
@@ -103,38 +66,186 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private VoidEventChannelSO onMissionClicked;
     [SerializeField] private VoidEventChannelSO onIdleRewardClaimed;
 
+    // ── 씬 이름 ───────────────────────────────────────────────
+
+    [Header("Scene Names")]
+    [SerializeField] private string mapChapterSceneName   = "MapChapterScene";
+    [SerializeField] private string characterSceneName    = "CharacterManageScene";
+    [SerializeField] private string shopSceneName         = "ShopScene";
+    [SerializeField] private string petSceneName          = "PetManageScene";
+
+    // ── UI 요소 캐시 ──────────────────────────────────────────
+
+    // Top-bar 재화
+    private Label         _staminaLabel;
+    private Label         _goldLabel;
+    private Label         _gemLabel;
+
+    // Top-bar 버튼
+    private Button        _myInfoBtn;
+    private Button        _mailBtn;
+    private Button        _settingsBtn;
+    private VisualElement _mailRedDot;
+
+    // 재화 + 버튼
+    private Button        _staminaPlus;
+    private Button        _goldPlus;
+    private Button        _gemPlus;
+
+    // 하단 네비
+    private Button        _gameStartBtn;
+    private Button        _characterBtn;
+    private Button        _shopBtn;
+    private Button        _petBtn;
+
+    // 우측 퀵메뉴
+    private Button        _specialShopBtn;
+    private Button        _agentBtn;
+    private Button        _missionBtn;
+    private Button        _eventBtn;
+    private Button        _contractBtn;
+    private VisualElement _missionRedDot;
+
+    // 좌측 사이드
+    private Button        _idleRewardBtn;
+
+    // 배경
+    private VisualElement _backgroundImg;
+
+    // 스폰된 캐릭터 인스턴스
+    private GameObject    _spawnedCharacter;
+
     // ─────────────────────────────────────────────────────────
 
     private void Awake()
     {
         ResolveSettingPanel();
-        BindButtons();
     }
 
     private void OnEnable()
     {
-        if (playerData != null)
-            playerData.OnCurrencyChanged += OnCurrencyChangedHandler;
+        BindUI();
+        RegisterEvents();
+        RefreshAll();
     }
 
     private void OnDisable()
     {
-        if (playerData != null)
-            playerData.OnCurrencyChanged -= OnCurrencyChangedHandler;
+        UnregisterEvents();
     }
 
-    private void Start()
+    // ── UI 바인딩 ─────────────────────────────────────────────
+
+    private void BindUI()
     {
-        RefreshCurrencyUI();
-        RefreshCenterUI();
+        if (uiDocument == null)
+        {
+            Debug.LogError("[LobbyManager] UIDocument가 할당되지 않았습니다.");
+            return;
+        }
+
+        var root = uiDocument.rootVisualElement;
+
+        // 배경
+        _backgroundImg  = root.Q<VisualElement>("background-img");
+
+        // 탑바 재화
+        _staminaLabel   = root.Q<Label>("stamina-label");
+        _goldLabel      = root.Q<Label>("gold-label");
+        _gemLabel       = root.Q<Label>("gem-label");
+
+        // 탑바 버튼
+        _myInfoBtn      = root.Q<Button>("myinfo-btn");
+        _mailBtn        = root.Q<Button>("mail-btn");
+        _settingsBtn    = root.Q<Button>("settings-btn");
+        _mailRedDot     = root.Q<VisualElement>("mail-reddot");
+
+        // 재화 + 버튼
+        _staminaPlus    = root.Q<Button>("stamina-plus");
+        _goldPlus       = root.Q<Button>("gold-plus");
+        _gemPlus        = root.Q<Button>("gem-plus");
+
+        // 하단 네비
+        _gameStartBtn   = root.Q<Button>("gamestart-btn");
+        _characterBtn   = root.Q<Button>("character-btn");
+        _shopBtn        = root.Q<Button>("shop-btn");
+        _petBtn         = root.Q<Button>("pet-btn");
+
+        // 우측 퀵메뉴
+        _specialShopBtn = root.Q<Button>("special-shop-btn");
+        _agentBtn       = root.Q<Button>("agent-btn");
+        _missionBtn     = root.Q<Button>("mission-btn");
+        _eventBtn       = root.Q<Button>("event-btn");
+        _contractBtn    = root.Q<Button>("contract-btn");
+        _missionRedDot  = root.Q<VisualElement>("mission-reddot");
+
+        // 좌측 사이드
+        _idleRewardBtn  = root.Q<Button>("idle-reward-btn");
+
+        // 버튼 이벤트 연결
+        _myInfoBtn?.RegisterCallback<ClickEvent>(_   => OnMyInfoClickedHandler());
+        _mailBtn?.RegisterCallback<ClickEvent>(_     => OnMailClickedHandler());
+        _settingsBtn?.RegisterCallback<ClickEvent>(_ => OnSettingsClickedHandler());
+
+        _staminaPlus?.RegisterCallback<ClickEvent>(_ => Debug.Log("[LobbyManager] TODO: 스태미나 충전 팝업"));
+        _goldPlus?.RegisterCallback<ClickEvent>(_    => LoadScene(shopSceneName));
+        _gemPlus?.RegisterCallback<ClickEvent>(_     => LoadScene(shopSceneName));
+
+        _gameStartBtn?.RegisterCallback<ClickEvent>(_ => LoadScene(mapChapterSceneName));
+        _characterBtn?.RegisterCallback<ClickEvent>(_ => LoadScene(characterSceneName));
+        _shopBtn?.RegisterCallback<ClickEvent>(_      => LoadScene(shopSceneName));
+        _petBtn?.RegisterCallback<ClickEvent>(_       => LoadScene(petSceneName));
+
+        _specialShopBtn?.RegisterCallback<ClickEvent>(_ => LoadScene(shopSceneName));
+        _agentBtn?.RegisterCallback<ClickEvent>(_       => LoadScene(characterSceneName));
+        _missionBtn?.RegisterCallback<ClickEvent>(_     => OnMissionClickedHandler());
+        _eventBtn?.RegisterCallback<ClickEvent>(_       => Debug.Log("[LobbyManager] TODO: 이벤트 패널"));
+        _contractBtn?.RegisterCallback<ClickEvent>(_    => Debug.Log("[LobbyManager] TODO: 계약 패널"));
+
+        _idleRewardBtn?.RegisterCallback<ClickEvent>(_ => OnIdleRewardClickedHandler());
     }
 
-    // ── UI 갱신 ───────────────────────────────────────────────
+    // ── 이벤트 채널 구독 ──────────────────────────────────────
 
-    // OnCurrencyChanged 이벤트 핸들러 (Action<CurrencyType> -> void 브리지)
-    private void OnCurrencyChangedHandler(CurrencyType _) => RefreshCurrencyUI();
+    private void RegisterEvents()
+    {
+        if (playerData == null) return;
 
-    private void RefreshCurrencyUI()
+        if (playerData.onCurrencyChanged != null)
+            playerData.onCurrencyChanged.OnEventRaised += RefreshCurrency;
+
+        if (playerData.onCharacterChanged != null)
+            playerData.onCharacterChanged.OnEventRaised += RefreshCharacter;
+
+        // 레거시 이벤트도 구독 (PlayerData를 직접 int로 수정하는 기존 코드 호환)
+        playerData.OnCurrencyChanged += _ => RefreshCurrency();
+    }
+
+    private void UnregisterEvents()
+    {
+        if (playerData == null) return;
+
+        if (playerData.onCurrencyChanged != null)
+            playerData.onCurrencyChanged.OnEventRaised -= RefreshCurrency;
+
+        if (playerData.onCharacterChanged != null)
+            playerData.onCharacterChanged.OnEventRaised -= RefreshCharacter;
+
+        playerData.OnCurrencyChanged -= _ => RefreshCurrency();
+    }
+
+    // ── 전체 갱신 ─────────────────────────────────────────────
+
+    private void RefreshAll()
+    {
+        RefreshCurrency();
+        RefreshBackground();
+        RefreshCharacter();
+    }
+
+    // ── 재화 UI 갱신 ─────────────────────────────────────────
+
+    private void RefreshCurrency()
     {
         if (playerData == null)
         {
@@ -142,132 +253,111 @@ public class LobbyManager : MonoBehaviour
             return;
         }
 
-        if (ticketText  != null) ticketText.text  = FormatNumber(playerData.ticket);
-        if (goldText    != null) goldText.text    = FormatNumber(playerData.gold);
-        if (diamondText != null) diamondText.text = FormatNumber(playerData.diamond);
+        if (_staminaLabel != null)
+            _staminaLabel.text = $"{playerData.stamina}/{playerData.staminaMax}";
+
+        if (_goldLabel != null)
+            _goldLabel.text = FormatNumber(playerData.gold);
+
+        if (_gemLabel != null)
+            _gemLabel.text = FormatNumber(playerData.gem);
     }
 
-    private void RefreshCenterUI()
+    // ── 배경 갱신 ─────────────────────────────────────────────
+
+    private void RefreshBackground()
     {
+        if (_backgroundImg == null || backgroundSprites == null || backgroundSprites.Length == 0)
+            return;
+
+        int idx = Mathf.Clamp(playerData.stageProgress / 10, 0, backgroundSprites.Length - 1);
+        if (backgroundSprites[idx] != null)
+            _backgroundImg.style.backgroundImage = new StyleBackground(backgroundSprites[idx]);
+    }
+
+    // ── 캐릭터 갱신 ───────────────────────────────────────────
+
+    private void RefreshCharacter()
+    {
+        if (_spawnedCharacter != null)
+            Destroy(_spawnedCharacter);
+
         if (playerData == null) return;
 
-        if (backgroundImage != null && stageBackgrounds != null && stageBackgrounds.Length > 0)
+        if (agentTable == null)
         {
-            int idx = Mathf.Clamp(playerData.currentStageIndex, 0, stageBackgrounds.Length - 1);
-            backgroundImage.sprite = stageBackgrounds[idx];
+            Debug.LogWarning("[LobbyManager] AgentTable이 할당되지 않았습니다. 캐릭터 스폰을 건너뜁니다.");
+            return;
         }
 
-        if (characterImage != null && characterSprites != null && characterSprites.Length > 0)
+        // AgentRow에 프리팹 필드가 추가되면 여기서 Instantiate 처리
+        // 현재 AgentRow는 전투 스탯만 보유하므로 스폰 생략
+        AgentRow row = agentTable.GetById(playerData.mainCharacterId.ToString());
+        if (row == null)
         {
-            int idx = Mathf.Clamp(playerData.currentAgentIndex, 0, characterSprites.Length - 1);
-            characterImage.sprite = characterSprites[idx];
+            Debug.LogWarning($"[LobbyManager] mainCharacterId({playerData.mainCharacterId})에 해당하는 AgentRow를 찾을 수 없습니다.");
+            return;
         }
+
+        // TODO: AgentRow에 prefab 필드 추가 후 아래 주석 해제
+        // if (row.prefab != null && characterSpawnPoint != null)
+        //     _spawnedCharacter = Instantiate(row.prefab, characterSpawnPoint.position, characterSpawnPoint.rotation);
     }
+
+    // ── 씬 이동 ───────────────────────────────────────────────
+
+    private void LoadScene(string sceneName)
+    {
+        if (AsyncSceneLoader.Instance != null)
+            AsyncSceneLoader.Instance.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+        else
+            SceneManager.LoadScene(sceneName);
+    }
+
+    // ── SettingPanel 자동 탐색 ────────────────────────────────
 
     private void ResolveSettingPanel()
     {
-        if (settingPanel != null)
-            return;
+        if (settingPanel != null) return;
 
         SettingPanel[] panels = FindObjectsOfType<SettingPanel>(true);
         if (panels != null && panels.Length > 0)
             settingPanel = panels[0];
     }
 
-    // ── 버튼 바인딩 ───────────────────────────────────────────
+    // ── 버튼 핸들러 ───────────────────────────────────────────
 
-    private void BindButtons()
-    {
-        // 탑바
-        myInfoButton?.onClick.AddListener(OnMyInfoClicked);
-        ticketPlusButton?.onClick.AddListener(() => OnCurrencyPlusClicked(CurrencyType.Ticket));
-        goldPlusButton?.onClick.AddListener(() => OnCurrencyPlusClicked(CurrencyType.Gold));
-        diamondPlusButton?.onClick.AddListener(() => OnCurrencyPlusClicked(CurrencyType.Diamond));
-        mailButton?.onClick.AddListener(OnMailClicked);
-        settingsButton?.onClick.AddListener(OnSettingsClicked);
-
-        // 하단 네비
-        enterGameButton?.onClick.AddListener(OnEnterGameClicked);
-        characterManageButton?.onClick.AddListener(OnCharacterManageClicked);
-        shopButton?.onClick.AddListener(OnShopClicked);
-        petManageButton?.onClick.AddListener(OnPetManageClicked);
-
-        // 우측 사이드
-        missionButton?.onClick.AddListener(OnMissionClicked);
-        idleRewardButton?.onClick.AddListener(OnIdleRewardClicked);
-    }
-
-    // ── 버튼 핸들러: 탑바 ────────────────────────────────────
-
-    private void OnMyInfoClicked()
+    private void OnMyInfoClickedHandler()
     {
         Debug.Log("[LobbyManager] 내 정보 클릭");
         onMyInfoClicked?.RaiseEvent();
     }
 
-    private void OnCurrencyPlusClicked(CurrencyType type)
-    {
-        // 각 재화별 상점/충전 패널로 연동 예정
-        Debug.Log($"[LobbyManager] {type} + 버튼 클릭");
-    }
-
-    private void OnMailClicked()
+    private void OnMailClickedHandler()
     {
         Debug.Log("[LobbyManager] 우편 클릭");
         onMailClicked?.RaiseEvent();
     }
 
-    private void OnSettingsClicked()
+    private void OnSettingsClickedHandler()
     {
         Debug.Log("[LobbyManager] 설정 클릭");
 
         if (settingPanel != null)
             settingPanel.OpenPanel();
         else
-            Debug.LogWarning("[LobbyManager] SettingPanel 참조가 없습니다. Inspector 또는 자동 탐색 결과를 확인하세요.");
+            Debug.LogWarning("[LobbyManager] SettingPanel 참조가 없습니다.");
 
         onSettingsClicked?.RaiseEvent();
     }
 
-    // ── 버튼 핸들러: 하단 네비 ───────────────────────────────
-
-    private void OnEnterGameClicked()
-    {
-        Debug.Log($"[LobbyManager] 게임 진입 → {battleSceneName}");
-
-        if (AsyncSceneLoader.Instance != null)
-            AsyncSceneLoader.Instance.LoadSceneAsync(battleSceneName, LoadSceneMode.Single);
-        else
-            SceneManager.LoadScene(battleSceneName);
-    }
-
-    private void OnCharacterManageClicked()
-    {
-        Debug.Log("[LobbyManager] 캐릭터 관리 클릭");
-        // TODO: 캐릭터 관리 패널 열기
-    }
-
-    private void OnShopClicked()
-    {
-        Debug.Log("[LobbyManager] 상점 클릭");
-        // TODO: 상점 패널 열기
-    }
-
-    private void OnPetManageClicked()
-    {
-        Debug.Log("[LobbyManager] 펫 관리 클릭");
-        // TODO: 펫 관리 패널 열기
-    }
-
-    // ── 버튼 핸들러: 우측 사이드 ─────────────────────────────
-
-    private void OnMissionClicked()
+    private void OnMissionClickedHandler()
     {
         Debug.Log("[LobbyManager] 미션 클릭");
         onMissionClicked?.RaiseEvent();
     }
 
-    private void OnIdleRewardClicked()
+    private void OnIdleRewardClickedHandler()
     {
         if (idleRewardManager != null)
             idleRewardManager.OpenPopup();
@@ -280,10 +370,10 @@ public class LobbyManager : MonoBehaviour
     // ── 유틸 ─────────────────────────────────────────────────
 
     /// <summary>큰 숫자를 K / M 단위로 줄여서 반환합니다.</summary>
-    private static string FormatNumber(int value)
+    private static string FormatNumber(long n)
     {
-        if (value >= 1_000_000) return $"{value / 1_000_000f:F1}M";
-        if (value >= 1_000)     return $"{value / 1_000f:F1}K";
-        return value.ToString();
+        if (n >= 1_000_000L) return $"{n / 1_000_000f:F1}M";
+        if (n >= 1_000L)     return $"{n / 1_000f:F1}K";
+        return n.ToString();
     }
 }

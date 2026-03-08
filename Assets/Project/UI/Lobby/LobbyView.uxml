@@ -1,0 +1,77 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="project://database/Assets/Project/UI/Lobby/LobbyView.uss" />
+
+    <!-- 루트: 전체 화면을 덮는 절대 배치 컨테이너 -->
+    <ui:VisualElement name="lobby-root" class="lobby-root">
+
+        <!-- 배경 이미지 -->
+        <ui:VisualElement name="background-img" class="background-img" />
+
+        <!-- ── 상단 탑바 ───────────────────────────────────────── -->
+        <ui:VisualElement name="top-bar" class="top-bar">
+
+            <!-- 좌상단: 내 정보 버튼 -->
+            <ui:Button name="myinfo-btn" class="myinfo-btn" text="프로필" />
+
+            <!-- 중앙: 재화 그룹 -->
+            <ui:VisualElement name="currency-row" class="currency-row">
+
+                <!-- 스태미나 -->
+                <ui:VisualElement class="currency-group">
+                    <ui:VisualElement class="currency-icon stamina-icon" />
+                    <ui:Label name="stamina-label" class="currency-label" text="100/100" />
+                    <ui:Button name="stamina-plus" class="currency-plus" text="+" />
+                </ui:VisualElement>
+
+                <!-- 골드 -->
+                <ui:VisualElement class="currency-group">
+                    <ui:VisualElement class="currency-icon gold-icon" />
+                    <ui:Label name="gold-label" class="currency-label" text="0" />
+                    <ui:Button name="gold-plus" class="currency-plus" text="+" />
+                </ui:VisualElement>
+
+                <!-- 젬 -->
+                <ui:VisualElement class="currency-group">
+                    <ui:VisualElement class="currency-icon gem-icon" />
+                    <ui:Label name="gem-label" class="currency-label" text="0" />
+                    <ui:Button name="gem-plus" class="currency-plus" text="+" />
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+
+            <!-- 우상단: 우편 + 설정 -->
+            <ui:VisualElement name="right-group" class="right-group">
+                <ui:Button name="mail-btn" class="icon-btn mail-btn" text="✉">
+                    <ui:VisualElement name="mail-reddot" class="red-dot" />
+                </ui:Button>
+                <ui:Button name="settings-btn" class="icon-btn settings-btn" text="⚙" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+        <!-- ── 우측 퀵메뉴 (세로 배치) ───────────────────────── -->
+        <ui:VisualElement name="right-quickmenu" class="right-quickmenu">
+            <ui:Button name="special-shop-btn" class="quick-btn" text="특판" />
+            <ui:Button name="agent-btn"        class="quick-btn" text="에이전트" />
+            <ui:Button name="mission-btn"      class="quick-btn" text="미션">
+                <ui:VisualElement name="mission-reddot" class="red-dot" />
+            </ui:Button>
+            <ui:Button name="event-btn"        class="quick-btn" text="이벤트" />
+            <ui:Button name="contract-btn"     class="quick-btn" text="계약" />
+        </ui:VisualElement>
+
+        <!-- ── 좌측 사이드: 방치 보상 ────────────────────────── -->
+        <ui:VisualElement name="left-side" class="left-side">
+            <ui:Button name="idle-reward-btn" class="idle-reward-btn" text="보상" />
+        </ui:VisualElement>
+
+        <!-- ── 하단 네비게이션 바 ─────────────────────────────── -->
+        <ui:VisualElement name="bottom-nav" class="bottom-nav">
+            <ui:Button name="gamestart-btn"  class="nav-btn" text="모험" />
+            <ui:Button name="character-btn"  class="nav-btn" text="에이전트" />
+            <ui:Button name="shop-btn"       class="nav-btn" text="상점" />
+            <ui:Button name="pet-btn"        class="nav-btn" text="펫" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,227 @@
+/* =====================================================================
+   LobbyView.uss — UI Toolkit 스타일시트
+   모바일 세로 기준 (1080×1920 참고), 모든 px는 논리 픽셀
+   ===================================================================== */
+
+/* ── 루트 ──────────────────────────────────────────────────────────── */
+
+.lobby-root {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ── 배경 이미지 ─────────────────────────────────────────────────── */
+
+.background-img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+/* ── 상단 탑바 ───────────────────────────────────────────────────── */
+
+.top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+/* 내 정보 버튼 (좌상단) */
+.myinfo-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 27px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+    font-size: 11px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    flex-shrink: 0;
+}
+
+/* 재화 행 (중앙) */
+.currency-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    gap: 8px;
+    margin: 0 8px;
+}
+
+/* 재화 그룹 (아이콘 + 숫자 + +버튼) */
+.currency-group {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.45);
+    border-radius: 20px;
+    padding: 4px 8px 4px 6px;
+    gap: 4px;
+}
+
+/* 재화 아이콘 공통 */
+.currency-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    flex-shrink: 0;
+}
+
+.stamina-icon { background-color: #e8a020; }
+.gold-icon    { background-color: #f5d000; }
+.gem-icon     { background-color: #40c0ff; }
+
+/* 재화 숫자 라벨 */
+.currency-label {
+    font-size: 15px;
+    color: white;
+    -unity-font-style: bold;
+    min-width: 40px;
+    -unity-text-align: middle-center;
+}
+
+/* 재화 + 버튼 */
+.currency-plus {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.25);
+    border-width: 0;
+    color: white;
+    font-size: 14px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+/* 우상단 그룹 */
+.right-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* 아이콘 버튼 (우편, 설정) */
+.icon-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 23px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-width: 0;
+    color: white;
+    font-size: 20px;
+    -unity-text-align: middle-center;
+}
+
+/* ── 빨간 점 (알림) ─────────────────────────────────────────────── */
+
+.red-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #ff3b30;
+    display: none; /* 기본 숨김; 코드에서 필요 시 flex 로 변경 */
+}
+
+/* ── 우측 퀵메뉴 ─────────────────────────────────────────────────── */
+
+.right-quickmenu {
+    position: absolute;
+    right: 12px;
+    top: 100px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.quick-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    background-color: rgba(20, 20, 40, 0.80);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* ── 좌측 사이드 (방치 보상) ─────────────────────────────────────── */
+
+.left-side {
+    position: absolute;
+    left: 12px;
+    bottom: 110px;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* 방치 보상 원형 버튼 */
+.idle-reward-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 35px;
+    background-color: rgba(240, 160, 20, 0.90);
+    border-width: 3px;
+    border-color: #ffd700;
+    color: white;
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* ── 하단 네비게이션 ─────────────────────────────────────────────── */
+
+.bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 90px;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-around;
+    background-color: rgba(10, 10, 20, 0.90);
+    padding: 0 4px;
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* 하단 네비 버튼 */
+.nav-btn {
+    flex-grow: 1;
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    color: rgba(200, 200, 200, 0.80);
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin: 6px 2px;
+}
+
+.nav-btn:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+}
