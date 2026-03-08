@@ -16,9 +16,10 @@
 
         <!-- 버튼 영역 -->
         <ui:VisualElement class="button-container">
-            <ui:Button name="start-button"    class="title-button" text="게임 시작" />
-            <ui:Button name="settings-button" class="title-button" text="설정" />
-            <ui:Button name="quit-button"     class="title-button" text="종료" />
+            <ui:Button name="server-select-button" class="title-button" text="서버 선택" />
+            <ui:Button name="start-button"         class="title-button" text="게임 시작" />
+            <ui:Button name="settings-button"      class="title-button" text="설정" />
+            <ui:Button name="quit-button"          class="title-button" text="종료" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

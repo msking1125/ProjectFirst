@@ -219,10 +219,8 @@ namespace ProjectFirst.OutGame
         private void OnLoginComplete()
         {
             HideAllPanels();
-            if (TitleManager.Instance != null)
-            {
-                TitleManager.Instance.ShowTitleButtons();
-            }
+            // 타이틀 버튼들은 TitleManager에서 자동으로 표시됨
+            Debug.Log("[LoginManager] 로그인 완료 - 타이틀 화면으로 전환");
         }
 
         // --- Nickname ---

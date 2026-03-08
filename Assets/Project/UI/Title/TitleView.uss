@@ -79,6 +79,9 @@
 .title-button:hover { background-color: rgba(83, 148, 240, 0.97); }
 .title-button:active { background-color: rgba(44, 94, 164, 1.0); }
 
+#server-select-button { background-color: rgba(25, 150, 100, 0.90); }
+#server-select-button:hover { background-color: rgba(66, 200, 150, 0.95); }
+
 #start-button { background-color: rgba(25, 118, 210, 0.93); }
 #start-button:hover { background-color: rgba(66, 165, 245, 0.98); }
 
