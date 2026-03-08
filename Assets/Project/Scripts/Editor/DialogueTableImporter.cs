@@ -11,24 +11,23 @@ using UnityEngine;
 /// </summary>
 public static class DialogueTableImporter
 {
-    private const string CsvPath   = "Assets/Project/Data/Dialogues.csv";
+    private const string CsvPathLower = "Assets/Project/Data/dialogues.csv";
+    private const string CsvPathUpper = "Assets/Project/Data/Dialogues.csv";
     private const string AssetPath = "Assets/Project/Data/DialogueTable.asset";
 
     private static readonly string[] RequiredColumns = { "groupId", "dialogueId", "speakerName", "text" };
 
-    [MenuItem("Tools/Game/Import Dialogue CSV")]
-    public static void Import()
+        public static void Import()
     {
-        if (!File.Exists(CsvPath))
+        if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[DialogueTableImporter] CSV를 찾을 수 없습니다: {CsvPath}");
+            Debug.LogError($"[DialogueTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
-        string[] lines = File.ReadAllLines(CsvPath);
-        if (lines.Length < 2)
+        if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError("[DialogueTableImporter] 데이터 행이 없습니다.");
+            Debug.LogError($"[DialogueTableImporter] 데이터 행이 없습니다: {csvPath}");
             return;
         }
 
@@ -44,8 +43,8 @@ public static class DialogueTableImporter
         }
         rowsProp.ClearArray();
 
-        string[] header = lines[0].Split(',').Select(x => x.Trim()).ToArray();
-        int ColIdx(string n) => Array.FindIndex(header, h => h.Equals(n, StringComparison.OrdinalIgnoreCase));
+        string[] header = CsvImportUtility.ParseHeader(lines[0]);
+        int ColIdx(string n) => CsvImportUtility.FindColumn(header, n);
 
         foreach (string col in RequiredColumns)
         {
@@ -74,7 +73,7 @@ public static class DialogueTableImporter
 
             // 쉼표 안의 텍스트가 있을 수 있지만, 간단한 구조를 위해 Split 사용.
             // 필요에 따라 CsvHelper나 정규식을 사용하여 온전한 파싱을 하는 것이 좋음.
-            string[] cols = line.Split(',').Select(x => x.Trim()).ToArray();
+            string[] cols = CsvImportUtility.ParseRow(line, header.Length);
             
             // 만약 컬럼 수가 모자라다면 건너뛰거나 공백 대입
             if (cols.Length <= groupIdIdx || cols.Length <= dialogueIdIdx || cols.Length <= speakerNameIdx || cols.Length <= textIdx)
@@ -86,16 +85,16 @@ public static class DialogueTableImporter
             rowsProp.InsertArrayElementAtIndex(imported);
             SerializedProperty row = rowsProp.GetArrayElementAtIndex(imported);
 
-            row.FindPropertyRelative("groupId").stringValue     = GetCell(cols, groupIdIdx);
-            row.FindPropertyRelative("dialogueId").stringValue  = GetCell(cols, dialogueIdIdx);
-            row.FindPropertyRelative("speakerName").stringValue = GetCell(cols, speakerNameIdx);
-            row.FindPropertyRelative("text").stringValue        = GetCell(cols, textIdx).Replace("\\n", "\n"); // 개행문자 지원
+            row.FindPropertyRelative("groupId").stringValue     = CsvImportUtility.GetCell(cols, groupIdIdx);
+            row.FindPropertyRelative("dialogueId").stringValue  = CsvImportUtility.GetCell(cols, dialogueIdIdx);
+            row.FindPropertyRelative("speakerName").stringValue = CsvImportUtility.GetCell(cols, speakerNameIdx);
+            row.FindPropertyRelative("text").stringValue        = CsvImportUtility.GetCell(cols, textIdx).Replace("\\n", "\n"); // 개행문자 지원
 
-            if (backgroundIdx >= 0) row.FindPropertyRelative("background").stringValue = GetCell(cols, backgroundIdx);
-            if (characterLIdx >= 0) row.FindPropertyRelative("characterL").stringValue = GetCell(cols, characterLIdx);
-            if (characterRIdx >= 0) row.FindPropertyRelative("characterR").stringValue = GetCell(cols, characterRIdx);
-            if (choiceAIdx >= 0)    row.FindPropertyRelative("choiceA").stringValue = GetCell(cols, choiceAIdx);
-            if (choiceBIdx >= 0)    row.FindPropertyRelative("choiceB").stringValue = GetCell(cols, choiceBIdx);
+            if (backgroundIdx >= 0) row.FindPropertyRelative("background").stringValue = CsvImportUtility.GetCell(cols, backgroundIdx);
+            if (characterLIdx >= 0) row.FindPropertyRelative("characterL").stringValue = CsvImportUtility.GetCell(cols, characterLIdx);
+            if (characterRIdx >= 0) row.FindPropertyRelative("characterR").stringValue = CsvImportUtility.GetCell(cols, characterRIdx);
+            if (choiceAIdx >= 0)    row.FindPropertyRelative("choiceA").stringValue = CsvImportUtility.GetCell(cols, choiceAIdx);
+            if (choiceBIdx >= 0)    row.FindPropertyRelative("choiceB").stringValue = CsvImportUtility.GetCell(cols, choiceBIdx);
 
             imported++;
         }
@@ -115,7 +114,5 @@ public static class DialogueTableImporter
         return t;
     }
 
-    private static string GetCell(string[] arr, int idx)
-        => arr == null || idx < 0 || idx >= arr.Length ? string.Empty : arr[idx];
 }
 #endif

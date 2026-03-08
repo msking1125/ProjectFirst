@@ -15,6 +15,9 @@ public class AgentData : ScriptableObject
     public string agentId;
     public string displayName;
 
+    [Tooltip("캐릭터 초상화(프로필/로비 UI 등에서 사용)")]
+    public Sprite portrait;
+
     [Header("기본 공격 VFX")]
     [Tooltip("기본 공격 시 스폰할 이펙트 프리팹")]
     public GameObject normalAttackVfxPrefab;
