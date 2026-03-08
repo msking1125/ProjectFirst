@@ -16,11 +16,6 @@ public class VoidEventChannelSO : ScriptableObject
     /// <summary>이벤트 발행 (버튼 클릭 등에서 호출)</summary>
     public void RaiseEvent()
     {
-        if (OnEventRaised == null)
-        {
-            Debug.LogWarning($"[{name}] 구독자가 없습니다.");
-            return;
-        }
-        OnEventRaised.Invoke();
+        OnEventRaised?.Invoke();
     }
 }

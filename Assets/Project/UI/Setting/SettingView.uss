@@ -117,21 +117,43 @@
     font-size: 14px;
 }
 
-/* ── 라디오 그룹 (프레임 선택) ──────────────────────────── */
+/* ── 라디오 그룹 (RadioButtonGroup) ────────────────────── */
 
 .radio-group {
-    flex-direction: row;
     flex: 1;
+}
+
+/* 내부 컨테이너를 가로 배치 */
+.radio-group > .unity-radio-button-group__container {
+    flex-direction: row;
+    flex-wrap: nowrap;
 }
 
 .radio-group .unity-radio-button {
     margin-right: 16px;
     color: rgb(170, 170, 180);
     font-size: 13px;
+    flex-direction: row;
+    align-items: center;
 }
 
 .radio-group .unity-radio-button:checked {
     color: rgb(255, 218, 90);
+}
+
+.radio-group .unity-radio-button__checkmark-background {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: rgb(140, 140, 155);
+    background-color: transparent;
+    margin-right: 4px;
+}
+
+.radio-group .unity-radio-button:checked .unity-radio-button__checkmark-background {
+    border-color: rgb(255, 218, 90);
+    background-color: rgb(255, 218, 90);
 }
 
 /* ── 사운드 행 ─────────────────────────────────────────── */
