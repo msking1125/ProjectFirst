@@ -85,9 +85,9 @@ public class CharUltimateController : MonoBehaviour
         }
 
         // 스킬 탐색
-        if (string.IsNullOrWhiteSpace(agentData.characterSkillId) || skillTable == null)
+        if (agentData.characterSkillId <= 0 || skillTable == null)
         {
-            Debug.LogWarning($"[CharUltimate] characterSkillId가 비어있거나 SkillTable이 없습니다. ({agentData.name})", this);
+            Debug.LogWarning($"[CharUltimate] characterSkillId가 0이하이거나 SkillTable이 없습니다. ({agentData.name})", this);
             SetInteractable(false);
             return;
         }

@@ -6,7 +6,7 @@ namespace Project
 public class Agent : MonoBehaviour
 {
     [Header("Data")]
-    [SerializeField] private string agentId = "agent01";
+    [SerializeField] private int agentId = 1;
     [SerializeField] private AgentTable agentTable;
     [SerializeField] private AgentStatsTable agentStatsTable;
 
@@ -17,9 +17,6 @@ public class Agent : MonoBehaviour
 
     public float range = 5f;
     public float attackRate = 1f;
-
-    [Header("Legacy")]
-    public float attackDamage = 3f;
 
     [Header("Combat Stats")]
     [SerializeField] private CombatStats stats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
@@ -97,10 +94,9 @@ public class Agent : MonoBehaviour
         }
 
         if (!statsFromTable && stats.atk <= 0f)
-            stats.atk = Mathf.Max(1f, attackDamage);
+            stats.atk = 1f;
 
         stats = stats.Sanitized();
-        attackDamage = stats.atk;
     }
 
     private void ResolveAnimator()

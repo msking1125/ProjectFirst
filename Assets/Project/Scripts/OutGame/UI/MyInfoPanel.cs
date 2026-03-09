@@ -56,7 +56,7 @@ public class MyInfoPanel : MonoBehaviour
         public Sprite portrait;
 
         [Tooltip("이 캐릭터의 스킬 ID 3개 (SkillTable에서 조회). 빈 칸은 빈 슬롯으로 표시됩니다.")]
-        public string[] skillIds = new string[3];
+        public int[] skillIds = new int[3];
     }
 
     // ── PlayerPrefs 키 ────────────────────────────────────────
@@ -276,13 +276,13 @@ public class MyInfoPanel : MonoBehaviour
         if (characters == null || characters.Length == 0) return;
 
         int agentIdx = Mathf.Clamp(_selectedIndex, 0, characters.Length - 1);
-        string[] ids = characters[agentIdx].skillIds;
+        int[] ids = characters[agentIdx].skillIds;
 
         for (int slot = 0; slot < 3; slot++)
         {
             SkillRow row = null;
 
-            if (skillTable != null && ids != null && slot < ids.Length && !string.IsNullOrWhiteSpace(ids[slot]))
+            if (skillTable != null && ids != null && slot < ids.Length && ids[slot] > 0)
                 row = skillTable.GetById(ids[slot]);
 
             _skillRows[slot] = row;

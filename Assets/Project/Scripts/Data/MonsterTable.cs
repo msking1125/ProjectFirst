@@ -16,7 +16,8 @@ public class MonsterTable : ScriptableObject
     public List<MonsterRow> rows = new();
 
     // ID, 이름 별로 MonsterRow를 빠르게 탐색하기 위한 인덱스
-    private readonly Dictionary<string, MonsterRow> _lookup = new();
+    private readonly Dictionary<int, MonsterRow> _idLookup = new();
+    private readonly Dictionary<string, MonsterRow> _nameLookup = new();
 
     /// <summary>
     /// 입력 문자열을 인덱스 키로 정규화 (null/공백 -> null, 소문자)
@@ -34,44 +35,56 @@ public class MonsterTable : ScriptableObject
     /// </summary>
     private void BuildIndex()
     {
-        _lookup.Clear();
+        _idLookup.Clear();
+        _nameLookup.Clear();
         if (rows == null) return;
 
         foreach (var row in rows)
         {
             if (row == null) continue;
-            var idKey = NormalizeKey(row.id);
             var nameKey = NormalizeKey(row.name);
 
-            if (!string.IsNullOrEmpty(idKey))
-                _lookup[idKey] = row;
+            if (row.id > 0)
+                _idLookup[row.id] = row;
 
             // 이름으로도 접근 가능하도록 인덱싱
             if (!string.IsNullOrEmpty(nameKey))
-                _lookup[nameKey] = row;
+                _nameLookup[nameKey] = row;
         }
     }
 
     /// <summary>
-    /// id(혹은 이름)로 몬스터 정보를 조회합니다. (Grade는 무시)
+    /// id로 몬스터 정보를 조회합니다. (Grade는 무시)
     /// </summary>
-    public MonsterRow GetById(string id)
+    public MonsterRow GetById(int id)
     {
-        if (string.IsNullOrWhiteSpace(id))
+        if (id <= 0)
             return null;
 
         // 인덱스가 최신인지 안전하게 한 번 더 BuildIndex 호출
         BuildIndex();
 
-        var key = NormalizeKey(id);
-        return string.IsNullOrEmpty(key) ? null : _lookup.TryGetValue(key, out var row) ? row : null;
+        return _idLookup.TryGetValue(id, out var row) ? row : null;
+    }
+
+    /// <summary>
+    /// 이름으로 몬스터 정보를 조회합니다.
+    /// </summary>
+    public MonsterRow GetByName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+
+        BuildIndex();
+        var key = NormalizeKey(name);
+        return string.IsNullOrEmpty(key) ? null : _nameLookup.TryGetValue(key, out var row) ? row : null;
     }
 
     /// <summary>
     /// id와 grade가 모두 일치하는 몬스터를 반환합니다.
     /// 같은 id에 다른 grade가 있을 경우 정확히 일치하는 grade 우선, 없으면 baseRow 반환
     /// </summary>
-    public MonsterRow GetByIdAndGrade(string id, MonsterGrade grade)
+    public MonsterRow GetByIdAndGrade(int id, MonsterGrade grade)
     {
         var baseRow = GetById(id);
         if (baseRow == null) return null;
@@ -88,22 +101,5 @@ public class MonsterTable : ScriptableObject
                 return row;
         }
         return baseRow;
-    }
-
-    /// <summary>
-    /// ID(대소문자 무시)로 Row를 반환합니다. Grade 정보 무시. fallback용.
-    /// </summary>
-    public MonsterRow GetByIdRaw(string id)
-    {
-        if (rows == null || string.IsNullOrWhiteSpace(id)) return null;
-
-        var trimmed = id.Trim();
-        foreach (var row in rows)
-        {
-            if (row == null) continue;
-            if (string.Equals(row.id, trimmed, System.StringComparison.OrdinalIgnoreCase))
-                return row;
-        }
-        return null;
     }
 }

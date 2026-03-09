@@ -91,8 +91,9 @@ public static class SkillTableImporter
             rowsProp.InsertArrayElementAtIndex(imported);
             SerializedProperty row = rowsProp.GetArrayElementAtIndex(imported);
 
-            string id = GetCell(cols, idIdx);
-            row.FindPropertyRelative("id").stringValue          = id;
+            if (!int.TryParse(GetCell(cols, idIdx), out int id))
+                continue;
+            row.FindPropertyRelative("id").intValue             = id;
             row.FindPropertyRelative("name").stringValue        = GetCell(cols, nameIdx);
             row.FindPropertyRelative("coefficient").floatValue  = Mathf.Max(0.1f, StrToFloat(GetCell(cols, coeffIdx), 1f));
             row.FindPropertyRelative("range").floatValue        = Mathf.Max(0f,   StrToFloat(GetCell(cols, rangeIdx), 9999f));
@@ -113,7 +114,7 @@ public static class SkillTableImporter
             if (iconIdx >= 0)
             {
                 string iconName = GetCell(cols, iconIdx);
-                Sprite sprite   = FindSprite(iconName, id);
+                Sprite sprite   = FindSprite(iconName, id.ToString());
                 SerializedProperty iconProp = row.FindPropertyRelative("icon");
                 if (sprite != null)
                     iconProp.objectReferenceValue = sprite;
@@ -125,7 +126,7 @@ public static class SkillTableImporter
             if (vfxIdx >= 0)
             {
                 string vfxName   = GetCell(cols, vfxIdx);
-                GameObject prefab = FindPrefab(vfxName, id);
+                GameObject prefab = FindPrefab(vfxName, id.ToString());
                 SerializedProperty vfxProp = row.FindPropertyRelative("castVfxPrefab");
                 vfxProp.objectReferenceValue = prefab;
             }

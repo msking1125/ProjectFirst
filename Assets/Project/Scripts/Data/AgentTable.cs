@@ -8,7 +8,7 @@ public class AgentTable : ScriptableObject
     [SerializeField] private ElementType defaultElement = ElementType.Reason;
     public List<AgentRow> rows = new();
 
-    private readonly Dictionary<string, AgentRow> index = new();
+    private readonly Dictionary<int, AgentRow> index = new();
 
     private void OnEnable()
     {
@@ -20,9 +20,9 @@ public class AgentTable : ScriptableObject
         RebuildIndex();
     }
 
-    public AgentRow GetById(string id)
+    public AgentRow GetById(int id)
     {
-        if (string.IsNullOrWhiteSpace(id))
+        if (id <= 0)
         {
             return null;
         }
@@ -35,13 +35,13 @@ public class AgentTable : ScriptableObject
         return index.TryGetValue(id, out AgentRow row) ? row : null;
     }
 
-    public CombatStats GetStats(string id)
+    public CombatStats GetStats(int id)
     {
         AgentRow row = GetById(id);
         return row != null ? row.ToCombatStats() : defaultStats.Sanitized();
     }
 
-    public ElementType GetElement(string id)
+    public ElementType GetElement(int id)
     {
         AgentRow row = GetById(id);
         return row != null ? row.element : defaultElement;
@@ -59,7 +59,7 @@ public class AgentTable : ScriptableObject
         for (int i = 0; i < rows.Count; i++)
         {
             AgentRow row = rows[i];
-            if (row == null || string.IsNullOrWhiteSpace(row.id))
+            if (row == null || row.id <= 0)
             {
                 continue;
             }

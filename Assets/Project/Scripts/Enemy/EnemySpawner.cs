@@ -12,7 +12,7 @@ namespace Project
 [AddComponentMenu("Enemy/Enemy Spawner")]
 public class EnemySpawner : MonoBehaviour
 {
-    private const string DefaultMonsterId = "Monster1";
+    private const int DefaultMonsterId = 1;
 
     [Header("Enemy Pool (필수)")]
     [Tooltip("EnemyPool 컴포넌트를 연결하세요.")]
@@ -36,7 +36,7 @@ public class EnemySpawner : MonoBehaviour
 
     private float fallbackSpawnTimer;
     private bool useWaveConfig;
-    [SerializeField] private string defaultMonsterId = DefaultMonsterId;
+    [SerializeField] private int defaultMonsterId = DefaultMonsterId;
 
     [System.Serializable]
     public class WaveSession
@@ -48,8 +48,8 @@ public class EnemySpawner : MonoBehaviour
         public float enemyDamageMul;
         public int eliteEvery;
         public bool bossWave;
-        public string currentEnemyId;
-        public string lastConfiguredEnemyId;
+        public int currentEnemyId;
+        public int lastConfiguredEnemyId;
 
         public float spawnTimer;
         public int spawnedCount;
@@ -126,8 +126,7 @@ public class EnemySpawner : MonoBehaviour
     {
         waveSessions.Clear();
         useWaveConfig = true;
-        
-        defaultMonsterId = string.IsNullOrWhiteSpace(defaultMonsterId) ? DefaultMonsterId : defaultMonsterId;
+        defaultMonsterId = defaultMonsterId <= 0 ? DefaultMonsterId : defaultMonsterId;
 
         foreach (var row in rows)
         {
@@ -236,7 +235,7 @@ public class EnemySpawner : MonoBehaviour
         MonsterGrade grade = ResolveGrade(session);
         WaveMultipliers multipliers = new WaveMultipliers { hp = session.enemyHpMul, speed = session.enemySpeedMul, damage = session.enemyDamageMul };
 
-        string enemyIdSource = string.IsNullOrWhiteSpace(session.lastConfiguredEnemyId) ? "fallback(defaultMonsterId)" : "waveRow(enemyId/monsterId)";
+        string enemyIdSource = session.lastConfiguredEnemyId <= 0 ? "fallback(defaultMonsterId)" : "waveRow(enemyId/monsterId)";
         Debug.Log($"[EnemySpawner] 이번 스폰 enemyId='{session.currentEnemyId}' (source={enemyIdSource}, waveValue='{session.lastConfiguredEnemyId}', fallback='{defaultMonsterId}')");
 
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, session.currentEnemyId, grade, multipliers);
@@ -257,7 +256,7 @@ public class EnemySpawner : MonoBehaviour
         MonsterGrade grade = MonsterGrade.Normal;
         WaveMultipliers multipliers = new WaveMultipliers { hp = 1f, speed = 1f, damage = 1f };
 
-        string currentEnemyId = ResolveMonsterIdOrFallback(null, defaultMonsterId);
+        int currentEnemyId = ResolveMonsterIdOrFallback(0, defaultMonsterId);
 
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, grade, multipliers);
         if (enemy == null)
@@ -289,21 +288,16 @@ public class EnemySpawner : MonoBehaviour
     }
 
 
-    private string ResolveMonsterIdOrFallback(string waveMonsterId, string fallbackMonsterId)
+    private int ResolveMonsterIdOrFallback(int waveMonsterId, int fallbackMonsterId)
     {
-        string fallback = string.IsNullOrWhiteSpace(fallbackMonsterId) ? DefaultMonsterId : fallbackMonsterId.Trim();
-        if (fallback == "1") fallback = "Monster1";
+        int fallback = fallbackMonsterId <= 0 ? DefaultMonsterId : fallbackMonsterId;
 
-        if (string.IsNullOrWhiteSpace(waveMonsterId))
+        if (waveMonsterId <= 0)
         {
             return fallback;
         }
 
-        string trimmed = waveMonsterId.Trim();
-        if (trimmed == "1") return "Monster1";
-        if (trimmed == "2") return "Monster2";
-        if (trimmed == "3") return "Monster3";
-        return trimmed;
+        return waveMonsterId;
     }
 
     private MonsterGrade ResolveGrade(WaveSession session)

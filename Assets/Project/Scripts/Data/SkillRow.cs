@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class SkillRow
 {
-    public string id;
+    public int id;
     public string name;
     public ElementType element  = ElementType.Reason;
     public float coefficient    = 1f;

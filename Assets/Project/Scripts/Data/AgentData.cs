@@ -12,7 +12,7 @@ public class AgentData : ScriptableObject
 {
     [Header("기본 정보")]
     [Tooltip("Agent.agentId와 일치해야 합니다.")]
-    public string agentId;
+    public int agentId = 1;
     public string displayName;
 
     [Tooltip("캐릭터 초상화(프로필/로비 UI 등에서 사용)")]
@@ -34,7 +34,7 @@ public class AgentData : ScriptableObject
 
     [Header("액티브 스킬 (캐릭터 고유)")]
     [Tooltip("이 캐릭터 전용 액티브 스킬 ID. SkillTable에서 탐색합니다.")]
-    public string characterSkillId;
+    public int characterSkillId;
 
     [Tooltip("캐릭터 고유 스킬 아이콘 (UI 버튼에 표시)")]
     public Sprite characterSkillIcon;

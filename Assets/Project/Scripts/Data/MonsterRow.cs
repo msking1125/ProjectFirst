@@ -7,7 +7,7 @@ using Sirenix.OdinInspector;
 [Serializable]
 public class MonsterRow
 {
-    public string id;
+    public int id;
     public MonsterGrade grade = MonsterGrade.Normal;
     public string name;
     public GameObject prefab;

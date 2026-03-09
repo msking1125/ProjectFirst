@@ -78,7 +78,7 @@ public class EnemyPool : MonoBehaviour
     /// <param name="grade">적 등급</param>
     /// <param name="multipliers">웨이브 배수(능력치)</param>
     /// <returns>사용할 Enemy 인스턴스, 실패시 null</returns>
-    public Enemy Get(Vector3 position, Quaternion rotation, Transform arkTarget, MonsterTable monsterTable, string enemyId, MonsterGrade grade, WaveMultipliers multipliers)
+    public Enemy Get(Vector3 position, Quaternion rotation, Transform arkTarget, MonsterTable monsterTable, int enemyId, MonsterGrade grade, WaveMultipliers multipliers)
     {
         // 몬스터 테이블에서 적 정보/프리팹 가져오기
         MonsterRow row = monsterTable != null ? monsterTable.GetByIdAndGrade(enemyId, grade) : null;

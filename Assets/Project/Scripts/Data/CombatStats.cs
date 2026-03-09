@@ -23,4 +23,15 @@ public struct CombatStats
     {
         return new CombatStats(hp, atk, def, critChance, critMultiplier);
     }
+
+    public CombatStats Multiply(float hpRatio, float atkRatio, float defRatio)
+    {
+        return new CombatStats(
+            hp * hpRatio,
+            atk * atkRatio,
+            def * defRatio,
+            critChance,
+            critMultiplier
+        ).Sanitized();
+    }
 }

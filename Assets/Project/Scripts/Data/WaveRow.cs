@@ -3,7 +3,7 @@ using System;
 [Serializable]
 public class WaveRow
 {
-    private const string DefaultMonsterId = "1";
+    private const int DefaultMonsterId = 1;
 
     public int wave;
     public int spawnCount;
@@ -14,17 +14,17 @@ public class WaveRow
     public int eliteEvery;
     public bool boss;
     public int rewardGold;
-    public string enemyId = DefaultMonsterId;
-    public string monsterId = string.Empty;
+    public int enemyId = DefaultMonsterId;
+    public int monsterId = 0;
 
-    public string GetMonsterIdOrFallback()
+    public int GetMonsterIdOrFallback()
     {
-        if (!string.IsNullOrWhiteSpace(enemyId))
+        if (enemyId > 0)
         {
             return enemyId;
         }
 
-        if (!string.IsNullOrWhiteSpace(monsterId))
+        if (monsterId > 0)
         {
             return monsterId;
         }

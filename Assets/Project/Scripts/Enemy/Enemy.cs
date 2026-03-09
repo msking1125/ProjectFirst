@@ -46,9 +46,7 @@ public class Enemy : MonoBehaviour
 
     [Header("Enemy Stats")]
     public float moveSpeed = 2f;
-    public float maxHP = 10f;
-    public float attackDamage = 1f;
-    [SerializeField] private string defaultMonsterId = "slime";
+    [SerializeField] private int defaultMonsterId = 1;
 
     [Header("Grade Scale")]
     [SerializeField] private float eliteHpScale = 1.5f;
@@ -130,7 +128,7 @@ public class Enemy : MonoBehaviour
     private bool hasMonsterRunState;
     private bool hasPlayedRunFallback;
     private bool hasHitBarrier;
-    private string appliedMonsterId = string.Empty;
+    private int appliedMonsterId = 1;
     private MonsterGrade appliedMonsterGrade = MonsterGrade.Normal;
     private string appliedMoveSpeedSource = "default";
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -144,7 +142,7 @@ public class Enemy : MonoBehaviour
 
     public float Defense => currentCombatStats.def;
     public bool IsAlive => isAlive;
-    public string MonsterId => appliedMonsterId;
+    public int MonsterId => appliedMonsterId;
     public MonsterGrade Grade => appliedMonsterGrade;
 
     void Awake()
@@ -157,7 +155,7 @@ public class Enemy : MonoBehaviour
         ResolveAnimator();
 
         baseMoveSpeed = moveSpeed;
-        baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
+        baseCombatStats = new CombatStats(10f, 1f, 0f, 0f, 1f).Sanitized();
         currentElement = ElementType.Reason;
         appliedMonsterId = defaultMonsterId;
         appliedMoveSpeedSource = "default";
@@ -213,7 +211,7 @@ public class Enemy : MonoBehaviour
 
     public void SetPool(EnemyPool pool) => ownerPool = pool;
 
-    public void Init(Transform arkTarget, string monsterId, MonsterGrade grade, WaveMultipliers waveMultipliers, MonsterTable monsterTable)
+    public void Init(Transform arkTarget, int monsterId, MonsterGrade grade, WaveMultipliers waveMultipliers, MonsterTable monsterTable)
     {
         if (arkTarget == null) return;
 
@@ -230,7 +228,7 @@ public class Enemy : MonoBehaviour
             Debug.LogWarning($"[Enemy] ownerPool이 null이어서 EnemyPool.Instance로 자동 복구했습니다. name={gameObject.name}", this);
         }
 
-        string resolvedMonsterId = string.IsNullOrWhiteSpace(monsterId) ? defaultMonsterId : monsterId;
+        int resolvedMonsterId = monsterId <= 0 ? defaultMonsterId : monsterId;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         hasLoggedMoveSpeedForSpawn = false;
 #endif
@@ -319,7 +317,7 @@ public class Enemy : MonoBehaviour
 
     public bool IsInPool() => isInPool;
 
-    public void OnSpawnedFromPool(Transform arkTarget, MonsterTable monsterTable, string enemyId, MonsterGrade grade, WaveMultipliers multipliers)
+    public void OnSpawnedFromPool(Transform arkTarget, MonsterTable monsterTable, int enemyId, MonsterGrade grade, WaveMultipliers multipliers)
     {
         CancelInvoke(nameof(ReturnToPoolAfterDeathDelay));
         InitializeAnimatorOnSpawn();
@@ -358,10 +356,10 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void ApplyMonsterBase(MonsterTable monsterTable, string enemyId, MonsterGrade grade)
+    private void ApplyMonsterBase(MonsterTable monsterTable, int enemyId, MonsterGrade grade)
     {
         baseMoveSpeed = moveSpeed;
-        baseCombatStats = new CombatStats(maxHP, attackDamage, 0f, 0f, 1f).Sanitized();
+        baseCombatStats = new CombatStats(10f, 1f, 0f, 0f, 1f).Sanitized();
         currentElement = ElementType.Reason;
         appliedMonsterId = defaultMonsterId;
         appliedMoveSpeedSource = "default";
@@ -371,7 +369,7 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        string id = string.IsNullOrWhiteSpace(enemyId) ? defaultMonsterId : enemyId;
+        int id = enemyId <= 0 ? defaultMonsterId : enemyId;
         MonsterRow row = monsterTable.GetByIdAndGrade(id, grade)
                          ?? monsterTable.GetByIdAndGrade(defaultMonsterId, grade)
                          ?? monsterTable.GetById(id)
@@ -433,9 +431,6 @@ public class Enemy : MonoBehaviour
             currentCombatStats.def,
             currentCombatStats.critChance,
             currentCombatStats.critMultiplier).Sanitized();
-
-        maxHP = currentCombatStats.hp;
-        attackDamage = currentCombatStats.atk;
     }
 
     private void HandleDeath()
@@ -446,7 +441,7 @@ public class Enemy : MonoBehaviour
         }
 
         isAlive = false;
-        string monsterId = MonsterId;
+        int monsterId = MonsterId;
         MonsterGrade grade = Grade;
         Debug.Log($"[Enemy] Killed. id={monsterId} grade={grade}");
         EnemyKilled?.Invoke(this);

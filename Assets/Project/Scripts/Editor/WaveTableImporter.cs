@@ -8,7 +8,7 @@ using UnityEngine;
 
 public static class WaveTableImporter
 {
-    private const string DefaultMonsterId = "1";
+    private const int DefaultMonsterId = 1;
 
     private const string CsvPathLower = "Assets/Project/Data/wave.csv";
     private const string CsvPathUpper = "Assets/Project/Data/Wave.csv";
@@ -101,16 +101,16 @@ public static class WaveTableImporter
         return cols[index].Trim();
     }
 
-    private static string ResolvePreferredId(string[] cols, int enemyIdIdx, int monsterIdIdx)
+    private static int ResolvePreferredId(string[] cols, int enemyIdIdx, int monsterIdIdx)
     {
-        string enemyId = ReadIdCell(cols, enemyIdIdx);
-        if (!string.IsNullOrWhiteSpace(enemyId))
+        int enemyId = ReadIdCell(cols, enemyIdIdx);
+        if (enemyId > 0)
         {
             return enemyId;
         }
 
-        string monsterId = ReadIdCell(cols, monsterIdIdx);
-        if (!string.IsNullOrWhiteSpace(monsterId))
+        int monsterId = ReadIdCell(cols, monsterIdIdx);
+        if (monsterId > 0)
         {
             return monsterId;
         }
@@ -118,14 +118,14 @@ public static class WaveTableImporter
         return DefaultMonsterId;
     }
 
-    private static string ReadIdCell(string[] cols, int index)
+    private static int ReadIdCell(string[] cols, int index)
     {
         if (cols == null || index < 0 || index >= cols.Length)
         {
-            return string.Empty;
+            return 0;
         }
 
-        return cols[index].Trim();
+        return ParseInt(cols[index].Trim());
     }
 
     private static int ParseInt(string s)

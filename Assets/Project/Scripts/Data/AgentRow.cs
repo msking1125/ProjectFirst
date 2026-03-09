@@ -4,7 +4,7 @@ using System;
 [Serializable]
 public class AgentRow
 {
-    public string id;
+    public int id;
     public string name;
     public float hp;
     public float atk;

@@ -58,8 +58,7 @@ public static class AgentTableImporter
                 continue;
 
             string[] cols = CsvImportUtility.ParseRow(lines[i], header.Length);
-            string id = CsvImportUtility.GetCell(cols, idIdx);
-            if (string.IsNullOrWhiteSpace(id))
+            if (!int.TryParse(CsvImportUtility.GetCell(cols, idIdx), out int id))
                 continue;
 
             string portraitName = CsvImportUtility.GetCell(cols, portraitIdx);
@@ -102,7 +101,7 @@ public static class AgentTableImporter
         Debug.Log($"[AgentTableImporter] Imported {imported} agents into {AssetPath}");
     }
 
-    private static ElementType ParseElement(string raw, string id)
+    private static ElementType ParseElement(string raw, int id)
     {
         if (CsvImportUtility.TryParseEnumInsensitive(raw, out ElementType element))
             return element;
@@ -124,7 +123,7 @@ public static class AgentTableImporter
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
 
-    private static AgentData ResolveAgentData(string agentId)
+    private static AgentData ResolveAgentData(int agentId)
     {
         string[] guids = AssetDatabase.FindAssets("t:AgentData", new[] { AgentDataFolder });
         foreach (string guid in guids)
@@ -138,7 +137,7 @@ public static class AgentTableImporter
         return null;
     }
 
-    private static void SyncAgentPrefab(string prefabName, string agentId, AgentData agentData)
+    private static void SyncAgentPrefab(string prefabName, int agentId, AgentData agentData)
     {
         if (string.IsNullOrWhiteSpace(prefabName))
             return;
@@ -168,7 +167,7 @@ public static class AgentTableImporter
         SerializedObject so = new SerializedObject(agentComp);
         SerializedProperty idProp = so.FindProperty("agentId");
         if (idProp != null)
-            idProp.stringValue = agentId;
+            idProp.intValue = agentId;
         SerializedProperty dataProp = so.FindProperty("agentData");
         if (dataProp != null)
             dataProp.objectReferenceValue = agentData;

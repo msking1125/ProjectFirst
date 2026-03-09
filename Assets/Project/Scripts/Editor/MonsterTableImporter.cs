@@ -75,7 +75,9 @@ public static class MonsterTableImporter
 
             string[] cols = CsvImportUtility.ParseRow(line, header.Length);
 
-            string id = SafeGet(cols, idIdx);
+            if (!int.TryParse(SafeGet(cols, idIdx), out int id))
+                continue;
+
             string name = SafeGet(cols, nameIdx);
 
             // Parse critMultiplier: Remove all non-numeric, non-dot, non-minus chars
@@ -112,7 +114,7 @@ public static class MonsterTableImporter
             }
             else
             {
-                Debug.LogWarning($"[MonsterTableImporter] Failed to parse grade for id '{id ?? "(null)"}'. raw='{gradeRaw ?? "(null)"}'. fallback=Normal");
+                Debug.LogWarning($"[MonsterTableImporter] Failed to parse grade for id '{id}'. raw='{gradeRaw ?? "(null)"}'. fallback=Normal");
                 row.grade = MonsterGrade.Normal;
             }
 
@@ -123,7 +125,7 @@ public static class MonsterTableImporter
             }
             else if (!string.IsNullOrWhiteSpace(moveSpeedRaw))
             {
-                Debug.LogWarning($"[MonsterTableImporter] Failed to parse moveSpeed for id '{id ?? "(null)"}'. raw='{moveSpeedRaw}'");
+                Debug.LogWarning($"[MonsterTableImporter] Failed to parse moveSpeed for id '{id}'. raw='{moveSpeedRaw}'");
             }
 
             string elementRaw = SafeGet(cols, elementIdx);
@@ -133,7 +135,7 @@ public static class MonsterTableImporter
             }
             else
             {
-                Debug.LogWarning($"[MonsterTableImporter] Failed to parse element for id '{id ?? "(null)"}'. raw='{elementRaw ?? "(null)"}'. fallback=Reason");
+                Debug.LogWarning($"[MonsterTableImporter] Failed to parse element for id '{id}'. raw='{elementRaw ?? "(null)"}'. fallback=Reason");
                 row.element = ElementType.Reason;
             }
 
@@ -164,7 +166,7 @@ public static class MonsterTableImporter
         return 0f;
     }
 
-    private static int ParseOptionalReward(string[] cols, int index, string columnName, string monsterId)
+    private static int ParseOptionalReward(string[] cols, int index, string columnName, int monsterId)
     {
         if (index < 0)
         {
@@ -182,7 +184,7 @@ public static class MonsterTableImporter
             return Mathf.Max(0, Mathf.RoundToInt(value));
         }
 
-        Debug.LogWarning($"[MonsterTableImporter] Failed to parse {columnName} for id '{monsterId ?? "(null)"}'. raw='{raw}'. default=0");
+        Debug.LogWarning($"[MonsterTableImporter] Failed to parse {columnName} for id '{monsterId}'. raw='{raw}'. default=0");
         return 0;
     }
 
@@ -201,7 +203,7 @@ public static class MonsterTableImporter
         return false;
     }
 
-    private static GameObject ResolvePrefab(string prefabName, string id)
+    private static GameObject ResolvePrefab(string prefabName, int id)
     {
         if (string.IsNullOrWhiteSpace(prefabName))
         {

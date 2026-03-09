@@ -5,24 +5,24 @@ using UnityEngine;
 public class SkillTable : ScriptableObject
 {
     [SerializeField] private List<SkillRow> rows = new List<SkillRow>();
-    private readonly Dictionary<string, SkillRow> index = new Dictionary<string, SkillRow>();
+    private readonly Dictionary<int, SkillRow> index = new Dictionary<int, SkillRow>();
 
     public IReadOnlyList<SkillRow> Rows => rows;
     public IReadOnlyList<SkillRow> AllSkills => rows;
-    public IReadOnlyDictionary<string, SkillRow> Index => index;
+    public IReadOnlyDictionary<int, SkillRow> Index => index;
 
     private void OnEnable() => RebuildIndex();
     private void OnValidate() => RebuildIndex();
 
-    public SkillRow GetById(string id)
+    public SkillRow GetById(int id)
     {
-        if (string.IsNullOrWhiteSpace(id))
+        if (id <= 0)
         {
             return null;
         }
 
         RebuildIndex();
-        index.TryGetValue(id.Trim(), out SkillRow row);
+        index.TryGetValue(id, out SkillRow row);
         return row;
     }
 
@@ -37,12 +37,12 @@ public class SkillTable : ScriptableObject
         for (int i = 0; i < rows.Count; i++)
         {
             SkillRow row = rows[i];
-            if (row == null || string.IsNullOrWhiteSpace(row.id))
+            if (row == null || row.id <= 0)
             {
                 continue;
             }
 
-            index[row.id.Trim()] = row;
+            index[row.id] = row;
         }
     }
 }

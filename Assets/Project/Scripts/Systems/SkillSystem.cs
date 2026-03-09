@@ -317,10 +317,10 @@ public class SkillSystem
         List<SkillRow> result = new List<SkillRow>();
         if (skillTable == null || skillTable.AllSkills == null) return result;
 
-        HashSet<string> equippedIds = new HashSet<string>();
+        HashSet<int> equippedIds = new HashSet<int>();
         for (int i = 0; i < equippedSkills.Length; i++)
         {
-            if (equippedSkills[i] != null && !string.IsNullOrWhiteSpace(equippedSkills[i].id))
+            if (equippedSkills[i] != null && equippedSkills[i].id > 0)
                 equippedIds.Add(equippedSkills[i].id);
         }
 
@@ -329,7 +329,7 @@ public class SkillSystem
         {
             SkillRow row = skillTable.AllSkills[i];
             if (row == null) continue;
-            if (!string.IsNullOrWhiteSpace(row.id) && equippedIds.Contains(row.id)) continue;
+            if (row.id > 0 && equippedIds.Contains(row.id)) continue;
             pool.Add(row);
         }
 
