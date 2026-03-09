@@ -17,7 +17,7 @@ public static class DialogueTableImporter
 
     private static readonly string[] RequiredColumns = { "groupId", "dialogueId", "speakerName", "text" };
 
-        public static void Import()
+    public static void Import()
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {

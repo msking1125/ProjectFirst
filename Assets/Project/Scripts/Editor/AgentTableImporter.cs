@@ -19,7 +19,7 @@ public static class AgentTableImporter
         "id", "name", "hp", "atk", "def", "critChance", "critMultiplier", "element", "portrait"
     };
 
-        public static void Import()
+    public static void Import()
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
@@ -101,9 +101,6 @@ public static class AgentTableImporter
 
         Debug.Log($"[AgentTableImporter] Imported {imported} agents into {AssetPath}");
     }
-
-    [MenuItem("Assets/Import CSV/Agent Table", false, 2001)]
-    private static void ImportFromAssetsMenu() => Import();
 
     private static ElementType ParseElement(string raw, string id)
     {

@@ -25,12 +25,10 @@ public class GameImportToolWindow : EditorWindow
     private void BuildItems()
     {
         items.Clear();
-        items.Add(new ImportItem("Agent Table", AgentTableImporter.Import));
-        items.Add(new ImportItem("Monster Table", MonsterTableImporter.Import));
-        items.Add(new ImportItem("Skill Table", SkillTableImporter.Import));
-        items.Add(new ImportItem("Wave Table", WaveTableImporter.Import));
-        items.Add(new ImportItem("Dialogue Table", DialogueTableImporter.Import));
-        items.Add(new ImportItem("Badword Table", BadwordTableImporter.Import));
+
+        var entries = GameTableImportRegistry.GetEntries();
+        for (int i = 0; i < entries.Count; i++)
+            items.Add(new ImportItem(entries[i].Label, entries[i].ImportAction));
     }
 
     private void OnGUI()

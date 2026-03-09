@@ -17,7 +17,7 @@ public static class MonsterTableImporter
         "id", "grade", "name", "hp", "atk", "def", "critChance", "critMultiplier", "moveSpeed", "element", "prefab"
     };
 
-        public static void Import()
+    public static void Import()
     {
         // Allow for either 'monsters.csv' or 'Monsters.csv' for case-insensitivity
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
@@ -145,12 +145,6 @@ public static class MonsterTableImporter
         AssetDatabase.Refresh();
 
         Debug.Log($"Imported {table.rows.Count} monster{(table.rows.Count == 1 ? "" : "s")} into {AssetPath}");
-    }
-
-    [MenuItem("Assets/Import CSV/Monster Table", false, 2000)]
-    private static void ImportFromAssetsMenu()
-    {
-        Import();
     }
 
     /// <summary>
