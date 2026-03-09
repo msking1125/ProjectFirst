@@ -40,6 +40,7 @@ namespace ProjectFirst.OutGame
         private Label lblServerError;
         private Button btnConnect;
         private Button btnLogout;
+        private readonly List<string> serverDropdownChoices = new();
 
         // State & Dependencies
         private BadWordData badWordData;
@@ -58,7 +59,7 @@ namespace ProjectFirst.OutGame
 
             // LoginView.uxml이 uGUI ScreenSpaceOverlay Canvas 위에 렌더링되도록 sortingOrder 설정
             if (uiDocument.panelSettings != null)
-                uiDocument.panelSettings.sortingOrder = 10;
+                uiDocument.panelSettings.sortingOrder = 200;
 
             var root = uiDocument.rootVisualElement;
 
@@ -90,8 +91,16 @@ namespace ProjectFirst.OutGame
             btnConnect = root.Q<Button>("BtnConnect");
             btnLogout = root.Q<Button>("BtnLogout");
 
-            if (btnConnect != null) btnConnect.clicked += OnConfirmServerClicked;
-            if (btnLogout != null) btnLogout.clicked += HideAllPanels; // "닫기" 버튼
+            if (btnConnect != null)
+            {
+                btnConnect.clicked -= OnConfirmServerClicked;
+                btnConnect.clicked += OnConfirmServerClicked;
+            }
+            if (btnLogout != null)
+            {
+                btnLogout.clicked -= OnCloseServerSelectClicked;
+                btnLogout.clicked += OnCloseServerSelectClicked;
+            }
 
             ShowLoginPanel();
         }
@@ -166,26 +175,35 @@ namespace ProjectFirst.OutGame
         {
             if (dropdownServer == null || serverListSO == null) return;
 
-            List<string> serverNames = new List<string>();
+            serverDropdownChoices.Clear();
             foreach (var server in serverListSO.servers)
             {
-                serverNames.Add($"{server.displayName} ({server.CongestionLabel})");
+                serverDropdownChoices.Add($"{server.displayName} ({server.CongestionLabel})");
             }
 
-            dropdownServer.choices = serverNames;
-            
+            dropdownServer.choices = serverDropdownChoices;
+
             string lastServerId = PlayerPrefs.GetString("lastServer", string.Empty);
             int indexToSelect = 0;
-            
+
             if (!string.IsNullOrEmpty(lastServerId))
             {
                 int foundIndex = serverListSO.servers.FindIndex(s => s.serverId == lastServerId);
                 if (foundIndex >= 0) indexToSelect = foundIndex;
             }
 
-            if (serverNames.Count > 0)
+            if (serverDropdownChoices.Count > 0)
             {
+                indexToSelect = Mathf.Clamp(indexToSelect, 0, serverDropdownChoices.Count - 1);
                 dropdownServer.index = indexToSelect;
+                dropdownServer.value = serverDropdownChoices[indexToSelect];
+                dropdownServer.SetEnabled(true);
+            }
+            else
+            {
+                dropdownServer.index = -1;
+                dropdownServer.value = string.Empty;
+                dropdownServer.SetEnabled(false);
             }
         }
 
@@ -300,19 +318,36 @@ namespace ProjectFirst.OutGame
 
         private void OnConfirmServerClicked()
         {
-            if (dropdownServer == null || serverListSO == null) return;
+            if (dropdownServer == null || serverListSO == null || serverListSO.servers.Count == 0)
+            {
+                ShowServerError("서버 목록을 불러오지 못했습니다.");
+                return;
+            }
 
             int selectedIndex = dropdownServer.index;
-            if (selectedIndex < 0 || selectedIndex >= serverListSO.servers.Count) return;
+            if (selectedIndex < 0 || selectedIndex >= serverListSO.servers.Count)
+            {
+                ShowServerError("접속할 서버를 선택해 주세요.");
+                return;
+            }
 
             var selectedServer = serverListSO.servers[selectedIndex];
-            
-            // 선택한 서버 저장
+
             PlayerPrefs.SetString("lastServer", selectedServer.serverId);
             PlayerPrefs.Save();
-            
+
             Debug.Log($"[LoginManager] 서버 선택 완료: {selectedServer.displayName}");
-            HideAllPanels();
+            ConnectToSelectedServer();
+        }
+
+        private void OnCloseServerSelectClicked()
+        {
+            if (lblServerError != null)
+            {
+                lblServerError.style.display = DisplayStyle.None;
+            }
+
+            serverSelectPanel?.AddToClassList("hidden");
         }
 
         public void ConnectToSelectedServer()
@@ -361,16 +396,15 @@ namespace ProjectFirst.OutGame
                     PlayerPrefs.SetString("lastServer", serverInfo.serverId);
                     PlayerPrefs.Save();
 
-                    Debug.Log("[LoginManager] 접속 성공, Battle_Test 씬으로 이동합니다.");
+                    Debug.Log("[LoginManager] 접속 성공, Lobby 씬으로 이동합니다.");
 
-                    // 싱글톤 어드레서블 씬 로더 활용 (Battle_Test)
                     if (AsyncSceneLoader.Instance != null)
                     {
-                        AsyncSceneLoader.Instance.LoadSceneAsync("Battle_Test", UnityEngine.SceneManagement.LoadSceneMode.Single);
+                        AsyncSceneLoader.Instance.LoadSceneAsync("Lobby", UnityEngine.SceneManagement.LoadSceneMode.Single);
                     }
                     else
                     {
-                        UnityEngine.SceneManagement.SceneManager.LoadScene("Battle_Test");
+                        UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
                     }
                 }
                 else
@@ -386,6 +420,12 @@ namespace ProjectFirst.OutGame
             {
                 if (btnConnect != null) btnConnect.SetEnabled(true);
             }
+        }
+        private void ShowServerError(string message)
+        {
+            if (lblServerError == null) return;
+            lblServerError.text = message;
+            lblServerError.style.display = DisplayStyle.Flex;
         }
     }
 }

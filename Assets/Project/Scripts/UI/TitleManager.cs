@@ -64,9 +64,8 @@ public class TitleManager : MonoBehaviour
         var root = uiDoc.rootVisualElement;
         if (root == null) return;
 
-        // UXML 버튼 이벤트 연결
-        var startButton = root.Q<UnityEngine.UIElements.Button>("start-button");
-        if (startButton != null) startButton.clicked += OnStartClicked;
+        // start-button은 TitleLoadingManager가 직접 처리하므로 여기서는 등록하지 않음
+        // (이중 등록 시 씬 로드 충돌 발생)
 
         var serverSelectButton = root.Q<UnityEngine.UIElements.Button>("server-select-button");
         if (serverSelectButton != null) serverSelectButton.clicked += OnServerSelectClicked;
@@ -90,9 +89,19 @@ public class TitleManager : MonoBehaviour
 
     private void OnStartClicked()
     {
-        Debug.Log("[TitleManager] 게임 시작 클릭 -> LoginManager.Instance.ConnectToSelectedServer() 실행");
+        Debug.Log("[TitleManager] 게임 시작 클릭 (UGUI 버튼)");
         startButtonEvent?.RaiseEvent();
-        LoginManager.Instance.ConnectToSelectedServer();
+
+        // TitleLoadingManager에 위임 — 씬 로드는 한 곳에서만 수행
+        var loadingManager = FindObjectOfType<TitleLoadingManager>();
+        if (loadingManager != null)
+        {
+            loadingManager.TriggerLoad();
+        }
+        else
+        {
+            Debug.LogError("[TitleManager] TitleLoadingManager를 찾을 수 없습니다.");
+        }
     }
 
     private void OnServerSelectClicked()

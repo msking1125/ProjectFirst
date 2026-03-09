@@ -288,10 +288,10 @@ MonoBehaviour:
   backgroundSprites:
   - {fileID: 21300000, guid: a5dca5c6237bf434b99a9c6ad536e8a2, type: 3}
   idleRewardManager: {fileID: 1196403}
-  settingPanel: {fileID: 0}
+  settingPanel: {fileID: 1238490882}
   onMyInfoClicked: {fileID: 0}
   onMailClicked: {fileID: 0}
-  onSettingsClicked: {fileID: 0}
+  onSettingsClicked: {fileID: 11400000, guid: 58279f22040f87043ad913c9f6e9ec1d, type: 2}
   onMissionClicked: {fileID: 0}
   onIdleRewardClaimed: {fileID: 0}
   mapChapterSceneName: MapChapterScene
@@ -448,6 +448,72 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 940428992}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1238490881
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1238490884}
+  - component: {fileID: 1238490883}
+  - component: {fileID: 1238490882}
+  m_Layer: 0
+  m_Name: SettingPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1238490882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238490881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7cda3fd7a9d4678be4cfcf73ebf3097, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiDocument: {fileID: 1238490883}
+  audioMixer: {fileID: 24100000, guid: c40bed98f23a748f89472abe9c1a6871, type: 2}
+  playerData: {fileID: 11400000, guid: bad569521735f674cac1004ea6b159fe, type: 2}
+  defaultLoginMethod: Guest
+--- !u!114 &1238490883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238490881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PanelSettings: {fileID: 11400000, guid: 4f6ce563665d4cc448f8365827a7d326, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 39730fa073474a54f8d9b9c2f7e8fee0,
+    type: 3}
+  m_SortingOrder: 10
+--- !u!4 &1238490884
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238490881}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -617,3 +683,4 @@ SceneRoots:
   - {fileID: 2137786097}
   - {fileID: 699447124}
   - {fileID: 1196404}
+  - {fileID: 1238490884}

@@ -77,6 +77,7 @@ public class TitleUIManager : MonoBehaviour
         SetFullScreenStretch(overlay.GetComponent<RectTransform>());
         Image overlayImg = overlay.GetComponent<Image>();
         overlayImg.color = new Color(0.02f, 0.02f, 0.05f, 0.75f);
+        overlayImg.raycastTarget = false;
 
         // 2. 로고 영역 (선택사항)
         GameObject logoRoot = new GameObject("LogoRoot", typeof(RectTransform));

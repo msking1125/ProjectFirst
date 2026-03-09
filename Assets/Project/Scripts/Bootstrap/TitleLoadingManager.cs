@@ -12,6 +12,7 @@ public class TitleLoadingManager : MonoBehaviour
     private Label loadingLog;
     private Button startButton;
     private VisualElement loadingContainer;
+    private bool _isLoading;
 
     private void OnEnable()
     {
@@ -47,7 +48,17 @@ public class TitleLoadingManager : MonoBehaviour
 
     private void OnStartButtonClicked()
     {
+        TriggerLoad();
+    }
+
+    /// <summary>
+    /// TitleManager의 UGUI 버튼에서도 호출 가능한 공개 진입점
+    /// </summary>
+    public void TriggerLoad()
+    {
+        if (_isLoading) return;
         Debug.Log("[TitleLoadingManager] 게임 시작 버튼 클릭 → 로딩 시작");
+        _isLoading = true;
         StartLoadingAsync().Forget();
     }
 
