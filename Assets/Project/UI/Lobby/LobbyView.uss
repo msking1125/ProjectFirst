@@ -58,7 +58,7 @@
     align-items: center;
     justify-content: center;
     flex-grow: 1;
-    gap: 8px;
+    column-gap: 8px;
     margin: 0 8px;
 }
 
@@ -69,7 +69,7 @@
     background-color: rgba(0, 0, 0, 0.45);
     border-radius: 20px;
     padding: 4px 8px 4px 6px;
-    gap: 4px;
+    column-gap: 4px;
 }
 
 /* 재화 아이콘 공통 */
@@ -112,7 +112,7 @@
 .right-group {
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    column-gap: 8px;
     flex-shrink: 0;
 }
 
@@ -148,7 +148,7 @@
     right: 12px;
     top: 100px;
     flex-direction: column;
-    gap: 8px;
+    row-gap: 8px;
     align-items: flex-end;
 }
 

@@ -1,32 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="project://database/Assets/Project/UI/Mailbox/MailboxView.uss" />
 
-    <!-- ¦¡¦¡ ÀüÃ¼ È­¸é ¿ìÆíÇÔ ÆÐ³Î ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ -->
+    <!-- ¢w¢w ?? ?? ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w -->
     <ui:VisualElement name="mailbox-panel" class="mailbox-panel" style="display: none;">
 
-        <!-- ¦¡¦¡ ÆÐ³Î Çì´õ ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ -->
+        <!-- ¢w¢w ?? ?? ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w -->
         <ui:VisualElement name="panel-header" class="panel-header">
-            <ui:Label name="title-label" class="title-label" text="¿ìÆíÇÔ" />
+            <ui:Label name="title-label" class="title-label" text="???" />
             <ui:Button name="close-btn" class="close-btn" text="?" />
         </ui:VisualElement>
 
-        <!-- ¦¡¦¡ ÅÇ Çà ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ -->
+        <!-- ¢w¢w ? ? ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w -->
         <ui:VisualElement name="tab-row" class="tab-row">
-            <ui:Button name="unclaimed-tab-btn" class="tab-btn tab-active" text="¹Ì¼ö·É">
+            <ui:Button name="unclaimed-tab-btn" class="tab-btn tab-active" text="???">
                 <ui:Label name="unclaimed-badge" class="unclaimed-badge" text="0" />
             </ui:Button>
-            <ui:Button name="claimed-tab-btn" class="tab-btn" text="¼ö·ÉÀÌ·Â" />
+            <ui:Button name="claimed-tab-btn" class="tab-btn" text="????" />
         </ui:VisualElement>
 
-        <!-- ¦¡¦¡ ¸ÞÀÏ ¸ñ·Ï (ListView) ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ -->
+        <!-- ¢w¢w ?? ??? (ListView) ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w -->
         <ui:ListView name="mail-list" class="mail-list" />
 
-        <!-- ¦¡¦¡ ºó ¸ñ·Ï ¾È³» ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ -->
+        <!-- ¢w¢w ? ?? ?? ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w -->
         <ui:VisualElement name="empty-state-view" class="empty-state-view" style="display: none;">
-            <ui:Label name="empty-label" class="empty-label" text="¹ÞÀº ¿ìÆíÀÌ ¾ø½À´Ï´Ù" />
+            <ui:Label name="empty-label" class="empty-label" text="?? ??? ????" />
         </ui:VisualElement>
 
-        <!-- ¦¡¦¡ µðÅ×ÀÏ ÆÐ³Î (±âº» ¼û±è) ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ -->
+        <!-- ¢w¢w ??? ?? (?? ????) ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w -->
         <ui:VisualElement name="detail-panel" class="detail-panel" style="display: none;">
             <ui:Label name="detail-title" class="detail-title" text="" />
 
@@ -39,32 +40,32 @@
 
             <ui:Label name="detail-body" class="detail-body" text="" />
 
-            <ui:Label class="detail-rewards-title" text="Ã·ºÎ º¸»ó" />
+            <ui:Label class="detail-rewards-title" text="?? ??" />
             <ui:VisualElement name="detail-rewards-row" class="detail-rewards-row" />
 
-            <ui:Button name="detail-claim-btn" class="detail-claim-btn" text="º¸»ó ¹Þ±â" />
+            <ui:Button name="detail-claim-btn" class="detail-claim-btn" text="?? ??" />
         </ui:VisualElement>
 
-        <!-- ¦¡¦¡ ÇÏ´Ü ¾×¼Ç ¹Ù ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ -->
+        <!-- ¢w¢w ?? ?? ? ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w -->
         <ui:VisualElement name="bottom-action-bar" class="bottom-action-bar">
-            <ui:Button name="claim-all-btn" class="action-btn claim-all-btn" text="ÀÏ°ý ¼ö·É" />
-            <ui:Button name="delete-read-btn" class="action-btn delete-read-btn" text="ÀÐÀº ¿ìÆí »èÁ¦" />
+            <ui:Button name="claim-all-btn" class="action-btn claim-all-btn" text="?? ??" />
+            <ui:Button name="delete-read-btn" class="action-btn delete-read-btn" text="?? ?? ??" />
         </ui:VisualElement>
 
-        <!-- ¦¡¦¡ º¸»ó È¹µæ ¿À¹ö·¹ÀÌ (±âº» ¼û±è) ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ -->
+        <!-- ¢w¢w ?? ?? ???? (?? ??) ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w -->
         <ui:VisualElement name="reward-overlay" class="reward-overlay" style="display: none;">
-            <ui:Label name="reward-title-label" class="reward-title-label" text="º¸»ó È¹µæ!" />
+            <ui:Label name="reward-title-label" class="reward-title-label" text="?? ??!" />
             <ui:VisualElement name="reward-cards-container" class="reward-cards-container" />
             <ui:Label name="reward-touch-label" class="reward-touch-label" text="TOUCH TO CONTINUE" />
         </ui:VisualElement>
 
-        <!-- ¦¡¦¡ È®ÀÎ ÆË¾÷ (±âº» ¼û±è) ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ -->
+        <!-- ¢w¢w ?? ?? (?? ??) ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w -->
         <ui:VisualElement name="confirm-overlay" class="confirm-overlay" style="display: none;">
             <ui:VisualElement name="confirm-dialog" class="confirm-dialog">
                 <ui:Label name="confirm-message" class="confirm-message" text="" />
                 <ui:VisualElement name="confirm-buttons" class="confirm-buttons">
-                    <ui:Button name="confirm-yes-btn" class="confirm-btn confirm-yes" text="È®ÀÎ" />
-                    <ui:Button name="confirm-no-btn" class="confirm-btn confirm-no" text="Ãë¼Ò" />
+                    <ui:Button name="confirm-yes-btn" class="confirm-btn confirm-yes" text="??" />
+                    <ui:Button name="confirm-no-btn" class="confirm-btn confirm-no" text="??" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
