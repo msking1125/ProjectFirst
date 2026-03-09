@@ -30,6 +30,7 @@ public class GameImportToolWindow : EditorWindow
         items.Add(new ImportItem("Skill Table", SkillTableImporter.Import));
         items.Add(new ImportItem("Wave Table", WaveTableImporter.Import));
         items.Add(new ImportItem("Dialogue Table", DialogueTableImporter.Import));
+        items.Add(new ImportItem("Badword Table", BadwordTableImporter.Import));
     }
 
     private void OnGUI()
