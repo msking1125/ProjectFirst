@@ -14,18 +14,15 @@ public static class WaveTableImporter
     private const string CsvPathUpper = "Assets/Project/Data/Wave.csv";
     private const string AssetPath = "Assets/Project/Data/WaveTable.asset";
 
-    [MenuItem("Tools/Game/Import Wave CSV")]
     public static void Import()
     {
-        string csvPath = File.Exists(CsvPathLower) ? CsvPathLower : (File.Exists(CsvPathUpper) ? CsvPathUpper : null);
-        if (string.IsNullOrEmpty(csvPath))
+        if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
             Debug.LogError($"Wave CSV not found at: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
-        var lines = File.ReadAllLines(csvPath);
-        if (lines.Length < 2)
+        if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
             Debug.LogError("Wave CSV has no data rows.");
             return;
@@ -40,7 +37,7 @@ public static class WaveTableImporter
 
         table.wave.Clear();
 
-        var header = lines[0].Split(',').Select(h => h.Trim()).ToArray();
+        var header = CsvImportUtility.ParseHeader(lines[0]);
         int colCount = header.Length;
 
         // 인덱스 캐싱
@@ -71,15 +68,7 @@ public static class WaveTableImporter
         {
             var line = lines[i];
             if (string.IsNullOrWhiteSpace(line)) continue;
-            var cols = line.Split(',');
-            if (cols.Length < colCount)
-            {
-                Debug.LogWarning($"Skipping incomplete row at line {i + 1} (expected {colCount} columns, got {cols.Length}).");
-                continue;
-            }
-
-            for (int c = 0; c < colCount; ++c)
-                cols[c] = cols[c].Trim();
+            var cols = CsvImportUtility.ParseRow(line, colCount);
 
             WaveRow row = new WaveRow
             {
