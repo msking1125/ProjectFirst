@@ -18,7 +18,7 @@ using UnityEngine.UI;
 /// ┌ Data
 /// │  ├ playerData        : PlayerData.asset
 /// │  ├ skillTable        : SkillTable.asset
-/// │  └ characters[]     : 보유 캐릭터별 CharacterEntry (AgentData + 초상화 + 스킬 ID 3개)
+/// │  └ characters[]     : 보유 캐릭터별 CharacterEntry (AgentData + (선택)초상화 오버라이드 + 스킬 ID 3개)
 /// ├ Profile
 /// │  ├ representativePortrait : 중앙 대표 캐릭터 Image
 /// │  ├ nicknameText           : 닉네임 TMP_Text
@@ -52,7 +52,7 @@ public class MyInfoPanel : MonoBehaviour
         [Tooltip("AgentData.asset (agentId, displayName, characterSkillId 등)")]
         public AgentData agentData;
 
-        [Tooltip("캐릭터 초상화 스프라이트")]
+        [Tooltip("캐릭터 초상화 스프라이트(선택). 비워두면 AgentData.portrait를 사용합니다.")]
         public Sprite portrait;
 
         [Tooltip("이 캐릭터의 스킬 ID 3개 (SkillTable에서 조회). 빈 칸은 빈 슬롯으로 표시됩니다.")]
@@ -190,7 +190,9 @@ public class MyInfoPanel : MonoBehaviour
     {
         if (representativePortrait == null || characters == null || characters.Length == 0) return;
         int idx = Mathf.Clamp(_selectedIndex, 0, characters.Length - 1);
-        representativePortrait.sprite = characters[idx].portrait;
+        CharacterEntry entry = characters[idx];
+        Sprite portrait = entry.portrait != null ? entry.portrait : entry.agentData?.portrait;
+        representativePortrait.sprite = portrait;
     }
 
     // ── 캐릭터 리스트 ─────────────────────────────────────────
@@ -214,8 +216,12 @@ public class MyInfoPanel : MonoBehaviour
             Image      img = go.GetComponentInChildren<Image>();
 
             // 초상화 적용
-            if (img != null && entry.portrait != null)
-                img.sprite = entry.portrait;
+            if (img != null)
+            {
+                Sprite portrait = entry.portrait != null ? entry.portrait : entry.agentData?.portrait;
+                if (portrait != null)
+                    img.sprite = portrait;
+            }
 
             // 에이전트 이름 (TMP_Text가 있으면 표시)
             TMP_Text label = go.GetComponentInChildren<TMP_Text>();

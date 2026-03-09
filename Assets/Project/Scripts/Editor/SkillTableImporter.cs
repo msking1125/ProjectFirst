@@ -13,7 +13,8 @@ using UnityEngine;
 /// </summary>
 public static class SkillTableImporter
 {
-    private const string CsvPath   = "Assets/Project/Data/skills.csv";
+    private const string CsvPathLower = "Assets/Project/Data/skills.csv";
+    private const string CsvPathUpper = "Assets/Project/Data/Skills.csv";
     private const string AssetPath = "Assets/Project/Data/SkillTable.asset";
 
     // 아이콘 검색 우선 폴더 (없으면 프로젝트 전체 탐색)
@@ -23,19 +24,17 @@ public static class SkillTableImporter
 
     private static readonly string[] RequiredColumns = { "id", "name", "element", "coefficient", "range" };
 
-    [MenuItem("Tools/Game/Import Skill CSV")]
-    public static void Import()
+        public static void Import()
     {
-        if (!File.Exists(CsvPath))
+        if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[SkillTableImporter] CSV를 찾을 수 없습니다: {CsvPath}");
+            Debug.LogError($"[SkillTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
-        string[] lines = File.ReadAllLines(CsvPath);
-        if (lines.Length < 2)
+        if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError("[SkillTableImporter] 데이터 행이 없습니다.");
+            Debug.LogError($"[SkillTableImporter] 데이터 행이 없습니다: {csvPath}");
             return;
         }
 
@@ -51,8 +50,8 @@ public static class SkillTableImporter
         }
         rowsProp.ClearArray();
 
-        string[] header = lines[0].Split(',').Select(x => x.Trim()).ToArray();
-        int ColIdx(string n) => Array.FindIndex(header, h => h.Equals(n, StringComparison.OrdinalIgnoreCase));
+        string[] header = CsvImportUtility.ParseHeader(lines[0]);
+        int ColIdx(string n) => CsvImportUtility.FindColumn(header, n);
 
         foreach (string col in RequiredColumns)
         {
@@ -87,7 +86,7 @@ public static class SkillTableImporter
             string line = lines[i];
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            string[] cols = line.Split(',').Select(x => x.Trim()).ToArray();
+            string[] cols = CsvImportUtility.ParseRow(line, header.Length);
 
             rowsProp.InsertArrayElementAtIndex(imported);
             SerializedProperty row = rowsProp.GetArrayElementAtIndex(imported);
