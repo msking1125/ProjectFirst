@@ -1,148 +1,64 @@
-# CLAUDE.md — ProjectFirst
+# MindArk 프로젝트 컨텍스트 (필수 읽기)
 
-## Project Overview
+나는 Unity 모바일 RPG "MindArk"를 개발 중입니다. 아래 규칙을 모든 코드 생성에 적용하세요.
 
-**ProjectFirst** is a Unity 3D Idle Defence game where enemy waves are defeated automatically by the player's units/towers. The player focuses on skill timing, tower placement, and upgrades rather than direct combat.
+## 필수 코딩 규칙
+- 네임스페이스: `ProjectFirst.{폴더명}` (예: `ProjectFirst.Core`, `ProjectFirst.UI`)
+- private 변수: `_camelCase` (언더스코어 접두사)
+- public 변수 직접 노출 금지: `[SerializeField] private` + 프로퍼티 사용
+- DOTween 금지: 순수 Coroutine + CanvasGroup.alpha 보간
+- 씬 전환: `AsyncSceneLoader.LoadScene()` 만 사용
+- 이벤트 통신: `VoidEventChannelSO` (ScriptableObject 이벤트 채널)
+- UI: UI Toolkit (UXML/USS) 기반
+- 한 파일 최대 400줄 (초과 시 분리)
+- 모든 public 메서드에 `<summary>` XML 주석 필수
 
-- **Engine**: Unity 2022 LTS+ with URP (Universal Render Pipeline)
-- **Language**: C#
-- **Data layer**: ScriptableObject-based tables (no external DB)
+## 현재 완료된 핵심 파일 (참조 가능)
+- `BattleGameManager.cs` (`Assets/Project/Scripts/Core/`) — 전투 흐름 총괄
+- `Agent.cs` (`Assets/Project/Scripts/Agent/`) — 플레이어 캐릭터 전투 AI
+- `Enemy.cs` / `EnemyPool.cs` (`Assets/Project/Scripts/Enemy/`) — 적 + 오브젝트 풀링
+- `SkillSystem.cs` (`Assets/Project/Scripts/Systems/`) — 스킬 4종 이펙트
+- `WaveManager.cs` (`Assets/Project/Scripts/Systems/`) — CSV 기반 웨이브
+- `TitleManager.cs` (`Assets/Project/Scripts/Bootstrap/`) — 타이틀 씬
+- `AsyncSceneLoader.cs` (`Assets/Project/Scripts/Bootstrap/`) — 씬 비동기 전환
+- `VoidEventChannelSO.cs` — 이벤트 채널 SO
 
----
+## 게임 핵심 스펙
+- 속성 상성: `Passion > Intuition > Reason > Passion` (유리 1.5배 / 불리 0.7배)
+- 캐릭터 9종 (3속성 × 3사거리)
+- 재화: 스태미나 / 골드 / 젬
+- 파티 최대 3명 편성
+- 전투: 좌→우 이동 몬스터, 우측 기지 HP, 자동 공격 + 스킬 버튼
 
-## Scenes
+## Git 커밋 규칙
+- 커밋자: `김민석 / msking1125@gmail.com` (반드시 이 계정으로 커밋)
+- 포맷: `{유형}: {한글 제목}` (제목 50자 이내, 마침표 금지)
+- 유형: `Feat` / `Fix` / `Docs` / `Style` / `Refactor` / `Test` / `Chore` / `Design` / `Rename` / `Remove` / `!HOTFIX`
+- 본문: "무엇을 & 왜" 위주로 `-` 글머리표 사용
+- 한 커밋에 한 가지 문제만, Phase 완료 시 태그 생성 (예: `v0.4.0-phase2`)
+- `.meta` 파일 누락 금지
 
-| Scene | Purpose |
-|---|---|
-| `Bootstrap` | Entry point; initializes services and loads the next scene |
-| `Title` | Main menu / title screen |
-| `Battle_Test` | Primary combat scene for testing and gameplay |
+## 폴더 구조 기준
+새 파일은 아래 구조에 맞춰 배치합니다.
 
----
-
-## Folder Structure
-
-```
+```text
 Assets/Project/
-  Scripts/
-    Agent/       # Player-controlled agent logic (Agent.cs, buffs, skills, timeline)
-    Bootstrap/   # App startup (BootstrapManager.cs)
-    Core/        # Shared systems: health, damage, scene loading, session, game manager
-    Data/        # ScriptableObject row/table definitions (no MonoBehaviour)
-    Editor/      # Unity editor tooling
-    Enemy/       # Enemy AI, pooling, spawning, wave management
-    Events/      # Event channel SOs (VoidEventChannelSO, etc.)
-    Systems/     # Cross-cutting systems: BGM, damage calc, skill system, run session
-    UI/          # All UI controllers and views
-  Data/          # ScriptableObject asset instances
-  Prefabs/
-  Scenes/
-  Art/
-  Fonts/
-  Materials/
-  Sound/
+├── Scripts/
+│   ├── Agent/
+│   ├── Bootstrap/
+│   ├── Core/
+│   ├── Data/
+│   ├── Editor/
+│   ├── Enemy/
+│   ├── InGame/
+│   ├── OutGame/
+│   │   └── UI/
+│   ├── Systems/
+│   └── UI/
+├── Data/
+│   ├── CSV/
+│   └── Tables/
+├── Resources/
+├── Scenes/
+└── UI/
 ```
-
----
-
-## Key Systems
-
-### Combat
-- `BattleGameManager` — orchestrates battle start/end, win/loss conditions
-- `WaveManager` — drives wave progression using `WaveTable` / `WaveRow` data
-- `EnemySpawner` — spawns enemies from `EnemyPool` at set intervals
-- `EnemyPool` — object pool; use `Return()` instead of `Destroy()` on death
-- `EnemyManager` — tracks `activeEnemies`; enemies register/deregister here
-- `EnemyController` — per-enemy movement, attack, death FSM
-- `DamageCalculator` — centralised damage formula (handles `ElementType`, `MonsterGrade`)
-
-### Agent (Player Unit)
-- `Agent` — player unit base; references `AgentData` / `AgentStatsTable`
-- `AgentBuffSystem` — applies/removes timed buffs
-- `SkillSystem` — activates skills defined in `SkillTable` / `SkillRow`
-- `SkillEffectTrigger` — links timeline signals to skill effects
-
-### Data Tables (ScriptableObjects)
-| Table | Row | Description |
-|---|---|---|
-| `AgentTable` | `AgentRow` | Agent base stats |
-| `AgentStatsTable` | `AgentStatsRow` | Per-level stat curves |
-| `MonsterTable` | `MonsterRow` | Enemy HP, speed, reward, grade |
-| `WaveTable` | `WaveRow` | Wave composition and spawn intervals |
-| `SkillTable` | `SkillRow` | Skill definitions and effect types |
-| `HitEffectTable` | — | VFX/SFX mapping for hit effects |
-
-### UI
-- `BattleHUD` — in-battle overlay (wave counter, status)
-- `StatusHudView` — agent HP/stats display
-- `SkillBarController` / `SkillButtonSlot` — skill cooldown buttons
-- `SkillSelectPanelController` — pre-battle skill selection
-- `DamageText` — pooled floating damage numbers
-- `ResultPanelManager` — win/loss result screen
-- `ArkBaseHpBarView` — boss/base HP bar
-
-### Events
-- `VoidEventChannelSO` — zero-argument ScriptableObject event bus
-- Persistent event assets: `StartEvent`, `QuitEvent`, `SettingEvent`
-
----
-
-## Package Stack (확정 목록 — 구현 시 우선 활용)
-
-### Third-Party
-| 패키지 | 버전 | 활용 시스템 |
-|---|---|---|
-| **UniTask** (Cysharp) | 2.5.10 Git | AsyncSceneLoader, AgentBuffSystem, BGM 페이드 등 비동기 처리 |
-| **Motion Blur** (OccaSoftware) | 3.2.1 Custom | URP Post-processing 카메라 연출 |
-
-### Unity Packages (주요)
-| 패키지 | 버전 | 활용 시스템 |
-|---|---|---|
-| **Addressables** | 1.22.3 | 에셋 비동기 로드 (프리팹, 사운드, VFX) |
-| **AI Navigation** | 1.1.7 | 적 이동 경로(NavMesh) |
-| **Burst** | 1.8.21 | 연산 집약 로직 성능 최적화 |
-| **Cinemachine** | 2.10.6 | 카메라 연출 (스킬 컷씬, 결과 화면) |
-| **Mathematics** | 1.2.6 | Burst 연동 고성능 수학 연산 |
-| **Newtonsoft Json** | 3.2.2 | 세이브 데이터 직렬화 |
-| **Post Processing** | 3.4.0 | 화면 이펙트 (Bloom, Vignette 등) |
-| **TextMeshPro** | 3.0.9 | DamageText, BattleHUD, UI 전반 |
-| **Timeline** | 1.7.7 | SkillEffectTrigger, 스킬 컷씬 |
-| **Universal RP** | 14.0.12 | 렌더 파이프라인 (URP) |
-| **Shader Graph** | 14.0.12 | 커스텀 셰이더 (적 사망 이펙트 등) |
-| **Settings Manager** | 2.1.1 | 게임 설정 저장/불러오기 |
-
-### 패키지 활용 원칙
-- **비동기 처리**: 코루틴 신규 작성 금지 → `UniTask` + `async/await` 사용
-- **씬 전환**: `AsyncSceneLoader` 유지, 내부는 UniTask로 전환 가능
-- **카메라**: Cinemachine Virtual Camera 기반으로 연출 구성
-- **적 이동**: AI Navigation(NavMesh)으로 경로 계산
-- **에셋 로드**: 런타임 동적 로드는 Addressables 사용
-- **UI 텍스트**: 반드시 TextMeshPro 사용 (Legacy Text 금지)
-- **수학/최적화**: 벡터/행렬 연산은 `Unity.Mathematics` + Burst 고려
-
----
-
-## Coding Conventions
-
-- **Namespace**: none enforced project-wide; follow existing file conventions
-- **Data vs Logic**: keep all tunable numbers in ScriptableObject tables; scripts read from them, never hard-code values
-- **Object pooling**: always pool enemies via `EnemyPool`; call `pool.Return(enemy)` on death, never `Destroy`
-- **Scene management**: use `AsyncSceneLoader` for all scene transitions
-- **Events**: prefer `VoidEventChannelSO` for decoupled cross-system communication
-- **Element/Grade enums**: use `ElementType` and `MonsterGrade` for damage and classification logic
-
----
-
-## Enemy Pooling — Test Checklist
-
-Use this when validating the enemy pool under load (300+ spawns):
-
-1. Add `EnemyPool` component to a GameObject in `Battle_Test` scene
-2. Assign `Enemy01` prefab to `EnemyPool.enemyPrefab`; set `initialCapacity = 60–100`, `allowExpand = true`
-3. Connect `EnemySpawner.enemyPool`; assign `arkTarget` and `spawnPoints`
-4. Set `EnemySpawner.spawnInterval = 0.03–0.05` for stress testing
-5. Enter Play mode — confirm no console errors
-6. Verify `Enemy(Clone)` count stabilises (reuse) rather than growing linearly
-7. Confirm death triggers `Return()` not `Destroy()`
-8. Check `EnemyManager.activeEnemies` registers/deregisters correctly
-9. After 300+ cumulative spawns, confirm move/attack/death loop remains stable
