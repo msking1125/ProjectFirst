@@ -178,8 +178,12 @@
     flex-direction: row;
     align-items: center;
     margin: 0 8px;
-    column-gap: 2px;
     flex-shrink: 0;
+}
+
+.reward-preview > * {
+    margin-left: 1px;
+    margin-right: 1px;
 }
 
 .reward-preview-icon {
@@ -302,9 +306,11 @@
 .detail-rewards-row {
     flex-direction: row;
     flex-wrap: wrap;
-    row-gap: 8px;
-    column-gap: 8px;
     margin-bottom: 16px;
+}
+
+.detail-rewards-row > * {
+    margin: 4px;
 }
 
 .detail-claim-btn {
@@ -333,7 +339,6 @@
 .bottom-action-bar {
     flex-direction: row;
     justify-content: center;
-    column-gap: 12px;
     padding: 10px 20px 14px 20px;
     background-color: rgb(28, 30, 46);
     border-top-width: 1px;
@@ -347,6 +352,8 @@
     font-size: 14px;
     -unity-font-style: bold;
     border-width: 1px;
+    margin-left: 6px;
+    margin-right: 6px;
 }
 
 .claim-all-btn {
@@ -393,11 +400,13 @@
 .reward-cards-container {
     flex-direction: row;
     justify-content: center;
-    row-gap: 16px;
-    column-gap: 16px;
     flex-wrap: wrap;
     max-width: 600px;
     margin-bottom: 40px;
+}
+
+.reward-cards-container > * {
+    margin: 8px;
 }
 
 .reward-touch-label {
