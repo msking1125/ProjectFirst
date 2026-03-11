@@ -1,0 +1,106 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+
+    <!-- ══════════════════════════════════════════════════════════
+         월드맵 뷰 — 챕터(섬) 노드 선택
+         ══════════════════════════════════════════════════════════ -->
+    <ui:VisualElement name="world-map-view" class="full-screen">
+
+        <!-- 스크롤/드래그 가능 배경 -->
+        <ui:VisualElement name="map-background" class="map-background">
+
+            <!-- 월드맵 배경 이미지 -->
+            <ui:VisualElement name="world-bg-image" class="world-bg-image" />
+
+            <!-- 챕터 노드 컨테이너 (절대 좌표로 배치) -->
+            <ui:VisualElement name="chapter-nodes-container" class="chapter-nodes-container">
+
+                <!--
+                    [Chapter Node] × 10 — 런타임에 동적 생성
+                    각 노드 구조:
+                      chapter-island-img
+                      cloud-overlay (잠금 시)
+                      star-row (별점 0~3)
+                      current-char-sd (현재 진행 챕터)
+                -->
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- 좌상단 뒤로가기 -->
+        <ui:Button name="world-back-btn" class="back-btn" text="◀ 로비" />
+
+    </ui:VisualElement>
+
+    <!-- ══════════════════════════════════════════════════════════
+         챕터맵 뷰 — 스테이지 선택 (기본 숨김)
+         ══════════════════════════════════════════════════════════ -->
+    <ui:VisualElement name="chapter-map-view" class="full-screen" style="display: none;">
+
+        <!-- 상단 헤더 -->
+        <ui:VisualElement name="chapter-header" class="chapter-header">
+            <ui:Button name="chapter-back-btn" class="back-btn" text="◀" />
+            <ui:Label name="chapter-header-label" class="chapter-header-label" text="챕터 1" />
+        </ui:VisualElement>
+
+        <!-- 컨텐츠 영역: 좌측 스테이지 목록 + 우측 정보 패널 -->
+        <ui:VisualElement name="chapter-content" class="chapter-content">
+
+            <!-- ── 좌측: 스테이지 목록 (세로 스크롤) ──────────── -->
+            <ui:ScrollView name="stage-list-scroll" class="stage-list-scroll"
+                           mode="Vertical">
+                <ui:VisualElement name="stage-list" class="stage-list">
+
+                    <!--
+                        [Stage Button] — 런타임에 동적 생성
+                        각 버튼 구조:
+                          stage-number "1-N"
+                          star-row (별점 0~3)
+                          lock-icon (잠금 시)
+                    -->
+
+                </ui:VisualElement>
+            </ui:ScrollView>
+
+            <!-- ── 우측: 스테이지 정보 패널 ───────────────────── -->
+            <ui:VisualElement name="stage-info-panel" class="stage-info-panel">
+
+                <!-- 스테이지명 -->
+                <ui:Label name="stage-name" class="stage-name" text="스테이지명" />
+
+                <!-- 설명 -->
+                <ui:Label name="stage-description" class="stage-description"
+                          text="스테이지 설명이 표시됩니다." />
+
+                <!-- 권장 전투력 -->
+                <ui:VisualElement name="power-row" class="info-row">
+                    <ui:Label class="info-label" text="권장 전투력" />
+                    <ui:Label name="recommend-power" class="info-value" text="0" />
+                </ui:VisualElement>
+
+                <!-- 주요 적 속성 아이콘 -->
+                <ui:VisualElement name="enemy-element-row" class="info-row">
+                    <ui:Label class="info-label" text="적 속성" />
+                    <ui:VisualElement name="enemy-element-icons" class="element-icons" />
+                </ui:VisualElement>
+
+                <!-- 보상 미리보기 -->
+                <ui:VisualElement name="reward-section" class="reward-section">
+                    <ui:Label class="info-label" text="보상 미리보기" />
+                    <ui:VisualElement name="reward-preview" class="reward-preview" />
+                </ui:VisualElement>
+
+                <!-- 전투 준비 버튼 + 스태미나 비용 -->
+                <ui:VisualElement name="battle-area" class="battle-area">
+                    <ui:Label name="stamina-cost-label" class="stamina-cost-label"
+                              text="스태미나 10" />
+                    <ui:Button name="battle-ready-btn" class="battle-ready-btn"
+                               text="전투 준비" />
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+
+</ui:UXML>
