@@ -24,6 +24,8 @@ internal static class GameTableImportRegistry
             new Entry("Monster Table", MonsterTableImporter.Import),
             new Entry("Skill Table", SkillTableImporter.Import),
             new Entry("Wave Table", WaveTableImporter.Import),
+            new Entry("Chapter Table", ChapterTableImporter.Import),
+            new Entry("Stage Table", StageTableImporter.Import),
             new Entry("Dialogue Table", DialogueTableImporter.Import),
             new Entry("Badword Table", BadwordTableImporter.Import),
         };

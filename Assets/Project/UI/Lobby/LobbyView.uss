@@ -58,8 +58,12 @@
     align-items: center;
     justify-content: center;
     flex-grow: 1;
-    column-gap: 8px;
     margin: 0 8px;
+}
+
+.currency-row > * {
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 /* 재화 그룹 (아이콘 + 숫자 + +버튼) */
@@ -69,7 +73,11 @@
     background-color: rgba(0, 0, 0, 0.45);
     border-radius: 20px;
     padding: 4px 8px 4px 6px;
-    column-gap: 4px;
+}
+
+.currency-group > * {
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
 /* 재화 아이콘 공통 */
@@ -112,8 +120,12 @@
 .right-group {
     flex-direction: row;
     align-items: center;
-    column-gap: 8px;
     flex-shrink: 0;
+}
+
+.right-group > * {
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 /* 아이콘 버튼 (우편, 설정) */
@@ -148,8 +160,12 @@
     right: 12px;
     top: 100px;
     flex-direction: column;
-    row-gap: 8px;
     align-items: flex-end;
+}
+
+.right-quickmenu > * {
+    margin-top: 4px;
+    margin-bottom: 4px;
 }
 
 .quick-btn {

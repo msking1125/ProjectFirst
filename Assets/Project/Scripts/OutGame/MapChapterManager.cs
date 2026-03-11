@@ -6,25 +6,35 @@ using UnityEngine.UIElements;
 
 /// <summary>
 /// 월드맵(챕터 선택) 및 챕터맵(스테이지 선택) 화면을 관리합니다.
+/// CSV 기반 ChapterTable/StageTable에서 데이터를 읽고,
+/// ChapterData에서 시각 에셋(아이콘, 스프라이트)을 참조합니다.
 ///
 /// [Inspector 연결 가이드]
-/// ┌ Data
-/// │  ├ chapterData : ChapterData.asset
-/// │  ├ stageData   : StageData.asset
-/// │  └ playerData  : PlayerData.asset
+/// ┌ Data (Tables)
+/// │  ├ chapterTable : ChapterTable.asset (CSV 임포트)
+/// │  ├ stageTable   : StageTable.asset   (CSV 임포트)
+/// │  └ playerData   : PlayerData.asset
+/// ├ Visual Assets (Optional)
+/// │  └ chapterData  : ChapterData.asset  (아이콘/스프라이트)
 /// ├ UI
-/// │  └ uiDocument  : Scene 의 UIDocument 컴포넌트
+/// │  └ uiDocument   : Scene 의 UIDocument 컴포넌트
 /// └ Events (Optional)
 ///    └ onStageSelected : 스테이지 선택 시 발행
 /// </summary>
 public class MapChapterManager : MonoBehaviour
 {
-    // ── Data ────────────────────────────────────────────────────
+    // ── Data (Tables) ──────────────────────────────────────────
 
-    [Header("Data")]
-    [SerializeField] private ChapterData _chapterData;
-    [SerializeField] private StageData _stageData;
+    [Header("Data (Tables)")]
+    [SerializeField] private ChapterTable _chapterTable;
+    [SerializeField] private StageTable _stageTable;
     [SerializeField] private PlayerData _playerData;
+
+    // ── Visual Assets (Optional) ───────────────────────────────
+
+    [Header("Visual Assets")]
+    [Tooltip("챕터 아이콘/스프라이트용. 없으면 기본 스타일 사용.")]
+    [SerializeField] private ChapterData _chapterData;
 
     // ── UI ──────────────────────────────────────────────────────
 
@@ -41,8 +51,12 @@ public class MapChapterManager : MonoBehaviour
     private enum MapViewState { WorldMap, ChapterMap }
 
     private MapViewState _currentView = MapViewState.WorldMap;
+
+    /// <summary>현재 월드맵 뷰 상태인지 반환합니다.</summary>
+    public bool IsWorldMapView => _currentView == MapViewState.WorldMap;
+
     private int _selectedChapterId;
-    private StageData.StageInfo _selectedStage;
+    private StageRow _selectedStage;
 
     // ── 스크롤 드래그 ───────────────────────────────────────────
 
@@ -142,34 +156,35 @@ public class MapChapterManager : MonoBehaviour
         _currentView = MapViewState.WorldMap;
         ShowWorldMap();
 
-        if (_chapterNodesContainer == null || _chapterData == null) return;
+        if (_chapterNodesContainer == null || _chapterTable == null) return;
 
         _chapterNodesContainer.Clear();
 
-        foreach (var chapter in _chapterData.chapters)
+        foreach (var chapter in _chapterTable.GetAll())
         {
             var node = CreateChapterNode(chapter);
             _chapterNodesContainer.Add(node);
         }
     }
 
-    private VisualElement CreateChapterNode(ChapterData.ChapterInfo chapter)
+    private VisualElement CreateChapterNode(ChapterRow chapter)
     {
         var node = new VisualElement();
-        node.name = $"chapter-node-{chapter.chapterId}";
+        node.name = $"chapter-node-{chapter.id}";
         node.AddToClassList("chapter-node");
         node.style.position = Position.Absolute;
-        node.style.left = chapter.worldMapPosition.x;
-        node.style.top = chapter.worldMapPosition.y;
+        node.style.left = chapter.WorldMapPosition.x;
+        node.style.top = chapter.WorldMapPosition.y;
 
-        // 섬 이미지
+        // 섬 이미지 (ChapterData 에셋에서 시각 리소스 조회)
         var islandImg = new VisualElement();
         islandImg.name = "chapter-island-img";
         islandImg.AddToClassList("chapter-island-img");
-        if (chapter.worldMapIcon != null)
+        var visualInfo = _chapterData != null ? _chapterData.GetById(chapter.id) : null;
+        if (visualInfo?.worldMapIcon != null)
         {
             islandImg.style.backgroundImage =
-                new StyleBackground(chapter.worldMapIcon);
+                new StyleBackground(visualInfo.worldMapIcon);
         }
         node.Add(islandImg);
 
@@ -182,20 +197,21 @@ public class MapChapterManager : MonoBehaviour
             node.Add(cloud);
         }
 
-        // 별점
+        // 별점 (ChapterData에서 클리어 별점 참조)
+        int clearStars = visualInfo?.clearStars ?? 0;
         var starRow = new VisualElement();
         starRow.name = "star-row";
         starRow.AddToClassList("star-row");
         for (int i = 0; i < 3; i++)
         {
             var star = new VisualElement();
-            star.AddToClassList(i < chapter.clearStars ? "star-filled" : "star-empty");
+            star.AddToClassList(i < clearStars ? "star-filled" : "star-empty");
             starRow.Add(star);
         }
         node.Add(starRow);
 
         // 현재 진행 챕터 표시
-        if (_playerData != null && _playerData.currentChapter == chapter.chapterId)
+        if (_playerData != null && _playerData.currentChapter == chapter.id)
         {
             var charSd = new VisualElement();
             charSd.name = "current-char-sd";
@@ -204,12 +220,12 @@ public class MapChapterManager : MonoBehaviour
         }
 
         // 챕터 이름
-        var nameLabel = new Label(chapter.chapterName);
+        var nameLabel = new Label(chapter.name);
         nameLabel.AddToClassList("chapter-name-label");
         node.Add(nameLabel);
 
         // 클릭 이벤트
-        int capturedId = chapter.chapterId;
+        int capturedId = chapter.id;
         node.RegisterCallback<ClickEvent>(_ => OnChapterNodeClicked(capturedId));
 
         return node;
@@ -222,7 +238,7 @@ public class MapChapterManager : MonoBehaviour
     /// </summary>
     private void OnChapterNodeClicked(int chapterId)
     {
-        var chapter = _chapterData.GetById(chapterId);
+        var chapter = _chapterTable.GetById(chapterId);
         if (chapter == null) return;
 
         if (!chapter.isUnlocked)
@@ -244,11 +260,11 @@ public class MapChapterManager : MonoBehaviour
     {
         _currentView = MapViewState.ChapterMap;
 
-        var chapter = _chapterData.GetById(chapterId);
+        var chapter = _chapterTable.GetById(chapterId);
         if (_chapterHeaderLabel != null && chapter != null)
-            _chapterHeaderLabel.text = chapter.chapterName;
+            _chapterHeaderLabel.text = chapter.name;
 
-        var stages = _stageData.GetByChapter(chapterId);
+        var stages = _stageTable.GetByChapter(chapterId);
         BuildStageList(stages);
 
         StartCoroutine(SlideTransitionCoroutine(
@@ -305,15 +321,18 @@ public class MapChapterManager : MonoBehaviour
     /// <summary>
     /// 챕터에 속한 스테이지 버튼 목록을 생성합니다.
     /// </summary>
-    private void BuildStageList(List<StageData.StageInfo> stages)
+    private void BuildStageList(List<StageRow> stages)
     {
         if (_stageList == null) return;
         _stageList.Clear();
 
+        bool previousCleared = true;
+
         foreach (var stage in stages)
         {
+            bool isUnlocked = previousCleared;
             var btn = new Button();
-            btn.name = $"stage-btn-{stage.stageId}";
+            btn.name = $"stage-btn-{stage.id}";
             btn.AddToClassList("stage-button");
 
             // 스테이지 번호
@@ -321,19 +340,20 @@ public class MapChapterManager : MonoBehaviour
             numberLabel.AddToClassList("stage-number");
             btn.Add(numberLabel);
 
-            // 별점
+            // 별점 (PlayerData 기반 클리어 상태)
+            int clearStars = GetStageClearStars(stage.id);
             var starRow = new VisualElement();
             starRow.AddToClassList("star-row");
             for (int i = 0; i < 3; i++)
             {
                 var star = new VisualElement();
-                star.AddToClassList(i < stage.clearStars ? "star-filled" : "star-empty");
+                star.AddToClassList(i < clearStars ? "star-filled" : "star-empty");
                 starRow.Add(star);
             }
             btn.Add(starRow);
 
             // 잠금 아이콘
-            if (!stage.isUnlocked)
+            if (!isUnlocked)
             {
                 var lockIcon = new VisualElement();
                 lockIcon.AddToClassList("lock-icon");
@@ -343,15 +363,35 @@ public class MapChapterManager : MonoBehaviour
 
             // 선택 이벤트
             var capturedStage = stage;
-            btn.RegisterCallback<ClickEvent>(_ => OnStageSelected(capturedStage));
+            bool capturedUnlocked = isUnlocked;
+            btn.RegisterCallback<ClickEvent>(_ =>
+            {
+                if (capturedUnlocked)
+                    OnStageSelected(capturedStage);
+            });
 
             _stageList.Add(btn);
+
+            // 다음 스테이지 잠금 여부 결정
+            previousCleared = clearStars > 0;
         }
 
         // 첫 번째 해금 스테이지 자동 선택
-        var firstUnlocked = stages.Find(s => s.isUnlocked);
-        if (firstUnlocked != null)
-            OnStageSelected(firstUnlocked);
+        if (stages.Count > 0)
+            OnStageSelected(stages[0]);
+    }
+
+    /// <summary>
+    /// 스테이지 클리어 별점을 반환합니다.
+    /// </summary>
+    private int GetStageClearStars(int stageId)
+    {
+        // TODO: PlayerData에 스테이지별 클리어 정보 추가 시 연동
+        // 현재는 첫 챕터 첫 스테이지만 해금
+        if (_playerData != null && _playerData.currentChapter <= 1
+            && _playerData.currentStage <= 1 && stageId <= 101)
+            return 0;
+        return 0;
     }
 
     // ── 스테이지 선택 ───────────────────────────────────────────
@@ -359,7 +399,7 @@ public class MapChapterManager : MonoBehaviour
     /// <summary>
     /// 스테이지 선택 시 정보 패널을 갱신합니다.
     /// </summary>
-    private void OnStageSelected(StageData.StageInfo stage)
+    private void OnStageSelected(StageRow stage)
     {
         _selectedStage = stage;
         UpdateInfoPanel(stage);
@@ -368,10 +408,10 @@ public class MapChapterManager : MonoBehaviour
 
     // ── 정보 패널 갱신 ──────────────────────────────────────────
 
-    private void UpdateInfoPanel(StageData.StageInfo stage)
+    private void UpdateInfoPanel(StageRow stage)
     {
         if (_stageNameLabel != null)
-            _stageNameLabel.text = stage.stageName;
+            _stageNameLabel.text = stage.name;
 
         if (_stageDescLabel != null)
             _stageDescLabel.text = stage.description;
@@ -385,33 +425,42 @@ public class MapChapterManager : MonoBehaviour
             _enemyElementIcons.Clear();
             var elementLabel = new Label(stage.enemyElement.ToString());
             elementLabel.AddToClassList("element-label");
-            elementLabel.AddToClassList($"element-{stage.enemyElement.ToString().ToLower()}");
+            elementLabel.AddToClassList(
+                $"element-{stage.enemyElement.ToString().ToLower()}");
             _enemyElementIcons.Add(elementLabel);
         }
 
-        // 보상 미리보기
+        // 보상 미리보기 (CSV 골드/경험치)
         if (_rewardPreview != null)
         {
             _rewardPreview.Clear();
-            foreach (var reward in stage.previewRewards)
+
+            if (stage.rewardGold > 0)
             {
-                var rewardSlot = new VisualElement();
-                rewardSlot.AddToClassList("reward-slot");
+                var goldSlot = new VisualElement();
+                goldSlot.AddToClassList("reward-slot");
+                var goldIcon = new VisualElement();
+                goldIcon.AddToClassList("reward-icon");
+                goldIcon.AddToClassList("gold-icon");
+                goldSlot.Add(goldIcon);
+                var goldLabel = new Label($"x{stage.rewardGold}");
+                goldLabel.AddToClassList("reward-amount");
+                goldSlot.Add(goldLabel);
+                _rewardPreview.Add(goldSlot);
+            }
 
-                if (reward.icon != null)
-                {
-                    var icon = new VisualElement();
-                    icon.AddToClassList("reward-icon");
-                    icon.style.backgroundImage =
-                        new StyleBackground(reward.icon);
-                    rewardSlot.Add(icon);
-                }
-
-                var amountLabel = new Label($"x{reward.amount}");
-                amountLabel.AddToClassList("reward-amount");
-                rewardSlot.Add(amountLabel);
-
-                _rewardPreview.Add(rewardSlot);
+            if (stage.rewardExp > 0)
+            {
+                var expSlot = new VisualElement();
+                expSlot.AddToClassList("reward-slot");
+                var expIcon = new VisualElement();
+                expIcon.AddToClassList("reward-icon");
+                expIcon.AddToClassList("exp-icon");
+                expSlot.Add(expIcon);
+                var expLabel = new Label($"x{stage.rewardExp}");
+                expLabel.AddToClassList("reward-amount");
+                expSlot.Add(expLabel);
+                _rewardPreview.Add(expSlot);
             }
         }
 
@@ -419,9 +468,9 @@ public class MapChapterManager : MonoBehaviour
         if (_staminaCostLabel != null)
             _staminaCostLabel.text = $"스태미나 {stage.staminaCost}";
 
-        // 전투 준비 버튼 활성화
+        // 전투 준비 버튼
         if (_battleReadyBtn != null)
-            _battleReadyBtn.SetEnabled(stage.isUnlocked);
+            _battleReadyBtn.SetEnabled(true);
     }
 
     // ── 전투 준비 ───────────────────────────────────────────────
@@ -484,7 +533,8 @@ public class MapChapterManager : MonoBehaviour
     private void ShowStaminaLackPopup(int required)
     {
         int current = _playerData != null ? _playerData.stamina : 0;
-        Debug.Log($"[MapChapterManager] 스태미나 부족 (필요: {required}, 보유: {current})");
+        Debug.Log(
+            $"[MapChapterManager] 스태미나 부족 (필요: {required}, 보유: {current})");
     }
 
     // ── 드래그 스크롤 ───────────────────────────────────────────
@@ -527,18 +577,6 @@ public class MapChapterManager : MonoBehaviour
 
         if (_chapterMapView != null)
             _chapterMapView.style.display = DisplayStyle.None;
-    }
-
-    private void ShowChapterMap()
-    {
-        if (_worldMapView != null)
-            _worldMapView.style.display = DisplayStyle.None;
-
-        if (_chapterMapView != null)
-        {
-            _chapterMapView.style.display = DisplayStyle.Flex;
-            _chapterMapView.style.opacity = 1f;
-        }
     }
 
     // ── 유틸 ────────────────────────────────────────────────────
