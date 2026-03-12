@@ -9,7 +9,7 @@ using ProjectFirst.Data;
 namespace ProjectFirst.OutGame
 {
     /// <summary>
-    /// ????쒖뒪??留ㅻ땲?. ?깃????⑦꽩?쇰줈 ???洹몃９ ?ъ깮??愿由ы빀?덈떎.
+    /// 대화 시스템의 핵심 매니저입니다. 게임에서 대화 그룹을 재생하고 관리하는 핵심 클래스입니다.
     /// </summary>
     public class DialogueManager : MonoBehaviour
     {
@@ -29,7 +29,7 @@ namespace ProjectFirst.OutGame
         private bool _isTyping;
         private Coroutine _typingCoroutine;
 
-        // UI ?붿냼
+        // UI 변수
         private VisualElement _root;
         private VisualElement _bgImage;
         private VisualElement _charLeft;
@@ -50,7 +50,7 @@ namespace ProjectFirst.OutGame
         private Button _confirmYesBtn;
         private Button _confirmNoBtn;
 
-        // ????곹깭
+        // 대화 상태
         private string _currentGroupId;
         private int _currentLineIndex;
         private List<DialogueLine> _currentGroup;
@@ -77,7 +77,7 @@ namespace ProjectFirst.OutGame
         }
 
         /// <summary>
-        /// 吏??洹몃９????붾? ?ъ깮?⑸땲??
+        /// 대화 그룹을 실행한다.
         /// </summary>
         public void PlayGroup(string groupId, Action onComplete = null)
         {
@@ -99,7 +99,7 @@ namespace ProjectFirst.OutGame
         }
 
         /// <summary>
-        /// ???UI瑜??④린怨??곹깭瑜?珥덇린?뷀빀?덈떎.
+        /// 대화 UI를 숨기고 상태를 초기화한다.
         /// </summary>
         public void Hide()
         {
@@ -280,7 +280,7 @@ namespace ProjectFirst.OutGame
             if (line == null)
             {
                 Debug.LogWarning(
-                    $"[DialogueManager] ???ID瑜?李얠쓣 ???놁뒿?덈떎: {dialogueId}");
+                    $"[DialogueManager] 해당 ID를 찾을 수 없습니다: {dialogueId}");
                 Hide();
                 _onGroupComplete?.Invoke();
                 return;
@@ -366,7 +366,7 @@ namespace ProjectFirst.OutGame
             }
         }
 
-        // --- 肄쒕갚 ---
+        // --- 버튼 콜백 ---
 
         private void OnSkipClicked(ClickEvent evt)
         {

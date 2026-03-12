@@ -1,0 +1,10 @@
+﻿root = true
+
+[*.cs]
+charset = utf-8-bom
+end_of_line = crlf
+insert_final_newline = true
+
+[*.{meta,unity,prefab,asset,mat,anim,controller}]
+end_of_line = lf
+insert_final_newline = true
