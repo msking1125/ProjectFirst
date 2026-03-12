@@ -60,13 +60,13 @@ namespace ProjectFirst.OutGame
         {
             if (uiDocument == null) return;
 
-            // LoginView.uxml??uGUI ScreenSpaceOverlay Canvas ?꾩뿉 ?뚮뜑留곷릺?꾨줉 sortingOrder ?ㅼ젙
+            // Ensure the UI Toolkit login view renders above the uGUI overlay canvas.
             if (uiDocument.panelSettings != null)
                 uiDocument.panelSettings.sortingOrder = 200;
 
             var root = uiDocument.rootVisualElement;
 
-            // 1. Login Panel
+            // 1. Login panel
             loginPanel = root.Q<VisualElement>("LoginPanel");
             btnGoogle = root.Q<Button>("BtnGoogle");
             btnApple = root.Q<Button>("BtnApple");
@@ -76,7 +76,7 @@ namespace ProjectFirst.OutGame
             if (btnApple != null) btnApple.clicked += OnAppleLogin;
             if (btnGuest != null) btnGuest.clicked += OnGuestLogin;
 
-            // 2. Nickname Panel
+            // 2. Nickname panel
             nicknamePanel = root.Q<VisualElement>("NicknamePanel");
             inputNickname = root.Q<TextField>("InputNickname");
             lblNicknameError = root.Q<Label>("LblNicknameError");
@@ -86,7 +86,7 @@ namespace ProjectFirst.OutGame
             if (btnCreateNickname != null) btnCreateNickname.clicked += OnCreateNicknameClicked;
             if (btnBackToLogin != null) btnBackToLogin.clicked += ShowLoginPanel;
             
-            // 3. Server Select Panel
+            // 3. Server selection panel
             serverSelectPanel = root.Q<VisualElement>("ServerSelectPanel");
             lblWelcome = root.Q<Label>("LblWelcome");
             dropdownServer = root.Q<DropdownField>("DropdownServer");
@@ -110,18 +110,18 @@ namespace ProjectFirst.OutGame
 
         private void InitializeDependencies()
         {
-            // 紐⑥쓽 API ?몄뒪?댁뒪??
+            // Mock APIs used until the real backend is wired up.
             nicknameAPI = new MockNicknameCheckAPI();
             serverConnectionAPI = new MockServerConnectionAPI();
 
-            // 湲덉튃???곗씠??濡쒕뱶
+            // Load the local bad-word table if available.
             if (badWordsCSV != null)
             {
                 badWordData = new BadWordData(badWordsCSV);
             }
             else
             {
-                Debug.LogWarning("[LoginManager] BadWords CSV ?뚯씪???좊떦?섏? ?딆븯?듬땲?? 湲덉튃??寃?щ? 嫄대꼫?곷땲??");
+                Debug.LogWarning("[LoginManager] BadWords CSV is not assigned. Profanity filtering will be skipped.");
             }
         }
 
@@ -218,22 +218,22 @@ namespace ProjectFirst.OutGame
 
         private void ProcessLogin(string provider)
         {
-            Debug.Log($"[LoginManager] {provider} ?뚮옯?쇱쑝濡?濡쒓렇???쒕룄");
+            Debug.Log($"[LoginManager] Login requested with provider: {provider}");
 
-            // ?좎? UID 泥댄겕
+            // Check whether a UID already exists for this account.
             string currentUid = playerData != null ? playerData.GetUidOrCreate() : PlayerPrefs.GetString("uid", string.Empty);
             if (string.IsNullOrEmpty(currentUid))
             {
-                // ?좉퇋 ?좎?
-                Debug.Log("[LoginManager] ?깅줉??UID媛 ?놁뒿?덈떎. ?좉퇋 ?좎? 媛???덉감瑜?吏꾪뻾?⑸땲??");
+                // New user flow.
+                Debug.Log("[LoginManager] No registered UID was found. Starting the new-user flow.");
                 string newUid = Guid.NewGuid().ToString();
-                PlayerPrefs.SetString("uid_temp", newUid); // ?꾩쭅 ?뺤젙 ??
+                PlayerPrefs.SetString("uid_temp", newUid); // Temporary UID until nickname creation is completed.
                 ShowNicknamePanel();
             }
             else
             {
-                // 湲곗〈 ?좎?
-                Debug.Log("[LoginManager] 湲곗〈 UID瑜??뺤씤?덉뒿?덈떎. ??댄? ?붾㈃?쇰줈 吏꾩엯?⑸땲??");
+                // Returning user flow.
+                Debug.Log("[LoginManager] Existing UID detected. Proceeding to the title flow.");
                 OnLoginComplete();
             }
         }
@@ -241,8 +241,8 @@ namespace ProjectFirst.OutGame
         private void OnLoginComplete()
         {
             HideAllPanels();
-            // ??댄? 踰꾪듉?ㅼ? TitleManager?먯꽌 ?먮룞?쇰줈 ?쒖떆??
-            Debug.Log("[LoginManager] 濡쒓렇???꾨즺 - ??댄? ?붾㈃?쇰줈 ?꾪솚");
+            // Title buttons are shown by TitleManager after login completes.
+            Debug.Log("[LoginManager] Login completed. Switching to the title screen.");
         }
 
         // --- Nickname ---
@@ -259,36 +259,36 @@ namespace ProjectFirst.OutGame
 
             try
             {
-                // 1. ?뺤떇 ?좏슚??寃??(湲몄씠 1~8)
+                // 1. Validate nickname length (1 to 8 characters).
                 if (string.IsNullOrEmpty(nickname) || nickname.Length > 8)
                 {
-                    ShowNicknameError("?됰꽕?꾩? 1~8???ъ씠?ъ빞 ?⑸땲??");
+                    ShowNicknameError("???? 1? ?? 8? ???? ???.");
                     return;
                 }
 
-                // 2. ?뺢퇋??寃??(?쒓?/?곷Ц/?レ옄, 怨듬갚 諛??밸Ц ?쒖쇅)
-                if (!Regex.IsMatch(nickname, @"^[媛-?즑-zA-Z0-9]+$"))
+                // 2. Reject whitespace and special characters.
+                if (!Regex.IsMatch(nickname, @"^[?-?a-zA-Z0-9]+$"))
                 {
-                    ShowNicknameError("怨듬갚 諛??뱀닔臾몄옄???ъ슜?????놁뒿?덈떎.");
+                    ShowNicknameError("?? ? ????? ??? ? ????.");
                     return;
                 }
 
-                // 3. 濡쒖뺄 湲덉튃??寃??
+                // 3. Check the local profanity list.
                 if (badWordData != null && badWordData.ContainsBadWord(nickname))
                 {
-                    ShowNicknameError("?ъ슜?????녿뒗 ?⑥뼱媛 ?ы븿?섏뼱 ?덉뒿?덈떎.");
+                    ShowNicknameError("??? ? ?? ??? ???? ????.");
                     return;
                 }
 
-                // 4. 紐⑥쓽 ?쒕쾭 API 以묐났 寃??
+                // 4. Check duplicate nickname through the mock API.
                 bool isAvailable = await nicknameAPI.CheckDuplicateAsync(nickname);
                 if (!isAvailable)
                 {
-                    ShowNicknameError("?대? ?ъ슜 以묒씤 ?됰꽕?꾩엯?덈떎.");
+                    ShowNicknameError("?? ?? ?? ??????.");
                     return;
                 }
 
-                // 5. ?꾨즺 諛????
+                // 5. Finalize the account and persist it.
                 string allocatedUid = PlayerPrefs.GetString("uid_temp", Guid.NewGuid().ToString());
                 
                 PlayerPrefs.SetString("uid", allocatedUid);
@@ -299,7 +299,7 @@ namespace ProjectFirst.OutGame
                 PlayerPrefs.DeleteKey("uid_temp");
                 PlayerPrefs.Save();
 
-                Debug.Log($"[LoginManager] ?됰꽕??'{nickname}' ?꾨줈???앹꽦 ?꾨즺");
+                Debug.Log($"[LoginManager] Nickname created successfully: {nickname}");
                 OnLoginComplete();
             }
             finally
@@ -326,14 +326,14 @@ namespace ProjectFirst.OutGame
         {
             if (dropdownServer == null || serverListSO == null || serverListSO.servers.Count == 0)
             {
-                ShowServerError("?쒕쾭 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??");
+                ShowServerError("?? ??? ???? ?????.");
                 return;
             }
 
             int selectedIndex = dropdownServer.index;
             if (selectedIndex < 0 || selectedIndex >= serverListSO.servers.Count)
             {
-                ShowServerError("?묒냽???쒕쾭瑜??좏깮??二쇱꽭??");
+                ShowServerError("??? ??? ??? ???.");
                 return;
             }
 
@@ -343,7 +343,7 @@ namespace ProjectFirst.OutGame
             PlayerPrefs.Save();
             playerData?.SetSelectedServerId(selectedServer.serverId);
 
-            Debug.Log($"[LoginManager] ?쒕쾭 ?좏깮 ?꾨즺: {selectedServer.displayName}");
+            Debug.Log($"[LoginManager] Server selected: {selectedServer.displayName}");
             ConnectToSelectedServer();
         }
 
@@ -369,7 +369,7 @@ namespace ProjectFirst.OutGame
 
             if (targetServer != null)
             {
-                // IServerConnectionAPI uses its own ServerInfo, map it
+                // IServerConnectionAPI uses its own ServerInfo type, so map it here.
                 var apiServerInfo = new ServerInfo
                 {
                     serverId = targetServer.serverId,
@@ -384,7 +384,7 @@ namespace ProjectFirst.OutGame
             }
             else
             {
-                Debug.LogError("[LoginManager] ?묒냽 媛?ν븳 ?쒕쾭 ?뺣낫瑜?李얠쓣 ???놁뒿?덈떎.");
+                Debug.LogError("[LoginManager] No valid server information was found for connection.");
             }
         }
 
@@ -399,12 +399,12 @@ namespace ProjectFirst.OutGame
                 
                 if (success)
                 {
-                    // 理쒓렐 ?묒냽 ?쒕쾭 ???
+                    // Save the most recently connected server.
                     PlayerPrefs.SetString("lastServer", serverInfo.serverId);
                     PlayerPrefs.Save();
                     playerData?.SetSelectedServerId(serverInfo.serverId);
 
-                    Debug.Log("[LoginManager] ?묒냽 ?깃났, Lobby ?ъ쑝濡??대룞?⑸땲??");
+                    Debug.Log("[LoginManager] Connection succeeded. Moving to the Lobby scene.");
 
                     if (AsyncSceneLoader.Instance != null)
                     {
@@ -419,7 +419,7 @@ namespace ProjectFirst.OutGame
                 {
                     if (lblServerError != null)
                     {
-                        lblServerError.text = "?쒕쾭 ?묒냽???먰솢?섏? ?딆뒿?덈떎. (?ы솕 ?곹깭)";
+                        lblServerError.text = "?? ??? ???? ????. ?? ? ?? ??? ???.";
                         lblServerError.style.display = DisplayStyle.Flex;
                     }
                 }

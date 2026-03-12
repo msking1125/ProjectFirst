@@ -4,10 +4,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// 濡쒓퀬 ?ъ쓣 愿由ы빀?덈떎.
-/// CompanyLogo ??GameLogo ?쒖꽌濡?FadeIn(0.5珥? ???좎?(2珥? ??FadeOut(0.5珥? ?ъ깮 ??
-/// ??댄? ?ъ쑝濡??먮룞 ?대룞?⑸땲??
-/// 濡쒓퀬 ?대?吏??Resources/UI/Logos/ 寃쎈줈?먯꽌 濡쒕뱶?⑸땲??
+/// Plays the boot logo sequence.
+/// CompanyLogo and GameLogo fade in and out in order, then the title scene is loaded.
+/// Logo sprites are loaded from Resources/UI/Logos/ when not assigned in the inspector.
 /// </summary>
 public class LogoManager : MonoBehaviour
 {
@@ -29,7 +28,7 @@ public class LogoManager : MonoBehaviour
 
     private void Start()
     {
-        // 濡쒓퀬 ?ъ쓽 諛곌꼍??寃??됱쑝濡?怨좎젙?⑸땲??
+        // Keep the camera background black while logos are shown.
         if (Camera.main != null)
         {
             Camera.main.clearFlags = CameraClearFlags.SolidColor;
@@ -46,7 +45,7 @@ public class LogoManager : MonoBehaviour
 
     private void LoadLogoSprites()
     {
-        // ?몄뒪?숉꽣???대? ?ㅽ봽?쇱씠?멸? ?좊떦?섏뼱 ?덈떎硫?Resources.Load瑜?嫄대꼫?곷땲??
+        // Skip Resources.Load when sprites are already assigned in the inspector.
         if (companyLogoImage.sprite == null)
         {
             Sprite companySprite = Resources.Load<Sprite>(LogoResourcePath + "CompanyLogo");
@@ -56,7 +55,7 @@ public class LogoManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[LogoManager] CompanyLogo ?ㅽ봽?쇱씠?몃? 李얠쓣 ???놁뒿?덈떎: {LogoResourcePath}CompanyLogo\nResources ?대뜑 ?대????먯뀑???덈뒗吏 ?뺤씤?섍굅???몄뒪?숉꽣?먯꽌 吏곸젒 ?좊떦?댁＜?몄슂.");
+                Debug.LogWarning($"[LogoManager] Could not find CompanyLogo at {LogoResourcePath}CompanyLogo. Check the Resources folder or assign the sprite directly in the inspector.");
             }
         }
 
@@ -69,7 +68,7 @@ public class LogoManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[LogoManager] GameLogo ?ㅽ봽?쇱씠?몃? 李얠쓣 ???놁뒿?덈떎: {LogoResourcePath}GameLogo\nResources ?대뜑 ?대????먯뀑???덈뒗吏 ?뺤씤?섍굅???몄뒪?숉꽣?먯꽌 吏곸젒 ?좊떦?댁＜?몄슂.");
+                Debug.LogWarning($"[LogoManager] Could not find GameLogo at {LogoResourcePath}GameLogo. Check the Resources folder or assign the sprite directly in the inspector.");
             }
         }
     }
@@ -111,7 +110,7 @@ public class LogoManager : MonoBehaviour
         }
         else
         {
-            // AsyncSceneLoader媛 ?놁쑝硫??덈줈 ?앹꽦 ???ъ슜
+            // Create or reuse AsyncSceneLoader before falling back to SceneManager.
             EnsureAsyncSceneLoader();
 
             if (AsyncSceneLoader.Instance != null)
@@ -120,7 +119,7 @@ public class LogoManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("[LogoManager] AsyncSceneLoader ?앹꽦???ㅽ뙣?섏뿬 SceneManager.LoadScene?쇰줈 吏곸젒 ?꾪솚?⑸땲??");
+                Debug.LogWarning("[LogoManager] Failed to prepare AsyncSceneLoader. Falling back to SceneManager.LoadScene.");
                 SceneManager.LoadScene(titleSceneName);
             }
         }
@@ -133,19 +132,19 @@ public class LogoManager : MonoBehaviour
             return;
         }
 
-        // ????鍮꾪솢???ы븿) 湲곗〈 AsyncSceneLoader ?먯깋
+        // Find an existing loader, including inactive objects.
         AsyncSceneLoader existingLoader = FindObjectOfType<AsyncSceneLoader>(true);
         if (existingLoader != null)
         {
-            Debug.Log("[LogoManager] 湲곗〈 AsyncSceneLoader瑜?諛쒓껄?덉뒿?덈떎.");
+            Debug.Log("[LogoManager] Found an existing AsyncSceneLoader.");
             return;
         }
 
-        // ?놁쑝硫??덈줈 ?앹꽦
+        // Create one if no loader exists.
         GameObject loaderObject = new GameObject("AsyncSceneLoader");
         loaderObject.AddComponent<AsyncSceneLoader>();
         DontDestroyOnLoad(loaderObject);
 
-        Debug.Log("[LogoManager] AsyncSceneLoader媛 ?놁뼱 ??GameObject瑜??앹꽦?섍퀬 AddComponent<AsyncSceneLoader>()濡?珥덇린?뷀뻽?듬땲??");
+        Debug.Log("[LogoManager] Created a new AsyncSceneLoader GameObject and initialized it.");
     }
 }

@@ -6,8 +6,8 @@ using UnityEditor;
 using UnityEngine;
 using ProjectFirst.Data;
 /// <summary>
-/// CSV ??DialogueTable ScriptableObject ?꾪룷??
-/// 二쇱냼 諛⑹떇 濡쒕뵫??吏?먰븯?꾨줉 ?ㅺ퀎??
+/// Imports a CSV file into DialogueTable.
+/// Supports escaped newlines in the dialogue text.
 /// </summary>
 public static class DialogueTableImporter
 {
@@ -21,13 +21,13 @@ public static class DialogueTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[DialogueTableImporter] CSV瑜?李얠쓣 ???놁뒿?덈떎: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[DialogueTableImporter] Could not find the CSV file: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[DialogueTableImporter] ?곗씠???됱씠 ?놁뒿?덈떎: {csvPath}");
+            Debug.LogError($"[DialogueTableImporter] CSV data is empty: {csvPath}");
             return;
         }
 
@@ -38,7 +38,7 @@ public static class DialogueTableImporter
         SerializedProperty rowsProp = so.FindProperty("rows");
         if (rowsProp == null)
         {
-            Debug.LogError("[DialogueTableImporter] DialogueTable??'rows' ?꾨뱶媛 ?놁뒿?덈떎.");
+            Debug.LogError("[DialogueTableImporter] DialogueTable does not contain a 'rows' field.");
             return;
         }
         rowsProp.ClearArray();
@@ -50,7 +50,7 @@ public static class DialogueTableImporter
         {
             if (ColIdx(col) < 0)
             {
-                Debug.LogError($"[DialogueTableImporter] ?꾩닔 而щ읆 '{col}'???놁뒿?덈떎.");
+                Debug.LogError($"[DialogueTableImporter] Required column '{col}' is missing.");
                 return;
             }
         }
@@ -71,14 +71,14 @@ public static class DialogueTableImporter
             string line = lines[i];
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            // ?쇳몴 ?덉쓽 ?띿뒪?멸? ?덉쓣 ???덉?留? 媛꾨떒??援ъ“瑜??꾪빐 Split ?ъ슜.
-            // ?꾩슂???곕씪 CsvHelper???뺢퇋?앹쓣 ?ъ슜?섏뿬 ?⑥쟾???뚯떛???섎뒗 寃껋씠 醫뗭쓬.
+            // ParseRow handles quoted values and escaped separators.
+            // If the format grows further, consider a dedicated CSV parser.
             string[] cols = CsvImportUtility.ParseRow(line, header.Length);
             
-            // 留뚯빟 而щ읆 ?섍? 紐⑥옄?쇰떎硫?嫄대꼫?곌굅??怨듬갚 ???
+            // Skip malformed rows that do not contain the required columns.
             if (cols.Length <= groupIdIdx || cols.Length <= dialogueIdIdx || cols.Length <= speakerNameIdx || cols.Length <= textIdx)
             {
-                Debug.LogWarning($"[DialogueTableImporter] ?쇱씤 {i + 1}???곗씠?곌? ?덈Т 吏㏃븘 嫄대꼫?곷땲?? {line}");
+                Debug.LogWarning($"[DialogueTableImporter] Skipping short row at line {i + 1}: {line}");
                 continue;
             }
 
@@ -88,7 +88,7 @@ public static class DialogueTableImporter
             row.FindPropertyRelative("groupId").stringValue     = CsvImportUtility.GetCell(cols, groupIdIdx);
             row.FindPropertyRelative("dialogueId").stringValue  = CsvImportUtility.GetCell(cols, dialogueIdIdx);
             row.FindPropertyRelative("speakerName").stringValue = CsvImportUtility.GetCell(cols, speakerNameIdx);
-            row.FindPropertyRelative("text").stringValue        = CsvImportUtility.GetCell(cols, textIdx).Replace("\\n", "\n"); // 媛쒗뻾臾몄옄 吏??
+            row.FindPropertyRelative("text").stringValue        = CsvImportUtility.GetCell(cols, textIdx).Replace("\\n", "\n"); // Restore escaped newlines.
 
             if (backgroundIdx >= 0) row.FindPropertyRelative("background").stringValue = CsvImportUtility.GetCell(cols, backgroundIdx);
             if (characterLIdx >= 0) row.FindPropertyRelative("characterL").stringValue = CsvImportUtility.GetCell(cols, characterLIdx);
@@ -104,7 +104,7 @@ public static class DialogueTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[DialogueTableImporter] {imported}媛???????꾪룷???꾨즺 ??{AssetPath}");
+        Debug.Log($"[DialogueTableImporter] Imported {imported} dialogue rows into {AssetPath}");
     }
 
     private static DialogueTable CreateAsset()

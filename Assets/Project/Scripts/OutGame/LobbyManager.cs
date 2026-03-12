@@ -10,61 +10,41 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using ProjectFirst.Data;
 /// <summary>
-/// 濡쒕퉬 ??硫붿씤 愿由ъ옄 ? UI Toolkit(UIDocument) 湲곕컲.
-///
-/// [Inspector ?곌껐 媛?대뱶]
-/// ??Data
-/// ?? ??playerData         : PlayerData.asset
-/// ??UI
-/// ?? ??uiDocument         : Scene ??UIDocument 而댄룷?뚰듃
-/// ??Character
-/// ?? ??characterSpawnPoint: 罹먮┃???꾨━?뱀쓣 ?몄뒪?댁뒪?뷀븷 Transform
-/// ?? ??agentTable         : AgentTable.asset (mainCharacterId 猷⑹뾽??
-/// ??Background
-/// ?? ??backgroundSprites[]: ?ㅽ뀒?댁? 吏꾪뻾??10?④퀎 諛곌꼍 Sprite 諛곗뿴 (10媛?
-/// ??Side Systems
-/// ?? ??idleRewardManager  : IdleRewardManager 而댄룷?뚰듃
-/// ?? ??settingPanel       : SettingPanel 而댄룷?뚰듃 (?좏깮, ?먮룞 ?먯깋 媛??
-/// ??Events (Optional)
-///    ??onMyInfoClicked
-///    ??onMailClicked
-///    ??onSettingsClicked
-///    ??onMissionClicked
-///    ??onIdleRewardClaimed
+/// Main lobby controller built on UI Toolkit.
+/// Wire the PlayerData, UIDocument, optional character preview, and side systems in the inspector.
 /// </summary>
 [DisallowMultipleComponent]
 public class LobbyManager : MonoBehaviour
 {
-    // ?? Data ??????????????????????????????????????????????????
+    // Data
 
     [Header("Data")]
     [SerializeField] private PlayerData playerData;
 
-    // ?? UI ????????????????????????????????????????????????????
+    // UI
 
     [Header("UI")]
     [SerializeField] private UIDocument uiDocument;
 
-    // ?? Character ?????????????????????????????????????????????
+    // Character
 
     [Header("Character")]
     [SerializeField] private Transform characterSpawnPoint;
     [SerializeField] private AgentTable agentTable;
 
-    // ?? Background ????????????????????????????????????????????
+    // Background
 
     [Header("Background")]
-    [Tooltip("?ㅽ뀒?댁? 吏꾪뻾?꾨? 10援ш컙?쇰줈 ?섎늿 諛곌꼍 Sprite (理쒕? 10媛?. " +
-             "?몃뜳??= stageProgress / 10?쇰줈 ?좏깮?⑸땲??")]
+    [Tooltip("Background sprites split into 10-stage ranges. The index is selected with stageProgress / 10.")]
     [SerializeField] private Sprite[] backgroundSprites;
 
-    // ?? Side Systems ??????????????????????????????????????????
+    // Side systems
 
     [Header("Side Systems")]
     [SerializeField] private IdleRewardManager idleRewardManager;
     [SerializeField] private SettingPanel settingPanel;
 
-    // ?? Events (Optional) ?????????????????????????????????????
+    // Optional events
 
     [Header("Events (Optional)")]
     [SerializeField] private VoidEventChannelSO onMyInfoClicked;
@@ -73,7 +53,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private VoidEventChannelSO onMissionClicked;
     [SerializeField] private VoidEventChannelSO onIdleRewardClaimed;
 
-    // ?? ???대쫫 ???????????????????????????????????????????????
+    // Scene names
 
     [Header("Scene Names")]
     [SerializeField] private string mapChapterSceneName   = "MapChapterScene";
@@ -81,31 +61,31 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private string shopSceneName         = "ShopScene";
     [SerializeField] private string petSceneName          = "PetManageScene";
 
-    // ?? UI ?붿냼 罹먯떆 ??????????????????????????????????????????
+    // Cached UI references
 
-    // Top-bar ?ы솕
+    // Top bar labels
     private Label         _staminaLabel;
     private Label         _goldLabel;
     private Label         _gemLabel;
 
-    // Top-bar 踰꾪듉
+    // Top bar buttons
     private Button        _myInfoBtn;
     private Button        _mailBtn;
     private Button        _settingsBtn;
     private VisualElement _mailRedDot;
 
-    // ?ы솕 + 踰꾪듉
+    // Currency buttons
     private Button        _staminaPlus;
     private Button        _goldPlus;
     private Button        _gemPlus;
 
-    // ?섎떒 ?ㅻ퉬
+    // Bottom navigation
     private Button        _gameStartBtn;
     private Button        _characterBtn;
     private Button        _shopBtn;
     private Button        _petBtn;
 
-    // ?곗륫 ?듬찓??
+    // Shortcut menu
     private Button        _specialShopBtn;
     private Button        _agentBtn;
     private Button        _missionBtn;
@@ -113,17 +93,17 @@ public class LobbyManager : MonoBehaviour
     private Button        _contractBtn;
     private VisualElement _missionRedDot;
 
-    // 醫뚯륫 ?ъ씠??
+    // Side button
     private Button        _idleRewardBtn;
 
-    // 諛곌꼍
+    // Background
     private VisualElement _backgroundImg;
 
-    // ?ㅽ룿??罹먮┃???몄뒪?댁뒪
+    // Spawned character preview instance
     private GameObject    _spawnedCharacter;
     private System.Action<CurrencyType> _currencyChangedHandler;
 
-    // ?????????????????????????????????????????????????????????
+    // Lifecycle
 
     private void Awake()
     {
@@ -145,44 +125,44 @@ public class LobbyManager : MonoBehaviour
         UnregisterEvents();
     }
 
-    // ?? UI 諛붿씤???????????????????????????????????????????????
+    // UI binding
 
     private void BindUI()
     {
         if (uiDocument == null)
         {
-            Debug.LogError("[LobbyManager] UIDocument媛 ?좊떦?섏? ?딆븯?듬땲??");
+            Debug.LogError("[LobbyManager] UIDocument is not assigned.");
             return;
         }
 
         var root = uiDocument.rootVisualElement;
 
-        // 諛곌꼍
+        // Background
         _backgroundImg  = root.Q<VisualElement>("background-img");
 
-        // ?묐컮 ?ы솕
+        // Top bar labels
         _staminaLabel   = root.Q<Label>("stamina-label");
         _goldLabel      = root.Q<Label>("gold-label");
         _gemLabel       = root.Q<Label>("gem-label");
 
-        // ?묐컮 踰꾪듉
+        // Top bar buttons
         _myInfoBtn      = root.Q<Button>("myinfo-btn");
         _mailBtn        = root.Q<Button>("mail-btn");
         _settingsBtn    = root.Q<Button>("settings-btn");
         _mailRedDot     = root.Q<VisualElement>("mail-reddot");
 
-        // ?ы솕 + 踰꾪듉
+        // Currency buttons
         _staminaPlus    = root.Q<Button>("stamina-plus");
         _goldPlus       = root.Q<Button>("gold-plus");
         _gemPlus        = root.Q<Button>("gem-plus");
 
-        // ?섎떒 ?ㅻ퉬
+        // Bottom navigation
         _gameStartBtn   = root.Q<Button>("gamestart-btn");
         _characterBtn   = root.Q<Button>("character-btn");
         _shopBtn        = root.Q<Button>("shop-btn");
         _petBtn         = root.Q<Button>("pet-btn");
 
-        // ?곗륫 ?듬찓??
+        // Shortcut menu
         _specialShopBtn = root.Q<Button>("special-shop-btn");
         _agentBtn       = root.Q<Button>("agent-btn");
         _missionBtn     = root.Q<Button>("mission-btn");
@@ -190,15 +170,15 @@ public class LobbyManager : MonoBehaviour
         _contractBtn    = root.Q<Button>("contract-btn");
         _missionRedDot  = root.Q<VisualElement>("mission-reddot");
 
-        // 醫뚯륫 ?ъ씠??
+        // Side button
         _idleRewardBtn  = root.Q<Button>("idle-reward-btn");
 
-        // 踰꾪듉 ?대깽???곌껐
+        // Wire button events
         _myInfoBtn?.RegisterCallback<ClickEvent>(_   => OnMyInfoClickedHandler());
         _mailBtn?.RegisterCallback<ClickEvent>(_     => OnMailClickedHandler());
         _settingsBtn?.RegisterCallback<ClickEvent>(_ => OnSettingsClickedHandler());
 
-        _staminaPlus?.RegisterCallback<ClickEvent>(_ => Debug.Log("[LobbyManager] TODO: ?ㅽ깭誘몃굹 異⑹쟾 ?앹뾽"));
+        _staminaPlus?.RegisterCallback<ClickEvent>(_ => Debug.Log("[LobbyManager] TODO: Open the stamina recharge popup."));
         _goldPlus?.RegisterCallback<ClickEvent>(_    => LoadScene(shopSceneName));
         _gemPlus?.RegisterCallback<ClickEvent>(_     => LoadScene(shopSceneName));
 
@@ -210,13 +190,13 @@ public class LobbyManager : MonoBehaviour
         _specialShopBtn?.RegisterCallback<ClickEvent>(_ => LoadScene(shopSceneName));
         _agentBtn?.RegisterCallback<ClickEvent>(_       => LoadScene(characterSceneName));
         _missionBtn?.RegisterCallback<ClickEvent>(_     => OnMissionClickedHandler());
-        _eventBtn?.RegisterCallback<ClickEvent>(_       => Debug.Log("[LobbyManager] TODO: ?대깽???⑤꼸"));
-        _contractBtn?.RegisterCallback<ClickEvent>(_    => Debug.Log("[LobbyManager] TODO: 怨꾩빟 ?⑤꼸"));
+        _eventBtn?.RegisterCallback<ClickEvent>(_       => Debug.Log("[LobbyManager] TODO: Open the event panel."));
+        _contractBtn?.RegisterCallback<ClickEvent>(_    => Debug.Log("[LobbyManager] TODO: Open the contract panel."));
 
         _idleRewardBtn?.RegisterCallback<ClickEvent>(_ => OnIdleRewardClickedHandler());
     }
 
-    // ?? ?대깽??梨꾨꼸 援щ룆 ??????????????????????????????????????
+    // Event subscriptions
 
     private void RegisterEvents()
     {
@@ -228,7 +208,7 @@ public class LobbyManager : MonoBehaviour
         if (playerData.onCharacterChanged != null)
             playerData.onCharacterChanged.OnEventRaised += RefreshCharacter;
 
-        // ?덇굅???대깽?몃룄 援щ룆 (PlayerData瑜?吏곸젒 int濡??섏젙?섎뒗 湲곗〈 肄붾뱶 ?명솚)
+        // Keep compatibility with direct PlayerData currency updates.
         playerData.OnCurrencyChanged += _currencyChangedHandler;
     }
 
@@ -245,7 +225,7 @@ public class LobbyManager : MonoBehaviour
         playerData.OnCurrencyChanged -= _currencyChangedHandler;
     }
 
-    // ?? ?꾩껜 媛깆떊 ?????????????????????????????????????????????
+    // Full refresh
 
     private void RefreshAll()
     {
@@ -254,13 +234,13 @@ public class LobbyManager : MonoBehaviour
         RefreshCharacter();
     }
 
-    // ?? ?ы솕 UI 媛깆떊 ?????????????????????????????????????????
+    // Currency refresh
 
     private void RefreshCurrency()
     {
         if (playerData == null)
         {
-            Debug.LogWarning("[LobbyManager] PlayerData媛 ?좊떦?섏? ?딆븯?듬땲??");
+            Debug.LogWarning("[LobbyManager] PlayerData is not assigned.");
             return;
         }
 
@@ -274,7 +254,7 @@ public class LobbyManager : MonoBehaviour
             _gemLabel.text = FormatNumber(playerData.gem);
     }
 
-    // ?? 諛곌꼍 媛깆떊 ?????????????????????????????????????????????
+    // Background refresh
 
     private void RefreshBackground()
     {
@@ -286,7 +266,7 @@ public class LobbyManager : MonoBehaviour
             _backgroundImg.style.backgroundImage = new StyleBackground(backgroundSprites[idx]);
     }
 
-    // ?? 罹먮┃??媛깆떊 ???????????????????????????????????????????
+    // Character refresh
 
     private void RefreshCharacter()
     {
@@ -297,25 +277,25 @@ public class LobbyManager : MonoBehaviour
 
         if (agentTable == null)
         {
-            Debug.LogWarning("[LobbyManager] AgentTable???좊떦?섏? ?딆븯?듬땲?? 罹먮┃???ㅽ룿??嫄대꼫?곷땲??");
+            Debug.LogWarning("[LobbyManager] AgentTable is not assigned. Character preview spawning will be skipped.");
             return;
         }
 
-        // AgentRow???꾨━???꾨뱶媛 異붽??섎㈃ ?ш린??Instantiate 泥섎━
-        // ?꾩옱 AgentRow???꾪닾 ?ㅽ꺈留?蹂댁쑀?섎?濡??ㅽ룿 ?앸왂
+        // When AgentRow gains a prefab field, instantiate it here.
+        // For now AgentRow only stores portrait data, so spawning is skipped.
         AgentRow row = agentTable.GetById(playerData.mainCharacterId);
         if (row == null)
         {
-            Debug.LogWarning($"[LobbyManager] mainCharacterId({playerData.mainCharacterId})???대떦?섎뒗 AgentRow瑜?李얠쓣 ???놁뒿?덈떎.");
+            Debug.LogWarning($"[LobbyManager] No AgentRow was found for mainCharacterId({playerData.mainCharacterId}).");
             return;
         }
 
-        // TODO: AgentRow??prefab ?꾨뱶 異붽? ???꾨옒 二쇱꽍 ?댁젣
+        // TODO: Remove the comment below when AgentRow gets a prefab field.
         // if (row.prefab != null && characterSpawnPoint != null)
         //     _spawnedCharacter = Instantiate(row.prefab, characterSpawnPoint.position, characterSpawnPoint.rotation);
     }
 
-    // ?? ???대룞 ???????????????????????????????????????????????
+    // Scene loading
 
     private void LoadScene(string sceneName)
     {
@@ -325,7 +305,7 @@ public class LobbyManager : MonoBehaviour
             SceneManager.LoadScene(sceneName);
     }
 
-    // ?? SettingPanel ?먮룞 ?먯깋 ????????????????????????????????
+    // Auto-resolve SettingPanel
 
     private void ResolveSettingPanel()
     {
@@ -336,41 +316,41 @@ public class LobbyManager : MonoBehaviour
             settingPanel = panels[0];
     }
 
-    // ?? 踰꾪듉 ?몃뱾?????????????????????????????????????????????
+    // Button handlers
 
     private void OnMyInfoClickedHandler()
     {
-        Debug.Log("[LobbyManager] ???뺣낫 ?대┃");
+        Debug.Log("[LobbyManager] My Info clicked.");
         onMyInfoClicked?.RaiseEvent();
     }
 
     private void OnMailClickedHandler()
     {
-        Debug.Log("[LobbyManager] ?고렪 ?대┃");
+        Debug.Log("[LobbyManager] Mail clicked.");
 
         if (MailboxPanel.Instance != null)
             MailboxPanel.Instance.Show();
         else
-            Debug.LogWarning("[LobbyManager] MailboxPanel.Instance媛 ?놁뒿?덈떎.");
+            Debug.LogWarning("[LobbyManager] MailboxPanel.Instance is missing.");
 
         onMailClicked?.RaiseEvent();
     }
 
     private void OnSettingsClickedHandler()
     {
-        Debug.Log("[LobbyManager] ?ㅼ젙 ?대┃");
+        Debug.Log("[LobbyManager] Settings clicked.");
 
         if (settingPanel != null)
             settingPanel.OpenPanel();
         else
-            Debug.LogWarning("[LobbyManager] SettingPanel 李몄“媛 ?놁뒿?덈떎.");
+            Debug.LogWarning("[LobbyManager] SettingPanel reference is missing.");
 
         onSettingsClicked?.RaiseEvent();
     }
 
     private void OnMissionClickedHandler()
     {
-        Debug.Log("[LobbyManager] 誘몄뀡 ?대┃");
+        Debug.Log("[LobbyManager] Mission clicked.");
         onMissionClicked?.RaiseEvent();
     }
 
@@ -379,14 +359,14 @@ public class LobbyManager : MonoBehaviour
         if (idleRewardManager != null)
             idleRewardManager.OpenPopup();
         else
-            Debug.LogWarning("[LobbyManager] IdleRewardManager媛 ?곌껐?섏? ?딆븯?듬땲??");
+            Debug.LogWarning("[LobbyManager] IdleRewardManager is not connected.");
 
         onIdleRewardClaimed?.RaiseEvent();
     }
 
-    // ?? ?좏떥 ?????????????????????????????????????????????????
+    // Helpers
 
-    /// <summary>???レ옄瑜?K / M ?⑥쐞濡?以꾩뿬??諛섑솚?⑸땲??</summary>
+    /// <summary>Formats large numbers using K and M suffixes.</summary>
     private static string FormatNumber(long n)
     {
         if (n >= 1_000_000L) return $"{n / 1_000_000f:F1}M";

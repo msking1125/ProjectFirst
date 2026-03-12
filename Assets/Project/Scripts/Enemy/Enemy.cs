@@ -32,12 +32,12 @@ public class Enemy : MonoBehaviour
     public static event Action<Enemy> EnemyKilled;
     private static readonly int BaseColorPropertyId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorPropertyId = Shader.PropertyToID("_Color");
-    // ??? Animator Run State ?먮룞 ?먯? ??????????????????????????????????????????
-    // _run ???ы븿??State ?대쫫???고??꾩뿉 ?먮룞?쇰줈 ?먯??⑸땲??
-    // ?뱀젙 ?대쫫??吏곸젒 吏?뺥븯?ㅻ㈃ Inspector??runStateOverride???낅젰?섏꽭??
-    [SerializeField, Tooltip("鍮꾩썙?먮㈃ ?대쫫??'_run'???ы븿??State瑜??먮룞 ?먯??⑸땲??")]
+    // Animator run state auto-resolution
+    // Automatically resolves a state name that contains _run.
+    // If you need a specific state, assign runStateOverride in the inspector.
+    [SerializeField, Tooltip("Leave empty to automatically find an Animator state whose name contains _run.")]
     private string runStateOverride = string.Empty;
-    private string resolvedRunStateName = string.Empty; // ?고???罹먯떆
+    private string resolvedRunStateName = string.Empty; // Cached resolved state name.
     private static readonly int SpeedParamId = Animator.StringToHash("Speed");
     private static readonly int IsMovingParamId = Animator.StringToHash("IsMoving");
     private static readonly int HitTriggerId = Animator.StringToHash("Hit");
@@ -68,12 +68,11 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float shakeStrength = 0.2f;
 
     [Header("Hit VFX")]
-    [Header("Hit Effect (?뚯씠釉?沅뚯옣)")]
-    [Tooltip("HitEffectTable???곌껐?섎㈃ ?꾨옒 媛쒕퀎 ?щ’蹂대떎 ?곗꽑 ?곸슜?⑸땲??\n" +
-             "Assets/Project/Data/HitEffectTable.asset")]
+    [Header("Hit Effect (Table Recommended)")]
+    [Tooltip("If HitEffectTable is assigned, it overrides the individual hit VFX fields below.\nAssets/Project/Data/HitEffectTable.asset")]
     [SerializeField] private HitEffectTable hitEffectTable;
 
-    [Header("Hit Effect (媛쒕퀎 ?ㅼ젙 - ?뚯씠釉?誘몄궗????")]
+    [Header("Hit Effect (Fallback Fields)")]
     [SerializeField] private GameObject normalHitVfxPrefab;
     [SerializeField] private GameObject critHitVfxPrefab;
     [SerializeField] private GameObject passionHitVfxPrefab;
@@ -96,7 +95,7 @@ public class Enemy : MonoBehaviour
 
     private float baseMoveSpeed;
 
-    // ?? ?붾쾭????????????????????????????????????????????????????????????????
+    // Debuff state
     private float  debuffSpeedFactor    = 1f;
     private float  debuffAtkFactor      = 1f;
     private float  debuffDefFactor      = 1f;
@@ -217,17 +216,17 @@ public class Enemy : MonoBehaviour
     {
         if (arkTarget == null) return;
 
-        // ownerPool??null?대㈃ EnemyPool.Instance濡??먮룞 蹂듦뎄
-        // (CreateOne ??SetPool ??대컢 臾몄젣, ?먮뒗 吏곸젒 Instantiate??寃쎌슦 ?鍮?
+        // Recover ownerPool from EnemyPool.Instance when it was not set explicitly.
+        // Covers both CreateOne/SetPool timing issues and direct Instantiate cases.
         if (ownerPool == null)
         {
             ownerPool = EnemyPool.Instance;
             if (ownerPool == null)
             {
-                Debug.LogError($"[Enemy] Init ?ㅽ뙣: ownerPool怨?EnemyPool.Instance 紐⑤몢 null. name={gameObject.name}", this);
+                Debug.LogError($"[Enemy] Init failed: both ownerPool and EnemyPool.Instance are null. name={gameObject.name}", this);
                 return;
             }
-            Debug.LogWarning($"[Enemy] ownerPool??null?댁뼱??EnemyPool.Instance濡??먮룞 蹂듦뎄?덉뒿?덈떎. name={gameObject.name}", this);
+            Debug.LogWarning($"[Enemy] ownerPool was null, so it was restored from EnemyPool.Instance. name={gameObject.name}", this);
         }
 
         int resolvedMonsterId = monsterId <= 0 ? defaultMonsterId : monsterId;
@@ -263,7 +262,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    /// <summary>?ㅽ궗 ?쇨꺽 (?띿꽦 VFX ?곸슜)</summary>
+    /// <summary>Skill hit damage entry point with elemental VFX support.</summary>
     public void TakeDamage(int dmg, bool isCrit, ElementType element)
         => TakeDamageInternal(dmg, isCrit, element, isSkillHit: true);
 
@@ -288,7 +287,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    /// <summary>?쇰컲 怨듦꺽 ?쇨꺽 (?ㅽ궗 ?꾨떂)</summary>
+    /// <summary>Basic attack damage entry point without skill VFX.</summary>
     public void TakeDamage(int dmg, bool isCrit) => TakeDamageInternal(dmg, isCrit, ElementType.Reason, false);
 
     public void TakeDamage(int dmg) => TakeDamageInternal(dmg, false, ElementType.Reason, false);
@@ -448,7 +447,7 @@ public class Enemy : MonoBehaviour
         Debug.Log($"[Enemy] Killed. id={monsterId} grade={grade}");
         EnemyKilled?.Invoke(this);
 
-        // EnemyDeathEffect 而댄룷?뚰듃媛 ?덉쑝硫??섍렇???곗텧濡??泥?
+        // Prefer EnemyDeathEffect when the component exists.
         if (deathEffect != null)
         {
             isDeathReturning = true;
@@ -460,7 +459,7 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        // 湲곗〈 ?숈옉: Die ?좊땲 + 吏??諛섑솚
+        // Fallback: trigger Die animation, then return to the pool after a delay.
         TrySetAnimatorTrigger(DieTriggerId, hasDieTrigger);
 
         if (!useDeathReturnDelay || deathReturnDelay <= 0f)
@@ -495,12 +494,12 @@ public class Enemy : MonoBehaviour
     }
 
     /// <summary>
-    /// ?쇨꺽 VFX ?ㅽ룿.
-    /// hitEffectTable???곌껐??寃쎌슦 ?뚯씠釉붿쓣 ?곗꽑 ?ъ슜?⑸땲??
-    /// isSkillHit=true?대㈃ ?띿꽦蹂?VFX瑜??좏깮?⑸땲??
+    /// <summary>
+    /// Spawns hit VFX.
+    /// Uses HitEffectTable first when assigned, otherwise falls back to individual fields.
+    /// Element-specific VFX are only used for skill hits.
     /// </summary>
-    // ?? ?붾쾭??API ??????????????????????????????????????????????????????????
-
+    // Debuff API
     public void ApplyDebuff(DebuffType debuffType, float value, float duration)
     {
         if (!isAlive) return;
@@ -518,7 +517,7 @@ public class Enemy : MonoBehaviour
                 debuffDefFactor = Mathf.Clamp(1f - value, 0.1f, 1f);
                 break;
         }
-        Debug.Log($"[Enemy] {gameObject.name} ?붾쾭???곸슜: {debuffType} {value*100:F0}% / {duration}s");
+        Debug.Log($"[Enemy] Debuff applied to {gameObject.name}: {debuffType} {value * 100:F0}% / {duration}s");
     }
 
     private void UpdateDebuff()
@@ -535,12 +534,12 @@ public class Enemy : MonoBehaviour
     {
         GameObject hitVfxPrefab;
 
-        // ?? 1?쒖쐞: HitEffectTable ?????????????????????????????????????????????
+        // Priority 1: HitEffectTable
         if (hitEffectTable != null)
         {
             hitVfxPrefab = hitEffectTable.Resolve(isCrit, element, isSkillHit);
         }
-        // ?? 2?쒖쐞: 媛쒕퀎 ?꾨뱶 (湲곗〈 諛⑹떇) ????????????????????????????????????????
+        // Priority 2: individual fallback fields
         else
         {
             hitVfxPrefab = normalHitVfxPrefab;
@@ -758,7 +757,7 @@ public class Enemy : MonoBehaviour
         }
 
         hasHitBarrier = true;
-        // ?곕?吏 怨꾩궛???곸슜 (諛⑹뼱??0, ?띿꽦 以묐┰(Reason) 媛??
+        // Apply collision damage against the barrier using neutral element and zero defense.
         int dmg = DamageCalculator.ComputeDamage(
             currentCombatStats.atk,
             0f, 
@@ -792,26 +791,27 @@ public class Enemy : MonoBehaviour
     }
 
     /// <summary>
-    /// Animator??Layer 0?먯꽌 ?대쫫??"_run"???ы븿??State瑜??먯??섏뿬 諛섑솚?⑸땲??
-    /// runStateOverride媛 吏?뺣맂 寃쎌슦 ?대떦 ?대쫫???곗꽑 ?ъ슜?⑸땲??
+    /// <summary>
+    /// Finds an Animator state on layer 0 whose name contains _run.
+    /// When runStateOverride is set, that value is used first.
     /// </summary>
     private string ResolveRunStateName(Animator animator)
     {
         if (animator == null) return string.Empty;
 
-        // Inspector?먯꽌 吏곸젒 吏?뺥븳 寃쎌슦 ?곗꽑 ?ъ슜
+        // Prefer the explicitly assigned override when present.
         if (!string.IsNullOrWhiteSpace(runStateOverride))
         {
             int overrideHash = Animator.StringToHash(runStateOverride);
             if (animator.HasState(0, overrideHash))
                 return runStateOverride;
 
-            Debug.LogWarning($"[Enemy] runStateOverride='{runStateOverride}'媛 Animator???놁뒿?덈떎. ?먮룞 ?먯?瑜??쒕룄?⑸땲??", this);
+            Debug.LogWarning($"[Enemy] runStateOverride='{runStateOverride}' was not found on the Animator. Falling back to auto-detection.", this);
         }
 
-        // RuntimeAnimatorController?먯꽌 ?대┰ ?대쫫 湲곕컲?쇰줈 _run ?먯?
-        // Unity ?고??꾩뿉?쒕뒗 State ?대쫫??吏곸젒 ?닿굅?????놁쑝誘濡?
-        // AnimationClip ?대쫫?쇰줈 ?꾨낫瑜?留뚮뱾怨?HasState濡?寃利앺빀?덈떎.
+        // Search RuntimeAnimatorController clips for names containing _run.
+        // Unity does not expose state names directly at runtime,
+        // so we infer from clip names and verify with HasState.
         RuntimeAnimatorController rac = animator.runtimeAnimatorController;
         if (rac == null) return string.Empty;
 
@@ -820,26 +820,22 @@ public class Enemy : MonoBehaviour
             if (clip == null) continue;
             string clipName = clip.name;
 
-            // clip ?대쫫??_run(??뚮Ц??臾닿?)???ы븿??寃쎌슦 State ?대쫫?쇰줈 ?쒕룄
-            if (clipName.IndexOf("_run", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                clipName.IndexOf("_Run", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            // Try clips whose names contain _run in any casing.
+            if (clipName.IndexOf("_run", System.StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 int hash = Animator.StringToHash(clipName);
                 if (animator.HasState(0, hash))
                 {
-                    Debug.Log($"[Enemy] Run State ?먮룞 ?먯? ?깃났: '{clipName}' (on '{name}')", this);
+                    Debug.Log($"[Enemy] Auto-detected run state: '{clipName}' (on '{name}')", this);
                     return clipName;
                 }
             }
         }
 
-        // 紐?李얠? 寃쎌슦 寃쎄퀬
-        Debug.LogWarning($"[Enemy] '_run'???ы븿??Animator State瑜?李얠? 紐삵뻽?듬땲?? " +
-                         $"Inspector??runStateOverride??State ?대쫫??吏곸젒 ?낅젰?섍굅??" +
-                         $"Animator Controller??State ?대쫫??'_run'???ы븿?쒖폒 二쇱꽭?? (on '{name}')", this);
+        // Warn when no matching state was found.
+        Debug.LogWarning($"[Enemy] Could not find an Animator state containing '_run'. Assign runStateOverride manually or rename the Animator state. (on '{name}')", this);
         return string.Empty;
     }
-
         private void ResolveAnimator()
     {
         if (cachedAnimator == null)

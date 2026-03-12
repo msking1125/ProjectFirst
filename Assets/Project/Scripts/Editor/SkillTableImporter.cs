@@ -7,9 +7,9 @@ using UnityEditor;
 using UnityEngine;
 using ProjectFirst.Data;
 /// <summary>
-/// CSV ??SkillTable ScriptableObject ?꾪룷??
-/// icon 而щ읆: ?뚯씪紐??뺤옣???쒖쇅) ??Assets/Project/UI/Icon/ ?먯꽌 Sprite ?먮룞 ?곌껐
-/// castVfxPrefab 而щ읆: ?뚯씪紐??뺤옣???쒖쇅) ???꾨줈?앺듃 ?꾩껜?먯꽌 Prefab ?먮룞 ?곌껐
+/// Imports a CSV file into SkillTable.
+/// The icon column resolves sprites under Assets/Project/UI/Icon.
+/// The castVfxPrefab column resolves prefabs from the project automatically.
 /// </summary>
 public static class SkillTableImporter
 {
@@ -17,9 +17,9 @@ public static class SkillTableImporter
     private const string CsvPathUpper = "Assets/Project/Data/Skills.csv";
     private const string AssetPath = "Assets/Project/Data/SkillTable.asset";
 
-    // ?꾩씠肄?寃???곗꽑 ?대뜑 (?놁쑝硫??꾨줈?앺듃 ?꾩껜 ?먯깋)
+    // Preferred icon folder. Falls back to a project-wide search.
     private const string IconFolder = "Assets/Project/UI/Icon";
-    // VFX 寃???곗꽑 ?대뜑 (?놁쑝硫??꾨줈?앺듃 ?꾩껜 ?먯깋)
+    // Preferred VFX folder. Falls back to a project-wide search.
     private const string VfxFolder  = "Assets/Project/Prefabs/VFX";
 
     private static readonly string[] RequiredColumns = { "id", "name", "element", "coefficient", "range" };
@@ -28,13 +28,13 @@ public static class SkillTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[SkillTableImporter] CSV瑜?李얠쓣 ???놁뒿?덈떎: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[SkillTableImporter] Could not find the CSV file: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[SkillTableImporter] ?곗씠???됱씠 ?놁뒿?덈떎: {csvPath}");
+            Debug.LogError($"[SkillTableImporter] CSV data is empty: {csvPath}");
             return;
         }
 
@@ -45,7 +45,7 @@ public static class SkillTableImporter
         SerializedProperty rowsProp = so.FindProperty("rows");
         if (rowsProp == null)
         {
-            Debug.LogError("[SkillTableImporter] SkillTable??'rows' ?꾨뱶媛 ?놁뒿?덈떎.");
+            Debug.LogError("[SkillTableImporter] SkillTable does not contain a 'rows' field.");
             return;
         }
         rowsProp.ClearArray();
@@ -57,7 +57,7 @@ public static class SkillTableImporter
         {
             if (ColIdx(col) < 0)
             {
-                Debug.LogError($"[SkillTableImporter] ?꾩닔 而щ읆 '{col}'???놁뒿?덈떎.");
+                Debug.LogError($"[SkillTableImporter] Required column '{col}' is missing.");
                 return;
             }
         }
@@ -110,7 +110,7 @@ public static class SkillTableImporter
             }
             row.FindPropertyRelative("element").enumValueIndex = (int)element;
 
-            // ?? icon: ?뚯씪紐낆쑝濡?Sprite ?먯깋 ??????????????????????????????????
+            // icon: resolve a Sprite by file name.
             if (iconIdx >= 0)
             {
                 string iconName = GetCell(cols, iconIdx);
@@ -122,7 +122,7 @@ public static class SkillTableImporter
                     iconProp.objectReferenceValue = null;
             }
 
-            // ?? castVfxPrefab ??????????????????????????????????????????????????
+            // castVfxPrefab
             if (vfxIdx >= 0)
             {
                 string vfxName   = GetCell(cols, vfxIdx);
@@ -131,11 +131,11 @@ public static class SkillTableImporter
                 vfxProp.objectReferenceValue = prefab;
             }
 
-            // ?? description ????????????????????????????????????????????????
+            // description
             if (descIdx >= 0)
                 row.FindPropertyRelative("description").stringValue = GetCell(cols, descIdx);
 
-            // ?? effectType & ?④낵蹂??섏튂 ????????????????????????????????????
+            // effectType and extra effect values
             if (effectTypeIdx >= 0)
             {
                 string etRaw = GetCell(cols, effectTypeIdx);
@@ -171,24 +171,24 @@ public static class SkillTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[SkillTableImporter] {imported}媛??ㅽ궗 ?꾪룷???꾨즺 ??{AssetPath}");
+        Debug.Log($"[SkillTableImporter] Imported {imported} skill rows into {AssetPath}");
     }
 
-    // ?? ?먯뀑 ?먯깋 ?ы띁 ???????????????????????????????????????????????????????
+    // Asset lookup helpers
 
     /// <summary>
-    /// ?뚯씪紐??뺤옣???놁쓬)?쇰줈 Sprite瑜??먯깋?⑸땲??
-    /// ?곗꽑 IconFolder ?덉뿉??李얘퀬, ?놁쑝硫??꾨줈?앺듃 ?꾩껜?먯꽌 ?먯깋.
+    /// <summary>
+    /// Resolves a Sprite by file name without extension.
+    /// Searches IconFolder first, then falls back to a project-wide search.
     /// </summary>
-    private static Sprite FindSprite(string assetName, string rowId)
     {
         if (string.IsNullOrWhiteSpace(assetName)) return null;
 
-        // 1. IconFolder ??吏곸젒 寃쎈줈 ?쒕룄 (jpg / png)
+        // 1. Try direct paths under IconFolder (.jpg / .png / .jpeg).
         foreach (string ext in new[] { ".jpg", ".png", ".jpeg" })
         {
             string path = $"{IconFolder}/{assetName}{ext}";
-            // Texture濡?濡쒕뱶????Sprite濡?蹂??
+            // Load as Sprite directly.
             Sprite s = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             if (s != null)
             {
@@ -197,7 +197,7 @@ public static class SkillTableImporter
             }
         }
 
-        // 2. ?꾨줈?앺듃 ?꾩껜 ?먯깋 (t:Sprite)
+        // 2. Project-wide Sprite search.
         string[] guids = AssetDatabase.FindAssets($"{assetName} t:Sprite");
         foreach (string guid in guids)
         {
@@ -214,7 +214,7 @@ public static class SkillTableImporter
             }
         }
 
-        // 3. Texture2D濡?李얠븘 Sprite 蹂???쒕룄
+        // 3. Try Texture2D entries that can resolve to Sprites.
         guids = AssetDatabase.FindAssets($"{assetName} t:Texture2D");
         foreach (string guid in guids)
         {
@@ -232,9 +232,9 @@ public static class SkillTableImporter
         }
 
         Debug.LogWarning(
-            $"[SkillTableImporter] id='{rowId}' icon='{assetName}' ??李얠? 紐삵뻽?듬땲??\n" +
-            $"?뺤씤: {IconFolder}/{assetName}.jpg|png ??議댁옱?섎뒗吏 ?뺤씤?섏꽭??\n" +
-            $"?먰븳 Texture Import Settings ??Sprite Mode = Single 濡??ㅼ젙?섏꽭??");
+            $"[SkillTableImporter] Could not find icon '{assetName}' for row id '{rowId}'.\n" +
+            $"Check whether {IconFolder}/{assetName}.jpg or .png exists.\n" +
+            $"Also verify that the texture import settings use Sprite Mode = Single.");
         return null;
     }
 
