@@ -1,6 +1,6 @@
-# MindArk 프로젝트 컨텍스트 (필수 읽기)
+# Soul Ark 프로젝트 컨텍스트 (필수 읽기)
 
-나는 Unity 모바일 RPG "MindArk"를 개발 중입니다. 아래 규칙을 모든 코드 생성에 적용하세요.
+나는 Unity 모바일 RPG "Soul Ark"를 개발 중입니다. 아래 규칙을 모든 코드 생성에 적용하세요.
 
 ## 필수 코딩 규칙
 - 네임스페이스: `ProjectFirst.{폴더명}` (예: `ProjectFirst.Core`, `ProjectFirst.UI`)

@@ -1,0 +1,93 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xsi="http://www.w3.org/2001/XMLSchema-instance"
+         engine="UnityEngine.UIElements"
+         editor="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+
+    <ui:VisualElement name="battle-ready-root" class="battle-ready-root">
+
+        <!-- ═══════════ LEFT PANEL (55%) ═══════════ -->
+        <ui:VisualElement name="left-panel" class="br-left-panel">
+
+            <!-- 뒤로가기 버튼 -->
+            <ui:Button name="back-btn" text="← 뒤로" class="back-btn" />
+
+            <!-- 스테이지 정보 카드 -->
+            <ui:VisualElement name="stage-info-card" class="stage-info-card">
+                <ui:Label name="stage-title" text="스테이지" class="stage-title" />
+                <ui:Label name="stage-description" text="" class="stage-description" />
+                <ui:VisualElement name="recommend-power-row" class="recommend-power-row">
+                    <ui:VisualElement class="recommend-icon" />
+                    <ui:Label text="권장 전투력" class="recommend-label" />
+                    <ui:Label name="recommend-power" text="0" class="recommend-power-value" />
+                </ui:VisualElement>
+                <ui:VisualElement name="enemy-element-row" class="enemy-element-row">
+                    <ui:Label text="적 속성" class="enemy-element-label-text" />
+                    <!-- 적 속성 값은 코드에서 동적으로 삽입됨 -->
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- 파티 총 전투력 -->
+            <ui:VisualElement name="party-power-row" class="party-power-row">
+                <ui:Label text="파티 전투력" class="party-power-title" />
+                <ui:VisualElement class="power-values">
+                    <ui:Label name="total-power-label" text="0" class="total-power-label" />
+                    <ui:Label name="power-compare-label" text="/ 0" class="power-compare-label" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- 파티 슬롯 (가로 3열) -->
+            <ui:VisualElement name="party-slots" class="party-slots">
+                <ui:VisualElement name="party-slot-0" class="party-slot slot-empty">
+                    <ui:Label text="+" class="slot-plus-icon" />
+                </ui:VisualElement>
+                <ui:VisualElement name="party-slot-1" class="party-slot slot-empty">
+                    <ui:Label text="+" class="slot-plus-icon" />
+                </ui:VisualElement>
+                <ui:VisualElement name="party-slot-2" class="party-slot slot-empty">
+                    <ui:Label text="+" class="slot-plus-icon" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- 자동 편성 버튼 -->
+            <ui:Button name="auto-party-btn" text="자동 편성" class="auto-party-btn" />
+
+        </ui:VisualElement>
+
+        <!-- ═══════════ RIGHT PANEL (45%) ═══════════ -->
+        <ui:VisualElement name="right-panel" class="br-right-panel">
+
+            <!-- 보상 미리보기 -->
+            <ui:VisualElement name="reward-section" class="reward-section">
+                <ui:Label text="클리어 보상" class="reward-section-title" />
+                <ui:VisualElement name="reward-preview" class="reward-preview" />
+            </ui:VisualElement>
+
+            <!-- 전투 시작 버튼 (스태미나 비용 포함) -->
+            <ui:Button name="battle-start-btn" class="battle-start-btn">
+                <ui:Label text="전투 시작" class="battle-start-text" />
+                <ui:Label name="stamina-cost-label" text="스태미나 1" class="stamina-cost-label" />
+            </ui:Button>
+
+            <!-- 소탕 버튼 (3성 클리어 시 활성화) -->
+            <ui:Button name="sweep-btn" text="소탕" class="sweep-btn" />
+
+        </ui:VisualElement>
+
+        <!-- ═══════════ 캐릭터 선택 팝업 (오버레이) ═══════════ -->
+        <ui:VisualElement name="char-select-popup" class="char-select-popup" style="display: none;">
+            <ui:VisualElement name="char-select-panel" class="char-select-panel">
+                <ui:VisualElement class="char-select-header">
+                    <ui:Label text="캐릭터 선택" class="char-select-title" />
+                    <ui:Button name="char-select-close-btn" text="✕" class="char-select-close-btn" />
+                </ui:VisualElement>
+                <ui:ScrollView name="char-grid-scroll" class="char-grid-scroll">
+                    <ui:VisualElement name="char-grid" class="char-grid" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+
+</ui:UXML>
