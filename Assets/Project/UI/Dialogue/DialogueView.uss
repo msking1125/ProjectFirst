@@ -4,59 +4,216 @@
     position: relative;
 }
 
-.background {
+/* 배경 이미지 */
+.bg-image {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
     background-size: cover;
+    background-position: center;
 }
 
-.character-container {
-    position: absolute;
-    bottom: 220px;
-    width: 100%;
-    height: 400px;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
+/* 캐릭터 공통 */
 .character {
+    position: absolute;
+    bottom: 15%;
     width: 380px;
-    height: 400px;
+    height: 500px;
     background-size: contain;
     background-repeat: no-repeat;
+    background-position: bottom center;
 }
 
+.character-left {
+    left: 5%;
+}
+
+.character-right {
+    right: 5%;
+}
+
+.character-center {
+    left: 50%;
+    translate: -50% 0;
+}
+
+/* 나레이션 박스 (중앙 수평 바) */
+.narration-box {
+    position: absolute;
+    top: 40%;
+    left: 10%;
+    right: 10%;
+    padding: 24px 32px;
+    background-color: rgba(0, 0, 0, 0.75);
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.narration-text {
+    font-size: 20px;
+    color: #e0e0e0;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+/* 대사 박스 (하단) */
 .dialogue-box {
     position: absolute;
-    bottom: 40px;
-    left: 40px;
-    right: 40px;
-    height: 180px;
-    background-color: rgba(0,0,0,0.85);
-    border-radius: 12px;
-    padding: 20px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 25%;
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: 20px 28px;
     flex-direction: column;
 }
 
-.speaker {
+.speaker-name-label {
     font-size: 22px;
     color: #ffd700;
     margin-bottom: 8px;
+    -unity-font-style: bold;
 }
 
-.text {
+.dialogue-text {
     font-size: 18px;
-    color: white;
+    color: #ffffff;
     white-space: normal;
-    -unity-text-align: middle-left;
+    -unity-text-align: upper-left;
+    flex-grow: 1;
 }
 
-.choice-container {
+/* 선택지 패널 */
+.choice-panel {
     position: absolute;
-    bottom: 260px;
-    left: 40px;
-    right: 40px;
+    top: 35%;
+    left: 50%;
+    translate: -50% 0;
     flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    gap: 16px;
+}
+
+.choice-btn {
+    width: 400px;
+    height: 56px;
+    font-size: 20px;
+    color: #ffffff;
+    background-color: rgba(40, 40, 80, 0.9);
+    border-color: rgba(200, 200, 255, 0.4);
+    border-width: 1px;
+    border-radius: 8px;
+    -unity-text-align: middle-center;
+}
+
+.choice-btn:hover {
+    background-color: rgba(60, 60, 120, 0.95);
+    border-color: rgba(200, 200, 255, 0.8);
+}
+
+/* 컨트롤 버튼 (우상단) */
+.control-row {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.control-btn {
+    width: 72px;
+    height: 36px;
+    font-size: 14px;
+    color: #cccccc;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-color: rgba(200, 200, 200, 0.3);
+    border-width: 1px;
+    border-radius: 6px;
+    -unity-text-align: middle-center;
+}
+
+.control-btn:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #ffffff;
+}
+
+.auto-active {
+    background-color: rgba(80, 160, 80, 0.7);
+    color: #ffffff;
+    border-color: rgba(100, 200, 100, 0.6);
+}
+
+/* 다음 화살표 (우하단) */
+.next-arrow {
+    position: absolute;
+    bottom: 4%;
+    right: 28px;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+.next-arrow-icon {
+    font-size: 20px;
+    color: #ffffff;
+}
+
+/* 스킵 확인 팝업 */
+.confirm-popup {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-popup-box {
+    width: 360px;
+    padding: 28px 24px;
+    background-color: rgba(20, 20, 40, 0.95);
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: rgba(200, 200, 255, 0.3);
+    align-items: center;
+}
+
+.confirm-popup-text {
+    font-size: 20px;
+    color: #ffffff;
+    margin-bottom: 24px;
+    -unity-text-align: middle-center;
+}
+
+.confirm-popup-buttons {
+    flex-direction: row;
+    gap: 16px;
+}
+
+.confirm-btn {
+    width: 120px;
+    height: 44px;
+    font-size: 18px;
+    border-radius: 8px;
+    -unity-text-align: middle-center;
+}
+
+.confirm-btn-yes {
+    color: #ffffff;
+    background-color: rgba(80, 140, 200, 0.9);
+    border-color: rgba(100, 160, 220, 0.6);
+    border-width: 1px;
+}
+
+.confirm-btn-no {
+    color: #cccccc;
+    background-color: rgba(60, 60, 60, 0.9);
+    border-color: rgba(120, 120, 120, 0.4);
+    border-width: 1px;
 }

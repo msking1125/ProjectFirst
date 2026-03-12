@@ -1,18 +1,58 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="project://database/Assets/Project/UI/Dialogue/DialogueView.uss" />
-    <ui:VisualElement class="dialogue-root">
-        <ui:VisualElement name="background" class="background" />
-        
-        <ui:VisualElement class="character-container">
-            <ui:VisualElement name="character-left" class="character" />
-            <ui:VisualElement name="character-right" class="character" />
+
+    <ui:VisualElement name="dialogue-root" class="dialogue-root">
+
+        <!-- 배경 이미지 (전체 채움) -->
+        <ui:VisualElement name="bg-image" class="bg-image" />
+
+        <!-- 좌측 캐릭터 -->
+        <ui:VisualElement name="char-left" class="character character-left" />
+
+        <!-- 우측 캐릭터 -->
+        <ui:VisualElement name="char-right" class="character character-right" />
+
+        <!-- 중앙 캐릭터 (기본 숨김) -->
+        <ui:VisualElement name="char-center" class="character character-center" style="display:none;" />
+
+        <!-- 나레이션 박스 (중앙 수평 바, 기본 숨김) -->
+        <ui:VisualElement name="narration-box" class="narration-box" style="display:none;">
+            <ui:Label name="narration-text" class="narration-text" text="" />
         </ui:VisualElement>
-        
-        <ui:VisualElement class="dialogue-box">
-            <ui:Label name="speaker" class="speaker" text="이름" />
-            <ui:Label name="dialogue-text" class="text" text="대사 내용" />
+
+        <!-- 대사 박스 (하단) -->
+        <ui:VisualElement name="dialogue-box" class="dialogue-box">
+            <ui:Label name="speaker-name-label" class="speaker-name-label" text="" />
+            <ui:Label name="dialogue-text" class="dialogue-text" text="" />
         </ui:VisualElement>
-        
-        <ui:VisualElement name="choice-container" class="choice-container" />
+
+        <!-- 선택지 패널 (중앙, 기본 숨김) -->
+        <ui:VisualElement name="choice-panel" class="choice-panel" style="display:none;">
+            <ui:Button name="choice-a-btn" class="choice-btn" text="선택지 A" />
+            <ui:Button name="choice-b-btn" class="choice-btn" text="선택지 B" />
+        </ui:VisualElement>
+
+        <!-- 컨트롤 버튼 (우상단) -->
+        <ui:VisualElement name="control-row" class="control-row">
+            <ui:Button name="skip-btn" class="control-btn" text="SKIP" />
+            <ui:Button name="auto-btn" class="control-btn" text="AUTO" />
+        </ui:VisualElement>
+
+        <!-- 다음 화살표 (우하단, 타이핑 완료 후 표시) -->
+        <ui:VisualElement name="next-arrow" class="next-arrow" style="display:none;">
+            <ui:Label class="next-arrow-icon" text="▼" />
+        </ui:VisualElement>
+
+        <!-- 스킵 확인 팝업 (기본 숨김) -->
+        <ui:VisualElement name="confirm-popup" class="confirm-popup" style="display:none;">
+            <ui:VisualElement class="confirm-popup-box">
+                <ui:Label class="confirm-popup-text" text="대화를 건너뛰시겠습니까?" />
+                <ui:VisualElement class="confirm-popup-buttons">
+                    <ui:Button name="confirm-yes-btn" class="confirm-btn confirm-btn-yes" text="예" />
+                    <ui:Button name="confirm-no-btn" class="confirm-btn confirm-btn-no" text="아니오" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
     </ui:VisualElement>
 </ui:UXML>
