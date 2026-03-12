@@ -1,565 +1,439 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using ProjectFirst.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace Project
 {
-#if ODIN_INSPECTOR
-    [HideMonoScript]
-#endif
     public class SkillSelectPanelController : MonoBehaviour
     {
-#if ODIN_INSPECTOR
-        [Title("슬롯 버튼", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("슬롯", 0.33f)]
-        [BoxGroup("슬롯/버튼1")]
-        [LabelText("버튼 1")]
-        [SceneObjectsOnly]
-#endif
-        [Header("슬롯 버튼")]
-        [SerializeField] private Button optionBtn1;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("슬롯", 0.33f)]
-        [BoxGroup("슬롯/버튼2")]
-        [LabelText("버튼 2")]
-        [SceneObjectsOnly]
-#endif
-        [SerializeField] private Button optionBtn2;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("슬롯", 0.34f)]
-        [BoxGroup("슬롯/버튼3")]
-        [LabelText("버튼 3")]
-        [SceneObjectsOnly]
-#endif
-        [SerializeField] private Button optionBtn3;
-
-#if ODIN_INSPECTOR
-        [Title("슬롯 텍스트", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("텍스트", 0.33f)]
-        [BoxGroup("텍스트/이름")]
-        [LabelText("스킬 이름 1")]
-        [SceneObjectsOnly]
-#endif
-        [Header("슬롯 텍스트 (스킬 이름)")]
-        [SerializeField] private TMP_Text optionTxt1;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("텍스트", 0.33f)]
-        [BoxGroup("텍스트/이름")]
-        [LabelText("스킬 이름 2")]
-        [SceneObjectsOnly]
-#endif
-        [SerializeField] private TMP_Text optionTxt2;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("텍스트", 0.34f)]
-        [BoxGroup("텍스트/이름")]
-        [LabelText("스킬 이름 3")]
-        [SceneObjectsOnly]
-#endif
-        [SerializeField] private TMP_Text optionTxt3;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("텍스트2", 0.33f)]
-        [BoxGroup("텍스트2/설명")]
-        [LabelText("스킬 설명 1")]
-        [SceneObjectsOnly]
-#endif
-        [Header("슬롯 설명")]
-        [SerializeField] private TMP_Text optionDesc1;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("텍스트2", 0.33f)]
-        [BoxGroup("텍스트2/설명")]
-        [LabelText("스킬 설명 2")]
-        [SceneObjectsOnly]
-#endif
-        [SerializeField] private TMP_Text optionDesc2;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("텍스트2", 0.34f)]
-        [BoxGroup("텍스트2/설명")]
-        [LabelText("스킬 설명 3")]
-        [SceneObjectsOnly]
-#endif
-        [SerializeField] private TMP_Text optionDesc3;
-
-#if ODIN_INSPECTOR
-        [Title("슬롯 아이콘", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("아이콘", 0.33f)]
-        [BoxGroup("아이콘/1")]
-        [LabelText("아이콘 1")]
-        [SceneObjectsOnly]
-        [PreviewField(50, ObjectFieldAlignment.Left)]
-#endif
-        [Header("슬롯 아이콘 Image (없으면 자동 탐지/생성)")]
-        [SerializeField] private Image optionIcon1;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("아이콘", 0.33f)]
-        [BoxGroup("아이콘/2")]
-        [LabelText("아이콘 2")]
-        [SceneObjectsOnly]
-        [PreviewField(50, ObjectFieldAlignment.Left)]
-#endif
-        [SerializeField] private Image optionIcon2;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("아이콘", 0.34f)]
-        [BoxGroup("아이콘/3")]
-        [LabelText("아이콘 3")]
-        [SceneObjectsOnly]
-        [PreviewField(50, ObjectFieldAlignment.Left)]
-#endif
-        [SerializeField] private Image optionIcon3;
-
-#if ODIN_INSPECTOR
-        [Title("디밍", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("디밍", 0.5f)]
-        [BoxGroup("디밍/이미지")]
-        [LabelText("디밍 이미지")]
-        [SceneObjectsOnly]
-#endif
+        [Header("Panel")]
+        [SerializeField] private GameObject panelRoot;
         [SerializeField] private Image dimImage;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("디밍", 0.5f)]
-        [BoxGroup("디밍/캔버스")]
-        [LabelText("디밍 CanvasGroup")]
-        [SceneObjectsOnly]
-#endif
         [SerializeField] private CanvasGroup dimCanvasGroup;
 
-#if ODIN_INSPECTOR
-        [Title("레이아웃", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("레이아웃", 0.33f)]
-        [BoxGroup("레이아웃/크기")]
-        [LabelText("아이콘 크기")]
-        [Tooltip("아이콘 크기 (픽셀). 버튼 높이보다 작게 설정하세요.")]
-        [PropertyRange(40f, 120f)]
-        [SuffixLabel("px", true)]
-#endif
-        [Header("아이콘 레이아웃 (Inspector에서 수정 가능)")]
-        [Tooltip("아이콘 크기 (픽셀). 버튼 높이보다 작게 설정하세요.")]
+        [Header("Option Buttons")]
+        [SerializeField] private Button optionBtn1;
+        [SerializeField] private Button optionBtn2;
+        [SerializeField] private Button optionBtn3;
+
+        [Header("Option Text")]
+        [SerializeField] private TMP_Text optionTxt1;
+        [SerializeField] private TMP_Text optionTxt2;
+        [SerializeField] private TMP_Text optionTxt3;
+        [SerializeField] private TMP_Text optionDesc1;
+        [SerializeField] private TMP_Text optionDesc2;
+        [SerializeField] private TMP_Text optionDesc3;
+
+        [Header("Option Icons")]
+        [SerializeField] private Image optionIcon1;
+        [SerializeField] private Image optionIcon2;
+        [SerializeField] private Image optionIcon3;
+
+        [Header("Layout")]
         [SerializeField] private float iconSize = 80f;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("레이아웃", 0.33f)]
-        [BoxGroup("레이아웃/패딩")]
-        [LabelText("패딩")]
-        [Tooltip("아이콘 좌측/상하 패딩 (픽셀)")]
-        [PropertyRange(0f, 30f)]
-        [SuffixLabel("px", true)]
-#endif
-        [Tooltip("아이콘 좌측/상하 패딩 (픽셀)")]
         [SerializeField] private float iconPadding = 8f;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("레이아웃", 0.34f)]
-        [BoxGroup("레이아웃/오프셋")]
-        [LabelText("텍스트 오프셋")]
-        [Tooltip("텍스트 시작 X 위치 (아이콘 오른쪽 여백 포함, 픽셀)")]
-        [PropertyRange(60f, 140f)]
-        [SuffixLabel("px", true)]
-#endif
-        [Tooltip("텍스트 시작 X 위치 (아이콘 오른쪽 여백 포함, 픽셀)")]
         [SerializeField] private float textLeftOffset = 96f;
 
-    private readonly List<SkillRow> currentOptions = new List<SkillRow>(3);
-    private Action<SkillRow> onPicked;
-    private bool hasLoggedMissingBindings;
+        private readonly List<SkillRow> currentOptions = new List<SkillRow>(3);
+        private Action<SkillRow> onPicked;
+        private bool hasLoggedMissingBindings;
 
-    private void Awake()
-    {
-        AutoBind();
-        BindButtons();
-
-        if (panelRoot != null)
+        private void Awake()
         {
-            panelRoot.SetActive(false);
-        }
+            AutoBind();
+            BindButtons();
 
-        SetDimRaycast(false);
-    }
-
-    private void AutoBind()
-    {
-        panelRoot ??= gameObject;
-
-        Transform optionBtn1Transform = transform.Find("Skill_Layer/Options/OptionButton_1");
-        Transform optionBtn2Transform = transform.Find("Skill_Layer/Options/OptionButton_2");
-        Transform optionBtn3Transform = transform.Find("Skill_Layer/Options/OptionButton_3");
-
-        if (optionBtn1 == null && optionBtn1Transform != null)
-        {
-            optionBtn1 = optionBtn1Transform.GetComponent<Button>();
-        }
-        if (optionBtn2 == null && optionBtn2Transform != null)
-        {
-            optionBtn2 = optionBtn2Transform.GetComponent<Button>();
-        }
-        if (optionBtn3 == null && optionBtn3Transform != null)
-        {
-            optionBtn3 = optionBtn3Transform.GetComponent<Button>();
-        }
-
-        if (optionTxt1 == null && optionBtn1 != null)
-        {
-            optionTxt1 = optionBtn1.transform.Find("Name")?.GetComponent<TMP_Text>()
-                      ?? optionBtn1.transform.Find("OptionButton_1_Name")?.GetComponent<TMP_Text>();
-        }
-        if (optionTxt2 == null && optionBtn2 != null)
-        {
-            optionTxt2 = optionBtn2.transform.Find("Name")?.GetComponent<TMP_Text>()
-                      ?? optionBtn2.transform.Find("OptionButton_2_Name")?.GetComponent<TMP_Text>();
-        }
-        if (optionTxt3 == null && optionBtn3 != null)
-        {
-            optionTxt3 = optionBtn3.transform.Find("Name")?.GetComponent<TMP_Text>()
-                      ?? optionBtn3.transform.Find("OptionButton_3_Name")?.GetComponent<TMP_Text>();
-        }
-
-        // 설명 텍스트 자동 탐색 (OptionButton_X_Desc 또는 "Desc" 이름)
-        if (optionDesc1 == null && optionBtn1 != null)
-        {
-            optionDesc1 = optionBtn1.transform.Find("OptionButton_1_Desc")?.GetComponent<TMP_Text>()
-                       ?? optionBtn1.transform.Find("Desc")?.GetComponent<TMP_Text>();
-        }
-        if (optionDesc2 == null && optionBtn2 != null)
-        {
-            optionDesc2 = optionBtn2.transform.Find("OptionButton_2_Desc")?.GetComponent<TMP_Text>()
-                       ?? optionBtn2.transform.Find("Desc")?.GetComponent<TMP_Text>();
-        }
-        if (optionDesc3 == null && optionBtn3 != null)
-        {
-            optionDesc3 = optionBtn3.transform.Find("OptionButton_3_Desc")?.GetComponent<TMP_Text>()
-                       ?? optionBtn3.transform.Find("Desc")?.GetComponent<TMP_Text>();
-        }
-
-        // 아이콘 자동 탐지
-        optionIcon1 = AutoBindIcon(optionBtn1, optionIcon1);
-        optionIcon2 = AutoBindIcon(optionBtn2, optionIcon2);
-        optionIcon3 = AutoBindIcon(optionBtn3, optionIcon3);
-
-        if (dimImage == null)
-        {
-            dimImage = transform.Find("Dim")?.GetComponent<Image>();
-        }
-
-        if (dimCanvasGroup == null && dimImage != null)
-        {
-            dimCanvasGroup = dimImage.GetComponent<CanvasGroup>();
-        }
-    }
-
-    private void WarnIfMissingBindings()
-    {
-        if (hasLoggedMissingBindings)
-        {
-            return;
-        }
-
-        List<string> missingFields = new List<string>();
-        CheckField(nameof(panelRoot), panelRoot, missingFields);
-        CheckField(nameof(optionBtn1), optionBtn1, missingFields);
-        CheckField(nameof(optionBtn2), optionBtn2, missingFields);
-        CheckField(nameof(optionBtn3), optionBtn3, missingFields);
-        CheckField(nameof(optionTxt1), optionTxt1, missingFields);
-        CheckField(nameof(optionTxt2), optionTxt2, missingFields);
-        CheckField(nameof(optionTxt3), optionTxt3, missingFields);
-        CheckField(nameof(dimImage), dimImage, missingFields);
-
-        if (missingFields.Count == 0)
-        {
-            return;
-        }
-
-        hasLoggedMissingBindings = true;
-        Debug.LogWarning($"[SkillSelectPanelController] Missing serialized references after AutoBind: {string.Join(", ", missingFields)}", this);
-    }
-
-    private static void CheckField(string fieldName, UnityEngine.Object obj, List<string> missingFields)
-    {
-        if (obj == null)
-        {
-            missingFields.Add(fieldName);
-        }
-    }
-
-    public void Configure(GameObject root, Button button1, Button button2, Button button3, TMP_Text text1, TMP_Text text2, TMP_Text text3)
-    {
-        Configure(root, button1, button2, button3, text1, text2, text3, null, null, null);
-    }
-
-    public void Configure(GameObject root, Button button1, Button button2, Button button3,
-        TMP_Text text1, TMP_Text text2, TMP_Text text3,
-        TMP_Text desc1, TMP_Text desc2, TMP_Text desc3)
-    {
-        panelRoot = root;
-        optionBtn1 = button1; optionBtn2 = button2; optionBtn3 = button3;
-        optionTxt1 = text1;   optionTxt2 = text2;   optionTxt3 = text3;
-        optionDesc1 = desc1;  optionDesc2 = desc2;  optionDesc3 = desc3;
-        AutoBind();
-        WarnIfMissingBindings();
-
-        BindButtons();
-
-        if (panelRoot != null)
-            panelRoot.SetActive(false);
-
-        SetDimRaycast(false);
-    }
-
-    public void ShowOptions(List<SkillRow> candidates, Action<SkillRow> onSelected)
-    {
-        AutoBind();
-        BindButtons();
-
-        currentOptions.Clear();
-        onPicked = onSelected;
-
-        if (candidates != null)
-        {
-            for (int i = 0; i < candidates.Count && i < 3; i++)
+            if (panelRoot != null)
             {
-                if (candidates[i] != null)
-                {
-                    currentOptions.Add(candidates[i]);
-                }
+                panelRoot.SetActive(false);
+            }
+
+            SetDimRaycast(false);
+        }
+
+        private void AutoBind()
+        {
+            panelRoot ??= gameObject;
+
+            Transform optionBtn1Transform = transform.Find("Skill_Layer/Options/OptionButton_1");
+            Transform optionBtn2Transform = transform.Find("Skill_Layer/Options/OptionButton_2");
+            Transform optionBtn3Transform = transform.Find("Skill_Layer/Options/OptionButton_3");
+
+            if (optionBtn1 == null && optionBtn1Transform != null)
+            {
+                optionBtn1 = optionBtn1Transform.GetComponent<Button>();
+            }
+            if (optionBtn2 == null && optionBtn2Transform != null)
+            {
+                optionBtn2 = optionBtn2Transform.GetComponent<Button>();
+            }
+            if (optionBtn3 == null && optionBtn3Transform != null)
+            {
+                optionBtn3 = optionBtn3Transform.GetComponent<Button>();
+            }
+
+            if (optionTxt1 == null && optionBtn1 != null)
+            {
+                optionTxt1 = optionBtn1.transform.Find("Name")?.GetComponent<TMP_Text>() ?? optionBtn1.transform.Find("OptionButton_1_Name")?.GetComponent<TMP_Text>();
+            }
+            if (optionTxt2 == null && optionBtn2 != null)
+            {
+                optionTxt2 = optionBtn2.transform.Find("Name")?.GetComponent<TMP_Text>() ?? optionBtn2.transform.Find("OptionButton_2_Name")?.GetComponent<TMP_Text>();
+            }
+            if (optionTxt3 == null && optionBtn3 != null)
+            {
+                optionTxt3 = optionBtn3.transform.Find("Name")?.GetComponent<TMP_Text>() ?? optionBtn3.transform.Find("OptionButton_3_Name")?.GetComponent<TMP_Text>();
+            }
+
+            if (optionDesc1 == null && optionBtn1 != null)
+            {
+                optionDesc1 = optionBtn1.transform.Find("OptionButton_1_Desc")?.GetComponent<TMP_Text>() ?? optionBtn1.transform.Find("Desc")?.GetComponent<TMP_Text>();
+            }
+            if (optionDesc2 == null && optionBtn2 != null)
+            {
+                optionDesc2 = optionBtn2.transform.Find("OptionButton_2_Desc")?.GetComponent<TMP_Text>() ?? optionBtn2.transform.Find("Desc")?.GetComponent<TMP_Text>();
+            }
+            if (optionDesc3 == null && optionBtn3 != null)
+            {
+                optionDesc3 = optionBtn3.transform.Find("OptionButton_3_Desc")?.GetComponent<TMP_Text>() ?? optionBtn3.transform.Find("Desc")?.GetComponent<TMP_Text>();
+            }
+
+            optionIcon1 = AutoBindIcon(optionBtn1, optionIcon1);
+            optionIcon2 = AutoBindIcon(optionBtn2, optionIcon2);
+            optionIcon3 = AutoBindIcon(optionBtn3, optionIcon3);
+
+            if (dimImage == null)
+            {
+                dimImage = transform.Find("Dim")?.GetComponent<Image>();
+            }
+
+            if (dimCanvasGroup == null && dimImage != null)
+            {
+                dimCanvasGroup = dimImage.GetComponent<CanvasGroup>();
             }
         }
 
-        optionIcon1 = AutoBindIcon(optionBtn1, optionIcon1);
-        optionIcon2 = AutoBindIcon(optionBtn2, optionIcon2);
-        optionIcon3 = AutoBindIcon(optionBtn3, optionIcon3);
-
-        BindOption(0, optionBtn1, optionTxt1);
-        BindOption(1, optionBtn2, optionTxt2);
-        BindOption(2, optionBtn3, optionTxt3);
-
-        if (panelRoot != null)
+        private void WarnIfMissingBindings()
         {
-            panelRoot.SetActive(currentOptions.Count > 0);
-        }
-
-        SetDimRaycast(currentOptions.Count > 0);
-
-        if (currentOptions.Count > 0)
-        {
-            Time.timeScale = 0f;
-        }
-    }
-
-    public void Pick0() => HandlePick(0);
-    public void Pick1() => HandlePick(1);
-    public void Pick2() => HandlePick(2);
-
-    private void BindOption(int index, Button button, TMP_Text text)
-    {
-        bool hasOption = index < currentOptions.Count;
-        SkillRow skill = hasOption ? currentOptions[index] : null;
-
-        if (button != null)
-        {
-            button.gameObject.SetActive(hasOption);
-            button.interactable = hasOption;
-        }
-
-        // 이름 텍스트
-        if (text != null)
-            text.text = skill != null ? skill.name : string.Empty;
-
-        // 설명 텍스트
-        TMP_Text desc = index switch { 0 => optionDesc1, 1 => optionDesc2, 2 => optionDesc3, _ => null };
-        if (desc != null)
-            desc.text = skill != null ? skill.description : string.Empty;
-
-        // 아이콘 적용
-        Image icon = index switch { 0 => optionIcon1, 1 => optionIcon2, 2 => optionIcon3, _ => null };
-        ApplyIcon(icon, skill);
-    }
-
-    private static void ApplyIcon(Image icon, SkillRow skill)
-    {
-        if (icon == null) return;
-        if (skill?.icon != null)
-        {
-            icon.sprite  = skill.icon;
-            icon.color   = Color.white;
-            icon.enabled = true;
-        }
-        else
-        {
-            icon.sprite  = null;
-            icon.color   = skill != null ? new Color(0.3f, 0.3f, 0.3f, 0.5f) : Color.clear;
-            icon.enabled = skill != null;
-        }
-    }
-
-    /// <summary>
-    /// OptionButton에서 아이콘 Image를 탐지/생성합니다.
-    /// OptionButton은 500×100 가로형: 아이콘을 좌측 80×80에 배치하고
-    /// Name 텍스트를 아이콘 오른쪽으로 밀어냅니다.
-    /// </summary>
-    private Image AutoBindIcon(Button btn, Image existing)
-    {
-        if (existing != null) return existing;
-        if (btn == null) return null;
-
-        // "Icon" 이름 자식 탐색
-        Transform iconChild = btn.transform.Find("Icon");
-        if (iconChild != null)
-        {
-            Image img = iconChild.GetComponent<Image>();
-            if (img != null) { img.raycastTarget = false; return img; }
-        }
-
-        // ── 새로 생성 ────────────────────────────────────────────────────────
-        // OptionButton: 500×100 → 아이콘 좌측 80×80 고정 크기
-        GameObject go = new GameObject("Icon", typeof(RectTransform), typeof(Image));
-        go.transform.SetParent(btn.transform, false);
-        go.transform.SetAsFirstSibling();
-
-        RectTransform rt = go.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0f, 0f);
-        rt.anchorMax = new Vector2(0f, 1f);
-        rt.pivot     = new Vector2(0f, 0.5f);
-        rt.offsetMin = new Vector2(iconPadding, iconPadding);
-        rt.offsetMax = new Vector2(iconPadding + iconSize, -iconPadding); // iconSize × iconSize
-
-        Image newImg = go.GetComponent<Image>();
-        newImg.raycastTarget  = false;
-        newImg.preserveAspect = true;
-        newImg.enabled = false;
-
-        // Name 텍스트를 아이콘 오른쪽으로 밀기
-        TMP_Text[] texts = btn.GetComponentsInChildren<TMP_Text>(true);
-        foreach (TMP_Text txt in texts)
-        {
-            RectTransform txtRt = txt.GetComponent<RectTransform>();
-            if (txtRt == null) continue;
-            if (txtRt.offsetMin.x >= textLeftOffset - 4f) continue; // 이미 충분한 경우 스킵
-            txtRt.anchorMin = new Vector2(0f, 0f);
-            txtRt.anchorMax = new Vector2(1f, 1f);
-            txtRt.offsetMin = new Vector2(textLeftOffset, 4f);
-            txtRt.offsetMax = new Vector2(-8f, -4f);
-            break;
-        }
-
-        return newImg;
-    }
-
-    private void HandlePick(int index)
-    {
-        if (index < 0 || index >= currentOptions.Count)
-        {
-            return;
-        }
-
-        SkillRow selected = currentOptions[index];
-        if (panelRoot != null)
-        {
-            panelRoot.SetActive(false);
-        }
-
-        SetDimRaycast(false);
-
-        Time.timeScale = 1f;
-        onPicked?.Invoke(selected);
-
-        currentOptions.Clear();
-        onPicked = null;
-    }
-
-    private void BindButtons()
-    {
-        if (optionBtn1 != null)
-        {
-            optionBtn1.onClick.RemoveListener(Pick0);
-            optionBtn1.onClick.AddListener(Pick0);
-        }
-
-        if (optionBtn2 != null)
-        {
-            optionBtn2.onClick.RemoveListener(Pick1);
-            optionBtn2.onClick.AddListener(Pick1);
-        }
-
-        if (optionBtn3 != null)
-        {
-            optionBtn3.onClick.RemoveListener(Pick2);
-            optionBtn3.onClick.AddListener(Pick2);
-        }
-    }
-
-    [ContextMenu("Show Dummy Options For Test")]
-    public void ShowDummyOptionsForTest()
-    {
-        AutoBind();
-        WarnIfMissingBindings();
-
-        if (panelRoot != null)
-        {
-            panelRoot.gameObject.SetActive(true);
-        }
-
-        SetDimRaycast(true);
-
-        currentOptions.Clear();
-        onPicked = null;
-
-        SetDummyOption(optionBtn1, optionTxt1, "Skill 1", "Option1 clicked");
-        SetDummyOption(optionBtn2, optionTxt2, "Skill 2", "Option2 clicked");
-        SetDummyOption(optionBtn3, optionTxt3, "Skill 3", "Option3 clicked");
-    }
-
-    private void SetDummyOption(Button button, TMP_Text text, string label, string logMessage)
-    {
-        Image icon = AutoBindIcon(button, null);
-        if (icon != null) icon.enabled = false;
-
-        if (button != null)
-        {
-            button.gameObject.SetActive(true);
-            button.interactable = true;
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() =>
+            if (hasLoggedMissingBindings)
             {
-                Debug.Log(logMessage);
+                return;
+            }
 
-                if (panelRoot != null)
+            List<string> missingFields = new List<string>();
+            CheckField(nameof(panelRoot), panelRoot, missingFields);
+            CheckField(nameof(optionBtn1), optionBtn1, missingFields);
+            CheckField(nameof(optionBtn2), optionBtn2, missingFields);
+            CheckField(nameof(optionBtn3), optionBtn3, missingFields);
+            CheckField(nameof(optionTxt1), optionTxt1, missingFields);
+            CheckField(nameof(optionTxt2), optionTxt2, missingFields);
+            CheckField(nameof(optionTxt3), optionTxt3, missingFields);
+            CheckField(nameof(dimImage), dimImage, missingFields);
+
+            if (missingFields.Count == 0)
+            {
+                return;
+            }
+
+            hasLoggedMissingBindings = true;
+            Debug.LogWarning($"[SkillSelectPanelController] Missing serialized references after AutoBind: {string.Join(", ", missingFields)}", this);
+        }
+
+        private static void CheckField(string fieldName, UnityEngine.Object obj, List<string> missingFields)
+        {
+            if (obj == null)
+            {
+                missingFields.Add(fieldName);
+            }
+        }
+
+        public void Configure(GameObject root, Button button1, Button button2, Button button3, TMP_Text text1, TMP_Text text2, TMP_Text text3)
+        {
+            Configure(root, button1, button2, button3, text1, text2, text3, null, null, null);
+        }
+
+        public void Configure(GameObject root, Button button1, Button button2, Button button3, TMP_Text text1, TMP_Text text2, TMP_Text text3, TMP_Text desc1, TMP_Text desc2, TMP_Text desc3)
+        {
+            panelRoot = root;
+            optionBtn1 = button1;
+            optionBtn2 = button2;
+            optionBtn3 = button3;
+            optionTxt1 = text1;
+            optionTxt2 = text2;
+            optionTxt3 = text3;
+            optionDesc1 = desc1;
+            optionDesc2 = desc2;
+            optionDesc3 = desc3;
+
+            AutoBind();
+            WarnIfMissingBindings();
+            BindButtons();
+
+            if (panelRoot != null)
+            {
+                panelRoot.SetActive(false);
+            }
+
+            SetDimRaycast(false);
+        }
+
+        public void ShowOptions(List<SkillRow> candidates, Action<SkillRow> onSelected)
+        {
+            AutoBind();
+            BindButtons();
+
+            currentOptions.Clear();
+            onPicked = onSelected;
+
+            if (candidates != null)
+            {
+                for (int i = 0; i < candidates.Count && i < 3; i++)
                 {
-                    panelRoot.SetActive(false);
+                    if (candidates[i] != null)
+                    {
+                        currentOptions.Add(candidates[i]);
+                    }
+                }
+            }
+
+            optionIcon1 = AutoBindIcon(optionBtn1, optionIcon1);
+            optionIcon2 = AutoBindIcon(optionBtn2, optionIcon2);
+            optionIcon3 = AutoBindIcon(optionBtn3, optionIcon3);
+
+            BindOption(0, optionBtn1, optionTxt1);
+            BindOption(1, optionBtn2, optionTxt2);
+            BindOption(2, optionBtn3, optionTxt3);
+
+            if (panelRoot != null)
+            {
+                panelRoot.SetActive(currentOptions.Count > 0);
+            }
+
+            SetDimRaycast(currentOptions.Count > 0);
+
+            if (currentOptions.Count > 0)
+            {
+                Time.timeScale = 0f;
+            }
+        }
+
+        public void Pick0() => HandlePick(0);
+        public void Pick1() => HandlePick(1);
+        public void Pick2() => HandlePick(2);
+
+        private void BindOption(int index, Button button, TMP_Text text)
+        {
+            bool hasOption = index < currentOptions.Count;
+            SkillRow skill = hasOption ? currentOptions[index] : null;
+
+            if (button != null)
+            {
+                button.gameObject.SetActive(hasOption);
+                button.interactable = hasOption;
+            }
+
+            if (text != null)
+            {
+                text.text = skill != null ? skill.name : string.Empty;
+            }
+
+            TMP_Text desc = index switch { 0 => optionDesc1, 1 => optionDesc2, 2 => optionDesc3, _ => null };
+            if (desc != null)
+            {
+                desc.text = skill != null ? skill.description : string.Empty;
+            }
+
+            Image icon = index switch { 0 => optionIcon1, 1 => optionIcon2, 2 => optionIcon3, _ => null };
+            ApplyIcon(icon, skill);
+        }
+
+        private static void ApplyIcon(Image icon, SkillRow skill)
+        {
+            if (icon == null)
+            {
+                return;
+            }
+
+            if (skill?.icon != null)
+            {
+                icon.sprite = skill.icon;
+                icon.color = Color.white;
+                icon.enabled = true;
+            }
+            else
+            {
+                icon.sprite = null;
+                icon.color = skill != null ? new Color(0.3f, 0.3f, 0.3f, 0.5f) : Color.clear;
+                icon.enabled = skill != null;
+            }
+        }
+
+        private Image AutoBindIcon(Button btn, Image existing)
+        {
+            if (existing != null)
+            {
+                return existing;
+            }
+            if (btn == null)
+            {
+                return null;
+            }
+
+            Transform iconChild = btn.transform.Find("Icon");
+            if (iconChild != null)
+            {
+                Image img = iconChild.GetComponent<Image>();
+                if (img != null)
+                {
+                    img.raycastTarget = false;
+                    return img;
+                }
+            }
+
+            GameObject go = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(btn.transform, false);
+            go.transform.SetAsFirstSibling();
+
+            RectTransform rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 0f);
+            rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 0.5f);
+            rt.offsetMin = new Vector2(iconPadding, iconPadding);
+            rt.offsetMax = new Vector2(iconPadding + iconSize, -iconPadding);
+
+            Image newImg = go.GetComponent<Image>();
+            newImg.raycastTarget = false;
+            newImg.preserveAspect = true;
+            newImg.enabled = false;
+
+            TMP_Text[] texts = btn.GetComponentsInChildren<TMP_Text>(true);
+            foreach (TMP_Text txt in texts)
+            {
+                RectTransform txtRt = txt.GetComponent<RectTransform>();
+                if (txtRt == null || txtRt.offsetMin.x >= textLeftOffset - 4f)
+                {
+                    continue;
                 }
 
-                SetDimRaycast(false);
-            });
+                txtRt.anchorMin = new Vector2(0f, 0f);
+                txtRt.anchorMax = new Vector2(1f, 1f);
+                txtRt.offsetMin = new Vector2(textLeftOffset, 4f);
+                txtRt.offsetMax = new Vector2(-8f, -4f);
+                break;
+            }
+
+            return newImg;
         }
 
-        if (text != null)
+        private void HandlePick(int index)
         {
-            text.text = label;
-        }
-    }
+            if (index < 0 || index >= currentOptions.Count)
+            {
+                return;
+            }
 
-    private void SetDimRaycast(bool isEnabled)
-    {
-        if (dimImage != null)
-        {
-            dimImage.raycastTarget = isEnabled;
+            SkillRow selected = currentOptions[index];
+            if (panelRoot != null)
+            {
+                panelRoot.SetActive(false);
+            }
+
+            SetDimRaycast(false);
+            Time.timeScale = 1f;
+            onPicked?.Invoke(selected);
+
+            currentOptions.Clear();
+            onPicked = null;
         }
 
-        if (dimCanvasGroup != null)
+        private void BindButtons()
         {
-            dimCanvasGroup.blocksRaycasts = isEnabled;
-            dimCanvasGroup.interactable = isEnabled;
+            if (optionBtn1 != null)
+            {
+                optionBtn1.onClick.RemoveListener(Pick0);
+                optionBtn1.onClick.AddListener(Pick0);
+            }
+
+            if (optionBtn2 != null)
+            {
+                optionBtn2.onClick.RemoveListener(Pick1);
+                optionBtn2.onClick.AddListener(Pick1);
+            }
+
+            if (optionBtn3 != null)
+            {
+                optionBtn3.onClick.RemoveListener(Pick2);
+                optionBtn3.onClick.AddListener(Pick2);
+            }
+        }
+
+        [ContextMenu("Show Dummy Options For Test")]
+        public void ShowDummyOptionsForTest()
+        {
+            AutoBind();
+            WarnIfMissingBindings();
+
+            if (panelRoot != null)
+            {
+                panelRoot.gameObject.SetActive(true);
+            }
+
+            SetDimRaycast(true);
+
+            currentOptions.Clear();
+            onPicked = null;
+
+            SetDummyOption(optionBtn1, optionTxt1, "Skill 1", "Option1 clicked");
+            SetDummyOption(optionBtn2, optionTxt2, "Skill 2", "Option2 clicked");
+            SetDummyOption(optionBtn3, optionTxt3, "Skill 3", "Option3 clicked");
+        }
+
+        private void SetDummyOption(Button button, TMP_Text text, string label, string logMessage)
+        {
+            Image icon = AutoBindIcon(button, null);
+            if (icon != null)
+            {
+                icon.enabled = false;
+            }
+
+            if (button != null)
+            {
+                button.gameObject.SetActive(true);
+                button.interactable = true;
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() =>
+                {
+                    Debug.Log(logMessage);
+                    if (panelRoot != null)
+                    {
+                        panelRoot.SetActive(false);
+                    }
+
+                    SetDimRaycast(false);
+                });
+            }
+
+            if (text != null)
+            {
+                text.text = label;
+            }
+        }
+
+        private void SetDimRaycast(bool isEnabled)
+        {
+            if (dimImage != null)
+            {
+                dimImage.raycastTarget = isEnabled;
+            }
+
+            if (dimCanvasGroup != null)
+            {
+                dimCanvasGroup.blocksRaycasts = isEnabled;
+                dimCanvasGroup.interactable = isEnabled;
+            }
         }
     }
 }

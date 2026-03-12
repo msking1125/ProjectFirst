@@ -1,11 +1,11 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-
+using ProjectFirst.Data;
 public static class MonsterTableImporter
 {
     private const string CsvPathLower = "Assets/Project/Data/monsters.csv";
@@ -96,12 +96,13 @@ public static class MonsterTableImporter
             {
                 id = id,
                 name = name,
-                hp = ParseFloat(SafeGet(cols, hpIdx)),
-                atk = ParseFloat(SafeGet(cols, atkIdx)),
-                def = ParseFloat(SafeGet(cols, defIdx)),
-                critChance = Mathf.Clamp01(ParseFloat(SafeGet(cols, critChanceIdx))),
-                critMultiplier = critMultiplierValue,
-                // If prefabName is missing, ResolvePrefab returns null and logs warning
+                stats = new CombatStats(
+                    ParseFloat(SafeGet(cols, hpIdx)),
+                    ParseFloat(SafeGet(cols, atkIdx)),
+                    ParseFloat(SafeGet(cols, defIdx)),
+                    Mathf.Clamp01(ParseFloat(SafeGet(cols, critChanceIdx))),
+                    critMultiplierValue
+                ),
                 prefab = ResolvePrefab(SafeGet(cols, prefabIdx), id),
                 expReward = ParseOptionalReward(cols, expRewardIdx, "expReward", id),
                 goldReward = ParseOptionalReward(cols, goldRewardIdx, "goldReward", id)
@@ -222,3 +223,7 @@ public static class MonsterTableImporter
     }
 }
 #endif
+
+
+
+

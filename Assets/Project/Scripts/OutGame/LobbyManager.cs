@@ -1,64 +1,70 @@
-using ProjectFirst.OutGame;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
-
+using ProjectFirst.Data;
 /// <summary>
-/// 로비 씬 메인 관리자 ? UI Toolkit(UIDocument) 기반.
+/// 濡쒕퉬 ??硫붿씤 愿由ъ옄 ? UI Toolkit(UIDocument) 湲곕컲.
 ///
-/// [Inspector 연결 가이드]
-/// ┌ Data
-/// │  └ playerData         : PlayerData.asset
-/// ├ UI
-/// │  └ uiDocument         : Scene 의 UIDocument 컴포넌트
-/// ├ Character
-/// │  ├ characterSpawnPoint: 캐릭터 프리팹을 인스턴스화할 Transform
-/// │  └ agentTable         : AgentTable.asset (mainCharacterId 룩업용)
-/// ├ Background
-/// │  └ backgroundSprites[]: 스테이지 진행도 10단계 배경 Sprite 배열 (10개)
-/// ├ Side Systems
-/// │  ├ idleRewardManager  : IdleRewardManager 컴포넌트
-/// │  └ settingPanel       : SettingPanel 컴포넌트 (선택, 자동 탐색 가능)
-/// └ Events (Optional)
-///    ├ onMyInfoClicked
-///    ├ onMailClicked
-///    ├ onSettingsClicked
-///    ├ onMissionClicked
-///    └ onIdleRewardClaimed
+/// [Inspector ?곌껐 媛?대뱶]
+/// ??Data
+/// ?? ??playerData         : PlayerData.asset
+/// ??UI
+/// ?? ??uiDocument         : Scene ??UIDocument 而댄룷?뚰듃
+/// ??Character
+/// ?? ??characterSpawnPoint: 罹먮┃???꾨━?뱀쓣 ?몄뒪?댁뒪?뷀븷 Transform
+/// ?? ??agentTable         : AgentTable.asset (mainCharacterId 猷⑹뾽??
+/// ??Background
+/// ?? ??backgroundSprites[]: ?ㅽ뀒?댁? 吏꾪뻾??10?④퀎 諛곌꼍 Sprite 諛곗뿴 (10媛?
+/// ??Side Systems
+/// ?? ??idleRewardManager  : IdleRewardManager 而댄룷?뚰듃
+/// ?? ??settingPanel       : SettingPanel 而댄룷?뚰듃 (?좏깮, ?먮룞 ?먯깋 媛??
+/// ??Events (Optional)
+///    ??onMyInfoClicked
+///    ??onMailClicked
+///    ??onSettingsClicked
+///    ??onMissionClicked
+///    ??onIdleRewardClaimed
 /// </summary>
 [DisallowMultipleComponent]
 public class LobbyManager : MonoBehaviour
 {
-    // ── Data ──────────────────────────────────────────────────
+    // ?? Data ??????????????????????????????????????????????????
 
     [Header("Data")]
     [SerializeField] private PlayerData playerData;
 
-    // ── UI ────────────────────────────────────────────────────
+    // ?? UI ????????????????????????????????????????????????????
 
     [Header("UI")]
     [SerializeField] private UIDocument uiDocument;
 
-    // ── Character ─────────────────────────────────────────────
+    // ?? Character ?????????????????????????????????????????????
 
     [Header("Character")]
     [SerializeField] private Transform characterSpawnPoint;
     [SerializeField] private AgentTable agentTable;
 
-    // ── Background ────────────────────────────────────────────
+    // ?? Background ????????????????????????????????????????????
 
     [Header("Background")]
-    [Tooltip("스테이지 진행도를 10구간으로 나눈 배경 Sprite (최대 10개). " +
-             "인덱스 = stageProgress / 10으로 선택됩니다.")]
+    [Tooltip("?ㅽ뀒?댁? 吏꾪뻾?꾨? 10援ш컙?쇰줈 ?섎늿 諛곌꼍 Sprite (理쒕? 10媛?. " +
+             "?몃뜳??= stageProgress / 10?쇰줈 ?좏깮?⑸땲??")]
     [SerializeField] private Sprite[] backgroundSprites;
 
-    // ── Side Systems ──────────────────────────────────────────
+    // ?? Side Systems ??????????????????????????????????????????
 
     [Header("Side Systems")]
     [SerializeField] private IdleRewardManager idleRewardManager;
     [SerializeField] private SettingPanel settingPanel;
 
-    // ── Events (Optional) ─────────────────────────────────────
+    // ?? Events (Optional) ?????????????????????????????????????
 
     [Header("Events (Optional)")]
     [SerializeField] private VoidEventChannelSO onMyInfoClicked;
@@ -67,7 +73,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private VoidEventChannelSO onMissionClicked;
     [SerializeField] private VoidEventChannelSO onIdleRewardClaimed;
 
-    // ── 씬 이름 ───────────────────────────────────────────────
+    // ?? ???대쫫 ???????????????????????????????????????????????
 
     [Header("Scene Names")]
     [SerializeField] private string mapChapterSceneName   = "MapChapterScene";
@@ -75,31 +81,31 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private string shopSceneName         = "ShopScene";
     [SerializeField] private string petSceneName          = "PetManageScene";
 
-    // ── UI 요소 캐시 ──────────────────────────────────────────
+    // ?? UI ?붿냼 罹먯떆 ??????????????????????????????????????????
 
-    // Top-bar 재화
+    // Top-bar ?ы솕
     private Label         _staminaLabel;
     private Label         _goldLabel;
     private Label         _gemLabel;
 
-    // Top-bar 버튼
+    // Top-bar 踰꾪듉
     private Button        _myInfoBtn;
     private Button        _mailBtn;
     private Button        _settingsBtn;
     private VisualElement _mailRedDot;
 
-    // 재화 + 버튼
+    // ?ы솕 + 踰꾪듉
     private Button        _staminaPlus;
     private Button        _goldPlus;
     private Button        _gemPlus;
 
-    // 하단 네비
+    // ?섎떒 ?ㅻ퉬
     private Button        _gameStartBtn;
     private Button        _characterBtn;
     private Button        _shopBtn;
     private Button        _petBtn;
 
-    // 우측 퀵메뉴
+    // ?곗륫 ?듬찓??
     private Button        _specialShopBtn;
     private Button        _agentBtn;
     private Button        _missionBtn;
@@ -107,17 +113,17 @@ public class LobbyManager : MonoBehaviour
     private Button        _contractBtn;
     private VisualElement _missionRedDot;
 
-    // 좌측 사이드
+    // 醫뚯륫 ?ъ씠??
     private Button        _idleRewardBtn;
 
-    // 배경
+    // 諛곌꼍
     private VisualElement _backgroundImg;
 
-    // 스폰된 캐릭터 인스턴스
+    // ?ㅽ룿??罹먮┃???몄뒪?댁뒪
     private GameObject    _spawnedCharacter;
     private System.Action<CurrencyType> _currencyChangedHandler;
 
-    // ─────────────────────────────────────────────────────────
+    // ?????????????????????????????????????????????????????????
 
     private void Awake()
     {
@@ -131,7 +137,7 @@ public class LobbyManager : MonoBehaviour
         RegisterEvents();
         RefreshAll();
 
-        TutorialManager.Instance?.TryTrigger("first_lobby");
+        ProjectFirst.OutGame.TutorialManager.Instance?.TryTrigger("first_lobby");
     }
 
     private void OnDisable()
@@ -139,44 +145,44 @@ public class LobbyManager : MonoBehaviour
         UnregisterEvents();
     }
 
-    // ── UI 바인딩 ─────────────────────────────────────────────
+    // ?? UI 諛붿씤???????????????????????????????????????????????
 
     private void BindUI()
     {
         if (uiDocument == null)
         {
-            Debug.LogError("[LobbyManager] UIDocument가 할당되지 않았습니다.");
+            Debug.LogError("[LobbyManager] UIDocument媛 ?좊떦?섏? ?딆븯?듬땲??");
             return;
         }
 
         var root = uiDocument.rootVisualElement;
 
-        // 배경
+        // 諛곌꼍
         _backgroundImg  = root.Q<VisualElement>("background-img");
 
-        // 탑바 재화
+        // ?묐컮 ?ы솕
         _staminaLabel   = root.Q<Label>("stamina-label");
         _goldLabel      = root.Q<Label>("gold-label");
         _gemLabel       = root.Q<Label>("gem-label");
 
-        // 탑바 버튼
+        // ?묐컮 踰꾪듉
         _myInfoBtn      = root.Q<Button>("myinfo-btn");
         _mailBtn        = root.Q<Button>("mail-btn");
         _settingsBtn    = root.Q<Button>("settings-btn");
         _mailRedDot     = root.Q<VisualElement>("mail-reddot");
 
-        // 재화 + 버튼
+        // ?ы솕 + 踰꾪듉
         _staminaPlus    = root.Q<Button>("stamina-plus");
         _goldPlus       = root.Q<Button>("gold-plus");
         _gemPlus        = root.Q<Button>("gem-plus");
 
-        // 하단 네비
+        // ?섎떒 ?ㅻ퉬
         _gameStartBtn   = root.Q<Button>("gamestart-btn");
         _characterBtn   = root.Q<Button>("character-btn");
         _shopBtn        = root.Q<Button>("shop-btn");
         _petBtn         = root.Q<Button>("pet-btn");
 
-        // 우측 퀵메뉴
+        // ?곗륫 ?듬찓??
         _specialShopBtn = root.Q<Button>("special-shop-btn");
         _agentBtn       = root.Q<Button>("agent-btn");
         _missionBtn     = root.Q<Button>("mission-btn");
@@ -184,15 +190,15 @@ public class LobbyManager : MonoBehaviour
         _contractBtn    = root.Q<Button>("contract-btn");
         _missionRedDot  = root.Q<VisualElement>("mission-reddot");
 
-        // 좌측 사이드
+        // 醫뚯륫 ?ъ씠??
         _idleRewardBtn  = root.Q<Button>("idle-reward-btn");
 
-        // 버튼 이벤트 연결
+        // 踰꾪듉 ?대깽???곌껐
         _myInfoBtn?.RegisterCallback<ClickEvent>(_   => OnMyInfoClickedHandler());
         _mailBtn?.RegisterCallback<ClickEvent>(_     => OnMailClickedHandler());
         _settingsBtn?.RegisterCallback<ClickEvent>(_ => OnSettingsClickedHandler());
 
-        _staminaPlus?.RegisterCallback<ClickEvent>(_ => Debug.Log("[LobbyManager] TODO: 스태미나 충전 팝업"));
+        _staminaPlus?.RegisterCallback<ClickEvent>(_ => Debug.Log("[LobbyManager] TODO: ?ㅽ깭誘몃굹 異⑹쟾 ?앹뾽"));
         _goldPlus?.RegisterCallback<ClickEvent>(_    => LoadScene(shopSceneName));
         _gemPlus?.RegisterCallback<ClickEvent>(_     => LoadScene(shopSceneName));
 
@@ -204,13 +210,13 @@ public class LobbyManager : MonoBehaviour
         _specialShopBtn?.RegisterCallback<ClickEvent>(_ => LoadScene(shopSceneName));
         _agentBtn?.RegisterCallback<ClickEvent>(_       => LoadScene(characterSceneName));
         _missionBtn?.RegisterCallback<ClickEvent>(_     => OnMissionClickedHandler());
-        _eventBtn?.RegisterCallback<ClickEvent>(_       => Debug.Log("[LobbyManager] TODO: 이벤트 패널"));
-        _contractBtn?.RegisterCallback<ClickEvent>(_    => Debug.Log("[LobbyManager] TODO: 계약 패널"));
+        _eventBtn?.RegisterCallback<ClickEvent>(_       => Debug.Log("[LobbyManager] TODO: ?대깽???⑤꼸"));
+        _contractBtn?.RegisterCallback<ClickEvent>(_    => Debug.Log("[LobbyManager] TODO: 怨꾩빟 ?⑤꼸"));
 
         _idleRewardBtn?.RegisterCallback<ClickEvent>(_ => OnIdleRewardClickedHandler());
     }
 
-    // ── 이벤트 채널 구독 ──────────────────────────────────────
+    // ?? ?대깽??梨꾨꼸 援щ룆 ??????????????????????????????????????
 
     private void RegisterEvents()
     {
@@ -222,7 +228,7 @@ public class LobbyManager : MonoBehaviour
         if (playerData.onCharacterChanged != null)
             playerData.onCharacterChanged.OnEventRaised += RefreshCharacter;
 
-        // 레거시 이벤트도 구독 (PlayerData를 직접 int로 수정하는 기존 코드 호환)
+        // ?덇굅???대깽?몃룄 援щ룆 (PlayerData瑜?吏곸젒 int濡??섏젙?섎뒗 湲곗〈 肄붾뱶 ?명솚)
         playerData.OnCurrencyChanged += _currencyChangedHandler;
     }
 
@@ -239,7 +245,7 @@ public class LobbyManager : MonoBehaviour
         playerData.OnCurrencyChanged -= _currencyChangedHandler;
     }
 
-    // ── 전체 갱신 ─────────────────────────────────────────────
+    // ?? ?꾩껜 媛깆떊 ?????????????????????????????????????????????
 
     private void RefreshAll()
     {
@@ -248,13 +254,13 @@ public class LobbyManager : MonoBehaviour
         RefreshCharacter();
     }
 
-    // ── 재화 UI 갱신 ─────────────────────────────────────────
+    // ?? ?ы솕 UI 媛깆떊 ?????????????????????????????????????????
 
     private void RefreshCurrency()
     {
         if (playerData == null)
         {
-            Debug.LogWarning("[LobbyManager] PlayerData가 할당되지 않았습니다.");
+            Debug.LogWarning("[LobbyManager] PlayerData媛 ?좊떦?섏? ?딆븯?듬땲??");
             return;
         }
 
@@ -268,7 +274,7 @@ public class LobbyManager : MonoBehaviour
             _gemLabel.text = FormatNumber(playerData.gem);
     }
 
-    // ── 배경 갱신 ─────────────────────────────────────────────
+    // ?? 諛곌꼍 媛깆떊 ?????????????????????????????????????????????
 
     private void RefreshBackground()
     {
@@ -280,7 +286,7 @@ public class LobbyManager : MonoBehaviour
             _backgroundImg.style.backgroundImage = new StyleBackground(backgroundSprites[idx]);
     }
 
-    // ── 캐릭터 갱신 ───────────────────────────────────────────
+    // ?? 罹먮┃??媛깆떊 ???????????????????????????????????????????
 
     private void RefreshCharacter()
     {
@@ -291,25 +297,25 @@ public class LobbyManager : MonoBehaviour
 
         if (agentTable == null)
         {
-            Debug.LogWarning("[LobbyManager] AgentTable이 할당되지 않았습니다. 캐릭터 스폰을 건너뜁니다.");
+            Debug.LogWarning("[LobbyManager] AgentTable???좊떦?섏? ?딆븯?듬땲?? 罹먮┃???ㅽ룿??嫄대꼫?곷땲??");
             return;
         }
 
-        // AgentRow에 프리팹 필드가 추가되면 여기서 Instantiate 처리
-        // 현재 AgentRow는 전투 스탯만 보유하므로 스폰 생략
+        // AgentRow???꾨━???꾨뱶媛 異붽??섎㈃ ?ш린??Instantiate 泥섎━
+        // ?꾩옱 AgentRow???꾪닾 ?ㅽ꺈留?蹂댁쑀?섎?濡??ㅽ룿 ?앸왂
         AgentRow row = agentTable.GetById(playerData.mainCharacterId);
         if (row == null)
         {
-            Debug.LogWarning($"[LobbyManager] mainCharacterId({playerData.mainCharacterId})에 해당하는 AgentRow를 찾을 수 없습니다.");
+            Debug.LogWarning($"[LobbyManager] mainCharacterId({playerData.mainCharacterId})???대떦?섎뒗 AgentRow瑜?李얠쓣 ???놁뒿?덈떎.");
             return;
         }
 
-        // TODO: AgentRow에 prefab 필드 추가 후 아래 주석 해제
+        // TODO: AgentRow??prefab ?꾨뱶 異붽? ???꾨옒 二쇱꽍 ?댁젣
         // if (row.prefab != null && characterSpawnPoint != null)
         //     _spawnedCharacter = Instantiate(row.prefab, characterSpawnPoint.position, characterSpawnPoint.rotation);
     }
 
-    // ── 씬 이동 ───────────────────────────────────────────────
+    // ?? ???대룞 ???????????????????????????????????????????????
 
     private void LoadScene(string sceneName)
     {
@@ -319,7 +325,7 @@ public class LobbyManager : MonoBehaviour
             SceneManager.LoadScene(sceneName);
     }
 
-    // ── SettingPanel 자동 탐색 ────────────────────────────────
+    // ?? SettingPanel ?먮룞 ?먯깋 ????????????????????????????????
 
     private void ResolveSettingPanel()
     {
@@ -330,41 +336,41 @@ public class LobbyManager : MonoBehaviour
             settingPanel = panels[0];
     }
 
-    // ── 버튼 핸들러 ───────────────────────────────────────────
+    // ?? 踰꾪듉 ?몃뱾?????????????????????????????????????????????
 
     private void OnMyInfoClickedHandler()
     {
-        Debug.Log("[LobbyManager] 내 정보 클릭");
+        Debug.Log("[LobbyManager] ???뺣낫 ?대┃");
         onMyInfoClicked?.RaiseEvent();
     }
 
     private void OnMailClickedHandler()
     {
-        Debug.Log("[LobbyManager] 우편 클릭");
+        Debug.Log("[LobbyManager] ?고렪 ?대┃");
 
         if (MailboxPanel.Instance != null)
             MailboxPanel.Instance.Show();
         else
-            Debug.LogWarning("[LobbyManager] MailboxPanel.Instance가 없습니다.");
+            Debug.LogWarning("[LobbyManager] MailboxPanel.Instance媛 ?놁뒿?덈떎.");
 
         onMailClicked?.RaiseEvent();
     }
 
     private void OnSettingsClickedHandler()
     {
-        Debug.Log("[LobbyManager] 설정 클릭");
+        Debug.Log("[LobbyManager] ?ㅼ젙 ?대┃");
 
         if (settingPanel != null)
             settingPanel.OpenPanel();
         else
-            Debug.LogWarning("[LobbyManager] SettingPanel 참조가 없습니다.");
+            Debug.LogWarning("[LobbyManager] SettingPanel 李몄“媛 ?놁뒿?덈떎.");
 
         onSettingsClicked?.RaiseEvent();
     }
 
     private void OnMissionClickedHandler()
     {
-        Debug.Log("[LobbyManager] 미션 클릭");
+        Debug.Log("[LobbyManager] 誘몄뀡 ?대┃");
         onMissionClicked?.RaiseEvent();
     }
 
@@ -373,14 +379,14 @@ public class LobbyManager : MonoBehaviour
         if (idleRewardManager != null)
             idleRewardManager.OpenPopup();
         else
-            Debug.LogWarning("[LobbyManager] IdleRewardManager가 연결되지 않았습니다.");
+            Debug.LogWarning("[LobbyManager] IdleRewardManager媛 ?곌껐?섏? ?딆븯?듬땲??");
 
         onIdleRewardClaimed?.RaiseEvent();
     }
 
-    // ── 유틸 ─────────────────────────────────────────────────
+    // ?? ?좏떥 ?????????????????????????????????????????????????
 
-    /// <summary>큰 숫자를 K / M 단위로 줄여서 반환합니다.</summary>
+    /// <summary>???レ옄瑜?K / M ?⑥쐞濡?以꾩뿬??諛섑솚?⑸땲??</summary>
     private static string FormatNumber(long n)
     {
         if (n >= 1_000_000L) return $"{n / 1_000_000f:F1}M";
@@ -388,3 +394,8 @@ public class LobbyManager : MonoBehaviour
         return n.ToString();
     }
 }
+
+
+
+
+

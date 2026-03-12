@@ -1,8 +1,14 @@
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using ProjectFirst.Data;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
@@ -10,7 +16,7 @@ using Sirenix.OdinInspector;
 namespace Project
 {
     /// <summary>
-    /// BattleGameManager: 전투 씬의 게임 흐름, 보상, UI를 관리하는 싱글턴.
+    /// BattleGameManager: ?꾪닾 ?ъ쓽 寃뚯엫 ?먮쫫, 蹂댁긽, UI瑜?愿由ы븯???깃???
     /// </summary>
 #if ODIN_INSPECTOR
     [HideMonoScript]
@@ -19,158 +25,155 @@ namespace Project
     {
         public static BattleGameManager Instance { get; private set; }
 
-        // ── Inspector 필드 ────────────────────────────────────────────────────────
+        // ?? Inspector ?꾨뱶 ????????????????????????????????????????????????????????
 
 #if ODIN_INSPECTOR
-        [Title("기지 및 데이터", TitleAlignment = TitleAlignments.Left)]
+        [Title("湲곗? 諛??곗씠??, TitleAlignment = TitleAlignments.Left)]
         [HorizontalGroup("Base", 0.5f)]
-        [BoxGroup("Base/기지")]
-        [LabelText("기지 체력")]
+        [BoxGroup("Base/湲곗?")]
+        [LabelText("湲곗? 泥대젰")]
         [Required]
-        [Tooltip("기지(Ark)의 체력 컴포넌트")]
+        [Tooltip("湲곗?(Ark)??泥대젰 而댄룷?뚰듃")]
 #endif
         [Header("Base")]
         [SerializeField] private BaseHealth baseHealth;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("Base/이름")]
-        [LabelText("기지 오브젝트명")]
-        [Tooltip("Scene에서 기지 오브젝트 이름")]
+        [BoxGroup("Base/?대쫫")]
+        [LabelText("湲곗? ?ㅻ툕?앺듃紐?)]
+        [Tooltip("Scene?먯꽌 湲곗? ?ㅻ툕?앺듃 ?대쫫")]
 #endif
         [SerializeField] private string baseObjectName = "Ark_Base";
 
 #if ODIN_INSPECTOR
-        [Title("테이블 데이터", TitleAlignment = TitleAlignments.Left)]
+        [Title("?뚯씠釉??곗씠??, TitleAlignment = TitleAlignments.Left)]
         [HorizontalGroup("Data", 0.5f)]
-        [BoxGroup("Data/몬스터")]
-        [LabelText("몬스터 테이블")]
+        [BoxGroup("Data/紐ъ뒪??)]
+        [LabelText("紐ъ뒪???뚯씠釉?)]
         [Required]
         [AssetsOnly]
-        [Tooltip("몬스터 데이터 테이블 SO")]
+        [Tooltip("紐ъ뒪???곗씠???뚯씠釉?SO")]
 #endif
         [Header("Data")]
         [SerializeField] private MonsterTable monsterTable;
 
 #if ODIN_INSPECTOR
         [HorizontalGroup("Data", 0.5f)]
-        [BoxGroup("Data/스킬")]
-        [LabelText("스킬 테이블")]
+        [BoxGroup("Data/?ㅽ궗")]
+        [LabelText("?ㅽ궗 ?뚯씠釉?)]
         [Required]
         [AssetsOnly]
-        [Tooltip("스킬 데이터 테이블 SO")]
+        [Tooltip("?ㅽ궗 ?곗씠???뚯씠釉?SO")]
 #endif
         [SerializeField] private SkillTable skillTable;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("Data/플레이어")]
-        [LabelText("플레이어 에이전트")]
+        [BoxGroup("Data/?뚮젅?댁뼱")]
+        [LabelText("?뚮젅?댁뼱 ?먯씠?꾪듃")]
         [Required]
         [SceneObjectsOnly]
-        [Tooltip("플레이어 캐릭터 Agent 컴포넌트")]
+        [Tooltip("?뚮젅?댁뼱 罹먮┃??Agent 而댄룷?뚰듃")]
 #endif
         [SerializeField] private Agent playerAgent;
 
 #if ODIN_INSPECTOR
-        [Title("플레이어 데이터", TitleAlignment = TitleAlignments.Left)]
+        [Title("?뚮젅?댁뼱 ?곗씠??, TitleAlignment = TitleAlignments.Left)]
         [HorizontalGroup("Player", 0.5f)]
         [BoxGroup("Player/SO")]
         [LabelText("PlayerData")]
         [Required]
         [AssetsOnly]
-        [Tooltip("승리 보상 골드를 귀속시킬 PlayerData 에셋")]
+        [Tooltip("?밸━ 蹂댁긽 怨⑤뱶瑜?洹?띿떆??PlayerData ?먯뀑")]
 #endif
         [Header("Player Data")]
-        [Tooltip("승리 보상 골드를 귀속시킬 PlayerData 에셋을 연결하세요.")]
         [SerializeField] private PlayerData playerData;
 
 #if ODIN_INSPECTOR
         [HorizontalGroup("Player", 0.5f)]
-        [BoxGroup("Player/비율")]
-        [LabelText("패배 보상 비율")]
+        [BoxGroup("Player/鍮꾩쑉")]
+        [LabelText("?⑤같 蹂댁긽 鍮꾩쑉")]
         [PropertyRange(0f, 1f)]
         [SuffixLabel("%", true)]
-        [Tooltip("패배 시에도 획득 골드의 이 비율만큼 지급 (0 = 미지급, 0.5 = 50%)")]
+        [Tooltip("?⑤같 ?쒖뿉???띾뱷 怨⑤뱶????鍮꾩쑉留뚰겮 吏湲?(0 = 誘몄?湲? 0.5 = 50%)")]
 #endif
-        [Tooltip("패배 시에도 획득 골드의 이 비율만큼 지급합니다. (0 = 미지급, 0.5 = 50%)")]
         [Range(0f, 1f)]
         [SerializeField] private float defeatGoldRatio = 0f;
 
 #if ODIN_INSPECTOR
-        [Title("HUD 연결", TitleAlignment = TitleAlignments.Left)]
+        [Title("HUD ?곌껐", TitleAlignment = TitleAlignments.Left)]
         [HorizontalGroup("HUD", 0.5f)]
-        [BoxGroup("HUD/캔버스")]
-        [LabelText("타겟 캔버스")]
+        [BoxGroup("HUD/罹붾쾭??)]
+        [LabelText("?寃?罹붾쾭??)]
         [SceneObjectsOnly]
 #endif
         [Header("HUD")]
         [SerializeField] private Canvas targetCanvas;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("HUD/캔버스")]
+        [BoxGroup("HUD/罹붾쾭??)]
         [LabelText("UI CanvasGroup")]
-        [Tooltip("시네마틱 중 숨길 UI CanvasGroup (비우면 targetCanvas에 자동 추가)")]
+        [Tooltip("?쒕꽕留덊떛 以??④만 UI CanvasGroup (鍮꾩슦硫?targetCanvas???먮룞 異붽?)")]
         [SceneObjectsOnly]
 #endif
-        [Tooltip("시네마틱 중 숨길 UI CanvasGroup (비우면 targetCanvas에 자동 추가)")]
         [SerializeField] private CanvasGroup uiCanvasGroup;
 
 #if ODIN_INSPECTOR
         [HorizontalGroup("HUD", 0.5f)]
-        [BoxGroup("HUD/뷰")]
+        [BoxGroup("HUD/酉?)]
         [LabelText("Status HUD")]
-        [Tooltip("레벨/경험치/골드 표시 HUD")]
+        [Tooltip("?덈꺼/寃쏀뿕移?怨⑤뱶 ?쒖떆 HUD")]
         [SceneObjectsOnly]
 #endif
         [SerializeField] private StatusHudView statusHudView;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("HUD/뷰")]
-        [LabelText("궁극기 컨트롤러")]
-        [Tooltip("캐릭터 고유 스킬 버튼 컨트롤러")]
+        [BoxGroup("HUD/酉?)]
+        [LabelText("沅곴레湲?而⑦듃濡ㅻ윭")]
+        [Tooltip("罹먮┃??怨좎쑀 ?ㅽ궗 踰꾪듉 而⑦듃濡ㅻ윭")]
         [SceneObjectsOnly]
 #endif
         [SerializeField] private CharUltimateController charUltimateController;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("HUD/스킬", 0.5f)]
-        [BoxGroup("HUD/스킬/바")]
-        [LabelText("스킬 바")]
-        [Tooltip("장착된 스킬 표시 바")]
+        [HorizontalGroup("HUD/?ㅽ궗", 0.5f)]
+        [BoxGroup("HUD/?ㅽ궗/諛?)]
+        [LabelText("?ㅽ궗 諛?)]
+        [Tooltip("?μ갑???ㅽ궗 ?쒖떆 諛?)]
         [SceneObjectsOnly]
 #endif
         [SerializeField] private SkillBarController skillBarController;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("HUD/스킬", 0.5f)]
-        [BoxGroup("HUD/스킬/선택")]
-        [LabelText("스킬 선택 패널")]
-        [Tooltip("레벨업 시 스킬 선택 패널")]
+        [HorizontalGroup("HUD/?ㅽ궗", 0.5f)]
+        [BoxGroup("HUD/?ㅽ궗/?좏깮")]
+        [LabelText("?ㅽ궗 ?좏깮 ?⑤꼸")]
+        [Tooltip("?덈꺼?????ㅽ궗 ?좏깮 ?⑤꼸")]
         [SceneObjectsOnly]
 #endif
         [SerializeField] private SkillSelectPanelController skillSelectPanelController;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("HUD/프리팹")]
-        [LabelText("스킬 바 프리팹")]
+        [BoxGroup("HUD/?꾨━??)]
+        [LabelText("?ㅽ궗 諛??꾨━??)]
         [AssetsOnly]
-        [Tooltip("동적 생성용 스킬 바 프리팹")]
+        [Tooltip("?숈쟻 ?앹꽦???ㅽ궗 諛??꾨━??)]
 #endif
         [SerializeField] private SkillBarController skillBarPrefab;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("HUD/프리팹")]
-        [LabelText("스킬 선택 프리팹")]
+        [BoxGroup("HUD/?꾨━??)]
+        [LabelText("?ㅽ궗 ?좏깮 ?꾨━??)]
         [AssetsOnly]
-        [Tooltip("동적 생성용 스킬 선택 패널 프리팹")]
+        [Tooltip("?숈쟻 ?앹꽦???ㅽ궗 ?좏깮 ?⑤꼸 ?꾨━??)]
 #endif
         [SerializeField] private SkillSelectPanelController skillSelectPanelPrefab;
 
 #if ODIN_INSPECTOR
-        [Title("결과 UI", TitleAlignment = TitleAlignments.Left)]
+        [Title("寃곌낵 UI", TitleAlignment = TitleAlignments.Left)]
         [HorizontalGroup("Result", 0.5f)]
-        [BoxGroup("Result/패널")]
-        [LabelText("결과 패널")]
-        [Tooltip("승리/패배 결과 표시 패널 GameObject")]
+        [BoxGroup("Result/?⑤꼸")]
+        [LabelText("寃곌낵 ?⑤꼸")]
+        [Tooltip("?밸━/?⑤같 寃곌낵 ?쒖떆 ?⑤꼸 GameObject")]
         [SceneObjectsOnly]
 #endif
         [Header("Result UI")]
@@ -178,23 +181,23 @@ namespace Project
 
 #if ODIN_INSPECTOR
         [HorizontalGroup("Result", 0.5f)]
-        [BoxGroup("Result/매니저")]
-        [LabelText("결과 매니저")]
-        [Tooltip("ResultPanelManager 컴포넌트")]
+        [BoxGroup("Result/留ㅻ땲?")]
+        [LabelText("寃곌낵 留ㅻ땲?")]
+        [Tooltip("ResultPanelManager 而댄룷?뚰듃")]
         [SceneObjectsOnly]
 #endif
         [SerializeField] private ResultPanelManager resultPanelManager;
 
 #if ODIN_INSPECTOR
-        [Title("씬 설정", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("씬")]
-        [LabelText("타이틀 씬 이름")]
-        [Tooltip("BackToTitle()로 이동할 씬 이름")]
+        [Title("???ㅼ젙", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("??)]
+        [LabelText("??댄? ???대쫫")]
+        [Tooltip("BackToTitle()濡??대룞?????대쫫")]
 #endif
         [Header("Scene")]
         [SerializeField] private string titleSceneName = "Title";
 
-    // ── 런타임 ───────────────────────────────────────────────────────────────
+    // ?? ?고??????????????????????????????????????????????????????????????????
 
     private TMP_Text resultText;
     private bool gameEnded;
@@ -205,9 +208,9 @@ namespace Project
     private bool hasLoggedZeroRewardWarning;
     private Animator cachedPlayerAnimator;
 
-    // ── 생명주기 ─────────────────────────────────────────────────────────────
+    // ?? ?앸챸二쇨린 ?????????????????????????????????????????????????????????????
 
-    // 시네마틱 상태
+    // ?쒕꽕留덊떛 ?곹깭
     private bool isCinematicActive;
 
     private void Awake()
@@ -245,7 +248,7 @@ namespace Project
         if (Instance == this) Instance = null;
     }
 
-    // ── 공개 API ─────────────────────────────────────────────────────────────
+    // ?? 怨듦컻 API ?????????????????????????????????????????????????????????????
 
     public void HandleVictory() => EndGame("Victory");
     public void HandleDefeat()  => EndGame("Defeat");
@@ -286,7 +289,7 @@ namespace Project
         SceneManager.LoadScene(Application.CanStreamedLevelBeLoaded(titleSceneName) ? titleSceneName : "Battle_Test");
     }
 
-    // ── 초기화 ───────────────────────────────────────────────────────────────
+    // ?? 珥덇린?????????????????????????????????????????????????????????????????
 
     private void InitializeRunSession()
     {
@@ -320,7 +323,7 @@ namespace Project
         runSession.OnReachedSkillPickLevel += HandleReachedSkillPickLevel;
     }
 
-    // ── 이벤트 핸들러 ────────────────────────────────────────────────────────
+    // ?? ?대깽???몃뱾??????????????????????????????????????????????????????????
 
     private void HandleEnemyKilled(Enemy enemy)
     {
@@ -333,7 +336,7 @@ namespace Project
 
         if (row.expReward == 0 && row.goldReward == 0 && !hasLoggedZeroRewardWarning)
         {
-            Debug.LogWarning($"[BGM] 보상 데이터 0: id={enemy.MonsterId}");
+            Debug.LogWarning($"[BGM] 蹂댁긽 ?곗씠??0: id={enemy.MonsterId}");
             hasLoggedZeroRewardWarning = true;
         }
 
@@ -353,7 +356,7 @@ namespace Project
     private void HandleLevelChanged(int level)      => RefreshStatusUI();
     private void HandleReachedSkillPickLevel(int _) => OpenSkillSelectPanel();
 
-    // ── 스킬 선택 ────────────────────────────────────────────────────────────
+    // ?? ?ㅽ궗 ?좏깮 ????????????????????????????????????????????????????????????
 
     private void OpenSkillSelectPanel()
     {
@@ -397,14 +400,14 @@ namespace Project
 
     private string pendingResultMessage;
 
-    // ── 게임 종료 ────────────────────────────────────────────────────────────
+    // ?? 寃뚯엫 醫낅즺 ????????????????????????????????????????????????????????????
 
     private void EndGame(string message)
     {
         if (gameEnded) return;
         gameEnded = true;
 
-        // 배틀 보상 골드를 PlayerData에 귀속
+        // 諛고? 蹂댁긽 怨⑤뱶瑜?PlayerData??洹??
         GrantBattleGold(message == "Victory");
 
         pendingResultMessage = message;
@@ -412,13 +415,13 @@ namespace Project
     }
 
     /// <summary>
-    /// 배틀 결과에 따라 획득한 골드를 PlayerData에 저장합니다.
+    /// 諛고? 寃곌낵???곕씪 ?띾뱷??怨⑤뱶瑜?PlayerData????ν빀?덈떎.
     /// </summary>
     private void GrantBattleGold(bool isVictory)
     {
         if (playerData == null || runSession == null)
         {
-            Debug.LogWarning("[BattleGameManager] PlayerData 또는 RunSession이 null — 골드 귀속 스킵.");
+            Debug.LogWarning("[BattleGameManager] PlayerData ?먮뒗 RunSession??null ??怨⑤뱶 洹???ㅽ궢.");
             return;
         }
 
@@ -432,7 +435,7 @@ namespace Project
         if (grantedGold <= 0) return;
 
         playerData.AddGold(grantedGold);
-        Debug.Log($"[BattleGameManager] 골드 귀속: {grantedGold} ({(isVictory ? "승리" : "패배")}) -> PlayerData.gold={playerData.gold}");
+        Debug.Log($"[BattleGameManager] 怨⑤뱶 洹?? {grantedGold} ({(isVictory ? "?밸━" : "?⑤같")}) -> PlayerData.gold={playerData.gold}");
     }
 
     private void ShowResultDelayed()
@@ -458,14 +461,14 @@ namespace Project
         pendingResultMessage = null;
     }
 
-    // ── HUD 초기화 ───────────────────────────────────────────────────────────
+    // ?? HUD 珥덇린?????????????????????????????????????????????????????????????
 
     private void Update()
     {
         CheckCinematicVisibility();
     }
 
-    // ── 시네마틱 UI 숨김 ────────────────────────────────────────────────────────
+    // ?? ?쒕꽕留덊떛 UI ?④? ????????????????????????????????????????????????????????
 
     private void CheckCinematicVisibility()
     {
@@ -503,7 +506,7 @@ namespace Project
 #endif
     }
 
-    /// <summary>UI Canvas 전체를 즉시 표시/숨깁니다.</summary>
+    /// <summary>UI Canvas ?꾩껜瑜?利됱떆 ?쒖떆/?④퉩?덈떎.</summary>
     public void SetUIVisible(bool visible)
     {
         if (uiCanvasGroup == null && targetCanvas != null)
@@ -521,7 +524,7 @@ namespace Project
 
     private void EnsureHUD()
     {
-        // Canvas 탐색/생성
+        // Canvas ?먯깋/?앹꽦
         if (targetCanvas == null)
         {
 #if UNITY_2022_2_OR_NEWER
@@ -537,15 +540,15 @@ namespace Project
             targetCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
         }
 
-        // StatusHudView 자동 탐색
+        // StatusHudView ?먮룞 ?먯깋
         if (statusHudView == null)
             statusHudView = targetCanvas.GetComponentInChildren<StatusHudView>(true);
 
-        // CharUltimateController 자동 탐색
+        // CharUltimateController ?먮룞 ?먯깋
         if (charUltimateController == null)
             charUltimateController = targetCanvas.GetComponentInChildren<CharUltimateController>(true);
 
-        // SkillBarController: Inspector → Canvas 탐색 → 프리팹 인스턴스 → 동적 생성
+        // SkillBarController: Inspector ??Canvas ?먯깋 ???꾨━???몄뒪?댁뒪 ???숈쟻 ?앹꽦
         if (skillBarController == null)
             skillBarController = targetCanvas.GetComponentInChildren<SkillBarController>(true);
         if (skillBarController == null && skillBarPrefab != null)
@@ -553,7 +556,7 @@ namespace Project
         if (skillBarController == null)
             skillBarController = CreateDefaultSkillBar();
 
-        // SkillSelectPanelController: Inspector → Canvas 탐색 → 프리팹 → 씬 전체 → 동적 생성
+        // SkillSelectPanelController: Inspector ??Canvas ?먯깋 ???꾨━???????꾩껜 ???숈쟻 ?앹꽦
         if (skillSelectPanelController == null)
             skillSelectPanelController = targetCanvas.GetComponentInChildren<SkillSelectPanelController>(true);
         if (skillSelectPanelController == null && skillSelectPanelPrefab != null)
@@ -573,7 +576,7 @@ namespace Project
             skillBarController.Setup(skillSystem);
     }
 
-    // ── 캐릭터 고유 스킬 ────────────────────────────────────────────────────────
+    // ?? 罹먮┃??怨좎쑀 ?ㅽ궗 ????????????????????????????????????????????????????????
 
     private void SetupCharUltimate()
     {
@@ -601,23 +604,23 @@ namespace Project
         EnemyManager em = EnemyManager.Instance;
         if (em == null) return;
 
-        // AgentData.characterSkillVfxPrefab 우선, 없으면 SkillRow.castVfxPrefab 사용
+        // AgentData.characterSkillVfxPrefab ?곗꽑, ?놁쑝硫?SkillRow.castVfxPrefab ?ъ슜
         GameObject vfxOverride = playerAgent.AgentData?.characterSkillVfxPrefab;
 
-        // SkillSystem에 직접 캐스트 위임 (VFX + 데미지 + 버프/디버프 로직 재사용)
+        // SkillSystem??吏곸젒 罹먯뒪???꾩엫 (VFX + ?곕?吏 + 踰꾪봽/?붾쾭??濡쒖쭅 ?ъ궗??
         skillSystem.CastDirect(skill, vfxOverride);
 
         charUltimateController.StartCooldown();
-        Debug.Log($"[BGM] 캐릭터 스킬 발동: {skill.name}");
+        Debug.Log($"[BGM] 罹먮┃???ㅽ궗 諛쒕룞: {skill.name}");
     }
 
-    // ── 상태 UI ──────────────────────────────────────────────────────────────
+    // ?? ?곹깭 UI ??????????????????????????????????????????????????????????????
 
     private void RefreshStatusUI()
     {
         if (runSession == null) return;
 
-        // StatusHudView 자동 탐색
+        // StatusHudView ?먮룞 ?먯깋
         if (statusHudView == null && targetCanvas != null)
             statusHudView = targetCanvas.GetComponentInChildren<StatusHudView>(true);
 
@@ -627,10 +630,10 @@ namespace Project
             return;
         }
 
-        Debug.LogWarning("[BGM] StatusHudView가 없습니다. Canvas → StatusHud 오브젝트에 StatusHudView를 부착하세요.");
+        Debug.LogWarning("[BGM] StatusHudView媛 ?놁뒿?덈떎. Canvas ??StatusHud ?ㅻ툕?앺듃??StatusHudView瑜?遺李⑺븯?몄슂.");
     }
 
-    // ── 결과 UI ──────────────────────────────────────────────────────────────
+    // ?? 寃곌낵 UI ??????????????????????????????????????????????????????????????
 
     private void EnsureResultPanelManager()
     {
@@ -669,7 +672,7 @@ namespace Project
         if (resultText != null) resultText.text = message;
     }
 
-    // ── 기지 ─────────────────────────────────────────────────────────────────
+    // ?? 湲곗? ?????????????????????????????????????????????????????????????????
 
     private void EnsureBaseHealth()
     {
@@ -680,7 +683,7 @@ namespace Project
         baseHealth.BindGameManager(this);
     }
 
-    // ── 동적 UI 생성 헬퍼 ────────────────────────────────────────────────────
+    // ?? ?숈쟻 UI ?앹꽦 ?ы띁 ????????????????????????????????????????????????????
 
     private SkillBarController CreateDefaultSkillBar()
     {
@@ -764,3 +767,7 @@ namespace Project
     }
 }
 } // namespace Project
+
+
+
+

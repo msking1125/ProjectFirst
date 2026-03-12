@@ -1,77 +1,81 @@
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
+using ProjectFirst.Data;
 /// <summary>
-/// 내 정보 패널.
+/// ???뺣낫 ?⑤꼸.
 ///
-/// 기능:
-///   - 대표 캐릭터 이미지
-///   - 닉네임 / 계정 레벨 / 경험치 바
-///   - 보유 캐릭터 리스트 → 선택 시 로비 대표 캐릭터 변경
-///   - 착용 캐릭터 스킬 아이콘 3종 (터치 시 툴팁 토글)
+/// 湲곕뒫:
+///   - ???罹먮┃???대?吏
+///   - ?됰꽕??/ 怨꾩젙 ?덈꺼 / 寃쏀뿕移?諛?
+///   - 蹂댁쑀 罹먮┃??由ъ뒪?????좏깮 ??濡쒕퉬 ???罹먮┃??蹂寃?
+///   - 李⑹슜 罹먮┃???ㅽ궗 ?꾩씠肄?3醫?(?곗튂 ???댄똻 ?좉?)
 ///
-/// [Inspector 연결 가이드]
-/// ┌ Data
-/// │  ├ playerData        : PlayerData.asset
-/// │  ├ skillTable        : SkillTable.asset
-/// │  └ characters[]     : 보유 캐릭터별 CharacterEntry (AgentData + (선택)초상화 오버라이드 + 스킬 ID 3개)
-/// ├ Profile
-/// │  ├ representativePortrait : 중앙 대표 캐릭터 Image
-/// │  ├ nicknameText           : 닉네임 TMP_Text
-/// │  ├ levelText              : "Lv.N" TMP_Text
-/// │  ├ expBar                 : 경험치 Slider
-/// │  └ expText                : "N / M" TMP_Text
-/// ├ Character List
-/// │  ├ characterListContent   : ScrollRect Content Transform
-/// │  └ characterSlotPrefab    : 슬롯 프리팹 (루트에 Button, 하위에 Image 포함)
-/// ├ Skill Icons (3 슬롯)
-/// │  ├ skillIconImages[0‥2]   : 스킬 아이콘 Image
-/// │  └ skillIconButtons[0‥2]  : 아이콘 위 Button (터치 감지)
-/// ├ Tooltip
-/// │  ├ tooltipRoot            : 툴팁 루트 GameObject (기본 비활성)
-/// │  ├ tooltipTitleText       : 스킬 이름 TMP_Text
-/// │  └ tooltipDescText        : 스킬 설명 TMP_Text
-/// ├ Close
-/// │  └ closeButton            : 패널 닫기 버튼
-/// └ Events (Optional)
-///    └ onRepresentativeAgentChanged : 대표 캐릭터 변경 시 발행
+/// [Inspector ?곌껐 媛?대뱶]
+/// ??Data
+/// ?? ??playerData        : PlayerData.asset
+/// ?? ??skillTable        : SkillTable.asset
+/// ?? ??characters[]     : 蹂댁쑀 罹먮┃?곕퀎 CharacterEntry (AgentData + (?좏깮)珥덉긽???ㅻ쾭?쇱씠??+ ?ㅽ궗 ID 3媛?
+/// ??Profile
+/// ?? ??representativePortrait : 以묒븰 ???罹먮┃??Image
+/// ?? ??nicknameText           : ?됰꽕??TMP_Text
+/// ?? ??levelText              : "Lv.N" TMP_Text
+/// ?? ??expBar                 : 寃쏀뿕移?Slider
+/// ?? ??expText                : "N / M" TMP_Text
+/// ??Character List
+/// ?? ??characterListContent   : ScrollRect Content Transform
+/// ?? ??characterSlotPrefab    : ?щ’ ?꾨━??(猷⑦듃??Button, ?섏쐞??Image ?ы븿)
+/// ??Skill Icons (3 ?щ’)
+/// ?? ??skillIconImages[0??]   : ?ㅽ궗 ?꾩씠肄?Image
+/// ?? ??skillIconButtons[0??]  : ?꾩씠肄???Button (?곗튂 媛먯?)
+/// ??Tooltip
+/// ?? ??tooltipRoot            : ?댄똻 猷⑦듃 GameObject (湲곕낯 鍮꾪솢??
+/// ?? ??tooltipTitleText       : ?ㅽ궗 ?대쫫 TMP_Text
+/// ?? ??tooltipDescText        : ?ㅽ궗 ?ㅻ챸 TMP_Text
+/// ??Close
+/// ?? ??closeButton            : ?⑤꼸 ?リ린 踰꾪듉
+/// ??Events (Optional)
+///    ??onRepresentativeAgentChanged : ???罹먮┃??蹂寃???諛쒗뻾
 /// </summary>
 [DisallowMultipleComponent]
 public class MyInfoPanel : MonoBehaviour
 {
-    // ── 내부 캐릭터 설정 ─────────────────────────────────────
+    // ?? ?대? 罹먮┃???ㅼ젙 ?????????????????????????????????????
 
-    /// <summary>보유 캐릭터 1명에 대응하는 인스펙터 설정 묶음.</summary>
+    /// <summary>蹂댁쑀 罹먮┃??1紐낆뿉 ??묓븯???몄뒪?숉꽣 ?ㅼ젙 臾띠쓬.</summary>
     [Serializable]
     private class CharacterEntry
     {
-        [Tooltip("AgentData.asset (agentId, displayName, characterSkillId 등)")]
+        [Tooltip("AgentData.asset (agentId, displayName, characterSkillId ??")]
         public AgentData agentData;
 
-        [Tooltip("캐릭터 초상화 스프라이트(선택). 비워두면 AgentData.portrait를 사용합니다.")]
+        [Tooltip("罹먮┃??珥덉긽???ㅽ봽?쇱씠???좏깮). 鍮꾩썙?먮㈃ AgentData.portrait瑜??ъ슜?⑸땲??")]
         public Sprite portrait;
 
-        [Tooltip("이 캐릭터의 스킬 ID 3개 (SkillTable에서 조회). 빈 칸은 빈 슬롯으로 표시됩니다.")]
+        [Tooltip("??罹먮┃?곗쓽 ?ㅽ궗 ID 3媛?(SkillTable?먯꽌 議고쉶). 鍮?移몄? 鍮??щ’?쇰줈 ?쒖떆?⑸땲??")]
         public int[] skillIds = new int[3];
     }
 
-    // ── PlayerPrefs 키 ────────────────────────────────────────
+    // ?? PlayerPrefs ??????????????????????????????????????????
 
     private const string PrefKeyNickname = "player.nickname";
     private const string PrefKeyLevel    = "player.level";
     private const string PrefKeyExp      = "player.exp";
     private const string PrefKeyExpMax   = "player.expmax";
 
-    // ── 인스펙터 ─────────────────────────────────────────────
+    // ?? ?몄뒪?숉꽣 ?????????????????????????????????????????????
 
     [Header("Data")]
     [SerializeField] private PlayerData playerData;
     [SerializeField] private SkillTable skillTable;
-    [Tooltip("보유 캐릭터 목록. 인덱스는 PlayerData.currentAgentIndex 와 일치해야 합니다.")]
+    [Tooltip("蹂댁쑀 罹먮┃??紐⑸줉. ?몃뜳?ㅻ뒗 PlayerData.currentAgentIndex ? ?쇱튂?댁빞 ?⑸땲??")]
     [SerializeField] private CharacterEntry[] characters;
 
     [Header("Profile")]
@@ -82,19 +86,19 @@ public class MyInfoPanel : MonoBehaviour
     [SerializeField] private TMP_Text    expText;
 
     [Header("Character List")]
-    [Tooltip("ScrollRect의 Content Transform. 슬롯이 이 하위에 생성됩니다.")]
+    [Tooltip("ScrollRect??Content Transform. ?щ’?????섏쐞???앹꽦?⑸땲??")]
     [SerializeField] private Transform   characterListContent;
-    [Tooltip("슬롯 프리팹. 루트에 Button, 하위에 Image 컴포넌트가 있어야 합니다.")]
+    [Tooltip("?щ’ ?꾨━?? 猷⑦듃??Button, ?섏쐞??Image 而댄룷?뚰듃媛 ?덉뼱???⑸땲??")]
     [SerializeField] private GameObject  characterSlotPrefab;
 
-    [Header("Skill Icons (3 슬롯)")]
-    [Tooltip("스킬 아이콘을 표시할 Image 3개 (0=슬롯1, 1=슬롯2, 2=슬롯3)")]
+    [Header("Skill Icons (3 ?щ’)")]
+    [Tooltip("?ㅽ궗 ?꾩씠肄섏쓣 ?쒖떆??Image 3媛?(0=?щ’1, 1=?щ’2, 2=?щ’3)")]
     [SerializeField] private Image[]  skillIconImages  = new Image[3];
-    [Tooltip("아이콘 터치 감지용 Button 3개. 동일 순서로 연결하세요.")]
+    [Tooltip("?꾩씠肄??곗튂 媛먯???Button 3媛? ?숈씪 ?쒖꽌濡??곌껐?섏꽭??")]
     [SerializeField] private Button[] skillIconButtons = new Button[3];
 
     [Header("Tooltip")]
-    [Tooltip("툴팁 루트 오브젝트. 비활성 상태로 시작합니다.")]
+    [Tooltip("?댄똻 猷⑦듃 ?ㅻ툕?앺듃. 鍮꾪솢???곹깭濡??쒖옉?⑸땲??")]
     [SerializeField] private GameObject tooltipRoot;
     [SerializeField] private TMP_Text   tooltipTitleText;
     [SerializeField] private TMP_Text   tooltipDescText;
@@ -105,14 +109,14 @@ public class MyInfoPanel : MonoBehaviour
     [Header("Events (Optional)")]
     [SerializeField] private VoidEventChannelSO onRepresentativeAgentChanged;
 
-    // ── 내부 상태 ─────────────────────────────────────────────
+    // ?? ?대? ?곹깭 ?????????????????????????????????????????????
 
     private int                _selectedIndex;
     private readonly List<Button> _slotButtons = new();
     private readonly SkillRow[]   _skillRows   = new SkillRow[3];
     private int                _tooltipOpenSlot = -1;
 
-    // ─────────────────────────────────────────────────────────
+    // ?????????????????????????????????????????????????????????
 
     private void Awake()
     {
@@ -132,15 +136,15 @@ public class MyInfoPanel : MonoBehaviour
         BindSkillButtons();
     }
 
-    // ── Public API ────────────────────────────────────────────
+    // ?? Public API ????????????????????????????????????????????
 
-    /// <summary>패널을 엽니다.</summary>
+    /// <summary>?⑤꼸???쎈땲??</summary>
     public void Open() => gameObject.SetActive(true);
 
-    /// <summary>패널을 닫습니다.</summary>
+    /// <summary>?⑤꼸???レ뒿?덈떎.</summary>
     public void Close() => gameObject.SetActive(false);
 
-    /// <summary>레벨·경험치를 외부에서 갱신하고 저장합니다.</summary>
+    /// <summary>?덈꺼쨌寃쏀뿕移섎? ?몃??먯꽌 媛깆떊?섍퀬 ??ν빀?덈떎.</summary>
     public void SetAccountStats(int level, int exp, int expMax)
     {
         if (playerData != null)
@@ -149,7 +153,7 @@ public class MyInfoPanel : MonoBehaviour
         ApplyLevelExp(level, exp, expMax);
     }
 
-    /// <summary>닉네임을 외부에서 변경하고 저장합니다.</summary>
+    /// <summary>?됰꽕?꾩쓣 ?몃??먯꽌 蹂寃쏀븯怨???ν빀?덈떎.</summary>
     public void SetNickname(string nickname)
     {
         if (playerData != null)
@@ -158,7 +162,7 @@ public class MyInfoPanel : MonoBehaviour
         if (nicknameText != null) nicknameText.text = nickname;
     }
 
-    // ── 프로필 갱신 ───────────────────────────────────────────
+    // ?? ?꾨줈??媛깆떊 ???????????????????????????????????????????
 
     private void RefreshProfile()
     {
@@ -195,13 +199,13 @@ public class MyInfoPanel : MonoBehaviour
         representativePortrait.sprite = portrait;
     }
 
-    // ── 캐릭터 리스트 ─────────────────────────────────────────
+    // ?? 罹먮┃??由ъ뒪???????????????????????????????????????????
 
     private void BuildCharacterList()
     {
         if (characterListContent == null || characterSlotPrefab == null || characters == null) return;
 
-        // 기존 슬롯 제거
+        // 湲곗〈 ?щ’ ?쒓굅
         foreach (Button btn in _slotButtons)
             if (btn != null) Destroy(btn.gameObject);
         _slotButtons.Clear();
@@ -215,7 +219,7 @@ public class MyInfoPanel : MonoBehaviour
             Button     btn = go.GetComponent<Button>();
             Image      img = go.GetComponentInChildren<Image>();
 
-            // 초상화 적용
+            // 珥덉긽???곸슜
             if (img != null)
             {
                 Sprite portrait = entry.portrait != null ? entry.portrait : entry.agentData?.portrait;
@@ -223,7 +227,7 @@ public class MyInfoPanel : MonoBehaviour
                     img.sprite = portrait;
             }
 
-            // 에이전트 이름 (TMP_Text가 있으면 표시)
+            // ?먯씠?꾪듃 ?대쫫 (TMP_Text媛 ?덉쑝硫??쒖떆)
             TMP_Text label = go.GetComponentInChildren<TMP_Text>();
             if (label != null && entry.agentData != null)
                 label.text = entry.agentData.displayName;
@@ -255,11 +259,11 @@ public class MyInfoPanel : MonoBehaviour
 
         onRepresentativeAgentChanged?.RaiseEvent();
 
-        Debug.Log($"[MyInfoPanel] 대표 캐릭터 변경 → 인덱스 {_selectedIndex}" +
+        Debug.Log($"[MyInfoPanel] ???罹먮┃??蹂寃????몃뜳??{_selectedIndex}" +
                   $" ({(characters[_selectedIndex].agentData != null ? characters[_selectedIndex].agentData.displayName : "?")})");
     }
 
-    /// <summary>현재 선택된 슬롯만 비활성화(선택 강조)하고 나머지는 활성화합니다.</summary>
+    /// <summary>?꾩옱 ?좏깮???щ’留?鍮꾪솢?깊솕(?좏깮 媛뺤“)?섍퀬 ?섎㉧吏???쒖꽦?뷀빀?덈떎.</summary>
     private void UpdateSlotHighlights()
     {
         for (int i = 0; i < _slotButtons.Count; i++)
@@ -269,7 +273,7 @@ public class MyInfoPanel : MonoBehaviour
         }
     }
 
-    // ── 스킬 아이콘 ───────────────────────────────────────────
+    // ?? ?ㅽ궗 ?꾩씠肄????????????????????????????????????????????
 
     private void RefreshSkillIcons()
     {
@@ -290,7 +294,7 @@ public class MyInfoPanel : MonoBehaviour
             if (slot < skillIconImages.Length && skillIconImages[slot] != null)
                 skillIconImages[slot].sprite = row?.icon;
 
-            // 아이콘 알파: 스킬 미설정 슬롯은 반투명 처리
+            // ?꾩씠肄??뚰뙆: ?ㅽ궗 誘몄꽕???щ’? 諛섑닾紐?泥섎━
             if (slot < skillIconImages.Length && skillIconImages[slot] != null)
             {
                 Color c = skillIconImages[slot].color;
@@ -300,7 +304,7 @@ public class MyInfoPanel : MonoBehaviour
         }
     }
 
-    // ── 툴팁 ─────────────────────────────────────────────────
+    // ?? ?댄똻 ?????????????????????????????????????????????????
 
     private void BindSkillButtons()
     {
@@ -318,7 +322,7 @@ public class MyInfoPanel : MonoBehaviour
     {
         if (_tooltipOpenSlot == slot)
         {
-            // 같은 슬롯 재터치 → 툴팁 닫기
+            // 媛숈? ?щ’ ?ы꽣移????댄똻 ?リ린
             HideTooltip();
             return;
         }
@@ -349,3 +353,7 @@ public class MyInfoPanel : MonoBehaviour
         tooltipRoot?.SetActive(false);
     }
 }
+
+
+
+

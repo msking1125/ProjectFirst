@@ -1,12 +1,17 @@
-using System;
-using System.Text.RegularExpressions;
-using System.Linq;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
-using Cysharp.Threading.Tasks;
-using ProjectFirst.OutGame.Data;
+using ProjectFirst.Data;
 using ProjectFirst.Network;
+using ProjectFirst.OutGame.Data;
+using System.Text.RegularExpressions;
+using Cysharp.Threading.Tasks;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
@@ -24,38 +29,38 @@ namespace ProjectFirst.OutGame
         [Title("UI", TitleAlignment = TitleAlignments.Left)]
         [BoxGroup("UI")]
         [LabelText("UI Document")]
-        [Tooltip("로그인 UI를 위한 UIDocument")]
+        [Tooltip("濡쒓렇??UI瑜??꾪븳 UIDocument")]
         [SceneObjectsOnly]
 #endif
         [Header("UI Document")]
         [SerializeField] private UIDocument uiDocument;
 
 #if ODIN_INSPECTOR
-        [Title("데이터", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("데이터", 0.33f)]
-        [BoxGroup("데이터/서버")]
-        [LabelText("서버 목록")]
-        [Tooltip("서버 목록 ScriptableObject")]
+        [Title("?곗씠??, TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("?곗씠??, 0.33f)]
+        [BoxGroup("?곗씠???쒕쾭")]
+        [LabelText("?쒕쾭 紐⑸줉")]
+        [Tooltip("?쒕쾭 紐⑸줉 ScriptableObject")]
         [AssetsOnly]
         [PreviewField(50, ObjectFieldAlignment.Left)]
 #endif
         [Header("Data References")]
-        [SerializeField] private global::ServerListSO serverListSO;
+        [SerializeField] private ServerListSO serverListSO;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("데이터", 0.33f)]
-        [BoxGroup("데이터/금칙어")]
-        [LabelText("금칙어 CSV")]
-        [Tooltip("금칙어 CSV 파일")]
+        [HorizontalGroup("?곗씠??, 0.33f)]
+        [BoxGroup("?곗씠??湲덉튃??)]
+        [LabelText("湲덉튃??CSV")]
+        [Tooltip("湲덉튃??CSV ?뚯씪")]
         [AssetsOnly]
 #endif
         [SerializeField] private TextAsset badWordsCSV;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("데이터", 0.34f)]
-        [BoxGroup("데이터/플레이어")]
+        [HorizontalGroup("?곗씠??, 0.34f)]
+        [BoxGroup("?곗씠???뚮젅?댁뼱")]
         [LabelText("PlayerData")]
-        [Tooltip("플레이어 데이터")]
+        [Tooltip("?뚮젅?댁뼱 ?곗씠??)]
         [AssetsOnly]
         [PreviewField(50, ObjectFieldAlignment.Left)]
 #endif
@@ -96,7 +101,7 @@ namespace ProjectFirst.OutGame
         {
             if (uiDocument == null) return;
 
-            // LoginView.uxml이 uGUI ScreenSpaceOverlay Canvas 위에 렌더링되도록 sortingOrder 설정
+            // LoginView.uxml??uGUI ScreenSpaceOverlay Canvas ?꾩뿉 ?뚮뜑留곷릺?꾨줉 sortingOrder ?ㅼ젙
             if (uiDocument.panelSettings != null)
                 uiDocument.panelSettings.sortingOrder = 200;
 
@@ -146,18 +151,18 @@ namespace ProjectFirst.OutGame
 
         private void InitializeDependencies()
         {
-            // 모의 API 인스턴스화
+            // 紐⑥쓽 API ?몄뒪?댁뒪??
             nicknameAPI = new MockNicknameCheckAPI();
             serverConnectionAPI = new MockServerConnectionAPI();
 
-            // 금칙어 데이터 로드
+            // 湲덉튃???곗씠??濡쒕뱶
             if (badWordsCSV != null)
             {
                 badWordData = new BadWordData(badWordsCSV);
             }
             else
             {
-                Debug.LogWarning("[LoginManager] BadWords CSV 파일이 할당되지 않았습니다. 금칙어 검사를 건너뜁니다.");
+                Debug.LogWarning("[LoginManager] BadWords CSV ?뚯씪???좊떦?섏? ?딆븯?듬땲?? 湲덉튃??寃?щ? 嫄대꼫?곷땲??");
             }
         }
 
@@ -198,7 +203,7 @@ namespace ProjectFirst.OutGame
             string currentNickname = playerData != null ? playerData.GetNicknameOrDefault("Unknown") : PlayerPrefs.GetString("nickname", "Unknown");
             if (lblWelcome != null)
             {
-                lblWelcome.text = $"환영합니다, {currentNickname}님";
+                lblWelcome.text = $"Welcome, {currentNickname}!";
             }
 
             if (lblServerError != null)
@@ -254,22 +259,22 @@ namespace ProjectFirst.OutGame
 
         private void ProcessLogin(string provider)
         {
-            Debug.Log($"[LoginManager] {provider} 플랫폼으로 로그인 시도");
+            Debug.Log($"[LoginManager] {provider} ?뚮옯?쇱쑝濡?濡쒓렇???쒕룄");
 
-            // 유저 UID 체크
+            // ?좎? UID 泥댄겕
             string currentUid = playerData != null ? playerData.GetUidOrCreate() : PlayerPrefs.GetString("uid", string.Empty);
             if (string.IsNullOrEmpty(currentUid))
             {
-                // 신규 유저
-                Debug.Log("[LoginManager] 등록된 UID가 없습니다. 신규 유저 가입 절차를 진행합니다.");
+                // ?좉퇋 ?좎?
+                Debug.Log("[LoginManager] ?깅줉??UID媛 ?놁뒿?덈떎. ?좉퇋 ?좎? 媛???덉감瑜?吏꾪뻾?⑸땲??");
                 string newUid = Guid.NewGuid().ToString();
-                PlayerPrefs.SetString("uid_temp", newUid); // 아직 확정 전
+                PlayerPrefs.SetString("uid_temp", newUid); // ?꾩쭅 ?뺤젙 ??
                 ShowNicknamePanel();
             }
             else
             {
-                // 기존 유저
-                Debug.Log("[LoginManager] 기존 UID를 확인했습니다. 타이틀 화면으로 진입합니다.");
+                // 湲곗〈 ?좎?
+                Debug.Log("[LoginManager] 湲곗〈 UID瑜??뺤씤?덉뒿?덈떎. ??댄? ?붾㈃?쇰줈 吏꾩엯?⑸땲??");
                 OnLoginComplete();
             }
         }
@@ -277,8 +282,8 @@ namespace ProjectFirst.OutGame
         private void OnLoginComplete()
         {
             HideAllPanels();
-            // 타이틀 버튼들은 TitleManager에서 자동으로 표시됨
-            Debug.Log("[LoginManager] 로그인 완료 - 타이틀 화면으로 전환");
+            // ??댄? 踰꾪듉?ㅼ? TitleManager?먯꽌 ?먮룞?쇰줈 ?쒖떆??
+            Debug.Log("[LoginManager] 濡쒓렇???꾨즺 - ??댄? ?붾㈃?쇰줈 ?꾪솚");
         }
 
         // --- Nickname ---
@@ -295,36 +300,36 @@ namespace ProjectFirst.OutGame
 
             try
             {
-                // 1. 형식 유효성 검사 (길이 1~8)
+                // 1. ?뺤떇 ?좏슚??寃??(湲몄씠 1~8)
                 if (string.IsNullOrEmpty(nickname) || nickname.Length > 8)
                 {
-                    ShowNicknameError("닉네임은 1~8자 사이여야 합니다.");
+                    ShowNicknameError("?됰꽕?꾩? 1~8???ъ씠?ъ빞 ?⑸땲??");
                     return;
                 }
 
-                // 2. 정규식 검사 (한글/영문/숫자, 공백 및 특문 제외)
-                if (!Regex.IsMatch(nickname, @"^[가-힣a-zA-Z0-9]+$"))
+                // 2. ?뺢퇋??寃??(?쒓?/?곷Ц/?レ옄, 怨듬갚 諛??밸Ц ?쒖쇅)
+                if (!Regex.IsMatch(nickname, @"^[媛-?즑-zA-Z0-9]+$"))
                 {
-                    ShowNicknameError("공백 및 특수문자는 사용할 수 없습니다.");
+                    ShowNicknameError("怨듬갚 諛??뱀닔臾몄옄???ъ슜?????놁뒿?덈떎.");
                     return;
                 }
 
-                // 3. 로컬 금칙어 검사
+                // 3. 濡쒖뺄 湲덉튃??寃??
                 if (badWordData != null && badWordData.ContainsBadWord(nickname))
                 {
-                    ShowNicknameError("사용할 수 없는 단어가 포함되어 있습니다.");
+                    ShowNicknameError("?ъ슜?????녿뒗 ?⑥뼱媛 ?ы븿?섏뼱 ?덉뒿?덈떎.");
                     return;
                 }
 
-                // 4. 모의 서버 API 중복 검사
+                // 4. 紐⑥쓽 ?쒕쾭 API 以묐났 寃??
                 bool isAvailable = await nicknameAPI.CheckDuplicateAsync(nickname);
                 if (!isAvailable)
                 {
-                    ShowNicknameError("이미 사용 중인 닉네임입니다.");
+                    ShowNicknameError("?대? ?ъ슜 以묒씤 ?됰꽕?꾩엯?덈떎.");
                     return;
                 }
 
-                // 5. 완료 및 저장
+                // 5. ?꾨즺 諛????
                 string allocatedUid = PlayerPrefs.GetString("uid_temp", Guid.NewGuid().ToString());
                 
                 PlayerPrefs.SetString("uid", allocatedUid);
@@ -335,7 +340,7 @@ namespace ProjectFirst.OutGame
                 PlayerPrefs.DeleteKey("uid_temp");
                 PlayerPrefs.Save();
 
-                Debug.Log($"[LoginManager] 닉네임 '{nickname}' 프로필 생성 완료");
+                Debug.Log($"[LoginManager] ?됰꽕??'{nickname}' ?꾨줈???앹꽦 ?꾨즺");
                 OnLoginComplete();
             }
             finally
@@ -362,14 +367,14 @@ namespace ProjectFirst.OutGame
         {
             if (dropdownServer == null || serverListSO == null || serverListSO.servers.Count == 0)
             {
-                ShowServerError("서버 목록을 불러오지 못했습니다.");
+                ShowServerError("?쒕쾭 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??");
                 return;
             }
 
             int selectedIndex = dropdownServer.index;
             if (selectedIndex < 0 || selectedIndex >= serverListSO.servers.Count)
             {
-                ShowServerError("접속할 서버를 선택해 주세요.");
+                ShowServerError("?묒냽???쒕쾭瑜??좏깮??二쇱꽭??");
                 return;
             }
 
@@ -379,7 +384,7 @@ namespace ProjectFirst.OutGame
             PlayerPrefs.Save();
             playerData?.SetSelectedServerId(selectedServer.serverId);
 
-            Debug.Log($"[LoginManager] 서버 선택 완료: {selectedServer.displayName}");
+            Debug.Log($"[LoginManager] ?쒕쾭 ?좏깮 ?꾨즺: {selectedServer.displayName}");
             ConnectToSelectedServer();
         }
 
@@ -420,7 +425,7 @@ namespace ProjectFirst.OutGame
             }
             else
             {
-                Debug.LogError("[LoginManager] 접속 가능한 서버 정보를 찾을 수 없습니다.");
+                Debug.LogError("[LoginManager] ?묒냽 媛?ν븳 ?쒕쾭 ?뺣낫瑜?李얠쓣 ???놁뒿?덈떎.");
             }
         }
 
@@ -435,12 +440,12 @@ namespace ProjectFirst.OutGame
                 
                 if (success)
                 {
-                    // 최근 접속 서버 저장
+                    // 理쒓렐 ?묒냽 ?쒕쾭 ???
                     PlayerPrefs.SetString("lastServer", serverInfo.serverId);
                     PlayerPrefs.Save();
                     playerData?.SetSelectedServerId(serverInfo.serverId);
 
-                    Debug.Log("[LoginManager] 접속 성공, Lobby 씬으로 이동합니다.");
+                    Debug.Log("[LoginManager] ?묒냽 ?깃났, Lobby ?ъ쑝濡??대룞?⑸땲??");
 
                     if (AsyncSceneLoader.Instance != null)
                     {
@@ -455,7 +460,7 @@ namespace ProjectFirst.OutGame
                 {
                     if (lblServerError != null)
                     {
-                        lblServerError.text = "서버 접속이 원활하지 않습니다. (포화 상태)";
+                        lblServerError.text = "?쒕쾭 ?묒냽???먰솢?섏? ?딆뒿?덈떎. (?ы솕 ?곹깭)";
                         lblServerError.style.display = DisplayStyle.Flex;
                     }
                 }
@@ -473,3 +478,9 @@ namespace ProjectFirst.OutGame
         }
     }
 }
+
+
+
+
+
+

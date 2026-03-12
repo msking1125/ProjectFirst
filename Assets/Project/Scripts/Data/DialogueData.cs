@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,102 +9,101 @@ using Sirenix.OdinInspector;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 대화 한 줄의 데이터를 나타내는 직렬화 가능 클래스
+    /// ?????以꾩쓽 ?곗씠?곕? ?섑??대뒗 吏곷젹??媛???대옒??
     /// </summary>
     [Serializable]
     public class DialogueLine
     {
 #if ODIN_INSPECTOR
-        [BoxGroup("식별")]
-        [LabelText("대화 ID")]
+        [BoxGroup("?앸퀎")]
+        [LabelText("???ID")]
 #endif
         public string dialogueId;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("식별")]
-        [LabelText("그룹 ID")]
+        [BoxGroup("?앸퀎")]
+        [LabelText("洹몃９ ID")]
 #endif
         public string groupId;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("식별")]
-        [LabelText("그룹 내 순서")]
+        [BoxGroup("?앸퀎")]
+        [LabelText("洹몃９ ???쒖꽌")]
 #endif
         public int orderInGroup;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("대사")]
-        [LabelText("화자 이름")]
-        [InfoBox("비어있으면 나레이션으로 표시됩니다.", InfoMessageType.Info)]
+        [BoxGroup("???)]
+        [LabelText("?붿옄 ?대쫫")]
+        [InfoBox("鍮꾩뼱?덉쑝硫??섎젅?댁뀡?쇰줈 ?쒖떆?⑸땲??", InfoMessageType.Info)]
 #endif
         public string speakerName;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("대사")]
-        [LabelText("대사 텍스트")]
+        [BoxGroup("???)]
+        [LabelText("????띿뒪??)]
         [TextArea(2, 5)]
 #endif
-        [TextArea(3, 10)]
         public string text;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("연출")]
-        [LabelText("배경 키")]
+        [BoxGroup("?곗텧")]
+        [LabelText("諛곌꼍 ??)]
 #endif
         public string backgroundKey;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("연출")]
-        [LabelText("좌측 캐릭터")]
+        [BoxGroup("?곗텧")]
+        [LabelText("醫뚯륫 罹먮┃??)]
 #endif
         public string characterLKey;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("연출")]
-        [LabelText("우측 캐릭터")]
+        [BoxGroup("?곗텧")]
+        [LabelText("?곗륫 罹먮┃??)]
 #endif
         public string characterRKey;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("연출")]
-        [LabelText("컷씬 영상 키")]
+        [BoxGroup("?곗텧")]
+        [LabelText("而룹뵮 ?곸긽 ??)]
 #endif
         public string videoKey;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("선택지")]
-        [LabelText("선택지 A 텍스트")]
+        [BoxGroup("?좏깮吏")]
+        [LabelText("?좏깮吏 A ?띿뒪??)]
 #endif
         public string choiceAText;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("선택지")]
-        [LabelText("선택지 A 다음 ID")]
+        [BoxGroup("?좏깮吏")]
+        [LabelText("?좏깮吏 A ?ㅼ쓬 ID")]
 #endif
         public string choiceANext;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("선택지")]
-        [LabelText("선택지 B 텍스트")]
+        [BoxGroup("?좏깮吏")]
+        [LabelText("?좏깮吏 B ?띿뒪??)]
 #endif
         public string choiceBText;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("선택지")]
-        [LabelText("선택지 B 다음 ID")]
+        [BoxGroup("?좏깮吏")]
+        [LabelText("?좏깮吏 B ?ㅼ쓬 ID")]
 #endif
         public string choiceBNext;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("흐름")]
-        [LabelText("다음 대화 ID")]
-        [InfoBox("선택지가 없을 때 사용됩니다.")]
+        [BoxGroup("?먮쫫")]
+        [LabelText("?ㅼ쓬 ???ID")]
+        [InfoBox("?좏깮吏媛 ?놁쓣 ???ъ슜?⑸땲??")]
 #endif
         public string nextId;
     }
 
     /// <summary>
-    /// 대화 데이터 테이블 ScriptableObject
+    /// ????곗씠???뚯씠釉?ScriptableObject
     /// </summary>
 #if ODIN_INSPECTOR
     [CreateAssetMenu(fileName = "DialogueTable", menuName = "Soul Ark/Data/DialogueTable")]
@@ -128,7 +127,7 @@ namespace ProjectFirst.Data
         private void OnValidate() => RebuildIndex();
 
         /// <summary>
-        /// dialogueId로 대화 한 줄을 검색합니다.
+        /// dialogueId濡??????以꾩쓣 寃?됲빀?덈떎.
         /// </summary>
         public DialogueLine GetById(string id)
         {
@@ -138,7 +137,7 @@ namespace ProjectFirst.Data
         }
 
         /// <summary>
-        /// groupId에 해당하는 대화 목록을 orderInGroup 순서로 반환합니다.
+        /// groupId???대떦?섎뒗 ???紐⑸줉??orderInGroup ?쒖꽌濡?諛섑솚?⑸땲??
         /// </summary>
         public List<DialogueLine> GetGroup(string groupId)
         {
@@ -150,7 +149,7 @@ namespace ProjectFirst.Data
         }
 
 #if ODIN_INSPECTOR
-        [Button("인덱스 재구축", ButtonSizes.Medium)]
+        [Button("?몃뜳???ш뎄異?, ButtonSizes.Medium)]
         [GUIColor(0.3f, 0.8f, 0.3f)]
 #endif
         private void RebuildIndex()
@@ -186,3 +185,4 @@ namespace ProjectFirst.Data
         }
     }
 }
+

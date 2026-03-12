@@ -1,21 +1,21 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
-
+using ProjectFirst.Data;
 /// <summary>
-/// 로비 씬 자동 빌더.
-/// 메뉴: Tools → Game → Build Lobby Scene
+/// 濡쒕퉬 ???먮룞 鍮뚮뜑.
+/// 硫붾돱: Tools ??Game ??Build Lobby Scene
 ///
-/// 실행하면:
-///  1. Assets/Project/Scenes/Lobby.unity 씬을 생성 (기존 파일 있으면 덮어쓰기 여부 확인)
-///  2. Canvas / EventSystem / 전체 UI 계층 생성
-///  3. LobbyManager 컴포넌트를 추가하고 모든 레퍼런스를 자동 연결
-///  4. PlayerData.asset 이 없으면 Assets/Project/Data/ 에 생성
-///  5. 씬 저장
+/// ?ㅽ뻾?섎㈃:
+///  1. Assets/Project/Scenes/Lobby.unity ?ъ쓣 ?앹꽦 (湲곗〈 ?뚯씪 ?덉쑝硫???뼱?곌린 ?щ? ?뺤씤)
+///  2. Canvas / EventSystem / ?꾩껜 UI 怨꾩링 ?앹꽦
+///  3. LobbyManager 而댄룷?뚰듃瑜?異붽??섍퀬 紐⑤뱺 ?덊띁?곗뒪瑜??먮룞 ?곌껐
+///  4. PlayerData.asset ???놁쑝硫?Assets/Project/Data/ ???앹꽦
+///  5. ?????
 /// </summary>
 public static class LobbySceneBuilder
 {
@@ -24,10 +24,10 @@ public static class LobbySceneBuilder
     private const string IdleConfigPath     = "Assets/Project/Data/IdleRewardConfig.asset";
     private const string MailBoxPath        = "Assets/Project/Data/MailBox.asset";
 
-    // 레퍼런스 해상도 (9:16 모바일)
+    // ?덊띁?곗뒪 ?댁긽??(9:16 紐⑤컮??
     private static readonly Vector2 RefResolution = new Vector2(1080f, 1920f);
 
-    // ── 팔레트 ──────────────────────────────────────────────
+    // ?? ?붾젅????????????????????????????????????????????????
     private static readonly Color ColTopBar      = new Color(0.08f, 0.08f, 0.12f, 0.92f);
     private static readonly Color ColBottomBar   = new Color(0.08f, 0.08f, 0.12f, 0.95f);
     private static readonly Color ColSideBtn     = new Color(0.15f, 0.55f, 0.85f, 0.90f);
@@ -36,52 +36,52 @@ public static class LobbySceneBuilder
     private static readonly Color ColPlusBtn     = new Color(0.30f, 0.75f, 0.40f, 1.00f);
     private static readonly Color ColCurrencyBg  = new Color(0.05f, 0.05f, 0.08f, 0.85f);
 
-    // ── 진입점 ───────────────────────────────────────────────
+    // ?? 吏꾩엯?????????????????????????????????????????????????
 
     [MenuItem("Tools/Game/Build Lobby Scene")]
     public static void Build()
     {
-        // 저장되지 않은 씬 변경사항 확인
+        // ??λ릺吏 ?딆? ??蹂寃쎌궗???뺤씤
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
             return;
 
-        // 기존 Lobby 씬 파일 존재 시 덮어쓰기 확인
+        // 湲곗〈 Lobby ???뚯씪 議댁옱 ????뼱?곌린 ?뺤씤
         if (System.IO.File.Exists(ScenePath))
         {
             bool overwrite = EditorUtility.DisplayDialog(
-                "Lobby 씬 빌더",
-                $"{ScenePath} 이(가) 이미 존재합니다.\n덮어쓰시겠습니까?",
-                "덮어쓰기", "취소");
+                "Lobby ??鍮뚮뜑",
+                $"{ScenePath} ??媛) ?대? 議댁옱?⑸땲??\n??뼱?곗떆寃좎뒿?덇퉴?",
+                "??뼱?곌린", "痍⑥냼");
 
             if (!overwrite) return;
         }
 
-        // 새 씬 생성
+        // ?????앹꽦
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-        // 에셋 준비
+        // ?먯뀑 以鍮?
         PlayerData playerData       = EnsurePlayerData();
         IdleRewardConfig idleConfig = EnsureIdleRewardConfig();
         MailBox mailBox             = EnsureMailBox();
 
-        // UI 계층 빌드
+        // UI 怨꾩링 鍮뚮뱶
         var refs = BuildSceneHierarchy();
 
-        // LobbyManager 배치 및 연결
+        // LobbyManager 諛곗튂 諛??곌껐
         WireLobbyManager(refs, playerData);
 
-        // IdleRewardManager 배치 및 연결
+        // IdleRewardManager 諛곗튂 諛??곌껐
         WireIdleRewardManager(refs, playerData, idleConfig, mailBox);
 
-        // 씬 저장
+        // ?????
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.Refresh();
 
-        Debug.Log($"[LobbySceneBuilder] 씬 빌드 완료 → {ScenePath}");
-        EditorUtility.DisplayDialog("완료", $"Lobby 씬이 생성되었습니다.\n{ScenePath}", "확인");
+        Debug.Log($"[LobbySceneBuilder] ??鍮뚮뱶 ?꾨즺 ??{ScenePath}");
+        EditorUtility.DisplayDialog("?꾨즺", $"Lobby ?ъ씠 ?앹꽦?섏뿀?듬땲??\n{ScenePath}", "?뺤씤");
     }
 
-    // ── PlayerData 에셋 ───────────────────────────────────────
+    // ?? PlayerData ?먯뀑 ???????????????????????????????????????
 
     private static PlayerData EnsurePlayerData()
     {
@@ -94,12 +94,12 @@ public static class LobbySceneBuilder
             data.diamond = 50;
             AssetDatabase.CreateAsset(data, PlayerDataPath);
             AssetDatabase.SaveAssets();
-            Debug.Log($"[LobbySceneBuilder] PlayerData.asset 생성 → {PlayerDataPath}");
+            Debug.Log($"[LobbySceneBuilder] PlayerData.asset ?앹꽦 ??{PlayerDataPath}");
         }
         return data;
     }
 
-    // ── 씬 계층 빌드 ─────────────────────────────────────────
+    // ?? ??怨꾩링 鍮뚮뱶 ?????????????????????????????????????????
 
     private struct SceneRefs
     {
@@ -121,7 +121,7 @@ public static class LobbySceneBuilder
         public Button       petManageButton;
         public Button       missionButton;
         public Button       idleRewardButton;
-        // 방치보상 팝업
+        // 諛⑹튂蹂댁긽 ?앹뾽
         public GameObject   idlePopupRoot;
         public TMP_Text     idleElapsedText;
         public TMP_Text     idleGoldText;
@@ -136,11 +136,11 @@ public static class LobbySceneBuilder
     {
         SceneRefs refs = default;
 
-        // ── EventSystem ──────────────────────────────────────
+        // ?? EventSystem ??????????????????????????????????????
         var esSgo = new GameObject("EventSystem",
             typeof(EventSystem), typeof(StandaloneInputModule));
 
-        // ── Canvas ───────────────────────────────────────────
+        // ?? Canvas ???????????????????????????????????????????
         var canvasGo = new GameObject("Canvas",
             typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
 
@@ -156,18 +156,18 @@ public static class LobbySceneBuilder
 
         Transform canvasTr = canvasGo.transform;
 
-        // ── 배경 이미지 ───────────────────────────────────────
+        // ?? 諛곌꼍 ?대?吏 ???????????????????????????????????????
         var bgGo = new GameObject("Background", typeof(RectTransform), typeof(Image));
         bgGo.transform.SetParent(canvasTr, false);
         refs.backgroundImage = bgGo.GetComponent<Image>();
         refs.backgroundImage.color = new Color(0.12f, 0.14f, 0.20f, 1f);
         StretchFull(bgGo.GetComponent<RectTransform>());
 
-        // ── 캐릭터 이미지 ─────────────────────────────────────
+        // ?? 罹먮┃???대?吏 ?????????????????????????????????????
         var charGo = new GameObject("CharacterImage", typeof(RectTransform), typeof(Image));
         charGo.transform.SetParent(canvasTr, false);
         refs.characterImage = charGo.GetComponent<Image>();
-        refs.characterImage.color = new Color(1f, 1f, 1f, 0f); // 스프라이트 미연결 시 투명
+        refs.characterImage.color = new Color(1f, 1f, 1f, 0f); // ?ㅽ봽?쇱씠??誘몄뿰寃????щ챸
         refs.characterImage.preserveAspect = true;
         var charRt = charGo.GetComponent<RectTransform>();
         charRt.anchorMin       = new Vector2(0.5f, 0.5f);
@@ -176,26 +176,26 @@ public static class LobbySceneBuilder
         charRt.anchoredPosition = new Vector2(0f, -60f);
         charRt.sizeDelta       = new Vector2(540f, 900f);
 
-        // ── 탑바 ─────────────────────────────────────────────
+        // ?? ?묐컮 ?????????????????????????????????????????????
         BuildTopBar(canvasTr, ref refs);
 
-        // ── 하단 네비 ─────────────────────────────────────────
+        // ?? ?섎떒 ?ㅻ퉬 ?????????????????????????????????????????
         BuildBottomNav(canvasTr, ref refs);
 
-        // ── 우측 사이드 ───────────────────────────────────────
+        // ?? ?곗륫 ?ъ씠?????????????????????????????????????????
         BuildSidePanel(canvasTr, ref refs);
 
-        // ── 방치 보상 팝업 (초기 비활성) ─────────────────────
+        // ?? 諛⑹튂 蹂댁긽 ?앹뾽 (珥덇린 鍮꾪솢?? ?????????????????????
         BuildIdleRewardPopup(canvasTr, ref refs);
 
         return refs;
     }
 
-    // ── 탑바 ─────────────────────────────────────────────────
+    // ?? ?묐컮 ?????????????????????????????????????????????????
 
     private static void BuildTopBar(Transform canvas, ref SceneRefs refs)
     {
-        // 탑바 컨테이너 (전체 너비 × 110px, 상단 고정)
+        // ?묐컮 而⑦뀒?대꼫 (?꾩껜 ?덈퉬 횞 110px, ?곷떒 怨좎젙)
         var barGo = new GameObject("TopBar", typeof(RectTransform), typeof(Image));
         barGo.transform.SetParent(canvas, false);
         var barImg = barGo.GetComponent<Image>();
@@ -209,27 +209,27 @@ public static class LobbySceneBuilder
 
         Transform barTr = barGo.transform;
 
-        // 내 정보 버튼 (좌상단)
-        refs.myInfoButton = CreateIconButton(barTr, "Btn_MyInfo", "내 정보",
+        // ???뺣낫 踰꾪듉 (醫뚯긽??
+        refs.myInfoButton = CreateIconButton(barTr, "Btn_MyInfo", "???뺣낫",
             new Vector2(75f, -55f), new Vector2(130f, 80f), ColNavBtn);
 
-        // 재화 그룹 (중앙)
+        // ?ы솕 洹몃９ (以묒븰)
         BuildCurrencyGroup(barTr, ref refs);
 
-        // 우편 버튼
-        refs.mailButton = CreateIconButton(barTr, "Btn_Mail", "우편",
+        // ?고렪 踰꾪듉
+        refs.mailButton = CreateIconButton(barTr, "Btn_Mail", "?고렪",
             new Vector2(-170f, -55f), new Vector2(110f, 80f), ColNavBtn,
             anchor: new Vector2(1f, 1f));
 
-        // 설정 버튼
-        refs.settingsButton = CreateIconButton(barTr, "Btn_Settings", "설정",
+        // ?ㅼ젙 踰꾪듉
+        refs.settingsButton = CreateIconButton(barTr, "Btn_Settings", "?ㅼ젙",
             new Vector2(-50f, -55f), new Vector2(90f, 80f), ColNavBtn,
             anchor: new Vector2(1f, 1f));
     }
 
     private static void BuildCurrencyGroup(Transform barTr, ref SceneRefs refs)
     {
-        // 재화 그룹 컨테이너 (중앙)
+        // ?ы솕 洹몃９ 而⑦뀒?대꼫 (以묒븰)
         var groupGo = new GameObject("CurrencyGroup", typeof(RectTransform));
         groupGo.transform.SetParent(barTr, false);
         var groupRt = groupGo.GetComponent<RectTransform>();
@@ -239,23 +239,23 @@ public static class LobbySceneBuilder
         groupRt.anchoredPosition = new Vector2(0f, 0f);
         groupRt.sizeDelta       = new Vector2(540f, 110f);
 
-        // 티켓 슬롯 (좌)
-        BuildCurrencySlot(groupGo.transform, "Ticket", "티켓", -185f,
+        // ?곗폆 ?щ’ (醫?
+        BuildCurrencySlot(groupGo.transform, "Ticket", "?곗폆", -185f,
             out refs.ticketText, out refs.ticketPlusButton);
 
-        // 골드 슬롯 (중)
-        BuildCurrencySlot(groupGo.transform, "Gold", "골드", 0f,
+        // 怨⑤뱶 ?щ’ (以?
+        BuildCurrencySlot(groupGo.transform, "Gold", "怨⑤뱶", 0f,
             out refs.goldText, out refs.goldPlusButton);
 
-        // 다이아 슬롯 (우)
-        BuildCurrencySlot(groupGo.transform, "Diamond", "다이아", 185f,
+        // ?ㅼ씠???щ’ (??
+        BuildCurrencySlot(groupGo.transform, "Diamond", "Diamond", 185f,
             out refs.diamondText, out refs.diamondPlusButton);
     }
 
     private static void BuildCurrencySlot(Transform parent, string id, string label, float offsetX,
         out TMP_Text valueText, out Button plusButton)
     {
-        // 슬롯 배경
+        // ?щ’ 諛곌꼍
         var slotGo = new GameObject($"Slot_{id}", typeof(RectTransform), typeof(Image));
         slotGo.transform.SetParent(parent, false);
         slotGo.GetComponent<Image>().color = ColCurrencyBg;
@@ -266,7 +266,7 @@ public static class LobbySceneBuilder
         slotRt.anchoredPosition = new Vector2(offsetX, -55f);
         slotRt.sizeDelta       = new Vector2(165f, 52f);
 
-        // 라벨
+        // ?쇰꺼
         var labelGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
         labelGo.transform.SetParent(slotGo.transform, false);
         var labelRt = labelGo.GetComponent<RectTransform>();
@@ -282,7 +282,7 @@ public static class LobbySceneBuilder
         labelTmp.alignment = TextAlignmentOptions.MidlineLeft;
         labelTmp.enableWordWrapping = false;
 
-        // 수치 텍스트
+        // ?섏튂 ?띿뒪??
         var valGo = new GameObject("Value", typeof(RectTransform), typeof(TextMeshProUGUI));
         valGo.transform.SetParent(slotGo.transform, false);
         var valRt = valGo.GetComponent<RectTransform>();
@@ -299,7 +299,7 @@ public static class LobbySceneBuilder
         valTmp.enableWordWrapping = false;
         valueText = valTmp;
 
-        // '+' 버튼
+        // '+' 踰꾪듉
         var plusGo = new GameObject("Btn_Plus", typeof(RectTransform), typeof(Image), typeof(Button));
         plusGo.transform.SetParent(slotGo.transform, false);
         plusGo.GetComponent<Image>().color = ColPlusBtn;
@@ -321,7 +321,7 @@ public static class LobbySceneBuilder
         plusButton = plusGo.GetComponent<Button>();
     }
 
-    // ── 하단 네비 ─────────────────────────────────────────────
+    // ?? ?섎떒 ?ㅻ퉬 ?????????????????????????????????????????????
 
     private static void BuildBottomNav(Transform canvas, ref SceneRefs refs)
     {
@@ -340,14 +340,14 @@ public static class LobbySceneBuilder
         float btnH = 100f;
         float y    = 65f;
 
-        // 4등분 배치: 게임진입(강조) / 캐릭터 / 상점 / 펫
-        refs.enterGameButton      = CreateNavButton(barTr, "Btn_EnterGame",  "게임진입",  -382f, y, btnW, btnH, ColNavActive);
-        refs.characterManageButton = CreateNavButton(barTr, "Btn_Character", "캐릭터",   -127f, y, btnW, btnH, ColNavBtn);
-        refs.shopButton            = CreateNavButton(barTr, "Btn_Shop",      "상점",      127f, y, btnW, btnH, ColNavBtn);
-        refs.petManageButton       = CreateNavButton(barTr, "Btn_Pet",       "펫관리",    382f, y, btnW, btnH, ColNavBtn);
+        // 4?깅텇 諛곗튂: 寃뚯엫吏꾩엯(媛뺤“) / 罹먮┃??/ ?곸젏 / ??
+        refs.enterGameButton      = CreateNavButton(barTr, "Btn_EnterGame",  "寃뚯엫吏꾩엯",  -382f, y, btnW, btnH, ColNavActive);
+        refs.characterManageButton = CreateNavButton(barTr, "Btn_Character", "Character", -127f, y, btnW, btnH, ColNavBtn);
+        refs.shopButton            = CreateNavButton(barTr, "Btn_Shop",      "?곸젏",      127f, y, btnW, btnH, ColNavBtn);
+        refs.petManageButton       = CreateNavButton(barTr, "Btn_Pet",       "Pet",       382f, y, btnW, btnH, ColNavBtn);
     }
 
-    // ── 우측 사이드 ───────────────────────────────────────────
+    // ?? ?곗륫 ?ъ씠?????????????????????????????????????????????
 
     private static void BuildSidePanel(Transform canvas, ref SceneRefs refs)
     {
@@ -361,11 +361,11 @@ public static class LobbySceneBuilder
         panelRt.sizeDelta       = new Vector2(110f, 280f);
 
         Transform panelTr = panelGo.transform;
-        refs.missionButton    = CreateIconButton(panelTr, "Btn_Mission",    "미션",    new Vector2(0f,  100f), new Vector2(110f, 110f), ColSideBtn);
-        refs.idleRewardButton = CreateIconButton(panelTr, "Btn_IdleReward", "방치보상", new Vector2(0f, -30f), new Vector2(110f, 110f), ColSideBtn);
+        refs.missionButton    = CreateIconButton(panelTr, "Btn_Mission",    "誘몄뀡",    new Vector2(0f,  100f), new Vector2(110f, 110f), ColSideBtn);
+        refs.idleRewardButton = CreateIconButton(panelTr, "Btn_IdleReward", "諛⑹튂蹂댁긽", new Vector2(0f, -30f), new Vector2(110f, 110f), ColSideBtn);
     }
 
-    // ── 에셋 생성 헬퍼 ───────────────────────────────────────
+    // ?? ?먯뀑 ?앹꽦 ?ы띁 ???????????????????????????????????????
 
     private static IdleRewardConfig EnsureIdleRewardConfig()
     {
@@ -373,10 +373,10 @@ public static class LobbySceneBuilder
         if (cfg == null)
         {
             cfg = ScriptableObject.CreateInstance<IdleRewardConfig>();
-            // 기본값: goldPerHour=100, maxOfflineHours=12 (클래스 기본값 사용)
+            // 湲곕낯媛? goldPerHour=100, maxOfflineHours=12 (?대옒??湲곕낯媛??ъ슜)
             AssetDatabase.CreateAsset(cfg, IdleConfigPath);
             AssetDatabase.SaveAssets();
-            Debug.Log($"[LobbySceneBuilder] IdleRewardConfig.asset 생성 → {IdleConfigPath}");
+            Debug.Log($"[LobbySceneBuilder] IdleRewardConfig.asset ?앹꽦 ??{IdleConfigPath}");
         }
         return cfg;
     }
@@ -389,12 +389,12 @@ public static class LobbySceneBuilder
             mb = ScriptableObject.CreateInstance<MailBox>();
             AssetDatabase.CreateAsset(mb, MailBoxPath);
             AssetDatabase.SaveAssets();
-            Debug.Log($"[LobbySceneBuilder] MailBox.asset 생성 → {MailBoxPath}");
+            Debug.Log($"[LobbySceneBuilder] MailBox.asset ?앹꽦 ??{MailBoxPath}");
         }
         return mb;
     }
 
-    // ── 방치 보상 팝업 빌드 ───────────────────────────────────
+    // ?? 諛⑹튂 蹂댁긽 ?앹뾽 鍮뚮뱶 ???????????????????????????????????
 
     private static void BuildIdleRewardPopup(Transform canvas, ref SceneRefs refs)
     {
@@ -405,17 +405,17 @@ public static class LobbySceneBuilder
         var colClaimBtn   = new Color(0.20f, 0.60f, 0.95f, 1.00f);
         var colCloseBtn   = new Color(0.35f, 0.35f, 0.40f, 1.00f);
 
-        // ── 팝업 루트 (풀스크린, 초기 비활성) ─────────────────
+        // ?? ?앹뾽 猷⑦듃 (??ㅽ겕由? 珥덇린 鍮꾪솢?? ?????????????????
         var popupGo = new GameObject("IdleRewardPopup",
             typeof(RectTransform), typeof(Image), typeof(Button));
         popupGo.transform.SetParent(canvas, false);
         popupGo.GetComponent<Image>().color = colPopupBg;
-        // 뒷배경 터치 시 팝업 닫기 (CloseButton 역할 겸용, 실제 연결은 WireIdleRewardManager)
+        // ?룸같寃??곗튂 ???앹뾽 ?リ린 (CloseButton ??븷 寃몄슜, ?ㅼ젣 ?곌껐? WireIdleRewardManager)
         StretchFull(popupGo.GetComponent<RectTransform>());
         popupGo.SetActive(false);
         refs.idlePopupRoot = popupGo;
 
-        // ── 카드 패널 ─────────────────────────────────────────
+        // ?? 移대뱶 ?⑤꼸 ?????????????????????????????????????????
         var panelGo = new GameObject("Panel", typeof(RectTransform), typeof(Image));
         panelGo.transform.SetParent(popupGo.transform, false);
         panelGo.GetComponent<Image>().color = colPanel;
@@ -427,18 +427,18 @@ public static class LobbySceneBuilder
         panelRt.sizeDelta        = new Vector2(700f, 760f);
         Transform panelTr = panelGo.transform;
 
-        // 제목
-        var titleGo = MakeText(panelTr, "Title", "방치 보상",
+        // ?쒕ぉ
+        var titleGo = MakeText(panelTr, "Title", "諛⑹튂 蹂댁긽",
             new Vector2(0f, 320f), new Vector2(600f, 80f),
             fontSize: 48f, bold: true, color: Color.white);
 
-        // 경과 시간
-        var elapsedGo = MakeText(panelTr, "ElapsedText", "0분",
+        // 寃쎄낵 ?쒓컙
+        var elapsedGo = MakeText(panelTr, "ElapsedText", "0 min",
             new Vector2(0f, 240f), new Vector2(600f, 54f),
             fontSize: 32f, bold: false, color: new Color(0.75f, 0.85f, 1f, 1f));
         refs.idleElapsedText = elapsedGo.GetComponent<TextMeshProUGUI>();
 
-        // 구분선
+        // 援щ텇??
         var divGo = new GameObject("Divider", typeof(RectTransform), typeof(Image));
         divGo.transform.SetParent(panelTr, false);
         divGo.GetComponent<Image>().color = colDivider;
@@ -449,12 +449,12 @@ public static class LobbySceneBuilder
         divRt.anchoredPosition = new Vector2(0f, 175f);
         divRt.sizeDelta = new Vector2(620f, 2f);
 
-        // 보상 행: 골드 / 티켓 / 다이아
-        refs.idleGoldText    = BuildRewardRow(panelTr, "GoldRow",    "골드",   colRowBg, 100f);
-        refs.idleTicketText  = BuildRewardRow(panelTr, "TicketRow",  "티켓",   colRowBg,   0f);
-        refs.idleDiamondText = BuildRewardRow(panelTr, "DiamondRow", "다이아", colRowBg, -100f);
+        // 蹂댁긽 ?? 怨⑤뱶 / ?곗폆 / ?ㅼ씠??
+        refs.idleGoldText    = BuildRewardRow(panelTr, "GoldRow",    "怨⑤뱶",   colRowBg, 100f);
+        refs.idleTicketText  = BuildRewardRow(panelTr, "TicketRow",  "?곗폆",   colRowBg,   0f);
+        refs.idleDiamondText = BuildRewardRow(panelTr, "DiamondRow", "Diamond", colRowBg, -100f);
 
-        // 받기 버튼
+        // 諛쏄린 踰꾪듉
         var claimGo = new GameObject("Btn_Claim",
             typeof(RectTransform), typeof(Image), typeof(Button));
         claimGo.transform.SetParent(panelTr, false);
@@ -465,11 +465,11 @@ public static class LobbySceneBuilder
         claimRt.pivot     = new Vector2(0.5f, 0.5f);
         claimRt.anchoredPosition = new Vector2(0f, -260f);
         claimRt.sizeDelta = new Vector2(540f, 100f);
-        MakeText(claimGo.transform, "Text", "받기",
+        MakeText(claimGo.transform, "Text", "諛쏄린",
             Vector2.zero, Vector2.zero, 40f, true, Color.white, stretch: true);
         refs.idleClaimButton = claimGo.GetComponent<Button>();
 
-        // 닫기 버튼 (✕)
+        // ?リ린 踰꾪듉 (??
         var closeGo = new GameObject("Btn_Close",
             typeof(RectTransform), typeof(Image), typeof(Button));
         closeGo.transform.SetParent(panelTr, false);
@@ -480,11 +480,11 @@ public static class LobbySceneBuilder
         closeRt.pivot     = new Vector2(0.5f, 0.5f);
         closeRt.anchoredPosition = new Vector2(-20f, -20f);
         closeRt.sizeDelta = new Vector2(60f, 60f);
-        MakeText(closeGo.transform, "Text", "✕",
+        MakeText(closeGo.transform, "Text", "X",
             Vector2.zero, Vector2.zero, 30f, true, Color.white, stretch: true);
         refs.idleCloseButton = closeGo.GetComponent<Button>();
 
-        // 보상 연출 루트 (비활성 — Animator / Particle 추가용)
+        // 蹂댁긽 ?곗텧 猷⑦듃 (鍮꾪솢????Animator / Particle 異붽???
         var animGo = new GameObject("RewardAnim", typeof(RectTransform));
         animGo.transform.SetParent(panelTr, false);
         var animRt = animGo.GetComponent<RectTransform>();
@@ -510,19 +510,19 @@ public static class LobbySceneBuilder
         rowRt.anchoredPosition = new Vector2(0f, yOffset);
         rowRt.sizeDelta = new Vector2(620f, 76f);
 
-        // 라벨
+        // ?쇰꺼
         MakeText(rowGo.transform, "Label", label,
             new Vector2(-180f, 0f), new Vector2(200f, 76f),
             fontSize: 28f, bold: false, color: new Color(0.7f, 0.7f, 0.7f, 1f));
 
-        // 값 텍스트
+        // 媛??띿뒪??
         var valGo = MakeText(rowGo.transform, "Value", "+0",
             new Vector2(90f, 0f), new Vector2(320f, 76f),
             fontSize: 36f, bold: true, color: new Color(1f, 0.85f, 0.3f, 1f));
         return valGo.GetComponent<TextMeshProUGUI>();
     }
 
-    // ── IdleRewardManager 연결 ────────────────────────────────
+    // ?? IdleRewardManager ?곌껐 ????????????????????????????????
 
     private static void WireIdleRewardManager(SceneRefs refs,
         PlayerData playerData, IdleRewardConfig config, MailBox mailBox)
@@ -544,7 +544,7 @@ public static class LobbySceneBuilder
         so.FindProperty("rewardAnimRoot")    .objectReferenceValue = refs.idleRewardAnimRoot;
         so.ApplyModifiedPropertiesWithoutUndo();
 
-        // LobbyManager에 idleRewardManager 연결
+        // LobbyManager??idleRewardManager ?곌껐
         var lobbyMgr = UnityEngine.Object.FindObjectOfType<LobbyManager>();
         if (lobbyMgr != null)
         {
@@ -554,7 +554,7 @@ public static class LobbySceneBuilder
         }
     }
 
-    // ── LobbyManager 연결 ─────────────────────────────────────
+    // ?? LobbyManager ?곌껐 ?????????????????????????????????????
 
     private static void WireLobbyManager(SceneRefs refs, PlayerData playerData)
     {
@@ -581,14 +581,14 @@ public static class LobbySceneBuilder
         so.FindProperty("petManageButton")         .objectReferenceValue = refs.petManageButton;
         so.FindProperty("missionButton")           .objectReferenceValue = refs.missionButton;
         so.FindProperty("idleRewardButton")        .objectReferenceValue = refs.idleRewardButton;
-        // idleRewardManager 는 WireIdleRewardManager() 에서 별도 연결
+        // idleRewardManager ??WireIdleRewardManager() ?먯꽌 蹂꾨룄 ?곌껐
 
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    // ── 공통 생성 헬퍼 ────────────────────────────────────────
+    // ?? 怨듯넻 ?앹꽦 ?ы띁 ????????????????????????????????????????
 
-    /// <summary>TMP_Text GameObject 생성. stretch=true 이면 부모를 가득 채웁니다.</summary>
+    /// <summary>TMP_Text GameObject ?앹꽦. stretch=true ?대㈃ 遺紐⑤? 媛??梨꾩썎?덈떎.</summary>
     private static GameObject MakeText(Transform parent, string name, string text,
         Vector2 pos, Vector2 size, float fontSize, bool bold,
         Color color, bool stretch = false)
@@ -618,7 +618,7 @@ public static class LobbySceneBuilder
         return go;
     }
 
-    /// <summary>아이콘(텍스트) 버튼 생성. anchor 기본값은 좌상단 (0,1).</summary>
+    /// <summary>?꾩씠肄??띿뒪?? 踰꾪듉 ?앹꽦. anchor 湲곕낯媛믪? 醫뚯긽??(0,1).</summary>
     private static Button CreateIconButton(Transform parent, string name, string label,
         Vector2 pos, Vector2 size, Color color, Vector2 anchor = default)
     {
@@ -648,7 +648,7 @@ public static class LobbySceneBuilder
         return go.GetComponent<Button>();
     }
 
-    /// <summary>하단 네비 버튼 생성. 앵커 중앙 하단.</summary>
+    /// <summary>?섎떒 ?ㅻ퉬 踰꾪듉 ?앹꽦. ?듭빱 以묒븰 ?섎떒.</summary>
     private static Button CreateNavButton(Transform parent, string name, string label,
         float x, float y, float w, float h, Color color)
     {
@@ -685,3 +685,5 @@ public static class LobbySceneBuilder
     }
 }
 #endif
+
+

@@ -1,11 +1,11 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-
+using ProjectFirst.Data;
 public static class WaveTableImporter
 {
     private const int DefaultMonsterId = 1;
@@ -40,7 +40,7 @@ public static class WaveTableImporter
         var header = CsvImportUtility.ParseHeader(lines[0]);
         int colCount = header.Length;
 
-        // 인덱스 캐싱
+        // ?몃뜳??罹먯떛
         int waveIdx = Array.IndexOf(header, "wave");
         int spawnCountIdx = Array.IndexOf(header, "spawnCount");
         int spawnIntervalIdx = Array.IndexOf(header, "spawnInterval");
@@ -53,7 +53,7 @@ public static class WaveTableImporter
         int enemyIdIdx = Array.IndexOf(header, "enemyId");
         int monsterIdIdx = Array.IndexOf(header, "monsterId");
 
-        // 필수 컬럼 존재 체크
+        // ?꾩닔 而щ읆 議댁옱 泥댄겕
         string[] required = { "wave", "spawnCount", "spawnInterval", "enemyHpMul", "enemySpeedMul", "enemyDamageMul", "eliteEvery", "boss", "rewardGold" };
         foreach (var col in required)
         {
@@ -151,3 +151,5 @@ public static class WaveTableImporter
     }
 }
 #endif
+
+

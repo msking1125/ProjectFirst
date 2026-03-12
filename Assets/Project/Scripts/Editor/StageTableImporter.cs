@@ -1,7 +1,7 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-
+using ProjectFirst.Data;
 public static class StageTableImporter
 {
     private const string CsvPathLower = "Assets/Project/Data/stages.csv";
@@ -76,3 +76,5 @@ public static class StageTableImporter
     }
 }
 #endif
+
+

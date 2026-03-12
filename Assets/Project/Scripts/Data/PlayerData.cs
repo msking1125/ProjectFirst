@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,13 +9,13 @@ using Sirenix.OdinInspector;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 플레이어의 계정 정보·재화·진행도·방치 보상 타임스탬프를 보관하는 ScriptableObject 에셋.
-    /// 생성: Project 우클릭 → Create/Game/Player Data
-    /// 권장 경로: Assets/Project/Data/PlayerData.asset
+    /// ?뚮젅?댁뼱??怨꾩젙 ?뺣낫쨌?ы솕쨌吏꾪뻾?꽷룸갑移?蹂댁긽 ??꾩뒪?ы봽瑜?蹂닿??섎뒗 ScriptableObject ?먯뀑.
+    /// ?앹꽦: Project ?고겢由???Create/Game/Player Data
+    /// 沅뚯옣 寃쎈줈: Assets/Project/Data/PlayerData.asset
     ///
-    /// [재화 구조]
-    ///   신규 — gold(long), gem(long), stamina/staminaMax(int)
-    ///   레거시 — ticket(int), diamond(int)  ← IdleRewardManager 등 기존 시스템 호환용
+    /// [?ы솕 援ъ“]
+    ///   ?좉퇋 ??gold(long), gem(long), stamina/staminaMax(int)
+    ///   ?덇굅????ticket(int), diamond(int)  ??IdleRewardManager ??湲곗〈 ?쒖뒪???명솚??
     /// </summary>
 #if ODIN_INSPECTOR
     [CreateAssetMenu(menuName = "Soul Ark/Player Data", fileName = "PlayerData")]
@@ -24,240 +24,239 @@ namespace ProjectFirst.Data
 #endif
     public class PlayerData : ScriptableObject
     {
-        // ── 계정 ──────────────────────────────────────────────────
+        // ?? 怨꾩젙 ??????????????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("계정 정보", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("계정")]
-        [HorizontalGroup("계정/Info", 0.5f)]
+        [Title("怨꾩젙 ?뺣낫", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("怨꾩젙")]
+        [HorizontalGroup("怨꾩젙/Info", 0.5f)]
         [LabelText("UID")]
         [ReadOnly]
 #endif
         public string uid;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("계정/Info", 0.5f)]
-        [LabelText("닉네임")]
+        [HorizontalGroup("怨꾩젙/Info", 0.5f)]
+        [LabelText("?됰꽕??)]
 #endif
         public string nickname;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("계정/Level", 0.5f)]
-        [LabelText("계정 레벨")]
+        [HorizontalGroup("怨꾩젙/Level", 0.5f)]
+        [LabelText("怨꾩젙 ?덈꺼")]
         [ProgressBar(1, 100, ColorGetter = "GetLevelColor")]
 #endif
         public int accountLevel;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("계정/Level", 0.5f)]
-        [LabelText("경험치")]
+        [HorizontalGroup("怨꾩젙/Level", 0.5f)]
+        [LabelText("寃쏀뿕移?)]
         [ProgressBar(0, 100, ColorGetter = "GetExpColor")]
 #endif
         public int accountExp;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("계정")]
-        [LabelText("최대 경험치")]
+        [BoxGroup("怨꾩젙")]
+        [LabelText("理쒕? 寃쏀뿕移?)]
         [HideIf("@accountExpMax <= 0")]
 #endif
         public int accountExpMax = 100;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("계정")]
-        [LabelText("선택한 서버")]
+        [BoxGroup("怨꾩젙")]
+        [LabelText("?좏깮???쒕쾭")]
 #endif
         public string selectedServerId;
 
-        // ── 캐릭터 ────────────────────────────────────────────────
+        // ?? 罹먮┃??????????????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("캐릭터", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("캐릭터")]
-        [LabelText("메인 캐릭터 ID")]
-        [Tooltip("로비에서 표시할 메인 캐릭터 ID (AgentTable.id 기준).")]
+        [Title("罹먮┃??, TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("罹먮┃??)]
+        [LabelText("硫붿씤 罹먮┃??ID")]
+        [Tooltip("濡쒕퉬?먯꽌 ?쒖떆??硫붿씤 罹먮┃??ID (AgentTable.id 湲곗?).")]
 #endif
         public int mainCharacterId;
 
-        // ── 진행도 ────────────────────────────────────────────────
+        // ?? 吏꾪뻾??????????????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("진행도", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("진행도", 0.33f)]
-        [BoxGroup("진행도/챕터")]
-        [LabelText("현재 챕터")]
+        [Title("吏꾪뻾??, TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("吏꾪뻾??, 0.33f)]
+        [BoxGroup("吏꾪뻾??梨뺥꽣")]
+        [LabelText("?꾩옱 梨뺥꽣")]
 #endif
         public int currentChapter;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("진행도", 0.33f)]
-        [BoxGroup("진행도/스테이지")]
-        [LabelText("현재 스테이지")]
+        [HorizontalGroup("吏꾪뻾??, 0.33f)]
+        [BoxGroup("吏꾪뻾???ㅽ뀒?댁?")]
+        [LabelText("?꾩옱 ?ㅽ뀒?댁?")]
 #endif
         public int currentStage;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("진행도", 0.34f)]
-        [BoxGroup("진행도/진행률")]
-        [LabelText("전체 진행도")]
+        [HorizontalGroup("吏꾪뻾??, 0.34f)]
+        [BoxGroup("吏꾪뻾??吏꾪뻾瑜?)]
+        [LabelText("?꾩껜 吏꾪뻾??)]
         [ProgressBar(0, 100)]
-        [Tooltip("0~100 전체 스테이지 진행도. 로비 배경 선택에 사용됩니다 (index = stageProgress / 10).")]
+        [Tooltip("0~100 ?꾩껜 ?ㅽ뀒?댁? 吏꾪뻾?? 濡쒕퉬 諛곌꼍 ?좏깮???ъ슜?⑸땲??(index = stageProgress / 10).")]
 #endif
         public int stageProgress;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("진행도")]
-        [LabelText("스테이지 인덱스")]
+        [BoxGroup("吏꾪뻾??)]
+        [LabelText("?ㅽ뀒?댁? ?몃뜳??)]
         [HideInInspector]
 #endif
-        [Tooltip("현재 도달한 스테이지 인덱스 (0-based, 레거시). 기존 RefreshCenterUI 호환용.")]
+        [Tooltip("?꾩옱 ?꾨떖???ㅽ뀒?댁? ?몃뜳??(0-based, ?덇굅??. 湲곗〈 RefreshCenterUI ?명솚??")]
         public int currentStageIndex;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("진행도")]
-        [LabelText("캐릭터 인덱스")]
+        [BoxGroup("吏꾪뻾??)]
+        [LabelText("罹먮┃???몃뜳??)]
         [HideInInspector]
 #endif
-        [Tooltip("현재 선택된 캐릭터 인덱스 (0-based, 레거시).")]
+        [Tooltip("?꾩옱 ?좏깮??罹먮┃???몃뜳??(0-based, ?덇굅??.")]
         public int currentAgentIndex;
 
-        // ── 스태미나 ──────────────────────────────────────────────
+        // ?? ?ㅽ깭誘몃굹 ??????????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("스태미나", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("스태미나", 0.5f)]
-        [BoxGroup("스태미나/현재")]
-        [LabelText("현재 스태미나")]
+        [Title("?ㅽ깭誘몃굹", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("?ㅽ깭誘몃굹", 0.5f)]
+        [BoxGroup("?ㅽ깭誘몃굹/?꾩옱")]
+        [LabelText("?꾩옱 ?ㅽ깭誘몃굹")]
         [ProgressBar(0, "staminaMax", ColorGetter = "GetStaminaColor")]
 #endif
         public int stamina;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("스태미나", 0.5f)]
-        [BoxGroup("스태미나/최대")]
-        [LabelText("최대 스태미나")]
+        [HorizontalGroup("?ㅽ깭誘몃굹", 0.5f)]
+        [BoxGroup("?ㅽ깭誘몃굹/理쒕?")]
+        [LabelText("理쒕? ?ㅽ깭誘몃굹")]
 #endif
         public int staminaMax;
 
-        // ── 재화 (신규) ───────────────────────────────────────────
+        // ?? ?ы솕 (?좉퇋) ???????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("재화", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("재화", 0.5f)]
-        [BoxGroup("재화/골드")]
-        [LabelText("골드")]
+        [Title("?ы솕", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("?ы솕", 0.5f)]
+        [BoxGroup("?ы솕/怨⑤뱶")]
+        [LabelText("怨⑤뱶")]
         [SuffixLabel("G", true)]
 #endif
         public long gold;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("재화", 0.5f)]
-        [BoxGroup("재화/젬")]
-        [LabelText("젬")]
+        [HorizontalGroup("?ы솕", 0.5f)]
+        [BoxGroup("?ы솕/??)]
+        [LabelText("??)]
         [SuffixLabel("GEM", true)]
         [GUIColor(0.8f, 0.4f, 0.9f)]
 #endif
         public long gem;
 
-        // ── 재화 (레거시) — IdleRewardManager 등 기존 호환 ────────
+        // ?? ?ы솕 (?덇굅?? ??IdleRewardManager ??湲곗〈 ?명솚 ????????
 #if ODIN_INSPECTOR
-        [FoldoutGroup("레거시 재화")]
-        [LabelText("티켓")]
-        [Tooltip("기존 시스템(IdleRewardManager 등)에서 사용하는 티켓.")]
+        [FoldoutGroup("?덇굅???ы솕")]
+        [LabelText("?곗폆")]
+        [Tooltip("湲곗〈 ?쒖뒪??IdleRewardManager ???먯꽌 ?ъ슜?섎뒗 ?곗폆.")]
 #endif
-        [Header("재화 (레거시)")]
+        [Header("?ы솕 (?덇굅??")]
         public int ticket;
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("레거시 재화")]
-        [LabelText("다이아")]
-        [Tooltip("기존 시스템에서 사용하는 다이아. 신규 코드는 gem 사용.")]
+        [FoldoutGroup("?덇굅???ы솕")]
+        [LabelText("?ㅼ씠??)]
+        [Tooltip("湲곗〈 ?쒖뒪?쒖뿉???ъ슜?섎뒗 ?ㅼ씠?? ?좉퇋 肄붾뱶??gem ?ъ슜.")]
 #endif
-        [Tooltip("기존 시스템에서 사용하는 다이아. 신규 코드는 gem 사용.")]
         public int diamond;
 
-        // ── 보유 목록 ─────────────────────────────────────────────
+        // ?? 蹂댁쑀 紐⑸줉 ?????????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("보유 목록", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("보유")]
-        [LabelText("보유 캐릭터 ID")]
+        [Title("蹂댁쑀 紐⑸줉", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("蹂댁쑀")]
+        [LabelText("蹂댁쑀 罹먮┃??ID")]
         [ListDrawerSettings(Expanded = false, ShowPaging = true)]
 #endif
-        [Header("보유 목록")]
+        [Header("蹂댁쑀 紐⑸줉")]
         public List<int> ownedCharacterIds = new List<int>();
 
 #if ODIN_INSPECTOR
-        [BoxGroup("보유")]
-        [LabelText("보유 펫 ID")]
+        [BoxGroup("蹂댁쑀")]
+        [LabelText("蹂댁쑀 ??ID")]
         [ListDrawerSettings(Expanded = false, ShowPaging = true)]
 #endif
         public List<int> ownedPetIds = new List<int>();
 
 #if ODIN_INSPECTOR
-        [BoxGroup("보유")]
-        [LabelText("보유 장비 ID")]
+        [BoxGroup("蹂댁쑀")]
+        [LabelText("蹂댁쑀 ?λ퉬 ID")]
         [ListDrawerSettings(Expanded = false, ShowPaging = true)]
 #endif
         public List<int> ownedEquipmentIds = new List<int>();
 
-        // ── 캐릭터 성장 ───────────────────────────────────────────
+        // ?? 罹먮┃???깆옣 ???????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("캐릭터 성장", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("성장")]
-        [LabelText("캐릭터 진행 기록")]
+        [Title("罹먮┃???깆옣", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("?깆옣")]
+        [LabelText("罹먮┃??吏꾪뻾 湲곕줉")]
         [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
 #endif
-        [Header("캐릭터 성장")]
+        [Header("罹먮┃???깆옣")]
         public List<CharacterProgressRecord> characterProgressRecords = new List<CharacterProgressRecord>();
 
 #if ODIN_INSPECTOR
-        [BoxGroup("성장")]
-        [LabelText("경험치 아이템")]
+        [BoxGroup("?깆옣")]
+        [LabelText("寃쏀뿕移??꾩씠??)]
         [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
 #endif
         public List<ExpItemInventoryRecord> expItemInventoryRecords = new List<ExpItemInventoryRecord>();
 
-        // ── 미션 상태 ─────────────────────────────────────────────
+        // ?? 誘몄뀡 ?곹깭 ?????????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("미션 상태", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("미션")]
-        [LabelText("미션 진행 기록")]
+        [Title("誘몄뀡 ?곹깭", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("誘몄뀡")]
+        [LabelText("誘몄뀡 吏꾪뻾 湲곕줉")]
         [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
 #endif
-        [Header("미션 상태")]
+        [Header("誘몄뀡 ?곹깭")]
         public List<MissionProgressRecord> missionProgressRecords = new List<MissionProgressRecord>();
 
 #if ODIN_INSPECTOR
-        [BoxGroup("미션")]
-        [LabelText("미션 티어 보상")]
+        [BoxGroup("誘몄뀡")]
+        [LabelText("誘몄뀡 ?곗뼱 蹂댁긽")]
         [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
 #endif
         public List<MissionTierClaimRecord> missionTierClaimRecords = new List<MissionTierClaimRecord>();
 
 #if ODIN_INSPECTOR
-        [BoxGroup("미션")]
-        [LabelText("일일 미션 리셋")]
+        [BoxGroup("誘몄뀡")]
+        [LabelText("?쇱씪 誘몄뀡 由ъ뀑")]
         [ReadOnly]
 #endif
         public string lastDailyMissionResetUtc;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("미션")]
-        [LabelText("주간 미션 리셋")]
+        [BoxGroup("誘몄뀡")]
+        [LabelText("二쇨컙 誘몄뀡 由ъ뀑")]
         [ReadOnly]
 #endif
         public string lastWeeklyMissionResetUtc;
 
-        // ── 튜토리얼 ────────────────────────────────────────────────
+        // ?? ?쒗넗由ъ뼹 ????????????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("튜토리얼", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("튜토리얼")]
-        [LabelText("튜토리얼 플래그")]
-        [Tooltip("triggerKey → 완료 여부. TutorialManager에서 관리합니다.")]
+        [Title("?쒗넗由ъ뼹", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("?쒗넗由ъ뼹")]
+        [LabelText("?쒗넗由ъ뼹 ?뚮옒洹?)]
+        [Tooltip("triggerKey ???꾨즺 ?щ?. TutorialManager?먯꽌 愿由ы빀?덈떎.")]
 #endif
-        [Header("튜토리얼")]
+        [Header("?쒗넗由ъ뼹")]
         [HideInInspector]
         public List<TutorialFlagEntry> tutorialFlagEntries = new List<TutorialFlagEntry>();
 
-        /// <summary>런타임 전용 딕셔너리. Awake/Load 시 tutorialFlagEntries로부터 구성됩니다.</summary>
+        /// <summary>?고????꾩슜 ?뺤뀛?덈━. Awake/Load ??tutorialFlagEntries濡쒕???援ъ꽦?⑸땲??</summary>
         [NonSerialized]
         public Dictionary<string, bool> TutorialFlags = new Dictionary<string, bool>();
 
-        /// <summary>tutorialFlagEntries → TutorialFlags 딕셔너리로 변환합니다.</summary>
+        /// <summary>tutorialFlagEntries ??TutorialFlags ?뺤뀛?덈━濡?蹂?섑빀?덈떎.</summary>
         public void RebuildTutorialFlags()
         {
             TutorialFlags.Clear();
@@ -268,7 +267,7 @@ namespace ProjectFirst.Data
             }
         }
 
-        /// <summary>TutorialFlags 딕셔너리 → tutorialFlagEntries 리스트로 동기화합니다.</summary>
+        /// <summary>TutorialFlags ?뺤뀛?덈━ ??tutorialFlagEntries 由ъ뒪?몃줈 ?숆린?뷀빀?덈떎.</summary>
         public void SyncTutorialFlagEntries()
         {
             tutorialFlagEntries.Clear();
@@ -276,33 +275,33 @@ namespace ProjectFirst.Data
                 tutorialFlagEntries.Add(new TutorialFlagEntry { key = kvp.Key, done = kvp.Value });
         }
 
-        // ── 방치 보상 ─────────────────────────────────────────────
+        // ?? 諛⑹튂 蹂댁긽 ?????????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("방치 보상", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("방치")]
-        [LabelText("마지막 수령 시간")]
+        [Title("諛⑹튂 蹂댁긽", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("諛⑹튂")]
+        [LabelText("留덉?留??섎졊 ?쒓컙")]
         [ReadOnly]
-        [Tooltip("마지막으로 방치 보상을 수령한 UTC 시각 (ISO 8601). 런타임에 자동 갱신됩니다.")]
+        [Tooltip("留덉?留됱쑝濡?諛⑹튂 蹂댁긽???섎졊??UTC ?쒓컖 (ISO 8601). ?고??꾩뿉 ?먮룞 媛깆떊?⑸땲??")]
 #endif
-        [Header("방치 보상")]
+        [Header("諛⑹튂 蹂댁긽")]
         public string lastIdleRewardTime;
 
-        // ── 이벤트 채널 (VoidEventChannelSO) ─────────────────────
+        // ?? ?대깽??梨꾨꼸 (VoidEventChannelSO) ?????????????????????
 #if ODIN_INSPECTOR
-        [Title("이벤트 채널", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("이벤트")]
-        [LabelText("재화 변경")]
+        [Title("?대깽??梨꾨꼸", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("?대깽??)]
+        [LabelText("?ы솕 蹂寃?)]
         [AssetsOnly]
-        [Tooltip("재화 변경 시 발행. LobbyManager 등 UIToolkit 기반 뷰가 구독합니다.")]
+        [Tooltip("?ы솕 蹂寃???諛쒗뻾. LobbyManager ??UIToolkit 湲곕컲 酉곌? 援щ룆?⑸땲??")]
 #endif
-        [Header("이벤트 채널")]
+        [Header("?대깽??梨꾨꼸")]
         public VoidEventChannelSO onCurrencyChanged;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("이벤트")]
-        [LabelText("캐릭터 변경")]
+        [BoxGroup("?대깽??)]
+        [LabelText("罹먮┃??蹂寃?)]
         [AssetsOnly]
-        [Tooltip("캐릭터 변경 시 발행.")]
+        [Tooltip("罹먮┃??蹂寃???諛쒗뻾.")]
 #endif
         public VoidEventChannelSO onCharacterChanged;
 
@@ -312,28 +311,28 @@ namespace ProjectFirst.Data
         private static Color GetStaminaColor() => new Color(1f, 0.6f, 0.2f);
 #endif
 
-        // ── 레거시 이벤트 (Action, 기존 시스템 호환) ─────────────
+        // ?? ?덇굅???대깽??(Action, 湲곗〈 ?쒖뒪???명솚) ?????????????
 
-        /// <summary>재화 수치가 변경될 때 발행됩니다 (기존 UGUI 시스템 호환용).</summary>
+        /// <summary>?ы솕 ?섏튂媛 蹂寃쎈맆 ??諛쒗뻾?⑸땲??(湲곗〈 UGUI ?쒖뒪???명솚??.</summary>
         public event Action<CurrencyType> OnCurrencyChanged;
 
-    // ── 신규 재화 조작 ────────────────────────────────────────
+    // ?? ?좉퇋 ?ы솕 議곗옉 ????????????????????????????????????????
 
-    /// <summary>골드를 추가하고 이벤트를 발행합니다.</summary>
+    /// <summary>怨⑤뱶瑜?異붽??섍퀬 ?대깽?몃? 諛쒗뻾?⑸땲??</summary>
     public void AddGold(long amount)
     {
         gold = Math.Max(0L, gold + amount);
         RaiseCurrencyEvents(CurrencyType.Gold);
     }
 
-    /// <summary>젬을 추가하고 이벤트를 발행합니다.</summary>
+    /// <summary>?ъ쓣 異붽??섍퀬 ?대깽?몃? 諛쒗뻾?⑸땲??</summary>
     public void AddGem(long amount)
     {
         gem = Math.Max(0L, gem + amount);
         RaiseCurrencyEvents(CurrencyType.Diamond);
     }
 
-    /// <summary>골드 차감. 잔액 부족 시 false 반환.</summary>
+    /// <summary>怨⑤뱶 李④컧. ?붿븸 遺議???false 諛섑솚.</summary>
     public bool SpendGold(long amount)
     {
         if (gold < amount) return false;
@@ -342,9 +341,9 @@ namespace ProjectFirst.Data
         return true;
     }
 
-    // ── 레거시 범용 재화 조작 ─────────────────────────────────
+    // ?? ?덇굅??踰붿슜 ?ы솕 議곗옉 ?????????????????????????????????
 
-    /// <summary>재화 타입에 따라 amount만큼 추가합니다 (레거시 호환).</summary>
+    /// <summary>?ы솕 ??낆뿉 ?곕씪 amount留뚰겮 異붽??⑸땲??(?덇굅???명솚).</summary>
     public void AddCurrency(CurrencyType type, int amount)
     {
         switch (type)
@@ -362,7 +361,7 @@ namespace ProjectFirst.Data
         RaiseCurrencyEvents(type);
     }
 
-    /// <summary>재화 타입에 해당하는 현재 보유량을 반환합니다 (레거시 호환).</summary>
+    /// <summary>?ы솕 ??낆뿉 ?대떦?섎뒗 ?꾩옱 蹂댁쑀?됱쓣 諛섑솚?⑸땲??(?덇굅???명솚).</summary>
     public int GetCurrency(CurrencyType type) => type switch
     {
         CurrencyType.Gold    => (int)Math.Min(gold, int.MaxValue),
@@ -371,14 +370,14 @@ namespace ProjectFirst.Data
         _                    => 0,
     };
 
-    // ── 레거시 개별 재화 조작 ─────────────────────────────────
+    // ?? ?덇굅??媛쒕퀎 ?ы솕 議곗옉 ?????????????????????????????????
 
     public void AddTicket(int amount)  => AddCurrency(CurrencyType.Ticket,  amount);
     public void AddDiamond(int amount) => AddCurrency(CurrencyType.Diamond, amount);
 
-    // ── 스태미나 조작 ─────────────────────────────────────────
+    // ?? ?ㅽ깭誘몃굹 議곗옉 ?????????????????????????????????????????
 
-    /// <summary>스태미나를 차감합니다. 잔액 부족 시 false를 반환하며 차감하지 않습니다.</summary>
+    /// <summary>?ㅽ깭誘몃굹瑜?李④컧?⑸땲?? ?붿븸 遺議???false瑜?諛섑솚?섎ŉ 李④컧?섏? ?딆뒿?덈떎.</summary>
     public bool SpendStamina(int amount)
     {
         if (stamina < amount) return false;
@@ -386,23 +385,23 @@ namespace ProjectFirst.Data
         return true;
     }
 
-    // ── 캐릭터 성장 조작 ──────────────────────────────────────
+    // ?? 罹먮┃???깆옣 議곗옉 ??????????????????????????????????????
 
-    /// <summary>특정 캐릭터의 현재 레벨을 반환합니다. 기록이 없으면 1.</summary>
+    /// <summary>?뱀젙 罹먮┃?곗쓽 ?꾩옱 ?덈꺼??諛섑솚?⑸땲?? 湲곕줉???놁쑝硫?1.</summary>
     public int GetCharacterLevel(int agentId)
     {
         CharacterProgressRecord rec = characterProgressRecords?.FirstOrDefault(r => r.agentId == agentId);
         return rec?.level ?? 1;
     }
 
-    /// <summary>특정 캐릭터의 현재 경험치를 반환합니다. 기록이 없으면 0.</summary>
+    /// <summary>?뱀젙 罹먮┃?곗쓽 ?꾩옱 寃쏀뿕移섎? 諛섑솚?⑸땲?? 湲곕줉???놁쑝硫?0.</summary>
     public int GetCharacterExp(int agentId)
     {
         CharacterProgressRecord rec = characterProgressRecords?.FirstOrDefault(r => r.agentId == agentId);
         return rec?.exp ?? 0;
     }
 
-    /// <summary>특정 캐릭터의 레벨과 경험치를 저장합니다.</summary>
+    /// <summary>?뱀젙 罹먮┃?곗쓽 ?덈꺼怨?寃쏀뿕移섎? ??ν빀?덈떎.</summary>
     public void SetCharacterProgress(int agentId, int level, int exp)
     {
         if (characterProgressRecords == null)
@@ -418,16 +417,16 @@ namespace ProjectFirst.Data
         rec.exp   = exp;
     }
 
-    // ── 경험치 아이템 인벤토리 ────────────────────────────────
+    // ?? 寃쏀뿕移??꾩씠???몃깽?좊━ ????????????????????????????????
 
-    /// <summary>특정 타입의 경험치 아이템 보유 수량을 반환합니다.</summary>
+    /// <summary>?뱀젙 ??낆쓽 寃쏀뿕移??꾩씠??蹂댁쑀 ?섎웾??諛섑솚?⑸땲??</summary>
     public int GetExpItemCount(ExpItemType type)
     {
         ExpItemInventoryRecord rec = expItemInventoryRecords?.FirstOrDefault(r => r.type == type);
         return rec?.count ?? 0;
     }
 
-    /// <summary>특정 타입의 경험치 아이템 보유 수량을 설정합니다.</summary>
+    /// <summary>?뱀젙 ??낆쓽 寃쏀뿕移??꾩씠??蹂댁쑀 ?섎웾???ㅼ젙?⑸땲??</summary>
     public void SetExpItemCount(ExpItemType type, int count)
     {
         if (expItemInventoryRecords == null)
@@ -442,31 +441,31 @@ namespace ProjectFirst.Data
         rec.count = Mathf.Max(0, count);
     }
 
-    /// <summary>모든 경험치 아이템의 총 수량을 반환합니다.</summary>
+    /// <summary>紐⑤뱺 寃쏀뿕移??꾩씠?쒖쓽 珥??섎웾??諛섑솚?⑸땲??</summary>
     public int GetTotalExpItemCount()
     {
         if (expItemInventoryRecords == null) return 0;
         return expItemInventoryRecords.Sum(r => r.count);
     }
 
-    // ── 계정 정보 조작 ────────────────────────────────────────
+    // ?? 怨꾩젙 ?뺣낫 議곗옉 ????????????????????????????????????????
 
-    /// <summary>닉네임을 반환합니다. 비어있으면 defaultValue를 반환합니다.</summary>
+    /// <summary>?됰꽕?꾩쓣 諛섑솚?⑸땲?? 鍮꾩뼱?덉쑝硫?defaultValue瑜?諛섑솚?⑸땲??</summary>
     public string GetNicknameOrDefault(string defaultValue = "Player")
         => string.IsNullOrEmpty(nickname) ? defaultValue : nickname;
 
-    /// <summary>계정 레벨을 반환합니다. 0 이하이면 defaultValue를 반환합니다.</summary>
+    /// <summary>怨꾩젙 ?덈꺼??諛섑솚?⑸땲?? 0 ?댄븯?대㈃ defaultValue瑜?諛섑솚?⑸땲??</summary>
     public int GetAccountLevel(int defaultValue = 1)
         => accountLevel > 0 ? accountLevel : defaultValue;
 
-    /// <summary>계정 경험치를 반환합니다.</summary>
+    /// <summary>怨꾩젙 寃쏀뿕移섎? 諛섑솚?⑸땲??</summary>
     public int GetAccountExp() => accountExp;
 
-    /// <summary>계정 최대 경험치를 반환합니다. 0 이하이면 defaultValue를 반환합니다.</summary>
+    /// <summary>怨꾩젙 理쒕? 寃쏀뿕移섎? 諛섑솚?⑸땲?? 0 ?댄븯?대㈃ defaultValue瑜?諛섑솚?⑸땲??</summary>
     public int GetAccountExpMax(int defaultValue = 100)
         => accountExpMax > 0 ? accountExpMax : defaultValue;
 
-    /// <summary>계정 레벨·경험치·최대 경험치를 일괄 저장합니다.</summary>
+    /// <summary>怨꾩젙 ?덈꺼쨌寃쏀뿕移샕룹턀? 寃쏀뿕移섎? ?쇨큵 ??ν빀?덈떎.</summary>
     public void SetAccountStats(int level, int exp, int expMax)
     {
         accountLevel  = Mathf.Max(1, level);
@@ -474,13 +473,13 @@ namespace ProjectFirst.Data
         accountExpMax = Mathf.Max(1, expMax);
     }
 
-    /// <summary>닉네임을 저장합니다.</summary>
+    /// <summary>?됰꽕?꾩쓣 ??ν빀?덈떎.</summary>
     public void SetNicknameValue(string value)
         => nickname = value ?? string.Empty;
 
-    // ── 로그인 / 세션 ─────────────────────────────────────────
+    // ?? 濡쒓렇??/ ?몄뀡 ?????????????????????????????????????????
 
-    /// <summary>UID를 반환합니다. 비어 있으면 새 GUID를 생성해 저장 후 반환합니다.</summary>
+    /// <summary>UID瑜?諛섑솚?⑸땲?? 鍮꾩뼱 ?덉쑝硫???GUID瑜??앹꽦???????諛섑솚?⑸땲??</summary>
     public string GetUidOrCreate()
     {
         if (string.IsNullOrEmpty(uid))
@@ -488,18 +487,18 @@ namespace ProjectFirst.Data
         return uid;
     }
 
-    /// <summary>UID를 저장합니다.</summary>
+    /// <summary>UID瑜???ν빀?덈떎.</summary>
     public void SetUidValue(string value)
         => uid = value ?? string.Empty;
 
-    /// <summary>마지막으로 선택한 서버 ID를 반환합니다.</summary>
+    /// <summary>留덉?留됱쑝濡??좏깮???쒕쾭 ID瑜?諛섑솚?⑸땲??</summary>
     public string GetSelectedServerId() => selectedServerId ?? string.Empty;
 
-    /// <summary>선택한 서버 ID를 저장합니다.</summary>
+    /// <summary>?좏깮???쒕쾭 ID瑜???ν빀?덈떎.</summary>
     public void SetSelectedServerId(string value)
         => selectedServerId = value ?? string.Empty;
 
-    /// <summary>로그인 관련 계정 정보를 초기화합니다 (로그아웃 시 호출).</summary>
+    /// <summary>濡쒓렇??愿??怨꾩젙 ?뺣낫瑜?珥덇린?뷀빀?덈떎 (濡쒓렇?꾩썐 ???몄텧).</summary>
     public void ClearLoginState()
     {
         uid              = string.Empty;
@@ -507,11 +506,11 @@ namespace ProjectFirst.Data
         selectedServerId = string.Empty;
     }
 
-    // ── 보상 지급 ─────────────────────────────────────────────
+    // ?? 蹂댁긽 吏湲??????????????????????????????????????????????
 
     /// <summary>
-    /// RewardItem을 PlayerData에 적용합니다.
-    /// 알 수 없는 itemId/itemName이면 false를 반환합니다.
+    /// RewardItem??PlayerData???곸슜?⑸땲??
+    /// ?????녿뒗 itemId/itemName?대㈃ false瑜?諛섑솚?⑸땲??
     /// </summary>
     public bool TryGrantReward(RewardItem reward)
     {
@@ -519,22 +518,22 @@ namespace ProjectFirst.Data
 
         string name = reward.itemName?.ToLower() ?? string.Empty;
 
-        if (reward.itemId == 1001 || name.Contains("gem") || name.Contains("다이아"))
+        if (reward.itemId == 1001 || name.Contains("gem") || name.Contains("diamond"))
         {
             AddGem(reward.amount);
             return true;
         }
-        if (reward.itemId == 2001 || name.Contains("gold") || name.Contains("골드"))
+        if (reward.itemId == 2001 || name.Contains("gold") || name.Contains("怨⑤뱶"))
         {
             AddGold(reward.amount);
             return true;
         }
-        if (name.Contains("ticket") || name.Contains("티켓"))
+        if (name.Contains("ticket") || name.Contains("?곗폆"))
         {
             AddTicket(reward.amount);
             return true;
         }
-        if (name.Contains("stamina") || name.Contains("스태미나"))
+        if (name.Contains("stamina") || name.Contains("?ㅽ깭誘몃굹"))
         {
             stamina = Mathf.Min(stamina + reward.amount, staminaMax > 0 ? staminaMax : 999);
             return true;
@@ -543,9 +542,9 @@ namespace ProjectFirst.Data
         return false;
     }
 
-    // ── 방치 보상 유틸 ────────────────────────────────────────
+    // ?? 諛⑹튂 蹂댁긽 ?좏떥 ????????????????????????????????????????
 
-    /// <summary>마지막 수령 이후 경과 시간을 반환합니다. 기록이 없으면 TimeSpan.Zero.</summary>
+    /// <summary>留덉?留??섎졊 ?댄썑 寃쎄낵 ?쒓컙??諛섑솚?⑸땲?? 湲곕줉???놁쑝硫?TimeSpan.Zero.</summary>
     public TimeSpan GetIdleElapsed()
     {
         if (string.IsNullOrEmpty(lastIdleRewardTime))
@@ -558,13 +557,13 @@ namespace ProjectFirst.Data
         return TimeSpan.Zero;
     }
 
-    /// <summary>방치 보상 수령 시각을 현재 UTC로 기록합니다.</summary>
+    /// <summary>諛⑹튂 蹂댁긽 ?섎졊 ?쒓컖???꾩옱 UTC濡?湲곕줉?⑸땲??</summary>
     public void MarkIdleRewardClaimed()
     {
         lastIdleRewardTime = DateTime.UtcNow.ToString("o");
     }
 
-    // ── 내부 헬퍼 ────────────────────────────────────────────
+    // ?? ?대? ?ы띁 ????????????????????????????????????????????
 
     private void RaiseCurrencyEvents(CurrencyType type)
     {
@@ -572,9 +571,9 @@ namespace ProjectFirst.Data
         OnCurrencyChanged?.Invoke(type);
     }
 
-    // ── 튜토리얼 플래그 직렬화 ───────────────────────────────
+    // ?? ?쒗넗由ъ뼹 ?뚮옒洹?吏곷젹?????????????????????????????????
 
-    /// <summary>튜토리얼 플래그의 직렬화용 엔트리. Dictionary 대신 List로 저장합니다.</summary>
+    /// <summary>?쒗넗由ъ뼹 ?뚮옒洹몄쓽 吏곷젹?붿슜 ?뷀듃由? Dictionary ???List濡???ν빀?덈떎.</summary>
     [Serializable]
     public class TutorialFlagEntry
     {
@@ -583,3 +582,4 @@ namespace ProjectFirst.Data
     }
 }
 }
+

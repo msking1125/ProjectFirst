@@ -1,36 +1,45 @@
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
-
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
+using ProjectFirst.Data;
 namespace Project
 {
 
 /// <summary>
 /// EnemySpawner
-/// - 기본적으로 spawnInterval(초)마다 spawnPoints 중 임의 위치에서 EnemyPool.Get으로 적 생성
-/// - WaveManager가 설정하면 해당 웨이브 spawnCount / spawnInterval / 스탯 배수를 사용
+/// - 湲곕낯?곸쑝濡?spawnInterval(珥?留덈떎 spawnPoints 以??꾩쓽 ?꾩튂?먯꽌 EnemyPool.Get?쇰줈 ???앹꽦
+/// - WaveManager媛 ?ㅼ젙?섎㈃ ?대떦 ?⑥씠釉?spawnCount / spawnInterval / ?ㅽ꺈 諛곗닔瑜??ъ슜
 /// </summary>
 [AddComponentMenu("Enemy/Enemy Spawner")]
 public class EnemySpawner : MonoBehaviour
 {
     private const int DefaultMonsterId = 1;
 
-    [Header("Enemy Pool (필수)")]
-    [Tooltip("EnemyPool 컴포넌트를 연결하세요.")]
+    [Header("Enemy Pool (?꾩닔)")]
+    [Tooltip("EnemyPool 而댄룷?뚰듃瑜??곌껐?섏꽭??")]
     public EnemyPool enemyPool;
 
-    [Header("타겟 (Ark) (필수)")]
-    [Tooltip("적이 추격할 타겟(Ark)의 Transform을 지정하세요.")]
+    [Header("?寃?(Ark) (?꾩닔)")]
+    [Tooltip("?곸씠 異붽꺽???寃?Ark)??Transform??吏?뺥븯?몄슂.")]
     public Transform arkTarget;
 
-    [Header("Spawn Points (필수)")]
-    [Tooltip("적이 생성될 위치들의 Transform 배열을 등록하세요.")]
+    [Header("Spawn Points (?꾩닔)")]
+    [Tooltip("?곸씠 ?앹꽦???꾩튂?ㅼ쓽 Transform 諛곗뿴???깅줉?섏꽭??")]
     public Transform[] spawnPoints;
 
     [Header("Monster Data")]
     [SerializeField] private MonsterTable monsterTable;
 
     [Header("Spawn Option")]
-    [Tooltip("스폰 주기(초)를 설정하세요.")]
+    [Tooltip("?ㅽ룿 二쇨린(珥?瑜??ㅼ젙?섏꽭??")]
     [Min(0.01f)]
     public float spawnInterval = 2f;
 
@@ -163,7 +172,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingPool)
             {
-                Debug.LogError("[EnemySpawner] enemyPool이 할당되지 않았습니다.");
+                Debug.LogError("[EnemySpawner] enemyPool???좊떦?섏? ?딆븯?듬땲??");
                 loggedMissingPool = true;
             }
 
@@ -176,7 +185,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingTarget)
             {
-                Debug.LogError("[EnemySpawner] arkTarget이 할당되지 않았습니다.");
+                Debug.LogError("[EnemySpawner] arkTarget???좊떦?섏? ?딆븯?듬땲??");
                 loggedMissingTarget = true;
             }
 
@@ -189,7 +198,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingMonsterTable)
             {
-                Debug.LogError("[EnemySpawner] monsterTable이 할당되지 않았습니다. 'Monster Data' 섹션에 MonsterTable 에셋을 연결하세요.");
+                Debug.LogError("[EnemySpawner] monsterTable???좊떦?섏? ?딆븯?듬땲?? 'Monster Data' ?뱀뀡??MonsterTable ?먯뀑???곌껐?섏꽭??");
                 loggedMissingMonsterTable = true;
             }
 
@@ -202,7 +211,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingSpawnPoints)
             {
-                Debug.LogError("[EnemySpawner] spawnPoints가 비어있습니다. SpawnPoints를 연결하세요.");
+                Debug.LogError("[EnemySpawner] spawnPoints媛 鍮꾩뼱?덉뒿?덈떎. SpawnPoints瑜??곌껐?섏꽭??");
                 loggedMissingSpawnPoints = true;
             }
 
@@ -220,7 +229,7 @@ public class EnemySpawner : MonoBehaviour
 
         if (!loggedMissingSpawnPoints)
         {
-            Debug.LogError("[EnemySpawner] spawnPoints에 유효한 Transform이 없습니다.");
+            Debug.LogError("[EnemySpawner] spawnPoints???좏슚??Transform???놁뒿?덈떎.");
             loggedMissingSpawnPoints = true;
         }
 
@@ -236,12 +245,12 @@ public class EnemySpawner : MonoBehaviour
         WaveMultipliers multipliers = new WaveMultipliers { hp = session.enemyHpMul, speed = session.enemySpeedMul, damage = session.enemyDamageMul };
 
         string enemyIdSource = session.lastConfiguredEnemyId <= 0 ? "fallback(defaultMonsterId)" : "waveRow(enemyId/monsterId)";
-        Debug.Log($"[EnemySpawner] 이번 스폰 enemyId='{session.currentEnemyId}' (source={enemyIdSource}, waveValue='{session.lastConfiguredEnemyId}', fallback='{defaultMonsterId}')");
+        Debug.Log($"[EnemySpawner] ?대쾲 ?ㅽ룿 enemyId='{session.currentEnemyId}' (source={enemyIdSource}, waveValue='{session.lastConfiguredEnemyId}', fallback='{defaultMonsterId}')");
 
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, session.currentEnemyId, grade, multipliers);
         if (enemy == null)
         {
-            Debug.LogError("[EnemySpawner] EnemyPool.Get 실패로 적 스폰에 실패했습니다.");
+            Debug.LogError("[EnemySpawner] EnemyPool.Get ?ㅽ뙣濡????ㅽ룿???ㅽ뙣?덉뒿?덈떎.");
             return;
         }
 
@@ -261,7 +270,7 @@ public class EnemySpawner : MonoBehaviour
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, grade, multipliers);
         if (enemy == null)
         {
-            Debug.LogError("[EnemySpawner] EnemyPool.Get 실패로 적 스폰에 실패했습니다.");
+            Debug.LogError("[EnemySpawner] EnemyPool.Get ?ㅽ뙣濡????ㅽ룿???ㅽ뙣?덉뒿?덈떎.");
             return;
         }
     }
@@ -279,11 +288,11 @@ public class EnemySpawner : MonoBehaviour
 
         if (validSpawnPoints.Count == 0)
         {
-            Debug.LogError("[EnemySpawner] spawnPoints에 유효한 Transform이 없습니다.");
+            Debug.LogError("[EnemySpawner] spawnPoints???좏슚??Transform???놁뒿?덈떎.");
             return null;
         }
 
-        int idx = Random.Range(0, validSpawnPoints.Count);
+        int idx = UnityEngine.Random.Range(0, validSpawnPoints.Count);
         return validSpawnPoints[idx];
     }
 
@@ -316,3 +325,6 @@ public class EnemySpawner : MonoBehaviour
     }
 }
 } // namespace Project
+
+
+

@@ -1,15 +1,15 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-
+using ProjectFirst.Data;
 /// <summary>
-/// CSV → SkillTable ScriptableObject 임포터.
-/// icon 컬럼: 파일명(확장자 제외) → Assets/Project/UI/Icon/ 에서 Sprite 자동 연결
-/// castVfxPrefab 컬럼: 파일명(확장자 제외) → 프로젝트 전체에서 Prefab 자동 연결
+/// CSV ??SkillTable ScriptableObject ?꾪룷??
+/// icon 而щ읆: ?뚯씪紐??뺤옣???쒖쇅) ??Assets/Project/UI/Icon/ ?먯꽌 Sprite ?먮룞 ?곌껐
+/// castVfxPrefab 而щ읆: ?뚯씪紐??뺤옣???쒖쇅) ???꾨줈?앺듃 ?꾩껜?먯꽌 Prefab ?먮룞 ?곌껐
 /// </summary>
 public static class SkillTableImporter
 {
@@ -17,9 +17,9 @@ public static class SkillTableImporter
     private const string CsvPathUpper = "Assets/Project/Data/Skills.csv";
     private const string AssetPath = "Assets/Project/Data/SkillTable.asset";
 
-    // 아이콘 검색 우선 폴더 (없으면 프로젝트 전체 탐색)
+    // ?꾩씠肄?寃???곗꽑 ?대뜑 (?놁쑝硫??꾨줈?앺듃 ?꾩껜 ?먯깋)
     private const string IconFolder = "Assets/Project/UI/Icon";
-    // VFX 검색 우선 폴더 (없으면 프로젝트 전체 탐색)
+    // VFX 寃???곗꽑 ?대뜑 (?놁쑝硫??꾨줈?앺듃 ?꾩껜 ?먯깋)
     private const string VfxFolder  = "Assets/Project/Prefabs/VFX";
 
     private static readonly string[] RequiredColumns = { "id", "name", "element", "coefficient", "range" };
@@ -28,13 +28,13 @@ public static class SkillTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[SkillTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[SkillTableImporter] CSV瑜?李얠쓣 ???놁뒿?덈떎: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[SkillTableImporter] 데이터 행이 없습니다: {csvPath}");
+            Debug.LogError($"[SkillTableImporter] ?곗씠???됱씠 ?놁뒿?덈떎: {csvPath}");
             return;
         }
 
@@ -45,7 +45,7 @@ public static class SkillTableImporter
         SerializedProperty rowsProp = so.FindProperty("rows");
         if (rowsProp == null)
         {
-            Debug.LogError("[SkillTableImporter] SkillTable에 'rows' 필드가 없습니다.");
+            Debug.LogError("[SkillTableImporter] SkillTable??'rows' ?꾨뱶媛 ?놁뒿?덈떎.");
             return;
         }
         rowsProp.ClearArray();
@@ -57,7 +57,7 @@ public static class SkillTableImporter
         {
             if (ColIdx(col) < 0)
             {
-                Debug.LogError($"[SkillTableImporter] 필수 컬럼 '{col}'이 없습니다.");
+                Debug.LogError($"[SkillTableImporter] ?꾩닔 而щ읆 '{col}'???놁뒿?덈떎.");
                 return;
             }
         }
@@ -105,12 +105,12 @@ public static class SkillTableImporter
             string elemRaw = GetCell(cols, elementIdx);
             if (!Enum.TryParse(elemRaw, true, out ElementType element))
             {
-                Debug.LogWarning($"[SkillTableImporter] id='{id}' element='{elemRaw}' 파싱 실패 → Reason으로 대체");
+                Debug.LogWarning($"[SkillTableImporter] id='{id}' element='{elemRaw}' parse failed. fallback=Reason");
                 element = ElementType.Reason;
             }
             row.FindPropertyRelative("element").enumValueIndex = (int)element;
 
-            // ── icon: 파일명으로 Sprite 탐색 ──────────────────────────────────
+            // ?? icon: ?뚯씪紐낆쑝濡?Sprite ?먯깋 ??????????????????????????????????
             if (iconIdx >= 0)
             {
                 string iconName = GetCell(cols, iconIdx);
@@ -122,7 +122,7 @@ public static class SkillTableImporter
                     iconProp.objectReferenceValue = null;
             }
 
-            // ── castVfxPrefab ──────────────────────────────────────────────────
+            // ?? castVfxPrefab ??????????????????????????????????????????????????
             if (vfxIdx >= 0)
             {
                 string vfxName   = GetCell(cols, vfxIdx);
@@ -131,11 +131,11 @@ public static class SkillTableImporter
                 vfxProp.objectReferenceValue = prefab;
             }
 
-            // ── description ────────────────────────────────────────────────
+            // ?? description ????????????????????????????????????????????????
             if (descIdx >= 0)
                 row.FindPropertyRelative("description").stringValue = GetCell(cols, descIdx);
 
-            // ── effectType & 효과별 수치 ────────────────────────────────────
+            // ?? effectType & ?④낵蹂??섏튂 ????????????????????????????????????
             if (effectTypeIdx >= 0)
             {
                 string etRaw = GetCell(cols, effectTypeIdx);
@@ -171,33 +171,33 @@ public static class SkillTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[SkillTableImporter] {imported}개 스킬 임포트 완료 → {AssetPath}");
+        Debug.Log($"[SkillTableImporter] {imported}媛??ㅽ궗 ?꾪룷???꾨즺 ??{AssetPath}");
     }
 
-    // ── 에셋 탐색 헬퍼 ───────────────────────────────────────────────────────
+    // ?? ?먯뀑 ?먯깋 ?ы띁 ???????????????????????????????????????????????????????
 
     /// <summary>
-    /// 파일명(확장자 없음)으로 Sprite를 탐색합니다.
-    /// 우선 IconFolder 안에서 찾고, 없으면 프로젝트 전체에서 탐색.
+    /// ?뚯씪紐??뺤옣???놁쓬)?쇰줈 Sprite瑜??먯깋?⑸땲??
+    /// ?곗꽑 IconFolder ?덉뿉??李얘퀬, ?놁쑝硫??꾨줈?앺듃 ?꾩껜?먯꽌 ?먯깋.
     /// </summary>
     private static Sprite FindSprite(string assetName, string rowId)
     {
         if (string.IsNullOrWhiteSpace(assetName)) return null;
 
-        // 1. IconFolder 내 직접 경로 시도 (jpg / png)
+        // 1. IconFolder ??吏곸젒 寃쎈줈 ?쒕룄 (jpg / png)
         foreach (string ext in new[] { ".jpg", ".png", ".jpeg" })
         {
             string path = $"{IconFolder}/{assetName}{ext}";
-            // Texture로 로드한 뒤 Sprite로 변환
+            // Texture濡?濡쒕뱶????Sprite濡?蹂??
             Sprite s = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             if (s != null)
             {
-                Debug.Log($"[SkillTableImporter] id='{rowId}' icon 연결: {path}");
+                Debug.Log($"[SkillTableImporter] id='{rowId}' icon ?곌껐: {path}");
                 return s;
             }
         }
 
-        // 2. 프로젝트 전체 탐색 (t:Sprite)
+        // 2. ?꾨줈?앺듃 ?꾩껜 ?먯깋 (t:Sprite)
         string[] guids = AssetDatabase.FindAssets($"{assetName} t:Sprite");
         foreach (string guid in guids)
         {
@@ -208,13 +208,13 @@ public static class SkillTableImporter
                 Sprite s = AssetDatabase.LoadAssetAtPath<Sprite>(path);
                 if (s != null)
                 {
-                    Debug.Log($"[SkillTableImporter] id='{rowId}' icon 연결 (전체탐색): {path}");
+                    Debug.Log($"[SkillTableImporter] id='{rowId}' icon ?곌껐 (?꾩껜?먯깋): {path}");
                     return s;
                 }
             }
         }
 
-        // 3. Texture2D로 찾아 Sprite 변환 시도
+        // 3. Texture2D濡?李얠븘 Sprite 蹂???쒕룄
         guids = AssetDatabase.FindAssets($"{assetName} t:Texture2D");
         foreach (string guid in guids)
         {
@@ -225,37 +225,37 @@ public static class SkillTableImporter
                 Sprite s = AssetDatabase.LoadAssetAtPath<Sprite>(path);
                 if (s != null)
                 {
-                    Debug.Log($"[SkillTableImporter] id='{rowId}' icon 연결 (Texture2D): {path}");
+                    Debug.Log($"[SkillTableImporter] id='{rowId}' icon ?곌껐 (Texture2D): {path}");
                     return s;
                 }
             }
         }
 
         Debug.LogWarning(
-            $"[SkillTableImporter] id='{rowId}' icon='{assetName}' 을 찾지 못했습니다.\n" +
-            $"확인: {IconFolder}/{assetName}.jpg|png 이 존재하는지 확인하세요.\n" +
-            $"또한 Texture Import Settings → Sprite Mode = Single 로 설정하세요.");
+            $"[SkillTableImporter] id='{rowId}' icon='{assetName}' ??李얠? 紐삵뻽?듬땲??\n" +
+            $"?뺤씤: {IconFolder}/{assetName}.jpg|png ??議댁옱?섎뒗吏 ?뺤씤?섏꽭??\n" +
+            $"?먰븳 Texture Import Settings ??Sprite Mode = Single 濡??ㅼ젙?섏꽭??");
         return null;
     }
 
     /// <summary>
-    /// 파일명(확장자 없음)으로 Prefab을 탐색합니다.
-    /// 우선 VfxFolder 안에서 찾고, 없으면 프로젝트 전체에서 탐색.
+    /// ?뚯씪紐??뺤옣???놁쓬)?쇰줈 Prefab???먯깋?⑸땲??
+    /// ?곗꽑 VfxFolder ?덉뿉??李얘퀬, ?놁쑝硫??꾨줈?앺듃 ?꾩껜?먯꽌 ?먯깋.
     /// </summary>
     private static GameObject FindPrefab(string assetName, string rowId)
     {
         if (string.IsNullOrWhiteSpace(assetName)) return null;
 
-        // 1. VfxFolder 직접 경로 시도
+        // 1. VfxFolder 吏곸젒 寃쎈줈 ?쒕룄
         string directPath = $"{VfxFolder}/{assetName}.prefab";
         GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(directPath);
         if (go != null)
         {
-            Debug.Log($"[SkillTableImporter] id='{rowId}' VFX 연결: {directPath}");
+            Debug.Log($"[SkillTableImporter] id='{rowId}' VFX ?곌껐: {directPath}");
             return go;
         }
 
-        // 2. 프로젝트 전체 탐색 (t:Prefab)
+        // 2. ?꾨줈?앺듃 ?꾩껜 ?먯깋 (t:Prefab)
         string[] guids = AssetDatabase.FindAssets($"{assetName} t:Prefab");
         foreach (string guid in guids)
         {
@@ -266,19 +266,19 @@ public static class SkillTableImporter
                 go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 if (go != null)
                 {
-                    Debug.Log($"[SkillTableImporter] id='{rowId}' VFX 연결 (전체탐색): {path}");
+                    Debug.Log($"[SkillTableImporter] id='{rowId}' VFX ?곌껐 (?꾩껜?먯깋): {path}");
                     return go;
                 }
             }
         }
 
         Debug.LogWarning(
-            $"[SkillTableImporter] id='{rowId}' castVfxPrefab='{assetName}' 을 찾지 못했습니다.\n" +
-            $"확인: 프로젝트 어딘가에 '{assetName}.prefab' 이 존재하는지 확인하세요.");
+            $"[SkillTableImporter] id='{rowId}' castVfxPrefab='{assetName}' ??李얠? 紐삵뻽?듬땲??\n" +
+            $"?뺤씤: ?꾨줈?앺듃 ?대뵖媛??'{assetName}.prefab' ??議댁옱?섎뒗吏 ?뺤씤?섏꽭??");
         return null;
     }
 
-    // ── 유틸 ─────────────────────────────────────────────────────────────────
+    // ?? ?좏떥 ?????????????????????????????????????????????????????????????????
 
     private static SkillTable CreateAsset()
     {
@@ -299,3 +299,5 @@ public static class SkillTableImporter
     }
 }
 #endif
+
+

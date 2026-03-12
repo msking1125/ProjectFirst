@@ -1,10 +1,10 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-
+using ProjectFirst.Data;
 /// <summary>
-/// Agent CSV를 AgentTable / AgentData / Agent 프리팹에 동기화합니다.
+/// Agent CSV瑜?AgentTable / AgentData / Agent ?꾨━?뱀뿉 ?숆린?뷀빀?덈떎.
 /// </summary>
 public static class AgentTableImporter
 {
@@ -23,13 +23,13 @@ public static class AgentTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[AgentTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[AgentTableImporter] CSV瑜?李얠쓣 ???놁뒿?덈떎: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[AgentTableImporter] 데이터 행이 없습니다: {csvPath}");
+            Debug.LogError($"[AgentTableImporter] ?곗씠???됱씠 ?놁뒿?덈떎: {csvPath}");
             return;
         }
 
@@ -68,11 +68,13 @@ public static class AgentTableImporter
             {
                 id = id,
                 name = CsvImportUtility.GetCell(cols, nameIdx),
-                hp = CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, hpIdx)),
-                atk = CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, atkIdx)),
-                def = CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, defIdx)),
-                critChance = Mathf.Clamp01(CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, critChanceIdx))),
-                critMultiplier = Mathf.Max(1f, CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, critMultiplierIdx), 1.5f)),
+                stats = new CombatStats(
+                    CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, hpIdx)),
+                    CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, atkIdx)),
+                    CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, defIdx)),
+                    Mathf.Clamp01(CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, critChanceIdx))),
+                    Mathf.Max(1f, CsvImportUtility.ParseFloat(CsvImportUtility.GetCell(cols, critMultiplierIdx), 1.5f))
+                ),
                 element = ParseElement(CsvImportUtility.GetCell(cols, elementIdx), id),
                 portrait = portraitSprite
             };
@@ -178,3 +180,8 @@ public static class AgentTableImporter
 
 }
 #endif
+
+
+
+
+

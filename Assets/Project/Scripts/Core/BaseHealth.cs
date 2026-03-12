@@ -1,3 +1,5 @@
+﻿using System;
+using TMPro;
 using UnityEngine;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
@@ -12,19 +14,19 @@ namespace Project
     public class BaseHealth : MonoBehaviour
     {
 #if ODIN_INSPECTOR
-        [Title("체력 설정", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("체력", 0.5f)]
-        [BoxGroup("체력/최대")]
-        [LabelText("최대 체력")]
+        [Title("泥대젰 ?ㅼ젙", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("泥대젰", 0.5f)]
+        [BoxGroup("泥대젰/理쒕?")]
+        [LabelText("理쒕? 泥대젰")]
         [PropertyRange(10, 1000)]
 #endif
         [SerializeField] private int maxHealth = 100;
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("체력", 0.5f)]
-        [BoxGroup("체력/텍스트")]
-        [LabelText("HP 텍스트")]
-        [Tooltip("체력 표시 텍스트 컴포넌트")]
+        [HorizontalGroup("泥대젰", 0.5f)]
+        [BoxGroup("泥대젰/?띿뒪??)]
+        [LabelText("HP ?띿뒪??)]
+        [Tooltip("泥대젰 ?쒖떆 ?띿뒪??而댄룷?뚰듃")]
         [SceneObjectsOnly]
 #endif
         [SerializeField] private TMP_Text hpText;
@@ -83,3 +85,4 @@ namespace Project
         }
     }
 }
+

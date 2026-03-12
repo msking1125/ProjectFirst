@@ -1,70 +1,75 @@
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
-
+using ProjectFirst.Data;
 /// <summary>
-/// 월드맵(챕터 선택) 및 챕터맵(스테이지 선택) 화면을 관리합니다.
-/// CSV 기반 ChapterTable/StageTable에서 데이터를 읽고,
-/// ChapterData에서 시각 에셋(아이콘, 스프라이트)을 참조합니다.
+/// ?붾뱶留?梨뺥꽣 ?좏깮) 諛?梨뺥꽣留??ㅽ뀒?댁? ?좏깮) ?붾㈃??愿由ы빀?덈떎.
+/// CSV 湲곕컲 ChapterTable/StageTable?먯꽌 ?곗씠?곕? ?쎄퀬,
+/// ChapterData?먯꽌 ?쒓컖 ?먯뀑(?꾩씠肄? ?ㅽ봽?쇱씠????李몄“?⑸땲??
 ///
-/// [Inspector 연결 가이드]
-/// ┌ Data (Tables)
-/// │  ├ chapterTable : ChapterTable.asset (CSV 임포트)
-/// │  ├ stageTable   : StageTable.asset   (CSV 임포트)
-/// │  └ playerData   : PlayerData.asset
-/// ├ Visual Assets (Optional)
-/// │  └ chapterData  : ChapterData.asset  (아이콘/스프라이트)
-/// ├ UI
-/// │  └ uiDocument   : Scene 의 UIDocument 컴포넌트
-/// └ Events (Optional)
-///    └ onStageSelected : 스테이지 선택 시 발행
+/// [Inspector ?곌껐 媛?대뱶]
+/// ??Data (Tables)
+/// ?? ??chapterTable : ChapterTable.asset (CSV ?꾪룷??
+/// ?? ??stageTable   : StageTable.asset   (CSV ?꾪룷??
+/// ?? ??playerData   : PlayerData.asset
+/// ??Visual Assets (Optional)
+/// ?? ??chapterData  : ChapterData.asset  (?꾩씠肄??ㅽ봽?쇱씠??
+/// ??UI
+/// ?? ??uiDocument   : Scene ??UIDocument 而댄룷?뚰듃
+/// ??Events (Optional)
+///    ??onStageSelected : ?ㅽ뀒?댁? ?좏깮 ??諛쒗뻾
 /// </summary>
 public class MapChapterManager : MonoBehaviour
 {
-    // ── Data (Tables) ──────────────────────────────────────────
+    // ?? Data (Tables) ??????????????????????????????????????????
 
     [Header("Data (Tables)")]
     [SerializeField] private ChapterTable _chapterTable;
     [SerializeField] private StageTable _stageTable;
     [SerializeField] private PlayerData _playerData;
 
-    // ── Visual Assets (Optional) ───────────────────────────────
+    // ?? Visual Assets (Optional) ???????????????????????????????
 
     [Header("Visual Assets")]
-    [Tooltip("챕터 아이콘/스프라이트용. 없으면 기본 스타일 사용.")]
+    [Tooltip("梨뺥꽣 ?꾩씠肄??ㅽ봽?쇱씠?몄슜. ?놁쑝硫?湲곕낯 ?ㅽ????ъ슜.")]
     [SerializeField] private ChapterData _chapterData;
 
-    // ── UI ──────────────────────────────────────────────────────
+    // ?? UI ??????????????????????????????????????????????????????
 
     [Header("UI")]
     [SerializeField] private UIDocument _uiDocument;
 
-    // ── Events (Optional) ──────────────────────────────────────
+    // ?? Events (Optional) ??????????????????????????????????????
 
     [Header("Events")]
     [SerializeField] private VoidEventChannelSO _onStageSelected;
 
-    // ── 상태 ────────────────────────────────────────────────────
+    // ?? ?곹깭 ????????????????????????????????????????????????????
 
     private enum MapViewState { WorldMap, ChapterMap }
 
     private MapViewState _currentView = MapViewState.WorldMap;
 
-    /// <summary>현재 월드맵 뷰 상태인지 반환합니다.</summary>
+    /// <summary>?꾩옱 ?붾뱶留?酉??곹깭?몄? 諛섑솚?⑸땲??</summary>
     public bool IsWorldMapView => _currentView == MapViewState.WorldMap;
 
     private int _selectedChapterId;
     private StageRow _selectedStage;
 
-    // ── 스크롤 드래그 ───────────────────────────────────────────
+    // ?? ?ㅽ겕濡??쒕옒洹????????????????????????????????????????????
 
     private Vector2 _dragStart;
     private Vector2 _mapOffset;
     private bool _isDragging;
 
-    // ── UI 요소 캐시 ────────────────────────────────────────────
+    // ?? UI ?붿냼 罹먯떆 ????????????????????????????????????????????
 
     private VisualElement _root;
     private VisualElement _worldMapView;
@@ -72,7 +77,7 @@ public class MapChapterManager : MonoBehaviour
     private VisualElement _chapterNodesContainer;
     private VisualElement _mapBackground;
 
-    // 챕터맵
+    // 梨뺥꽣留?
     private Label _chapterHeaderLabel;
     private Button _chapterBackBtn;
     private VisualElement _stageList;
@@ -85,14 +90,14 @@ public class MapChapterManager : MonoBehaviour
     private Button _battleReadyBtn;
     private Label _staminaCostLabel;
 
-    // 월드맵
+    // ?붾뱶留?
     private Button _worldBackBtn;
 
-    // ── 전환 애니메이션 ─────────────────────────────────────────
+    // ?? ?꾪솚 ?좊땲硫붿씠???????????????????????????????????????????
 
     private const float TransitionDuration = 0.3f;
 
-    // ─────────────────────────────────────────────────────────────
+    // ?????????????????????????????????????????????????????????????
 
     private void OnEnable()
     {
@@ -100,25 +105,25 @@ public class MapChapterManager : MonoBehaviour
         BuildWorldMap();
     }
 
-    // ── UI 바인딩 ───────────────────────────────────────────────
+    // ?? UI 諛붿씤?????????????????????????????????????????????????
 
     private void BindUI()
     {
         if (_uiDocument == null)
         {
-            Debug.LogError("[MapChapterManager] UIDocument가 할당되지 않았습니다.");
+            Debug.LogError("[MapChapterManager] UIDocument媛 ?좊떦?섏? ?딆븯?듬땲??");
             return;
         }
 
         _root = _uiDocument.rootVisualElement;
 
-        // 월드맵
+        // ?붾뱶留?
         _worldMapView = _root.Q<VisualElement>("world-map-view");
         _mapBackground = _root.Q<VisualElement>("map-background");
         _chapterNodesContainer = _root.Q<VisualElement>("chapter-nodes-container");
         _worldBackBtn = _root.Q<Button>("world-back-btn");
 
-        // 챕터맵
+        // 梨뺥꽣留?
         _chapterMapView = _root.Q<VisualElement>("chapter-map-view");
         _chapterHeaderLabel = _root.Q<Label>("chapter-header-label");
         _chapterBackBtn = _root.Q<Button>("chapter-back-btn");
@@ -132,12 +137,12 @@ public class MapChapterManager : MonoBehaviour
         _battleReadyBtn = _root.Q<Button>("battle-ready-btn");
         _staminaCostLabel = _root.Q<Label>("stamina-cost-label");
 
-        // 버튼 이벤트
+        // 踰꾪듉 ?대깽??
         _worldBackBtn?.RegisterCallback<ClickEvent>(_ => OnWorldBackClicked());
         _chapterBackBtn?.RegisterCallback<ClickEvent>(_ => OnChapterBackClicked());
         _battleReadyBtn?.RegisterCallback<ClickEvent>(_ => OnBattleReadyClicked());
 
-        // 드래그 스크롤
+        // ?쒕옒洹??ㅽ겕濡?
         if (_mapBackground != null)
         {
             _mapBackground.RegisterCallback<PointerDownEvent>(OnMapPointerDown);
@@ -146,10 +151,10 @@ public class MapChapterManager : MonoBehaviour
         }
     }
 
-    // ── 월드맵 구축 ─────────────────────────────────────────────
+    // ?? ?붾뱶留?援ъ텞 ?????????????????????????????????????????????
 
     /// <summary>
-    /// 챕터 노드를 월드맵에 배치합니다.
+    /// 梨뺥꽣 ?몃뱶瑜??붾뱶留듭뿉 諛곗튂?⑸땲??
     /// </summary>
     private void BuildWorldMap()
     {
@@ -176,7 +181,7 @@ public class MapChapterManager : MonoBehaviour
         node.style.left = chapter.WorldMapPosition.x;
         node.style.top = chapter.WorldMapPosition.y;
 
-        // 섬 이미지 (ChapterData 에셋에서 시각 리소스 조회)
+        // ???대?吏 (ChapterData ?먯뀑?먯꽌 ?쒓컖 由ъ냼??議고쉶)
         var islandImg = new VisualElement();
         islandImg.name = "chapter-island-img";
         islandImg.AddToClassList("chapter-island-img");
@@ -188,7 +193,7 @@ public class MapChapterManager : MonoBehaviour
         }
         node.Add(islandImg);
 
-        // 잠금 시 구름 오버레이
+        // ?좉툑 ??援щ쫫 ?ㅻ쾭?덉씠
         if (!chapter.isUnlocked)
         {
             var cloud = new VisualElement();
@@ -197,7 +202,7 @@ public class MapChapterManager : MonoBehaviour
             node.Add(cloud);
         }
 
-        // 별점 (ChapterData에서 클리어 별점 참조)
+        // 蹂꾩젏 (ChapterData?먯꽌 ?대━??蹂꾩젏 李몄“)
         int clearStars = visualInfo?.clearStars ?? 0;
         var starRow = new VisualElement();
         starRow.name = "star-row";
@@ -210,7 +215,7 @@ public class MapChapterManager : MonoBehaviour
         }
         node.Add(starRow);
 
-        // 현재 진행 챕터 표시
+        // ?꾩옱 吏꾪뻾 梨뺥꽣 ?쒖떆
         if (_playerData != null && _playerData.currentChapter == chapter.id)
         {
             var charSd = new VisualElement();
@@ -219,22 +224,22 @@ public class MapChapterManager : MonoBehaviour
             node.Add(charSd);
         }
 
-        // 챕터 이름
+        // 梨뺥꽣 ?대쫫
         var nameLabel = new Label(chapter.name);
         nameLabel.AddToClassList("chapter-name-label");
         node.Add(nameLabel);
 
-        // 클릭 이벤트
+        // ?대┃ ?대깽??
         int capturedId = chapter.id;
         node.RegisterCallback<ClickEvent>(_ => OnChapterNodeClicked(capturedId));
 
         return node;
     }
 
-    // ── 챕터 노드 클릭 ──────────────────────────────────────────
+    // ?? 梨뺥꽣 ?몃뱶 ?대┃ ??????????????????????????????????????????
 
     /// <summary>
-    /// 챕터 노드 클릭 시 호출됩니다.
+    /// 梨뺥꽣 ?몃뱶 ?대┃ ???몄텧?⑸땲??
     /// </summary>
     private void OnChapterNodeClicked(int chapterId)
     {
@@ -251,10 +256,10 @@ public class MapChapterManager : MonoBehaviour
         TransitionToChapterMap(chapterId);
     }
 
-    // ── 챕터맵 전환 ─────────────────────────────────────────────
+    // ?? 梨뺥꽣留??꾪솚 ?????????????????????????????????????????????
 
     /// <summary>
-    /// 월드맵에서 챕터맵으로 전환합니다.
+    /// ?붾뱶留듭뿉??梨뺥꽣留듭쑝濡??꾪솚?⑸땲??
     /// </summary>
     private void TransitionToChapterMap(int chapterId)
     {
@@ -272,7 +277,7 @@ public class MapChapterManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 챕터맵에서 월드맵으로 복귀합니다.
+    /// 梨뺥꽣留듭뿉???붾뱶留듭쑝濡?蹂듦??⑸땲??
     /// </summary>
     private void TransitionToWorldMap()
     {
@@ -316,10 +321,10 @@ public class MapChapterManager : MonoBehaviour
         showTarget.style.opacity = 1f;
     }
 
-    // ── 스테이지 목록 구축 ──────────────────────────────────────
+    // ?? ?ㅽ뀒?댁? 紐⑸줉 援ъ텞 ??????????????????????????????????????
 
     /// <summary>
-    /// 챕터에 속한 스테이지 버튼 목록을 생성합니다.
+    /// 梨뺥꽣???랁븳 ?ㅽ뀒?댁? 踰꾪듉 紐⑸줉???앹꽦?⑸땲??
     /// </summary>
     private void BuildStageList(List<StageRow> stages)
     {
@@ -335,12 +340,12 @@ public class MapChapterManager : MonoBehaviour
             btn.name = $"stage-btn-{stage.id}";
             btn.AddToClassList("stage-button");
 
-            // 스테이지 번호
+            // ?ㅽ뀒?댁? 踰덊샇
             var numberLabel = new Label($"{_selectedChapterId}-{stage.stageNumber}");
             numberLabel.AddToClassList("stage-number");
             btn.Add(numberLabel);
 
-            // 별점 (PlayerData 기반 클리어 상태)
+            // 蹂꾩젏 (PlayerData 湲곕컲 ?대━???곹깭)
             int clearStars = GetStageClearStars(stage.id);
             var starRow = new VisualElement();
             starRow.AddToClassList("star-row");
@@ -352,7 +357,7 @@ public class MapChapterManager : MonoBehaviour
             }
             btn.Add(starRow);
 
-            // 잠금 아이콘
+            // ?좉툑 ?꾩씠肄?
             if (!isUnlocked)
             {
                 var lockIcon = new VisualElement();
@@ -361,7 +366,7 @@ public class MapChapterManager : MonoBehaviour
                 btn.SetEnabled(false);
             }
 
-            // 선택 이벤트
+            // ?좏깮 ?대깽??
             var capturedStage = stage;
             bool capturedUnlocked = isUnlocked;
             btn.RegisterCallback<ClickEvent>(_ =>
@@ -372,32 +377,32 @@ public class MapChapterManager : MonoBehaviour
 
             _stageList.Add(btn);
 
-            // 다음 스테이지 잠금 여부 결정
+            // ?ㅼ쓬 ?ㅽ뀒?댁? ?좉툑 ?щ? 寃곗젙
             previousCleared = clearStars > 0;
         }
 
-        // 첫 번째 해금 스테이지 자동 선택
+        // 泥?踰덉㎏ ?닿툑 ?ㅽ뀒?댁? ?먮룞 ?좏깮
         if (stages.Count > 0)
             OnStageSelected(stages[0]);
     }
 
     /// <summary>
-    /// 스테이지 클리어 별점을 반환합니다.
+    /// ?ㅽ뀒?댁? ?대━??蹂꾩젏??諛섑솚?⑸땲??
     /// </summary>
     private int GetStageClearStars(int stageId)
     {
-        // TODO: PlayerData에 스테이지별 클리어 정보 추가 시 연동
-        // 현재는 첫 챕터 첫 스테이지만 해금
+        // TODO: PlayerData???ㅽ뀒?댁?蹂??대━???뺣낫 異붽? ???곕룞
+        // ?꾩옱??泥?梨뺥꽣 泥??ㅽ뀒?댁?留??닿툑
         if (_playerData != null && _playerData.currentChapter <= 1
             && _playerData.currentStage <= 1 && stageId <= 101)
             return 0;
         return 0;
     }
 
-    // ── 스테이지 선택 ───────────────────────────────────────────
+    // ?? ?ㅽ뀒?댁? ?좏깮 ???????????????????????????????????????????
 
     /// <summary>
-    /// 스테이지 선택 시 정보 패널을 갱신합니다.
+    /// ?ㅽ뀒?댁? ?좏깮 ???뺣낫 ?⑤꼸??媛깆떊?⑸땲??
     /// </summary>
     private void OnStageSelected(StageRow stage)
     {
@@ -406,7 +411,7 @@ public class MapChapterManager : MonoBehaviour
         _onStageSelected?.RaiseEvent();
     }
 
-    // ── 정보 패널 갱신 ──────────────────────────────────────────
+    // ?? ?뺣낫 ?⑤꼸 媛깆떊 ??????????????????????????????????????????
 
     private void UpdateInfoPanel(StageRow stage)
     {
@@ -417,9 +422,9 @@ public class MapChapterManager : MonoBehaviour
             _stageDescLabel.text = stage.description;
 
         if (_recommendPowerLabel != null)
-            _recommendPowerLabel.text = $"권장 전투력: {stage.recommendedPower:N0}";
+            _recommendPowerLabel.text = $"沅뚯옣 ?꾪닾?? {stage.recommendedPower:N0}";
 
-        // 적 속성 아이콘
+        // ???띿꽦 ?꾩씠肄?
         if (_enemyElementIcons != null)
         {
             _enemyElementIcons.Clear();
@@ -430,7 +435,7 @@ public class MapChapterManager : MonoBehaviour
             _enemyElementIcons.Add(elementLabel);
         }
 
-        // 보상 미리보기 (CSV 골드/경험치)
+        // 蹂댁긽 誘몃━蹂닿린 (CSV 怨⑤뱶/寃쏀뿕移?
         if (_rewardPreview != null)
         {
             _rewardPreview.Clear();
@@ -464,39 +469,39 @@ public class MapChapterManager : MonoBehaviour
             }
         }
 
-        // 스태미나 비용
+        // ?ㅽ깭誘몃굹 鍮꾩슜
         if (_staminaCostLabel != null)
-            _staminaCostLabel.text = $"스태미나 {stage.staminaCost}";
+            _staminaCostLabel.text = $"?ㅽ깭誘몃굹 {stage.staminaCost}";
 
-        // 전투 준비 버튼
+        // ?꾪닾 以鍮?踰꾪듉
         if (_battleReadyBtn != null)
             _battleReadyBtn.SetEnabled(true);
     }
 
-    // ── 전투 준비 ───────────────────────────────────────────────
+    // ?? ?꾪닾 以鍮????????????????????????????????????????????????
 
     /// <summary>
-    /// 전투 준비 버튼 클릭 시 호출됩니다.
+    /// ?꾪닾 以鍮?踰꾪듉 ?대┃ ???몄텧?⑸땲??
     /// </summary>
     private void OnBattleReadyClicked()
     {
         if (_selectedStage == null) return;
 
-        // 스태미나 확인
+        // ?ㅽ깭誘몃굹 ?뺤씤
         if (_playerData != null && _playerData.stamina < _selectedStage.staminaCost)
         {
             ShowStaminaLackPopup(_selectedStage.staminaCost);
             return;
         }
 
-        // 진행 정보 저장
+        // 吏꾪뻾 ?뺣낫 ???
         if (_playerData != null)
         {
             _playerData.currentChapter = _selectedChapterId;
             _playerData.currentStage = _selectedStage.stageNumber;
         }
 
-        // 씬 전환
+        // ???꾪솚
         if (AsyncSceneLoader.Instance != null)
         {
             AsyncSceneLoader.Instance.LoadSceneAsync(
@@ -508,7 +513,7 @@ public class MapChapterManager : MonoBehaviour
         }
     }
 
-    // ── 뒤로가기 ────────────────────────────────────────────────
+    // ?? ?ㅻ줈媛湲?????????????????????????????????????????????????
 
     private void OnWorldBackClicked()
     {
@@ -523,21 +528,21 @@ public class MapChapterManager : MonoBehaviour
         TransitionToWorldMap();
     }
 
-    // ── 팝업 ────────────────────────────────────────────────────
+    // ?? ?앹뾽 ????????????????????????????????????????????????????
 
     private void ShowLockedPopup()
     {
-        Debug.Log("[MapChapterManager] 이전 챕터를 클리어해야 합니다.");
+        Debug.Log("[MapChapterManager] ?댁쟾 梨뺥꽣瑜??대━?댄빐???⑸땲??");
     }
 
     private void ShowStaminaLackPopup(int required)
     {
         int current = _playerData != null ? _playerData.stamina : 0;
         Debug.Log(
-            $"[MapChapterManager] 스태미나 부족 (필요: {required}, 보유: {current})");
+            $"[MapChapterManager] ?ㅽ깭誘몃굹 遺議?(?꾩슂: {required}, 蹂댁쑀: {current})");
     }
 
-    // ── 드래그 스크롤 ───────────────────────────────────────────
+    // ?? ?쒕옒洹??ㅽ겕濡????????????????????????????????????????????
 
     private void OnMapPointerDown(PointerDownEvent evt)
     {
@@ -565,7 +570,7 @@ public class MapChapterManager : MonoBehaviour
         _isDragging = false;
     }
 
-    // ── 뷰 전환 유틸 ───────────────────────────────────────────
+    // ?? 酉??꾪솚 ?좏떥 ???????????????????????????????????????????
 
     private void ShowWorldMap()
     {
@@ -579,14 +584,18 @@ public class MapChapterManager : MonoBehaviour
             _chapterMapView.style.display = DisplayStyle.None;
     }
 
-    // ── 유틸 ────────────────────────────────────────────────────
+    // ?? ?좏떥 ????????????????????????????????????????????????????
 
     /// <summary>
-    /// 파티 전투력을 계산합니다.
+    /// ?뚰떚 ?꾪닾?μ쓣 怨꾩궛?⑸땲??
     /// </summary>
     private int CalcPartyPower()
     {
-        // TODO: 파티 편성 시스템 연동 후 실제 전투력 계산
+        // TODO: ?뚰떚 ?몄꽦 ?쒖뒪???곕룞 ???ㅼ젣 ?꾪닾??怨꾩궛
         return 0;
     }
 }
+
+
+
+

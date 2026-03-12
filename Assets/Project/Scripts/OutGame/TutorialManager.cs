@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,24 +12,24 @@ using Sirenix.OdinInspector;
 namespace ProjectFirst.OutGame
 {
     /// <summary>
-    /// 튜토리얼 오버레이를 제어하는 싱글턴 매니저.
-    /// TryTrigger(triggerKey)를 호출하면 해당 키의 튜토리얼이 시작됩니다.
-    /// 완료된 튜토리얼은 PlayerPrefs에 JSON으로 저장하여 재출력을 방지합니다.
+    /// ?쒗넗由ъ뼹 ?ㅻ쾭?덉씠瑜??쒖뼱?섎뒗 ?깃???留ㅻ땲?.
+    /// TryTrigger(triggerKey)瑜??몄텧?섎㈃ ?대떦 ?ㅼ쓽 ?쒗넗由ъ뼹???쒖옉?⑸땲??
+    /// ?꾨즺???쒗넗由ъ뼹? PlayerPrefs??JSON?쇰줈 ??ν븯???ъ텧?μ쓣 諛⑹??⑸땲??
     /// </summary>
 #if ODIN_INSPECTOR
     [HideMonoScript]
 #endif
     public class TutorialManager : MonoBehaviour
     {
-        // ── 싱글턴 ──────────────────────────────────────────────
+        // ?? ?깃?????????????????????????????????????????????????
         public static TutorialManager Instance { get; private set; }
 
-        // ── Inspector ───────────────────────────────────────────
+        // ?? Inspector ???????????????????????????????????????????
 #if ODIN_INSPECTOR
-        [Title("UI 연결", TitleAlignment = TitleAlignments.Left)]
+        [Title("UI ?곌껐", TitleAlignment = TitleAlignments.Left)]
         [BoxGroup("UI")]
         [LabelText("Tutorial UI")]
-        [Tooltip("튜토리얼 UI UIDocument")]
+        [Tooltip("?쒗넗由ъ뼹 UI UIDocument")]
         [SceneObjectsOnly]
 #endif
         [SerializeField] private UIDocument _tutorialUI;
@@ -37,22 +37,22 @@ namespace ProjectFirst.OutGame
 #if ODIN_INSPECTOR
         [BoxGroup("UI")]
         [LabelText("PlayerData")]
-        [Tooltip("플레이어 데이터 (튜토리얼 완료 상태 저장)")]
+        [Tooltip("?뚮젅?댁뼱 ?곗씠??(?쒗넗由ъ뼹 ?꾨즺 ?곹깭 ???")]
         [AssetsOnly]
         [PreviewField(50, ObjectFieldAlignment.Left)]
 #endif
         [SerializeField] private PlayerData _playerData;
 
 #if ODIN_INSPECTOR
-        [Title("단계", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("단계")]
-        [LabelText("튜토리얼 단계들")]
-        [Tooltip("모든 튜토리얼 단계 정의")]
+        [Title("?④퀎", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("?④퀎")]
+        [LabelText("?쒗넗由ъ뼹 ?④퀎??)]
+        [Tooltip("紐⑤뱺 ?쒗넗由ъ뼹 ?④퀎 ?뺤쓽")]
         [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
 #endif
         [SerializeField] private List<TutorialStep> _allSteps;
 
-        // ── 런타임 ─────────────────────────────────────────────
+        // ?? ?고????????????????????????????????????????????????
         private TutorialStep _currentStep;
         private VisualElement _overlayRoot;
         private VisualElement _topPanel;
@@ -71,9 +71,9 @@ namespace ProjectFirst.OutGame
         private const string OverlayColor = "rgba(0,0,0,0.7)";
         private const string PlayerPrefsKey = "tutorialFlags";
 
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
         // Lifecycle
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
 
         private void Awake()
         {
@@ -95,13 +95,13 @@ namespace ProjectFirst.OutGame
                 Instance = null;
         }
 
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
         // Public API
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
 
         /// <summary>
-        /// triggerKey에 해당하는 튜토리얼을 시작합니다.
-        /// 이미 완료된 키이거나 등록되지 않은 키이면 무시합니다.
+        /// triggerKey???대떦?섎뒗 ?쒗넗由ъ뼹???쒖옉?⑸땲??
+        /// ?대? ?꾨즺???ㅼ씠嫄곕굹 ?깅줉?섏? ?딆? ?ㅼ씠硫?臾댁떆?⑸땲??
         /// </summary>
         public void TryTrigger(string triggerKey)
         {
@@ -117,9 +117,9 @@ namespace ProjectFirst.OutGame
             StartStep(step);
         }
 
-        // ─────────────────────────────────────────────────────────
-        // Step 진행
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
+        // Step 吏꾪뻾
+        // ?????????????????????????????????????????????????????????
 
         private void StartStep(TutorialStep step)
         {
@@ -179,9 +179,9 @@ namespace ProjectFirst.OutGame
             _currentStep = null;
         }
 
-        // ─────────────────────────────────────────────────────────
-        // 오버레이 구축 (4-패널 구멍 방식)
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
+        // ?ㅻ쾭?덉씠 援ъ텞 (4-?⑤꼸 援щ찉 諛⑹떇)
+        // ?????????????????????????????????????????????????????????
 
         private void BuildOverlay()
         {
@@ -189,7 +189,7 @@ namespace ProjectFirst.OutGame
 
             _overlayRoot = _tutorialUI.rootVisualElement;
 
-            // 기존 자식 초기화
+            // 湲곗〈 ?먯떇 珥덇린??
             _overlayRoot.Clear();
             _overlayRoot.style.position = Position.Absolute;
             _overlayRoot.style.left = 0;
@@ -198,7 +198,7 @@ namespace ProjectFirst.OutGame
             _overlayRoot.style.bottom = 0;
             _overlayRoot.pickingMode = PickingMode.Position;
 
-            // 어두운 패널 4개 (구멍을 표현)
+            // ?대몢???⑤꼸 4媛?(援щ찉???쒗쁽)
             _topPanel = CreateDarkPanel("tutorial-top-panel");
             _bottomPanel = CreateDarkPanel("tutorial-bottom-panel");
             _leftPanel = CreateDarkPanel("tutorial-left-panel");
@@ -209,7 +209,7 @@ namespace ProjectFirst.OutGame
             _overlayRoot.Add(_leftPanel);
             _overlayRoot.Add(_rightPanel);
 
-            // 안내 텍스트 패널
+            // ?덈궡 ?띿뒪???⑤꼸
             _guideTextPanel = new VisualElement();
             _guideTextPanel.name = "tutorial-guide-panel";
             _guideTextPanel.style.position = Position.Absolute;
@@ -231,7 +231,7 @@ namespace ProjectFirst.OutGame
             _guideTextPanel.Add(_guideLabel);
             _overlayRoot.Add(_guideTextPanel);
 
-            // 팝업 패널
+            // ?앹뾽 ?⑤꼸
             _popupPanel = new VisualElement();
             _popupPanel.name = "tutorial-popup-panel";
             _popupPanel.style.position = Position.Absolute;
@@ -275,7 +275,7 @@ namespace ProjectFirst.OutGame
 
             _popupCloseBtn = new Button();
             _popupCloseBtn.name = "tutorial-popup-close";
-            _popupCloseBtn.text = "확인";
+            _popupCloseBtn.text = "?뺤씤";
             _popupCloseBtn.style.marginTop = 16;
             _popupCloseBtn.style.alignSelf = Align.Center;
             _popupCloseBtn.style.paddingLeft = 40;
@@ -303,13 +303,13 @@ namespace ProjectFirst.OutGame
             return panel;
         }
 
-        // ─────────────────────────────────────────────────────────
-        // 하이라이트
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
+        // ?섏씠?쇱씠??
+        // ?????????????????????????????????????????????????????????
 
         /// <summary>
-        /// 모든 UIDocument에서 name으로 VisualElement를 탐색하고
-        /// worldBound를 기반으로 4개 패널의 위치를 조정하여 구멍을 뚫습니다.
+        /// 紐⑤뱺 UIDocument?먯꽌 name?쇰줈 VisualElement瑜??먯깋?섍퀬
+        /// worldBound瑜?湲곕컲?쇰줈 4媛??⑤꼸???꾩튂瑜?議곗젙?섏뿬 援щ찉???レ뒿?덈떎.
         /// </summary>
         private void ApplyHighlight(string elementName)
         {
@@ -322,7 +322,7 @@ namespace ProjectFirst.OutGame
             VisualElement target = FindUIElement(elementName);
             if (target == null)
             {
-                Debug.LogWarning($"[TutorialManager] UI 요소를 찾을 수 없습니다: {elementName}");
+                Debug.LogWarning($"[TutorialManager] UI ?붿냼瑜?李얠쓣 ???놁뒿?덈떎: {elementName}");
                 SetFullOverlay();
                 return;
             }
@@ -348,25 +348,25 @@ namespace ProjectFirst.OutGame
             float screenWidth = Screen.width;
             float screenHeight = Screen.height;
 
-            // Top panel: 화면 상단부터 대상 영역 상단까지
+            // Top panel: ?붾㈃ ?곷떒遺??????곸뿭 ?곷떒源뚯?
             _topPanel.style.left = 0;
             _topPanel.style.top = 0;
             _topPanel.style.width = screenWidth;
             _topPanel.style.height = rect.y;
 
-            // Bottom panel: 대상 영역 하단부터 화면 하단까지
+            // Bottom panel: ????곸뿭 ?섎떒遺???붾㈃ ?섎떒源뚯?
             _bottomPanel.style.left = 0;
             _bottomPanel.style.top = rect.yMax;
             _bottomPanel.style.width = screenWidth;
             _bottomPanel.style.height = screenHeight - rect.yMax;
 
-            // Left panel: 대상 영역 좌측 (대상 높이만큼)
+            // Left panel: ????곸뿭 醫뚯륫 (????믪씠留뚰겮)
             _leftPanel.style.left = 0;
             _leftPanel.style.top = rect.y;
             _leftPanel.style.width = rect.x;
             _leftPanel.style.height = rect.height;
 
-            // Right panel: 대상 영역 우측 (대상 높이만큼)
+            // Right panel: ????곸뿭 ?곗륫 (????믪씠留뚰겮)
             _rightPanel.style.left = rect.xMax;
             _rightPanel.style.top = rect.y;
             _rightPanel.style.width = screenWidth - rect.xMax;
@@ -388,9 +388,9 @@ namespace ProjectFirst.OutGame
             _rightPanel.style.width = 0;
         }
 
-        // ─────────────────────────────────────────────────────────
-        // 안내 텍스트
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
+        // ?덈궡 ?띿뒪??
+        // ?????????????????????????????????????????????????????????
 
         private void ShowGuideText(string text, TextAnchor position)
         {
@@ -425,9 +425,9 @@ namespace ProjectFirst.OutGame
             _guideTextPanel.style.right = Length.Percent(10);
         }
 
-        // ─────────────────────────────────────────────────────────
-        // 팝업
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
+        // ?앹뾽
+        // ?????????????????????????????????????????????????????????
 
         private void ShowPopup(TutorialStep step)
         {
@@ -447,7 +447,7 @@ namespace ProjectFirst.OutGame
             _popupDescLabel.text = step.PopupDesc ?? string.Empty;
             _popupPanel.style.display = DisplayStyle.Flex;
 
-            // 팝업이 있으면 오버레이 클릭 대신 팝업의 확인 버튼으로 진행
+            // ?앹뾽???덉쑝硫??ㅻ쾭?덉씠 ?대┃ ????앹뾽???뺤씤 踰꾪듉?쇰줈 吏꾪뻾
             _overlayRoot.UnregisterCallback<ClickEvent>(OnOverlayClicked);
         }
 
@@ -457,9 +457,9 @@ namespace ProjectFirst.OutGame
                 _popupPanel.style.display = DisplayStyle.None;
         }
 
-        // ─────────────────────────────────────────────────────────
-        // 오버레이 표시 / 숨김
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
+        // ?ㅻ쾭?덉씠 ?쒖떆 / ?④?
+        // ?????????????????????????????????????????????????????????
 
         private void ShowOverlay()
         {
@@ -489,25 +489,25 @@ namespace ProjectFirst.OutGame
             }
         }
 
-        // ─────────────────────────────────────────────────────────
-        // 저장 / 불러오기 (PlayerPrefs + JSON)
-        // ─────────────────────────────────────────────────────────
+        // ?????????????????????????????????????????????????????????
+        // ???/ 遺덈윭?ㅺ린 (PlayerPrefs + JSON)
+        // ?????????????????????????????????????????????????????????
 
-        /// <summary>튜토리얼 플래그를 PlayerPrefs에 JSON으로 저장합니다.</summary>
+        /// <summary>?쒗넗由ъ뼹 ?뚮옒洹몃? PlayerPrefs??JSON?쇰줈 ??ν빀?덈떎.</summary>
         private void SaveTutorialFlags()
         {
             if (_playerData == null) return;
 
             var wrapper = new TutorialFlagListWrapper();
             foreach (var kvp in _playerData.TutorialFlags)
-                wrapper.entries.Add(new TutorialFlagEntry { key = kvp.Key, done = kvp.Value });
+                wrapper.entries.Add(new PlayerData.TutorialFlagEntry { key = kvp.Key, done = kvp.Value });
 
             string json = JsonUtility.ToJson(wrapper);
             PlayerPrefs.SetString(PlayerPrefsKey, json);
             PlayerPrefs.Save();
         }
 
-        /// <summary>PlayerPrefs에서 튜토리얼 플래그를 불러와 PlayerData에 적용합니다.</summary>
+        /// <summary>PlayerPrefs?먯꽌 ?쒗넗由ъ뼹 ?뚮옒洹몃? 遺덈윭? PlayerData???곸슜?⑸땲??</summary>
         public void LoadTutorialFlags()
         {
             if (_playerData == null) return;
@@ -523,7 +523,7 @@ namespace ProjectFirst.OutGame
             if (wrapper?.entries != null)
             {
                 _playerData.TutorialFlags.Clear();
-                foreach (TutorialFlagEntry entry in wrapper.entries)
+                foreach (PlayerData.TutorialFlagEntry entry in wrapper.entries)
                 {
                     if (!string.IsNullOrEmpty(entry.key))
                         _playerData.TutorialFlags[entry.key] = entry.done;
@@ -536,11 +536,12 @@ namespace ProjectFirst.OutGame
             }
         }
 
-        /// <summary>JsonUtility 직렬화를 위한 래퍼 클래스.</summary>
+        /// <summary>JsonUtility 吏곷젹?붾? ?꾪븳 ?섑띁 ?대옒??</summary>
         [Serializable]
         private class TutorialFlagListWrapper
         {
-            public List<TutorialFlagEntry> entries = new List<TutorialFlagEntry>();
+            public List<PlayerData.TutorialFlagEntry> entries = new List<PlayerData.TutorialFlagEntry>();
         }
     }
 }
+

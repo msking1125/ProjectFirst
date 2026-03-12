@@ -1,9 +1,9 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-
+using ProjectFirst.Data;
 public static class BadwordTableImporter
 {
     private const string CsvPathProject = "Assets/Project/Data/badwords.csv";
@@ -23,13 +23,13 @@ public static class BadwordTableImporter
                 LegacyCsvPathResources,
                 LegacyCsvPathResourcesUpper))
         {
-            Debug.LogError($"[BadwordTableImporter] CSV를 찾을 수 없습니다: {CsvPathProject} (또는 레거시 경로)");
+            Debug.LogError($"[BadwordTableImporter] CSV瑜?李얠쓣 ???놁뒿?덈떎: {CsvPathProject} (?먮뒗 ?덇굅??寃쎈줈)");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[BadwordTableImporter] 데이터 행이 없습니다: {csvPath}");
+            Debug.LogError($"[BadwordTableImporter] ?곗씠???됱씠 ?놁뒿?덈떎: {csvPath}");
             return;
         }
 
@@ -39,7 +39,7 @@ public static class BadwordTableImporter
         int wordIdx = CsvImportUtility.FindColumn(header, "word");
         if (wordIdx < 0)
         {
-            // 단일 컬럼 CSV(헤더 없이 단어만 나열)도 호환
+            // ?⑥씪 而щ읆 CSV(?ㅻ뜑 ?놁씠 ?⑥뼱留??섏뿴)???명솚
             wordIdx = 0;
         }
 
@@ -63,7 +63,7 @@ public static class BadwordTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[BadwordTableImporter] {uniqueWords.Count}개 금칙어 임포트 완료 → {AssetPath}");
+        Debug.Log($"[BadwordTableImporter] {uniqueWords.Count}媛?湲덉튃???꾪룷???꾨즺 ??{AssetPath}");
     }
 
     private static void TryMoveLegacyCsvToProjectData()
@@ -93,7 +93,9 @@ public static class BadwordTableImporter
             FileUtil.CopyFileOrDirectory(metaSource, metaTarget);
 
         AssetDatabase.Refresh();
-        Debug.Log($"[BadwordTableImporter] 레거시 CSV를 Project/Data로 이동(복사)했습니다: {legacyPath} -> {targetPath}");
+        Debug.Log($"[BadwordTableImporter] ?덇굅??CSV瑜?Project/Data濡??대룞(蹂듭궗)?덉뒿?덈떎: {legacyPath} -> {targetPath}");
     }
 }
 #endif
+
+

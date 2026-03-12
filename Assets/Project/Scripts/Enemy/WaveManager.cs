@@ -1,7 +1,15 @@
-using System;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
+using ProjectFirst.Data;
 namespace Project
 {
 
@@ -88,7 +96,7 @@ public class WaveManager : MonoBehaviour
         {
             if (!loggedMissingWaveTable)
             {
-                Debug.LogError("[WaveManager] waveTable이 할당되지 않았습니다.");
+                Debug.LogError("[WaveManager] waveTable???좊떦?섏? ?딆븯?듬땲??");
                 loggedMissingWaveTable = true;
             }
 
@@ -101,7 +109,7 @@ public class WaveManager : MonoBehaviour
         {
             if (!loggedMissingSpawner)
             {
-                Debug.LogError("[WaveManager] enemySpawner가 할당되지 않았습니다.");
+                Debug.LogError("[WaveManager] enemySpawner媛 ?좊떦?섏? ?딆븯?듬땲??");
                 loggedMissingSpawner = true;
             }
 
@@ -215,3 +223,4 @@ public class WaveManager : MonoBehaviour
     }
 }
 } // namespace Project
+

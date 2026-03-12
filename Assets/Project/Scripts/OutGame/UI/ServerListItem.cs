@@ -1,19 +1,25 @@
-using System;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
+using ProjectFirst.Data;
 /// <summary>
-/// 서버 선택 팝업의 한 항목 UI.
-/// Prefab에 배치하고 ServerListContent 아래에 Instantiate됩니다.
+/// ?쒕쾭 ?좏깮 ?앹뾽??????ぉ UI.
+/// Prefab??諛곗튂?섍퀬 ServerListContent ?꾨옒??Instantiate?⑸땲??
 ///
-/// [Inspector 연결 가이드]
-///   serverNameText    : 서버 이름 TMP_Text
-///   playerCountText   : 접속자 수 TMP_Text ("1,234 / 3,000")
-///   congestionText    : 혼잡도 TMP_Text ("원활"/"보통"/"혼잡")
-///   congestionBar     : 접속자 비율 gauge Image (Type: Filled)
-///   selectButton      : 선택 Button
-///   selectedIndicator : 선택됐을 때 표시하는 GameObject (테두리 등)
+/// [Inspector ?곌껐 媛?대뱶]
+///   serverNameText    : ?쒕쾭 ?대쫫 TMP_Text
+///   playerCountText   : ?묒냽????TMP_Text ("1,234 / 3,000")
+///   congestionText    : ?쇱옟??TMP_Text ("?먰솢"/"蹂댄넻"/"?쇱옟")
+///   congestionBar     : ?묒냽??鍮꾩쑉 gauge Image (Type: Filled)
+///   selectButton      : ?좏깮 Button
+///   selectedIndicator : ?좏깮?먯쓣 ???쒖떆?섎뒗 GameObject (?뚮몢由???
 /// </summary>
 public class ServerListItem : MonoBehaviour
 {
@@ -27,10 +33,10 @@ public class ServerListItem : MonoBehaviour
     private ServerData _data;
     private Action<string> _onSelected;
 
-    // 혼잡도별 색상
-    private static readonly Color ColorSmooth  = new(0.2f, 0.85f, 0.4f);  // 원활 — 초록
-    private static readonly Color ColorNormal  = new(1f,   0.75f, 0.1f);  // 보통 — 노랑
-    private static readonly Color ColorCrowded = new(0.9f, 0.25f, 0.25f); // 혼잡 — 빨강
+    // ?쇱옟?꾨퀎 ?됱긽
+    private static readonly Color ColorSmooth  = new(0.2f, 0.85f, 0.4f);  // ?먰솢 ??珥덈줉
+    private static readonly Color ColorNormal  = new(1f,   0.75f, 0.1f);  // 蹂댄넻 ???몃옉
+    private static readonly Color ColorCrowded = new(0.9f, 0.25f, 0.25f); // ?쇱옟 ??鍮④컯
 
     private void Awake()
     {
@@ -39,7 +45,7 @@ public class ServerListItem : MonoBehaviour
     }
 
     /// <summary>
-    /// LoginManager에서 항목 생성 직후 호출합니다.
+    /// LoginManager?먯꽌 ??ぉ ?앹꽦 吏곹썑 ?몄텧?⑸땲??
     /// </summary>
     public void Setup(ServerData data, Action<string> onSelected)
     {
@@ -84,3 +90,7 @@ public class ServerListItem : MonoBehaviour
         if (selectedIndicator) selectedIndicator.SetActive(selected);
     }
 }
+
+
+
+

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
@@ -7,8 +7,8 @@ using Sirenix.OdinInspector;
 namespace Project
 {
     /// <summary>
-    /// ResultUI 오브젝트에 부착.
-    /// UIDocument에서 root VisualElement를 찾아 승/패 결과를 표시합니다.
+    /// ResultUI ?ㅻ툕?앺듃??遺李?
+    /// UIDocument?먯꽌 root VisualElement瑜?李얠븘 ????寃곌낵瑜??쒖떆?⑸땲??
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
 #if ODIN_INSPECTOR
@@ -17,67 +17,66 @@ namespace Project
     public class ResultPanelManager : MonoBehaviour
     {
 #if ODIN_INSPECTOR
-        [Title("텍스트 설정", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("텍스트", 0.5f)]
-        [BoxGroup("텍스트/승리")]
-        [LabelText("승리 타이틀")]
-        [Tooltip("승리 시 표시할 타이틀")]
+        [Title("?띿뒪???ㅼ젙", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("?띿뒪??, 0.5f)]
+        [BoxGroup("?띿뒪???밸━")]
+        [LabelText("?밸━ ??댄?")]
+        [Tooltip("?밸━ ???쒖떆????댄?")]
 #endif
         [Header("Texts (Optional Override)")]
-        [SerializeField] private string winTitleText     = "승리";
+        [SerializeField] private string winTitleText     = "?밸━";
 
 #if ODIN_INSPECTOR
-        [BoxGroup("텍스트/승리")]
-        [LabelText("승리 설명")]
-        [Tooltip("승리 시 표시할 설명")]
+        [BoxGroup("?띿뒪???밸━")]
+        [LabelText("?밸━ ?ㅻ챸")]
+        [Tooltip("?밸━ ???쒖떆???ㅻ챸")]
 #endif
-        [SerializeField] private string winSubtitleText  = "기지를 지켜냈습니다!";
+        [SerializeField] private string winSubtitleText  = "湲곗?瑜?吏耳쒕깉?듬땲??";
 
 #if ODIN_INSPECTOR
-        [HorizontalGroup("텍스트", 0.5f)]
-        [BoxGroup("텍스트/패배")]
-        [LabelText("패배 타이틀")]
+        [HorizontalGroup("?띿뒪??, 0.5f)]
+        [BoxGroup("?띿뒪???⑤같")]
+        [LabelText("?⑤같 ??댄?")]
         [GUIColor(1f, 0.4f, 0.4f)]
-        [Tooltip("패배 시 표시할 타이틀")]
+        [Tooltip("?⑤같 ???쒖떆????댄?")]
 #endif
-        [SerializeField] private string loseTitleText    = "패배";
+        [SerializeField] private string loseTitleText    = "?⑤같";
 
 #if ODIN_INSPECTOR
-        [BoxGroup("텍스트/패배")]
-        [LabelText("패배 설명")]
+        [BoxGroup("?띿뒪???⑤같")]
+        [LabelText("?⑤같 ?ㅻ챸")]
         [GUIColor(1f, 0.4f, 0.4f)]
-        [Tooltip("패배 시 표시할 설명")]
+        [Tooltip("?⑤같 ???쒖떆???ㅻ챸")]
 #endif
-        [SerializeField] private string loseSubtitleText = "기지가 파괴되었습니다...";
+        [SerializeField] private string loseSubtitleText = "湲곗?媛 ?뚭눼?섏뿀?듬땲??..";
 
 #if ODIN_INSPECTOR
-        [Title("캔버스 설정", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("캔버스")]
+        [Title("罹붾쾭???ㅼ젙", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("罹붾쾭??)]
         [LabelText("Sort Order")]
-        [Tooltip("Canvas 등 다른 UI보다 높게 설정하세요. (기본 100)")]
+        [Tooltip("Canvas ???ㅻⅨ UI蹂대떎 ?믨쾶 ?ㅼ젙?섏꽭?? (湲곕낯 100)")]
         [PropertyRange(0, 999)]
 #endif
-        [Header("Sort Order (다른 UI 위에 표시)")]
-        [Tooltip("Canvas 등 다른 UI보다 높게 설정하세요. (기본 100)")]
+        [Header("Sort Order (?ㅻⅨ UI ?꾩뿉 ?쒖떆)")]
         [SerializeField] private int sortOrder = 100;
 
-        // ── 내부 상태 ────────────────────────────────────────────────────────────
+        // ?? ?대? ?곹깭 ????????????????????????????????????????????????????????????
         private UIDocument    uiDoc;
         private VisualElement root;
         private Label         titleLabel;
         private Label         descLabel;
         private bool          isInitialized;
 
-        // Show 요청이 init 전에 왔을 때 대기
+        // Show ?붿껌??init ?꾩뿉 ?붿쓣 ???湲?
         private bool   pendingShow;
         private string pendingTitle;
         private string pendingSubtitle;
         
-        // 초기화 재시도 관리
+        // 珥덇린???ъ떆??愿由?
         private int initRetryCount;
         private const int MaxInitRetries = 20;
 
-    // ── 요소 이름 후보 목록 ──────────────────────────────────────────────────
+    // ?? ?붿냼 ?대쫫 ?꾨낫 紐⑸줉 ??????????????????????????????????????????????????
     private static readonly string[] RootCandidates     = { "result-popup-root", "result-root", "root", "ResultRoot", "panel", "container" };
     private static readonly string[] TitleCandidates    = { "result-title",   "title",   "Title",   "resultTitle"   };
     private static readonly string[] DescCandidates     = { "result-description", "result-subtitle", "subtitle", "description", "Subtitle" };
@@ -85,7 +84,7 @@ namespace Project
     private static readonly string[] TitleBtnCandidates = { "title-button",   "back-button",   "TitleButton" };
     private static readonly string[] CloseCandidates    = { "close-button",   "CloseButton" };
 
-    // ────────────────────────────────────────────────────────────────────────
+    // ????????????????????????????????????????????????????????????????????????
 
     private void OnEnable()
     {
@@ -135,7 +134,7 @@ namespace Project
         if (uiDoc.visualTreeAsset == null)
             return;
 
-        // UI Toolkit이 자동으로 UXML을 붙여 주지 못하는 경우 대비
+        // UI Toolkit???먮룞?쇰줈 UXML??遺숈뿬 二쇱? 紐삵븯??寃쎌슦 ?鍮?
         VisualElement docRoot = uiDoc.rootVisualElement;
         
         if (docRoot == null && initRetryCount < MaxInitRetries)
@@ -156,7 +155,7 @@ namespace Project
             docRoot = cloned;
         }
 
-        // ── root 탐색 ─────────────────────────────────────────────────────
+        // ?? root ?먯깋 ?????????????????????????????????????????????????????
         foreach (string n in RootCandidates)
         {
             root = docRoot.Q<VisualElement>(n);
@@ -169,7 +168,7 @@ namespace Project
                 ?? docRoot.Q<VisualElement>(className: "result-popup");
         }
 
-        // 이름 매칭 실패 → TemplateContainer 하위 첫 번째 요소 사용
+        // ?대쫫 留ㅼ묶 ?ㅽ뙣 ??TemplateContainer ?섏쐞 泥?踰덉㎏ ?붿냼 ?ъ슜
         if (root == null)
         {
             VisualElement container = docRoot.childCount > 0 ? docRoot[0] : null;
@@ -182,13 +181,13 @@ namespace Project
             if (initRetryCount >= MaxInitRetries)
             {
                 CancelInvoke(nameof(TryInit));
-                Debug.LogError("[ResultPanelManager] 초기화 미완으로 결과창 표시를 재시도했으나 실패했습니다 (최대 횟수 도달). UXML 구조를 확인하세요.", this);
+                Debug.LogError("[ResultPanelManager] 珥덇린??誘몄셿?쇰줈 寃곌낵李??쒖떆瑜??ъ떆?꾪뻽?쇰굹 ?ㅽ뙣?덉뒿?덈떎 (理쒕? ?잛닔 ?꾨떖). UXML 援ъ“瑜??뺤씤?섏꽭??", this);
                 pendingShow = false;
             }
             return;
         }
 
-        // ── 자식 요소 탐색 ────────────────────────────────────────────────
+        // ?? ?먯떇 ?붿냼 ?먯깋 ????????????????????????????????????????????????
         titleLabel = QueryFirst<Label>(root, TitleCandidates);
         descLabel  = QueryFirst<Label>(root, DescCandidates);
 
@@ -202,15 +201,15 @@ namespace Project
         CancelInvoke(nameof(TryInit));
         ApplySortOrder();
         
-        Debug.Log($"[ResultPanelManager] 초기화 완료. root='{root.name}' title={titleLabel?.name} desc={descLabel?.name}", this);
+        Debug.Log($"[ResultPanelManager] 珥덇린???꾨즺. root='{root.name}' title={titleLabel?.name} desc={descLabel?.name}", this);
     }
 
-    // ── 공개 API ─────────────────────────────────────────────────────────────
+    // ?? 怨듦컻 API ?????????????????????????????????????????????????????????????
 
     public bool ShowWin()  => Show(winTitleText,  winSubtitleText);
     public bool ShowLose() => Show(loseTitleText, loseSubtitleText);
 
-    // ── 내부 ─────────────────────────────────────────────────────────────────
+    // ?? ?대? ?????????????????????????????????????????????????????????????????
 
     private bool Show(string title, string subtitle)
     {
@@ -218,7 +217,7 @@ namespace Project
 
         if (uiDoc == null || uiDoc.visualTreeAsset == null)
         {
-            Debug.Log("[ResultPanelManager] UXML 미할당. 대체(fallback) UI를 사용합니다.");
+            Debug.Log("[ResultPanelManager] UXML 誘명븷?? ?泥?fallback) UI瑜??ъ슜?⑸땲??");
             return false;
         }
 
@@ -265,7 +264,7 @@ namespace Project
 
     private void OnClose() => SetVisible(false);
 
-    // ── 유틸 ─────────────────────────────────────────────────────────────────
+    // ?? ?좏떥 ?????????????????????????????????????????????????????????????????
 
     private static T QueryFirst<T>(VisualElement parent, string[] names) where T : VisualElement
     {
@@ -291,3 +290,4 @@ namespace Project
     }
 }
 } // namespace Project
+

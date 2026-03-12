@@ -1,6 +1,15 @@
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
-
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
+using ProjectFirst.Data;
 namespace Project
 {
 
@@ -11,13 +20,13 @@ public class SkillSystem
     private readonly SkillRow[] equippedSkills  = new SkillRow[3];
     private readonly List<Enemy> aliveEnemiesBuffer = new List<Enemy>();
 
-    // ── 쿨타임 ───────────────────────────────────────────────────────────────
-    // 각 슬롯의 쿨타임 종료 시각 (Time.unscaledTime 기준)
+    // ?? 荑⑦??????????????????????????????????????????????????????????????????
+    // 媛??щ’??荑⑦???醫낅즺 ?쒓컖 (Time.unscaledTime 湲곗?)
     private readonly float[] cooldownEndTimes = new float[3];
 
     public IReadOnlyList<SkillRow> EquippedSkills => equippedSkills;
 
-    // ────────────────────────────────────────────────────────────────────────
+    // ????????????????????????????????????????????????????????????????????????
 
     public SkillSystem(SkillTable skillTable, Agent playerAgent)
     {
@@ -28,16 +37,16 @@ public class SkillSystem
             cooldownEndTimes[i] = 0f;
     }
 
-    // ── 쿨타임 공개 API ──────────────────────────────────────────────────────
+    // ?? 荑⑦???怨듦컻 API ??????????????????????????????????????????????????????
 
-    /// <summary>슬롯이 현재 쿨다운 중인지 반환</summary>
+    /// <summary>?щ’???꾩옱 荑⑤떎??以묒씤吏 諛섑솚</summary>
     public bool IsOnCooldown(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= cooldownEndTimes.Length) return false;
         return Time.unscaledTime < cooldownEndTimes[slotIndex];
     }
 
-    /// <summary>슬롯의 남은 쿨다운 시간(초) 반환. 쿨다운 아니면 0</summary>
+    /// <summary>?щ’???⑥? 荑⑤떎???쒓컙(珥? 諛섑솚. 荑⑤떎???꾨땲硫?0</summary>
     public float GetRemainingCooldown(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= cooldownEndTimes.Length) return 0f;
@@ -45,7 +54,7 @@ public class SkillSystem
         return remaining > 0f ? remaining : 0f;
     }
 
-    // ── 장착 ─────────────────────────────────────────────────────────────────
+    // ?? ?μ갑 ?????????????????????????????????????????????????????????????????
 
     public bool Equip(SkillRow skill, int slotIndex)
     {
@@ -53,7 +62,7 @@ public class SkillSystem
             return false;
 
         equippedSkills[slotIndex] = skill;
-        cooldownEndTimes[slotIndex] = 0f; // 새 스킬 장착 시 쿨타임 초기화
+        cooldownEndTimes[slotIndex] = 0f; // ???ㅽ궗 ?μ갑 ??荑⑦???珥덇린??
         return true;
     }
 
@@ -73,7 +82,7 @@ public class SkillSystem
         return -1;
     }
 
-    // ── 사용 ─────────────────────────────────────────────────────────────────
+    // ?? ?ъ슜 ?????????????????????????????????????????????????????????????????
 
     public int Cast(int slotIndex)
     {
@@ -83,10 +92,10 @@ public class SkillSystem
         SkillRow skill = equippedSkills[slotIndex];
         if (skill == null) return 0;
 
-        // 쿨타임 중이면 사용 불가
+        // 荑⑦???以묒씠硫??ъ슜 遺덇?
         if (IsOnCooldown(slotIndex))
         {
-            Debug.Log($"[SkillSystem] 슬롯 {slotIndex} 쿨타임 중. 남은 시간: {GetRemainingCooldown(slotIndex):F1}초");
+            Debug.Log($"[SkillSystem] Slot {slotIndex} is on cooldown for {GetRemainingCooldown(slotIndex):F1}s.");
             return 0;
         }
 
@@ -104,7 +113,7 @@ public class SkillSystem
                 hitCount = CastSingleTarget(skill, enemyManager);
                 break;
             case SkillEffectType.Buff:
-                // 버프는 플레이어 위치에 VFX 스폰
+                // 踰꾪봽???뚮젅?댁뼱 ?꾩튂??VFX ?ㅽ룿
                 SpawnVfxAt(skill, playerAgent.transform.position);
                 hitCount = CastBuff(skill);
                 break;
@@ -113,17 +122,17 @@ public class SkillSystem
                 break;
         }
 
-        // 쿨타임 시작
+        // 荑⑦????쒖옉
         if (skill.cooldown > 0f)
             cooldownEndTimes[slotIndex] = Time.unscaledTime + skill.cooldown;
 
-        Debug.Log($"[SkillSystem] [{skill.effectType}] {skill.name} 발동, 적중/효과 {hitCount}, 쿨 {skill.cooldown}s");
+        Debug.Log($"[SkillSystem] [{skill.effectType}] {skill.name} 諛쒕룞, ?곸쨷/?④낵 {hitCount}, 荑?{skill.cooldown}s");
         return hitCount;
     }
 
-    // ── 효과 타입별 처리 ─────────────────────────────────────────────────────
+    // ?? ?④낵 ??낅퀎 泥섎━ ?????????????????????????????????????????????????????
 
-    /// <summary>범위 공격: 전체/범위 내 모든 적에게 데미지 + 각 적 위치에 VFX</summary>
+    /// <summary>踰붿쐞 怨듦꺽: ?꾩껜/踰붿쐞 ??紐⑤뱺 ?곸뿉寃??곕?吏 + 媛????꾩튂??VFX</summary>
     private int CastAllEnemies(SkillRow skill, EnemyManager enemyManager)
     {
         enemyManager.FillAliveEnemiesNonAlloc(aliveEnemiesBuffer);
@@ -140,7 +149,7 @@ public class SkillSystem
                 if (dist > skill.range) continue;
             }
 
-            // 각 적 위치에 VFX 스폰
+            // 媛????꾩튂??VFX ?ㅽ룿
             SpawnVfxAt(skill, enemy.transform.position);
 
             int dmg = DamageCalculator.ComputeDamage(
@@ -154,13 +163,13 @@ public class SkillSystem
         return hitCount;
     }
 
-    /// <summary>단일 강타: 가장 가까운 적 1명, singleTargetBonus 배율 추가 + 타겟 위치에 VFX</summary>
+    /// <summary>?⑥씪 媛뺥?: 媛??媛源뚯슫 ??1紐? singleTargetBonus 諛곗쑉 異붽? + ?寃??꾩튂??VFX</summary>
     private int CastSingleTarget(SkillRow skill, EnemyManager enemyManager)
     {
         Enemy target = enemyManager.GetClosest(playerAgent.transform.position, skill.range);
         if (target == null || !target.IsAlive) return 0;
 
-        // 타겟 위치에 VFX 스폰
+        // ?寃??꾩튂??VFX ?ㅽ룿
         SpawnVfxAt(skill, target.transform.position);
 
         int atk = Mathf.RoundToInt(GetEffectiveAtk());
@@ -174,7 +183,7 @@ public class SkillSystem
         return 1;
     }
 
-    /// <summary>버프: 플레이어에게 스탯 강화 적용</summary>
+    /// <summary>踰꾪봽: ?뚮젅?댁뼱?먭쾶 ?ㅽ꺈 媛뺥솕 ?곸슜</summary>
     private int CastBuff(SkillRow skill)
     {
         AgentBuffSystem buffSystem = playerAgent.GetComponent<AgentBuffSystem>();
@@ -185,7 +194,7 @@ public class SkillSystem
         return 1;
     }
 
-    /// <summary>디버프: 범위/전체 적에게 약화 효과 + 각 적 위치에 VFX</summary>
+    /// <summary>?붾쾭?? 踰붿쐞/?꾩껜 ?곸뿉寃??쏀솕 ?④낵 + 媛????꾩튂??VFX</summary>
     private int CastDebuff(SkillRow skill, EnemyManager enemyManager)
     {
         enemyManager.FillAliveEnemiesNonAlloc(aliveEnemiesBuffer);
@@ -199,7 +208,7 @@ public class SkillSystem
                 float dist = Vector3.Distance(playerAgent.transform.position, enemy.transform.position);
                 if (dist > skill.range) continue;
             }
-            // 각 적 위치에 VFX 스폰
+            // 媛????꾩튂??VFX ?ㅽ룿
             SpawnVfxAt(skill, enemy.transform.position);
             enemy.ApplyDebuff(skill.debuffType, skill.debuffValue, skill.debuffDuration);
             count++;
@@ -207,7 +216,7 @@ public class SkillSystem
         return count;
     }
 
-    /// <summary>버프가 적용된 실제 공격력 반환</summary>
+    /// <summary>踰꾪봽媛 ?곸슜???ㅼ젣 怨듦꺽??諛섑솚</summary>
     private float GetEffectiveAtk()
     {
         AgentBuffSystem buff = playerAgent.GetComponent<AgentBuffSystem>();
@@ -215,36 +224,36 @@ public class SkillSystem
     }
 
     /// <summary>
-    /// 지정된 월드 위치에 스킬 VFX를 스폰합니다.
-    /// 타겟 중심(Collider 중심 또는 +0.5f)에 배치하고,
-    /// 파티클이 자연스럽게 재생된 뒤 자동 소멸합니다.
+    /// 吏?뺣맂 ?붾뱶 ?꾩튂???ㅽ궗 VFX瑜??ㅽ룿?⑸땲??
+    /// ?寃?以묒떖(Collider 以묒떖 ?먮뒗 +0.5f)??諛곗튂?섍퀬,
+    /// ?뚰떚?댁씠 ?먯뿰?ㅻ읇寃??ъ깮?????먮룞 ?뚮㈇?⑸땲??
     /// </summary>
     private void SpawnVfxAt(SkillRow skill, Vector3 worldPos)
     {
         if (skill.castVfxPrefab == null) return;
 
-        // 타겟 중심 높이 보정 (Collider가 없을 때 +0.5f)
+        // ?寃?以묒떖 ?믪씠 蹂댁젙 (Collider媛 ?놁쓣 ??+0.5f)
         Vector3 spawnPos = new Vector3(worldPos.x, worldPos.y + 0.5f, worldPos.z);
 
-        // 플레이어 → 타겟 방향으로 회전
+        // ?뚮젅?댁뼱 ???寃?諛⑺뼢?쇰줈 ?뚯쟾
         Vector3 dir = spawnPos - playerAgent.transform.position;
         dir.y = 0;
         Quaternion rot = dir != Vector3.zero
             ? Quaternion.LookRotation(dir.normalized)
             : playerAgent.transform.rotation;
 
-        GameObject vfx = Object.Instantiate(skill.castVfxPrefab, spawnPos, rot);
+        GameObject vfx = UnityEngine.Object.Instantiate(skill.castVfxPrefab, spawnPos, rot);
         if (vfx == null) return;
 
-        // 파티클 최대 재생 시간 계산 후 자동 소멸
+        // ?뚰떚??理쒕? ?ъ깮 ?쒓컙 怨꾩궛 ???먮룞 ?뚮㈇
         float lifetime = GetVfxLifetime(vfx);
         AutoDestroyVfx(vfx, lifetime);
     }
 
-    /// <summary>VFX 오브젝트 내 모든 ParticleSystem의 최대 재생 시간을 반환합니다.</summary>
+    /// <summary>VFX ?ㅻ툕?앺듃 ??紐⑤뱺 ParticleSystem??理쒕? ?ъ깮 ?쒓컙??諛섑솚?⑸땲??</summary>
     private static float GetVfxLifetime(GameObject vfx)
     {
-        float maxDuration = 2f; // 파티클이 없을 때 기본값
+        float maxDuration = 2f; // ?뚰떚?댁씠 ?놁쓣 ??湲곕낯媛?
         foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
         {
             ParticleSystem.MainModule main = ps.main;
@@ -254,26 +263,26 @@ public class SkillSystem
         return maxDuration;
     }
 
-    /// <summary>지정 시간 후 VFX를 안전하게 소멸시킵니다. (루프 파티클 포함)</summary>
+    /// <summary>吏???쒓컙 ??VFX瑜??덉쟾?섍쾶 ?뚮㈇?쒗궢?덈떎. (猷⑦봽 ?뚰떚???ы븿)</summary>
     private static void AutoDestroyVfx(GameObject vfx, float delay)
     {
-        // 루프 파티클은 강제로 Stop 후 소멸
+        // 猷⑦봽 ?뚰떚?댁? 媛뺤젣濡?Stop ???뚮㈇
         foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
         {
             if (ps.main.loop)
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         }
-        Object.Destroy(vfx, Mathf.Max(0.1f, delay));
+        UnityEngine.Object.Destroy(vfx, Mathf.Max(0.1f, delay));
     }
 
-    // ── VFX 유틸 ─────────────────────────────────────────────────────────────
+    // ?? VFX ?좏떥 ?????????????????????????????????????????????????????????????
 
-    // ── 직접 캐스트 (CharUltimate 등 슬롯 없는 스킬용) ──────────────────────────
+    // ?? 吏곸젒 罹먯뒪??(CharUltimate ???щ’ ?녿뒗 ?ㅽ궗?? ??????????????????????????
 
     /// <summary>
-    /// 슬롯 쿨타임 없이 SkillRow를 직접 발동합니다.
-    /// CharUltimateController에서 호출하며, 쿨타임은 컨트롤러가 관리합니다.
-    /// vfxOverride가 있으면 SkillRow.castVfxPrefab 대신 사용합니다.
+    /// ?щ’ 荑⑦????놁씠 SkillRow瑜?吏곸젒 諛쒕룞?⑸땲??
+    /// CharUltimateController?먯꽌 ?몄텧?섎ŉ, 荑⑦??꾩? 而⑦듃濡ㅻ윭媛 愿由ы빀?덈떎.
+    /// vfxOverride媛 ?덉쑝硫?SkillRow.castVfxPrefab ????ъ슜?⑸땲??
     /// </summary>
     public int CastDirect(SkillRow skill, GameObject vfxOverride = null)
     {
@@ -282,7 +291,7 @@ public class SkillSystem
         EnemyManager enemyManager = EnemyManager.Instance;
         if (enemyManager == null) return 0;
 
-        // VFX 프리팹 임시 교체
+        // VFX ?꾨━???꾩떆 援먯껜
         GameObject originalVfx = skill.castVfxPrefab;
         if (vfxOverride != null)
             skill.castVfxPrefab = vfxOverride;
@@ -305,14 +314,14 @@ public class SkillSystem
                 break;
         }
 
-        // VFX 프리팹 원복
+        // VFX ?꾨━???먮났
         if (vfxOverride != null)
             skill.castVfxPrefab = originalVfx;
 
         return hitCount;
     }
 
-    // ── 후보 뽑기 ─────────────────────────────────────────────────────────────
+    // ?? ?꾨낫 戮묎린 ?????????????????????????????????????????????????????????????
 
     public List<SkillRow> GetRandomCandidates(int count)
     {
@@ -337,7 +346,7 @@ public class SkillSystem
 
         while (pool.Count > 0 && result.Count < count)
         {
-            int pick = Random.Range(0, pool.Count);
+            int pick = UnityEngine.Random.Range(0, pool.Count);
             result.Add(pool[pick]);
             pool.RemoveAt(pick);
         }
@@ -346,3 +355,6 @@ public class SkillSystem
     }
 }
 } // namespace Project
+
+
+
