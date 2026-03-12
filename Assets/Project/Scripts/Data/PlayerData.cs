@@ -571,7 +571,8 @@ namespace ProjectFirst.Data
         onCurrencyChanged?.RaiseEvent();
         OnCurrencyChanged?.Invoke(type);
     }
-}
+
+    // ── 튜토리얼 플래그 직렬화 ───────────────────────────────
 
     /// <summary>튜토리얼 플래그의 직렬화용 엔트리. Dictionary 대신 List로 저장합니다.</summary>
     [Serializable]
@@ -580,3 +581,4 @@ namespace ProjectFirst.Data
         public string key;
         public bool done;
     }
+}
