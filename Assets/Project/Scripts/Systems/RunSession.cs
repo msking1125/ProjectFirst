@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RunSession
@@ -6,6 +7,18 @@ public class RunSession
     public int Level { get; private set; } = 1;
     public int Exp { get; private set; }
     public int Gold { get; private set; }
+
+    // ── 전투 준비 정보 ────────────────────────────────────────────
+    /// <summary>편성된 에이전트 ID 목록 (최대 3개).</summary>
+    public List<int> selectedAgentIds = new List<int>();
+    /// <summary>진입할 스테이지 ID.</summary>
+    public int currentStageId;
+    /// <summary>진입할 챕터 ID.</summary>
+    public int currentChapterId;
+    /// <summary>전투 경과 시간(초).</summary>
+    public float battleElapsedTime;
+    /// <summary>웨이브 처치 수.</summary>
+    public int waveKillCount;
 
     public int ExpToNextLevel => GetRequiredExpForLevel(Level);
 
@@ -17,6 +30,11 @@ public class RunSession
         Level = 1;
         Exp = 0;
         Gold = 0;
+        selectedAgentIds.Clear();
+        currentStageId = 0;
+        currentChapterId = 0;
+        battleElapsedTime = 0f;
+        waveKillCount = 0;
     }
 
     public int GetRequiredExpForLevel(int level)

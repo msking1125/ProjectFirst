@@ -146,6 +146,16 @@ public class PlayerData : ScriptableObject
     public void AddTicket(int amount)  => AddCurrency(CurrencyType.Ticket,  amount);
     public void AddDiamond(int amount) => AddCurrency(CurrencyType.Diamond, amount);
 
+    // ── 스태미나 조작 ─────────────────────────────────────────
+
+    /// <summary>스태미나를 차감합니다. 잔액 부족 시 false를 반환하며 차감하지 않습니다.</summary>
+    public bool SpendStamina(int amount)
+    {
+        if (stamina < amount) return false;
+        stamina -= amount;
+        return true;
+    }
+
     // ── 방치 보상 유틸 ────────────────────────────────────────
 
     /// <summary>마지막 수령 이후 경과 시간을 반환합니다. 기록이 없으면 TimeSpan.Zero.</summary>
