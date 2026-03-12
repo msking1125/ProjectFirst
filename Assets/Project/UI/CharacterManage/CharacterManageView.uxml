@@ -90,9 +90,57 @@
 
                 </ui:VisualElement>
 
-                <!-- ── 레벨업 탭 (P4-S2) ── -->
+                <!-- ── 레벨업 탭 ── -->
                 <ui:VisualElement name="levelup-tab" class="tab-page" style="display: none;">
-                    <ui:Label text="레벨업 기능은 추후 구현됩니다." class="placeholder-text" />
+
+                    <!-- 현재 레벨 + 경험치 바 -->
+                    <ui:VisualElement name="current-level-row" class="current-level-row">
+                        <ui:Label name="current-level-label" text="Lv.1" class="current-level-label" />
+                        <ui:VisualElement name="exp-bar" class="exp-bar">
+                            <ui:VisualElement name="exp-bar-fill" class="exp-bar-fill" />
+                        </ui:VisualElement>
+                        <ui:Label name="exp-bar-label" text="0 / 100" class="exp-bar-label" />
+                    </ui:VisualElement>
+
+                    <!-- 경험치 아이템 목록 -->
+                    <ui:VisualElement name="exp-item-list" class="exp-item-list" />
+
+                    <!-- 미리보기 패널 -->
+                    <ui:VisualElement name="preview-panel" class="preview-panel">
+                        <ui:Label name="preview-level-label" text="Lv.1" class="preview-level-label" />
+
+                        <!-- 스탯 비교 그리드 -->
+                        <ui:VisualElement name="stat-compare-grid" class="stat-compare-grid">
+                            <!-- HP -->
+                            <ui:VisualElement class="stat-compare-row">
+                                <ui:Label text="HP" class="stat-compare-title" />
+                                <ui:Label name="hp-before" text="0" class="stat-before" />
+                                <ui:Label text="→" class="stat-arrow" />
+                                <ui:Label name="hp-after" text="0" class="stat-after" />
+                                <ui:Label name="hp-diff" text="" class="stat-diff" />
+                            </ui:VisualElement>
+                            <!-- ATK -->
+                            <ui:VisualElement class="stat-compare-row">
+                                <ui:Label text="ATK" class="stat-compare-title" />
+                                <ui:Label name="atk-before" text="0" class="stat-before" />
+                                <ui:Label text="→" class="stat-arrow" />
+                                <ui:Label name="atk-after" text="0" class="stat-after" />
+                                <ui:Label name="atk-diff" text="" class="stat-diff" />
+                            </ui:VisualElement>
+                            <!-- DEF -->
+                            <ui:VisualElement class="stat-compare-row">
+                                <ui:Label text="DEF" class="stat-compare-title" />
+                                <ui:Label name="def-before" text="0" class="stat-before" />
+                                <ui:Label text="→" class="stat-arrow" />
+                                <ui:Label name="def-after" text="0" class="stat-after" />
+                                <ui:Label name="def-diff" text="" class="stat-diff" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- 레벨업 확인 버튼 -->
+                    <ui:Button name="levelup-confirm-btn" text="레벨업" class="levelup-confirm-btn" />
+
                 </ui:VisualElement>
 
                 <!-- ── 장비 탭 (P4-S3) ── -->
