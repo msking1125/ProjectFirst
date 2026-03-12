@@ -93,6 +93,8 @@ namespace ProjectFirst.OutGame
         {
             BindUI();
             RefreshList();
+
+            TutorialManager.Instance?.TryTrigger("first_character_manage");
         }
 
         private void OnDisable()
