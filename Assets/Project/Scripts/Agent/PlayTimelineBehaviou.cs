@@ -3,20 +3,20 @@ using UnityEngine.Playables;
 
 public class PlayTimelineBehaviour : StateMachineBehaviour
 {
-    // ³ëµå¿¡ ÁøÀÔÇÒ ¶§ ½ÇÇà
+    // ë…¸ë“œì— ì§„ì…í•  ë•Œ ì‹¤í–‰
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        // 1. ºÎ¸ğ ¿ÀºêÁ§Æ®¿¡¼­ PlayableDirector Ã£±â
+        // 1. ë¶€ëª¨ ì˜¤ë¸Œì íŠ¸ì—ì„œ PlayableDirector ì°¾ê¸°
         PlayableDirector director = animator.GetComponentInParent<PlayableDirector>();
 
         if (director != null)
         {
-            Debug.Log("Å¸ÀÓ¶óÀÎ ½ÇÇà ¸í·É Àü´ŞµÊ: " + director.name);
+            Debug.Log("íƒ€ì„ë¼ì¸ ì‹¤í–‰ ëª…ë ¹ ì „ë‹¬ë¨: " + director.name);
             director.Play();
         }
         else
         {
-            Debug.LogError("PlayableDirector¸¦ ºÎ¸ğ ¿ÀºêÁ§Æ®¿¡¼­ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("PlayableDirectorë¥¼ ë¶€ëª¨ ì˜¤ë¸Œì íŠ¸ì—ì„œ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
         }
     }
 }

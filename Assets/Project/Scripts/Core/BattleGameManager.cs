@@ -59,6 +59,7 @@ public class BattleGameManager : MonoBehaviour
     private Agent[] allAgents;
     private bool isEnemyKilledSubscribed;
     private bool hasLoggedZeroRewardWarning;
+    private Animator cachedPlayerAnimator;
 
     // ── 생명주기 ─────────────────────────────────────────────────────────────
 
@@ -107,14 +108,26 @@ public class BattleGameManager : MonoBehaviour
 
     public static void EndVictoryFallback()
     {
-        if (Instance == null) new GameObject("BattleGameManager").AddComponent<BattleGameManager>();
-        Instance?.HandleVictory();
+        BattleGameManager manager = ResolveInstanceFromScene();
+        if (manager != null)
+        {
+            manager.HandleVictory();
+            return;
+        }
+
+        Debug.LogError("[BattleGameManager] Victory was reported, but no BattleGameManager exists in the active scene.");
     }
 
     public static void ReportBaseDestroyed()
     {
-        if (Instance == null) new GameObject("BattleGameManager").AddComponent<BattleGameManager>();
-        Instance?.HandleDefeat();
+        BattleGameManager manager = ResolveInstanceFromScene();
+        if (manager != null)
+        {
+            manager.HandleDefeat();
+            return;
+        }
+
+        Debug.LogError("[BattleGameManager] Base destruction was reported, but no BattleGameManager exists in the active scene.");
     }
 
     public void Restart()
@@ -145,6 +158,7 @@ public class BattleGameManager : MonoBehaviour
 #endif
         }
 
+        CachePlayerAnimator();
         skillSystem = new SkillSystem(skillTable, playerAgent);
         SetupCharUltimate();
 
@@ -312,18 +326,37 @@ public class BattleGameManager : MonoBehaviour
     private void CheckCinematicVisibility()
     {
         if (playerAgent == null) return;
+        if (cachedPlayerAnimator == null) CachePlayerAnimator();
 
-        Animator anim = playerAgent.GetComponentInChildren<Animator>();
         bool inCinematic = false;
-        if (anim != null)
+        if (cachedPlayerAnimator != null)
         {
-            AnimatorStateInfo si = anim.GetCurrentAnimatorStateInfo(0);
+            AnimatorStateInfo si = cachedPlayerAnimator.GetCurrentAnimatorStateInfo(0);
             inCinematic = si.IsName("Tabi_skill_action") || si.IsName("Tabi_skill");
         }
 
         if (inCinematic == isCinematicActive) return;
         isCinematicActive = inCinematic;
         SetUIVisible(!inCinematic);
+    }
+
+    private void CachePlayerAnimator()
+    {
+        cachedPlayerAnimator = playerAgent != null
+            ? playerAgent.GetComponentInChildren<Animator>(true)
+            : null;
+    }
+
+    private static BattleGameManager ResolveInstanceFromScene()
+    {
+        if (Instance != null)
+            return Instance;
+
+#if UNITY_2022_2_OR_NEWER
+        return FindFirstObjectByType<BattleGameManager>();
+#else
+        return FindObjectOfType<BattleGameManager>();
+#endif
     }
 
     /// <summary>UI Canvas 전체를 즉시 표시/숨깁니다.</summary>

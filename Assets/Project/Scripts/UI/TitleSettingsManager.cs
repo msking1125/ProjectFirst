@@ -1,15 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using ProjectFirst.Data;
 
-/// <summary>
-/// 타이틀 설정 패널 관리 클래스
-/// TitleManager에서 설정 관련 로직을 분리
-/// </summary>
 public class TitleSettingsManager : MonoBehaviour
 {
     [Header("Settings Panel")]
     [SerializeField] private TMP_FontAsset customFont;
+    [SerializeField] private GameSettingsData settingsData;
 
     private GameObject settingsPanel;
     private Slider bgmSlider;
@@ -17,12 +15,12 @@ public class TitleSettingsManager : MonoBehaviour
     private Toggle muteToggle;
     private TMP_Text bgmValueText;
     private TMP_Text sfxValueText;
-
     private Canvas targetCanvas;
 
     public void Initialize()
     {
         targetCanvas = FindObjectOfType<Canvas>();
+        settingsData?.LoadLegacyPrefs();
         if (targetCanvas != null)
         {
             BuildSettingsPanel();
@@ -38,7 +36,7 @@ public class TitleSettingsManager : MonoBehaviour
 
         if (settingsPanel != null)
         {
-            LoadSettingPrefs();
+            LoadSettings();
             settingsPanel.SetActive(true);
         }
     }
@@ -70,26 +68,17 @@ public class TitleSettingsManager : MonoBehaviour
         windowRt.sizeDelta = new Vector2(700f, 600f);
         window.GetComponent<Image>().color = new Color(0.08f, 0.1f, 0.16f, 0.95f);
 
-        CreatePanelLabel(window.transform, "Title", "설정", new Vector2(0f, 270f), 48f, true);
-
-        // BGM 설정
+        CreatePanelLabel(window.transform, "Title", "Settings", new Vector2(0f, 270f), 48f, true);
         CreatePanelLabel(window.transform, "BgmLabel", "BGM", new Vector2(-250f, 150f), 32f, true, TextAlignmentOptions.MidlineLeft);
         bgmSlider = CreatePanelSlider(window.transform, "BgmSlider", new Vector2(70f, 150f));
         bgmValueText = CreatePanelLabel(window.transform, "BgmValue", "80", new Vector2(315f, 150f), 28f, true);
-
-        // SFX 설정
         CreatePanelLabel(window.transform, "SfxLabel", "SFX", new Vector2(-250f, 50f), 32f, true, TextAlignmentOptions.MidlineLeft);
         sfxSlider = CreatePanelSlider(window.transform, "SfxSlider", new Vector2(70f, 50f));
         sfxValueText = CreatePanelLabel(window.transform, "SfxValue", "80", new Vector2(315f, 50f), 28f, true);
-
-        // 음소거 토글
-        muteToggle = CreatePanelToggle(window.transform, "MuteToggle", "음소거", new Vector2(0f, -50f));
-
-        // 닫기 버튼
-        Button closeButton = CreatePanelButton(window.transform, "CloseButton", "닫기", new Vector2(0f, -250f), new Vector2(300f, 80f));
+        muteToggle = CreatePanelToggle(window.transform, "MuteToggle", "Mute", new Vector2(0f, -50f));
+        Button closeButton = CreatePanelButton(window.transform, "CloseButton", "Close", new Vector2(0f, -250f), new Vector2(300f, 80f));
         closeButton.onClick.AddListener(CloseSettingsPanel);
 
-        // 슬라이더 이벤트 설정
         if (bgmSlider != null)
         {
             bgmSlider.minValue = 0f;
@@ -114,8 +103,7 @@ public class TitleSettingsManager : MonoBehaviour
         settingsPanel.SetActive(false);
     }
 
-    private TMP_Text CreatePanelLabel(Transform parent, string name, string text, Vector2 pos, float size, bool bold,
-        TextAlignmentOptions alignment = TextAlignmentOptions.Center)
+    private TMP_Text CreatePanelLabel(Transform parent, string name, string text, Vector2 pos, float size, bool bold, TextAlignmentOptions alignment = TextAlignmentOptions.Center)
     {
         GameObject labelGo = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
         labelGo.transform.SetParent(parent, false);
@@ -147,13 +135,11 @@ public class TitleSettingsManager : MonoBehaviour
         sliderRt.anchoredPosition = pos;
         sliderRt.sizeDelta = new Vector2(380f, 30f);
 
-        // 배경
         GameObject bg = new GameObject("Background", typeof(RectTransform), typeof(Image));
         bg.transform.SetParent(sliderGo.transform, false);
         SetFullScreenStretch(bg.GetComponent<RectTransform>());
         bg.GetComponent<Image>().color = new Color(0.2f, 0.25f, 0.35f, 1f);
 
-        // 채우기 영역
         GameObject fillArea = new GameObject("Fill Area", typeof(RectTransform));
         fillArea.transform.SetParent(sliderGo.transform, false);
         SetFullScreenStretch(fillArea.GetComponent<RectTransform>());
@@ -163,7 +149,6 @@ public class TitleSettingsManager : MonoBehaviour
         SetFullScreenStretch(fill.GetComponent<RectTransform>());
         fill.GetComponent<Image>().color = new Color(0.1f, 0.65f, 1f, 1f);
 
-        // 핸들
         GameObject handleArea = new GameObject("Handle Slide Area", typeof(RectTransform));
         handleArea.transform.SetParent(sliderGo.transform, false);
         SetFullScreenStretch(handleArea.GetComponent<RectTransform>());
@@ -179,7 +164,6 @@ public class TitleSettingsManager : MonoBehaviour
         slider.handleRect = handleRt;
         slider.targetGraphic = handle.GetComponent<Image>();
         slider.direction = Slider.Direction.LeftToRight;
-
         return slider;
     }
 
@@ -218,15 +202,12 @@ public class TitleSettingsManager : MonoBehaviour
     {
         GameObject btnGo = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
         btnGo.transform.SetParent(parent, false);
-
         RectTransform rt = btnGo.GetComponent<RectTransform>();
         rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
         rt.anchoredPosition = pos;
         rt.sizeDelta = size;
-
         btnGo.GetComponent<Image>().color = new Color(0.12f, 0.55f, 0.9f, 0.95f);
         CreatePanelLabel(btnGo.transform, "Text", text, Vector2.zero, 32f, true);
-
         return btnGo.GetComponent<Button>();
     }
 
@@ -238,38 +219,65 @@ public class TitleSettingsManager : MonoBehaviour
         rt.offsetMax = Vector2.zero;
     }
 
-    private void LoadSettingPrefs()
+    private void LoadSettings()
     {
-        int bgm = PlayerPrefs.GetInt("setting.sound.bgm", 80);
-        int sfx = PlayerPrefs.GetInt("setting.sound.sfx", 80);
-        bool mute = PlayerPrefs.GetInt("setting.sound.mute", 0) == 1;
+        settingsData?.LoadLegacyPrefs();
+        int bgm = settingsData != null ? Mathf.RoundToInt(settingsData.bgmVolume) : PlayerPrefs.GetInt("setting.sound.bgm", 80);
+        int sfx = settingsData != null ? Mathf.RoundToInt(settingsData.sfxVolume) : PlayerPrefs.GetInt("setting.sound.sfx", 80);
+        bool mute = settingsData != null ? settingsData.globalMute : PlayerPrefs.GetInt("setting.sound.mute", 0) == 1;
 
         if (bgmSlider != null) bgmSlider.SetValueWithoutNotify(Mathf.Clamp(bgm, 0, 100));
         if (sfxSlider != null) sfxSlider.SetValueWithoutNotify(Mathf.Clamp(sfx, 0, 100));
         if (muteToggle != null) muteToggle.SetIsOnWithoutNotify(mute);
-
         RefreshSoundTexts();
         AudioListener.pause = mute;
     }
 
     private void OnBgmChanged(float value)
     {
-        PlayerPrefs.SetInt("setting.sound.bgm", Mathf.RoundToInt(value));
-        PlayerPrefs.Save();
+        if (settingsData != null)
+        {
+            settingsData.bgmVolume = value;
+            settingsData.SaveLegacyPrefs();
+        }
+        else
+        {
+            PlayerPrefs.SetInt("setting.sound.bgm", Mathf.RoundToInt(value));
+            PlayerPrefs.Save();
+        }
+
         RefreshSoundTexts();
     }
 
     private void OnSfxChanged(float value)
     {
-        PlayerPrefs.SetInt("setting.sound.sfx", Mathf.RoundToInt(value));
-        PlayerPrefs.Save();
+        if (settingsData != null)
+        {
+            settingsData.sfxVolume = value;
+            settingsData.SaveLegacyPrefs();
+        }
+        else
+        {
+            PlayerPrefs.SetInt("setting.sound.sfx", Mathf.RoundToInt(value));
+            PlayerPrefs.Save();
+        }
+
         RefreshSoundTexts();
     }
 
     private void OnMuteChanged(bool isMuted)
     {
-        PlayerPrefs.SetInt("setting.sound.mute", isMuted ? 1 : 0);
-        PlayerPrefs.Save();
+        if (settingsData != null)
+        {
+            settingsData.globalMute = isMuted;
+            settingsData.SaveLegacyPrefs();
+        }
+        else
+        {
+            PlayerPrefs.SetInt("setting.sound.mute", isMuted ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
         AudioListener.pause = isMuted;
     }
 

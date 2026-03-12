@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using ProjectFirst.Data;
 
 /// <summary>
 /// UIToolkit(UIDocument) 기반 설정 패널.
@@ -35,6 +36,7 @@ public class SettingPanel : MonoBehaviour
     [Header("Account (선택)")]
     [SerializeField] private PlayerData playerData;
     [SerializeField] private string defaultLoginMethod = "Guest";
+    [SerializeField] private GameSettingsData settingsData;
 
     // ── PlayerPrefs 키 ─────────────────────────────────────
 
@@ -257,37 +259,30 @@ public class SettingPanel : MonoBehaviour
 
     private void LoadSettings()
     {
-        float bgm    = PlayerPrefs.GetFloat(KEY_BGM_VOL,  80f);
-        float sfx    = PlayerPrefs.GetFloat(KEY_SFX_VOL,  80f);
-        bool bgmMute = PlayerPrefs.GetInt(KEY_BGM_MUTE, 0) == 1;
-        bool sfxMute = PlayerPrefs.GetInt(KEY_SFX_MUTE, 0) == 1;
-        int  frame   = Mathf.Clamp(PlayerPrefs.GetInt(KEY_FRAME, 1), 0, 2);
-        bool shake   = PlayerPrefs.GetInt(KEY_SHAKE, 1) == 1;
-        bool bloom   = PlayerPrefs.GetInt(KEY_BLOOM, 1) == 1;
-        bool blur    = PlayerPrefs.GetInt(KEY_BLUR,  0) == 1;
+        settingsData?.LoadLegacyPrefs();
+
+        float bgm = settingsData != null ? settingsData.bgmVolume : PlayerPrefs.GetFloat(KEY_BGM_VOL, 80f);
+        float sfx = settingsData != null ? settingsData.sfxVolume : PlayerPrefs.GetFloat(KEY_SFX_VOL, 80f);
+        bool bgmMute = settingsData != null ? settingsData.bgmMute : PlayerPrefs.GetInt(KEY_BGM_MUTE, 0) == 1;
+        bool sfxMute = settingsData != null ? settingsData.sfxMute : PlayerPrefs.GetInt(KEY_SFX_MUTE, 0) == 1;
+        int frame = settingsData != null ? settingsData.frameQuality : Mathf.Clamp(PlayerPrefs.GetInt(KEY_FRAME, 1), 0, 2);
+        bool shake = settingsData != null ? settingsData.shake : PlayerPrefs.GetInt(KEY_SHAKE, 1) == 1;
+        bool bloom = settingsData != null ? settingsData.bloom : PlayerPrefs.GetInt(KEY_BLOOM, 1) == 1;
+        bool blur = settingsData != null ? settingsData.blur : PlayerPrefs.GetInt(KEY_BLUR, 0) == 1;
 
         _bgmVolCache = bgm;
         _sfxVolCache = sfx;
-
-        // 슬라이더 — 이벤트 없이 세팅
         _bgmSlider?.SetValueWithoutNotify(bgm);
         _sfxSlider?.SetValueWithoutNotify(sfx);
         UpdateBgmLabel(bgm);
         UpdateSfxLabel(sfx);
-
-        // 음소거 토글 — 이벤트 없이 세팅
         _bgmMuteToggle?.SetValueWithoutNotify(bgmMute);
         _sfxMuteToggle?.SetValueWithoutNotify(sfxMute);
-
-        // 프레임 라디오 — 이벤트 없이 세팅
         _frameGroup?.SetValueWithoutNotify(frame);
-
-        // 그래픽 토글 — 이벤트 없이 세팅
         _shakeToggle?.SetValueWithoutNotify(shake);
         _bloomToggle?.SetValueWithoutNotify(bloom);
         _blurToggle?.SetValueWithoutNotify(blur);
 
-        // 실제 적용
         ApplyBgmVolume(bgmMute ? 0f : bgm);
         ApplySfxVolume(sfxMute ? 0f : sfx);
         ApplyGraphicsSettingsSilent(frame);
@@ -297,15 +292,28 @@ public class SettingPanel : MonoBehaviour
 
     private void SaveAllSettings()
     {
-        if (_bgmSlider     != null) PlayerPrefs.SetFloat(KEY_BGM_VOL,  _bgmSlider.value);
-        if (_sfxSlider     != null) PlayerPrefs.SetFloat(KEY_SFX_VOL,  _sfxSlider.value);
+        if (settingsData != null)
+        {
+            if (_bgmSlider != null) settingsData.bgmVolume = _bgmSlider.value;
+            if (_sfxSlider != null) settingsData.sfxVolume = _sfxSlider.value;
+            if (_bgmMuteToggle != null) settingsData.bgmMute = _bgmMuteToggle.value;
+            if (_sfxMuteToggle != null) settingsData.sfxMute = _sfxMuteToggle.value;
+            if (_frameGroup != null) settingsData.frameQuality = _frameGroup.value;
+            if (_shakeToggle != null) settingsData.shake = _shakeToggle.value;
+            if (_bloomToggle != null) settingsData.bloom = _bloomToggle.value;
+            if (_blurToggle != null) settingsData.blur = _blurToggle.value;
+            settingsData.SaveLegacyPrefs();
+            return;
+        }
+
+        if (_bgmSlider != null) PlayerPrefs.SetFloat(KEY_BGM_VOL, _bgmSlider.value);
+        if (_sfxSlider != null) PlayerPrefs.SetFloat(KEY_SFX_VOL, _sfxSlider.value);
         if (_bgmMuteToggle != null) PlayerPrefs.SetInt(KEY_BGM_MUTE, _bgmMuteToggle.value ? 1 : 0);
         if (_sfxMuteToggle != null) PlayerPrefs.SetInt(KEY_SFX_MUTE, _sfxMuteToggle.value ? 1 : 0);
         if (_shakeToggle != null) PlayerPrefs.SetInt(KEY_SHAKE, _shakeToggle.value ? 1 : 0);
         if (_bloomToggle != null) PlayerPrefs.SetInt(KEY_BLOOM, _bloomToggle.value ? 1 : 0);
-        if (_blurToggle  != null) PlayerPrefs.SetInt(KEY_BLUR,  _blurToggle.value  ? 1 : 0);
-        if (_frameGroup  != null) PlayerPrefs.SetInt(KEY_FRAME, _frameGroup.value);
-
+        if (_blurToggle != null) PlayerPrefs.SetInt(KEY_BLUR, _blurToggle.value ? 1 : 0);
+        if (_frameGroup != null) PlayerPrefs.SetInt(KEY_FRAME, _frameGroup.value);
         PlayerPrefs.Save();
     }
 
@@ -313,9 +321,11 @@ public class SettingPanel : MonoBehaviour
 
     private void OnBgmSliderChanged(ChangeEvent<float> evt)
     {
-        // 음소거 중이 아닐 때만 캐시 갱신 (음소거 해제 시 복원용)
         if (_bgmMuteToggle == null || !_bgmMuteToggle.value)
             _bgmVolCache = evt.newValue;
+
+        if (settingsData != null)
+            settingsData.bgmVolume = evt.newValue;
 
         ApplyBgmVolume(_bgmMuteToggle != null && _bgmMuteToggle.value ? 0f : evt.newValue);
         UpdateBgmLabel(evt.newValue);
@@ -326,19 +336,26 @@ public class SettingPanel : MonoBehaviour
         if (_sfxMuteToggle == null || !_sfxMuteToggle.value)
             _sfxVolCache = evt.newValue;
 
+        if (settingsData != null)
+            settingsData.sfxVolume = evt.newValue;
+
         ApplySfxVolume(_sfxMuteToggle != null && _sfxMuteToggle.value ? 0f : evt.newValue);
         UpdateSfxLabel(evt.newValue);
     }
 
     private void OnBgmMuteToggled(ChangeEvent<bool> evt)
     {
-        // ON : 출력만 0 (슬라이더 수치 유지)
-        // OFF: 캐시로 복원
+        if (settingsData != null)
+            settingsData.bgmMute = evt.newValue;
+
         ApplyBgmVolume(evt.newValue ? 0f : _bgmVolCache);
     }
 
     private void OnSfxMuteToggled(ChangeEvent<bool> evt)
     {
+        if (settingsData != null)
+            settingsData.sfxMute = evt.newValue;
+
         ApplySfxVolume(evt.newValue ? 0f : _sfxVolCache);
     }
 
@@ -389,7 +406,11 @@ public class SettingPanel : MonoBehaviour
 
     private void ApplyGraphicsSettings(int frameLevel)
     {
-        PlayerPrefs.SetInt(KEY_FRAME, frameLevel);
+        if (settingsData != null)
+            settingsData.frameQuality = frameLevel;
+        else
+            PlayerPrefs.SetInt(KEY_FRAME, frameLevel);
+
         ApplyGraphicsSettingsSilent(frameLevel);
     }
 
@@ -436,9 +457,15 @@ public class SettingPanel : MonoBehaviour
     private void OnLogoutConfirmed()
     {
         HideConfirmDialog();
-        Debug.Log("[SettingPanel] 로그아웃 확인 → PlayerPrefs 초기화 후 Title 씬 이동");
+        Debug.Log("[SettingPanel] Logout confirmed - clearing account keys only.");
 
-        PlayerPrefs.DeleteAll();
+        playerData?.ClearLoginState();
+
+        PlayerPrefs.DeleteKey("uid");
+        PlayerPrefs.DeleteKey("uid_temp");
+        PlayerPrefs.DeleteKey("nickname");
+        PlayerPrefs.DeleteKey("lastServer");
+        PlayerPrefs.DeleteKey("isNewUser");
         PlayerPrefs.Save();
 
         if (AsyncSceneLoader.Instance != null)

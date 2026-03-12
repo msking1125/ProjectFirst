@@ -21,6 +21,7 @@ namespace ProjectFirst.OutGame
         [Header("Data References")]
         [SerializeField] private global::ServerListSO serverListSO;
         [SerializeField] private TextAsset badWordsCSV;
+        [SerializeField] private PlayerData playerData;
 
         // UI Elements
         private VisualElement loginPanel;
@@ -156,7 +157,7 @@ namespace ProjectFirst.OutGame
         {
             HideAllPanels();
 
-            string currentNickname = PlayerPrefs.GetString("nickname", "Unknown");
+            string currentNickname = playerData != null ? playerData.GetNicknameOrDefault("Unknown") : PlayerPrefs.GetString("nickname", "Unknown");
             if (lblWelcome != null)
             {
                 lblWelcome.text = $"환영합니다, {currentNickname}님";
@@ -183,7 +184,7 @@ namespace ProjectFirst.OutGame
 
             dropdownServer.choices = serverDropdownChoices;
 
-            string lastServerId = PlayerPrefs.GetString("lastServer", string.Empty);
+            string lastServerId = playerData != null ? playerData.GetSelectedServerId() : PlayerPrefs.GetString("lastServer", string.Empty);
             int indexToSelect = 0;
 
             if (!string.IsNullOrEmpty(lastServerId))
@@ -218,7 +219,8 @@ namespace ProjectFirst.OutGame
             Debug.Log($"[LoginManager] {provider} 플랫폼으로 로그인 시도");
 
             // 유저 UID 체크
-            if (!PlayerPrefs.HasKey("uid"))
+            string currentUid = playerData != null ? playerData.GetUidOrCreate() : PlayerPrefs.GetString("uid", string.Empty);
+            if (string.IsNullOrEmpty(currentUid))
             {
                 // 신규 유저
                 Debug.Log("[LoginManager] 등록된 UID가 없습니다. 신규 유저 가입 절차를 진행합니다.");
@@ -289,6 +291,8 @@ namespace ProjectFirst.OutGame
                 
                 PlayerPrefs.SetString("uid", allocatedUid);
                 PlayerPrefs.SetString("nickname", nickname);
+                playerData?.SetUidValue(allocatedUid);
+                playerData?.SetNicknameValue(nickname);
                 PlayerPrefs.SetInt("isNewUser", 0); // false
                 PlayerPrefs.DeleteKey("uid_temp");
                 PlayerPrefs.Save();
@@ -335,6 +339,7 @@ namespace ProjectFirst.OutGame
 
             PlayerPrefs.SetString("lastServer", selectedServer.serverId);
             PlayerPrefs.Save();
+            playerData?.SetSelectedServerId(selectedServer.serverId);
 
             Debug.Log($"[LoginManager] 서버 선택 완료: {selectedServer.displayName}");
             ConnectToSelectedServer();
@@ -352,7 +357,7 @@ namespace ProjectFirst.OutGame
 
         public void ConnectToSelectedServer()
         {
-            string lastServerId = PlayerPrefs.GetString("lastServer", string.Empty);
+            string lastServerId = playerData != null ? playerData.GetSelectedServerId() : PlayerPrefs.GetString("lastServer", string.Empty);
             
             ServerData targetServer = null;
             if (serverListSO != null && serverListSO.servers.Count > 0)
@@ -395,6 +400,7 @@ namespace ProjectFirst.OutGame
                     // 최근 접속 서버 저장
                     PlayerPrefs.SetString("lastServer", serverInfo.serverId);
                     PlayerPrefs.Save();
+                    playerData?.SetSelectedServerId(serverInfo.serverId);
 
                     Debug.Log("[LoginManager] 접속 성공, Lobby 씬으로 이동합니다.");
 

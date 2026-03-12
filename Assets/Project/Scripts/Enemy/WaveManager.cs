@@ -24,15 +24,17 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private TMP_Text aliveEnemyText;
 
     private int currentWaveNum = 0;
-    public int CurrentWave => currentWaveNum;   // 외부에서 읽기용
+    public int CurrentWave => currentWaveNum;
     private bool waveInProgress;
     private bool gameEnded;
     private bool loggedMissingWaveTable;
     private bool loggedMissingSpawner;
+    private int lastAliveEnemyCount = -1;
+    private int cachedTotalWaveCount = -1;
+    private int cachedTotalWaveSourceCount = -1;
 
     private void Awake()
     {
-        // 싱글톤 중복 방지
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -40,29 +42,28 @@ public class WaveManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
 
         if (enemySpawner == null)
-        {
             enemySpawner = FindFirstObjectByType<EnemySpawner>();
-        }
 
         if (enemyManager == null)
-        {
             enemyManager = EnemyManager.Instance != null ? EnemyManager.Instance : FindFirstObjectByType<EnemyManager>();
-        }
 
         if (gameManager == null)
-        {
             gameManager = BattleGameManager.Instance != null ? BattleGameManager.Instance : FindFirstObjectByType<BattleGameManager>();
-        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
     private void Start()
     {
         if (!CanStartWaveSystem())
         {
-            RefreshUI();
+            RefreshUI(GetAliveEnemyCount());
             return;
         }
 
@@ -71,18 +72,14 @@ public class WaveManager : MonoBehaviour
 
     private void Update()
     {
-        RefreshUI();
+        int aliveCount = GetAliveEnemyCount();
+        RefreshUI(aliveCount);
 
         if (gameEnded || !waveInProgress)
-        {
             return;
-        }
 
-        int aliveCount = GetAliveEnemyCount();
         if (enemySpawner.IsWaveSpawnCompleted && aliveCount <= 0)
-        {
             StartNextWave();
-        }
     }
 
     private bool CanStartWaveSystem()
@@ -123,9 +120,7 @@ public class WaveManager : MonoBehaviour
             foreach (var r in waveTable.wave)
             {
                 if (r != null && r.wave > currentWaveNum && r.wave < nextWave)
-                {
                     nextWave = r.wave;
-                }
             }
         }
 
@@ -134,7 +129,7 @@ public class WaveManager : MonoBehaviour
             waveInProgress = false;
             gameEnded = true;
             NotifyVictory();
-            RefreshUI();
+            RefreshUI(GetAliveEnemyCount());
             return;
         }
 
@@ -146,26 +141,20 @@ public class WaveManager : MonoBehaviour
             foreach (var r in waveTable.wave)
             {
                 if (r != null && r.wave == currentWaveNum)
-                {
                     currentRows.Add(r);
-                }
             }
         }
 
         enemySpawner.ConfigureWave(currentRows);
         enemySpawner.BeginWave();
         waveInProgress = true;
-        RefreshUI();
+        RefreshUI(GetAliveEnemyCount());
     }
-
-
 
     private void NotifyVictory()
     {
         if (gameManager == null)
-        {
             gameManager = BattleGameManager.Instance != null ? BattleGameManager.Instance : FindFirstObjectByType<BattleGameManager>();
-        }
 
         if (gameManager != null)
         {
@@ -174,43 +163,55 @@ public class WaveManager : MonoBehaviour
         }
 
         if (endVictoryIfGameManagerMissing)
-        {
             BattleGameManager.EndVictoryFallback();
-        }
     }
 
     private int GetAliveEnemyCount()
     {
         if (enemyManager == null)
-        {
             enemyManager = EnemyManager.Instance != null ? EnemyManager.Instance : FindFirstObjectByType<EnemyManager>();
-        }
 
         return enemyManager != null ? enemyManager.GetAliveCount() : 0;
     }
 
-    private void RefreshUI()
+    private void RefreshUI(int aliveCount)
     {
         if (waveText != null)
         {
             int displayWave = Mathf.Max(0, currentWaveNum);
-            int totalWave = 0;
-            if (waveTable != null && waveTable.wave != null)
-            {
-                System.Collections.Generic.HashSet<int> waves = new System.Collections.Generic.HashSet<int>();
-                foreach (var r in waveTable.wave)
-                {
-                    if (r != null) waves.Add(r.wave);
-                }
-                totalWave = waves.Count;
-            }
+            int totalWave = GetTotalWaveCount();
             waveText.text = $"Wave: {displayWave}/{totalWave}";
         }
 
-        if (aliveEnemyText != null)
+        if (aliveEnemyText != null && aliveCount != lastAliveEnemyCount)
         {
-            aliveEnemyText.text = $"Alive: {GetAliveEnemyCount()}";
+            aliveEnemyText.text = $"Alive: {aliveCount}";
+            lastAliveEnemyCount = aliveCount;
         }
+    }
+
+    private int GetTotalWaveCount()
+    {
+        if (waveTable == null || waveTable.wave == null)
+        {
+            cachedTotalWaveCount = 0;
+            cachedTotalWaveSourceCount = 0;
+            return 0;
+        }
+
+        if (cachedTotalWaveCount >= 0 && cachedTotalWaveSourceCount == waveTable.wave.Count)
+            return cachedTotalWaveCount;
+
+        System.Collections.Generic.HashSet<int> waves = new System.Collections.Generic.HashSet<int>();
+        foreach (var r in waveTable.wave)
+        {
+            if (r != null)
+                waves.Add(r.wave);
+        }
+
+        cachedTotalWaveCount = waves.Count;
+        cachedTotalWaveSourceCount = waveTable.wave.Count;
+        return cachedTotalWaveCount;
     }
 }
 } // namespace Project

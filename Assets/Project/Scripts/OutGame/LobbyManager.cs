@@ -114,11 +114,13 @@ public class LobbyManager : MonoBehaviour
 
     // 스폰된 캐릭터 인스턴스
     private GameObject    _spawnedCharacter;
+    private System.Action<CurrencyType> _currencyChangedHandler;
 
     // ─────────────────────────────────────────────────────────
 
     private void Awake()
     {
+        _currencyChangedHandler = _ => RefreshCurrency();
         ResolveSettingPanel();
     }
 
@@ -218,7 +220,7 @@ public class LobbyManager : MonoBehaviour
             playerData.onCharacterChanged.OnEventRaised += RefreshCharacter;
 
         // 레거시 이벤트도 구독 (PlayerData를 직접 int로 수정하는 기존 코드 호환)
-        playerData.OnCurrencyChanged += _ => RefreshCurrency();
+        playerData.OnCurrencyChanged += _currencyChangedHandler;
     }
 
     private void UnregisterEvents()
@@ -231,7 +233,7 @@ public class LobbyManager : MonoBehaviour
         if (playerData.onCharacterChanged != null)
             playerData.onCharacterChanged.OnEventRaised -= RefreshCharacter;
 
-        playerData.OnCurrencyChanged -= _ => RefreshCurrency();
+        playerData.OnCurrencyChanged -= _currencyChangedHandler;
     }
 
     // ── 전체 갱신 ─────────────────────────────────────────────

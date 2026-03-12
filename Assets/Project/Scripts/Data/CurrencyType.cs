@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// 게임 내 재화 종류를 명확하게 구분하는 열거형.
 /// PlayerData.AddCurrency / GetCurrency 에서 사용합니다.
 /// </summary>

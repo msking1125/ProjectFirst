@@ -11,9 +11,6 @@ namespace ProjectFirst.Data
         Crystal = 10000
     }
 
-    /// <summary>
-    /// 경험치 아이템 데이터. 보유 수량과 경험치 값을 포함합니다.
-    /// </summary>
     [Serializable]
     public class ExpItem
     {
@@ -21,6 +18,18 @@ namespace ProjectFirst.Data
         [SerializeField] private string _itemName;
         [SerializeField] private Sprite _icon;
         [SerializeField] private int _count;
+
+        public ExpItem()
+        {
+        }
+
+        public ExpItem(ExpItemType type, string itemName, Sprite icon = null, int count = 0)
+        {
+            _type = type;
+            _itemName = itemName;
+            _icon = icon;
+            _count = Mathf.Max(0, count);
+        }
 
         public ExpItemType type => _type;
         public string itemName => _itemName;

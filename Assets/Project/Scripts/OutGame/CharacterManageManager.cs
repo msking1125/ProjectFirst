@@ -484,21 +484,20 @@ namespace ProjectFirst.OutGame
         // ─────────────────────────────────────────────────────────
 
         private int GetLevel(int agentId)
-            => PlayerPrefs.GetInt($"agent_lv_{agentId}", 1);
+            => _playerData != null ? _playerData.GetCharacterLevel(agentId) : 1;
 
         private void SaveLevel(int agentId, int lv)
-            => PlayerPrefs.SetInt($"agent_lv_{agentId}", lv);
+        {
+            if (_playerData == null) return;
+            _playerData.SetCharacterProgress(agentId, lv, _playerData.GetCharacterExp(agentId));
+        }
 
         private bool CanLevelUp(int agentId)
         {
             int level = GetLevel(agentId);
-            if (level >= 100) return false;
+            if (level >= 100 || _playerData == null) return false;
 
-            int totalExpItems = PlayerPrefs.GetInt($"exp_item_{(int)ExpItemType.Small}", 0)
-                              + PlayerPrefs.GetInt($"exp_item_{(int)ExpItemType.Medium}", 0)
-                              + PlayerPrefs.GetInt($"exp_item_{(int)ExpItemType.Large}", 0)
-                              + PlayerPrefs.GetInt($"exp_item_{(int)ExpItemType.Crystal}", 0);
-            return totalExpItems > 0;
+            return _playerData.GetTotalExpItemCount() > 0;
         }
     }
 }

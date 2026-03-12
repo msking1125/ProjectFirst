@@ -19,6 +19,7 @@ namespace ProjectFirst.OutGame.UI
         // ── Inspector ───────────────────────────────────────────
         [SerializeField] private PlayerData _playerData;
         [SerializeField] private VoidEventChannelSO _onCharacterChanged;
+        [SerializeField] private CharacterGrowthCatalogSO _growthCatalog;
 
         // ── 데이터 ──────────────────────────────────────────────
         private AgentInfo _agent;
@@ -60,7 +61,7 @@ namespace ProjectFirst.OutGame.UI
         {
             _agent = agent;
             _currentLevel = level;
-            _currentExp = PlayerPrefs.GetInt($"agent_exp_{agent.id}", 0);
+            _currentExp = _playerData != null ? _playerData.GetCharacterExp(agent.id) : 0;
             _selectedCounts.Clear();
 
             BindUI(levelUpTabRoot);
@@ -110,19 +111,26 @@ namespace ProjectFirst.OutGame.UI
         {
             _expItems.Clear();
 
-            _expItems.Add(CreateExpItem(ExpItemType.Small, "소형 경험치서"));
-            _expItems.Add(CreateExpItem(ExpItemType.Medium, "중형 경험치서"));
-            _expItems.Add(CreateExpItem(ExpItemType.Large, "대형 경험치서"));
-            _expItems.Add(CreateExpItem(ExpItemType.Crystal, "경험치 결정체"));
+            if (_growthCatalog != null && _growthCatalog.expItems != null && _growthCatalog.expItems.Count > 0)
+            {
+                foreach (ExpItemDefinition def in _growthCatalog.expItems)
+                {
+                    int count = _playerData != null ? _playerData.GetExpItemCount(def.type) : 0;
+                    _expItems.Add(new ExpItem(def.type, string.IsNullOrWhiteSpace(def.itemName) ? def.type.ToString() : def.itemName, def.icon, count));
+                }
+                return;
+            }
+
+            _expItems.Add(CreateExpItem(ExpItemType.Small, "Small XP Note"));
+            _expItems.Add(CreateExpItem(ExpItemType.Medium, "Medium XP Note"));
+            _expItems.Add(CreateExpItem(ExpItemType.Large, "Large XP Note"));
+            _expItems.Add(CreateExpItem(ExpItemType.Crystal, "XP Crystal"));
         }
 
         private ExpItem CreateExpItem(ExpItemType type, string fallbackName)
         {
-            var item = new ExpItem();
-            // count는 PlayerPrefs에서 로드 (추후 PlayerData 인벤토리 연동)
-            int count = PlayerPrefs.GetInt($"exp_item_{(int)type}", 0);
-            item.count = count;
-            return item;
+            int count = _playerData != null ? _playerData.GetExpItemCount(type) : 0;
+            return new ExpItem(type, fallbackName, null, count);
         }
 
         // ─────────────────────────────────────────────────────────
@@ -349,7 +357,7 @@ namespace ProjectFirst.OutGame.UI
                 if (item != null)
                 {
                     item.count -= kv.Value;
-                    PlayerPrefs.SetInt($"exp_item_{(int)kv.Key}", item.count);
+                    _playerData?.SetExpItemCount(kv.Key, item.count);
                 }
             }
 
@@ -364,9 +372,7 @@ namespace ProjectFirst.OutGame.UI
             }
 
             // 저장
-            PlayerPrefs.SetInt($"agent_lv_{_agent.id}", newLevel);
-            PlayerPrefs.SetInt($"agent_exp_{_agent.id}", remainExp);
-            PlayerPrefs.Save();
+            _playerData?.SetCharacterProgress(_agent.id, newLevel, remainExp);
 
             int previousLevel = _currentLevel;
             _currentLevel = newLevel;

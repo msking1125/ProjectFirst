@@ -38,6 +38,7 @@ public class Agent : MonoBehaviour
     public Vector3 modelRotationOffset = new Vector3(0f, -90f, 0f);
 
     private Animator cachedAnimator;
+    private Firerailgun cachedRailgun;
     private string resolvedIdleState = string.Empty;
     private string resolvedAttackState = string.Empty;
     private bool animatorResolved;
@@ -59,6 +60,7 @@ public class Agent : MonoBehaviour
     {
         ApplyStatsFromTables();
         ResolveAnimator();
+        cachedRailgun = GetComponentInChildren<Firerailgun>(true);
     }
 
     private void ApplyStatsFromTables()
@@ -291,10 +293,9 @@ public class Agent : MonoBehaviour
 
     private void SpawnNormalAttackVfx()
     {
-        Firerailgun railgun = GetComponentInChildren<Firerailgun>();
-        if (railgun != null)
+        if (cachedRailgun != null)
         {
-            railgun.FireRailgun();
+            cachedRailgun.FireRailgun();
             return;
         }
 

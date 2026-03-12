@@ -143,18 +143,18 @@ public class MyInfoPanel : MonoBehaviour
     /// <summary>레벨·경험치를 외부에서 갱신하고 저장합니다.</summary>
     public void SetAccountStats(int level, int exp, int expMax)
     {
-        PlayerPrefs.SetInt(PrefKeyLevel,  level);
-        PlayerPrefs.SetInt(PrefKeyExp,    exp);
-        PlayerPrefs.SetInt(PrefKeyExpMax, expMax);
-        PlayerPrefs.Save();
+        if (playerData != null)
+            playerData.SetAccountStats(level, exp, expMax);
+
         ApplyLevelExp(level, exp, expMax);
     }
 
     /// <summary>닉네임을 외부에서 변경하고 저장합니다.</summary>
     public void SetNickname(string nickname)
     {
-        PlayerPrefs.SetString(PrefKeyNickname, nickname);
-        PlayerPrefs.Save();
+        if (playerData != null)
+            playerData.SetNicknameValue(nickname);
+
         if (nicknameText != null) nicknameText.text = nickname;
     }
 
@@ -162,10 +162,10 @@ public class MyInfoPanel : MonoBehaviour
 
     private void RefreshProfile()
     {
-        string nick   = PlayerPrefs.GetString(PrefKeyNickname, "모험가");
-        int    level  = PlayerPrefs.GetInt(PrefKeyLevel,  1);
-        int    exp    = PlayerPrefs.GetInt(PrefKeyExp,    0);
-        int    expMax = PlayerPrefs.GetInt(PrefKeyExpMax, 100);
+        string nick = playerData != null ? playerData.GetNicknameOrDefault("Player") : PlayerPrefs.GetString(PrefKeyNickname, "Player");
+        int level = playerData != null ? playerData.GetAccountLevel(1) : PlayerPrefs.GetInt(PrefKeyLevel, 1);
+        int exp = playerData != null ? playerData.GetAccountExp() : PlayerPrefs.GetInt(PrefKeyExp, 0);
+        int expMax = playerData != null ? playerData.GetAccountExpMax(100) : PlayerPrefs.GetInt(PrefKeyExpMax, 100);
 
         if (nicknameText != null) nicknameText.text = nick;
         ApplyLevelExp(level, exp, expMax);

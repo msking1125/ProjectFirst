@@ -21,9 +21,6 @@ namespace ProjectFirst.Data
         LoginCount
     }
 
-    /// <summary>
-    /// 미션 한 건의 데이터를 나타냅니다.
-    /// </summary>
     [Serializable]
     public class MissionEntry
     {
@@ -46,22 +43,14 @@ namespace ProjectFirst.Data
         public int targetCount { get => _targetCount; set => _targetCount = Mathf.Max(1, value); }
         public int currentCount { get => _currentCount; set => _currentCount = Mathf.Max(0, value); }
         public int rewardPoint { get => _rewardPoint; set => _rewardPoint = value; }
-        public List<RewardItem> rewards { get => _rewards; set => _rewards = value; }
+        public List<RewardItem> rewards { get => _rewards; set => _rewards = value ?? new List<RewardItem>(); }
         public bool isClaimed { get => _isClaimed; set => _isClaimed = value; }
 
-        /// <summary>목표 달성 여부를 반환합니다.</summary>
         public bool IsCompleted => _currentCount >= _targetCount;
-
-        /// <summary>보상 수령 가능 여부를 반환합니다.</summary>
         public bool CanClaim => IsCompleted && !_isClaimed;
-
-        /// <summary>진행률을 0~1 범위로 반환합니다.</summary>
         public float Progress => Mathf.Clamp01((float)_currentCount / _targetCount);
     }
 
-    /// <summary>
-    /// 포인트 누적 보상 단계 데이터입니다.
-    /// </summary>
     [Serializable]
     public class PointRewardTier
     {
@@ -69,8 +58,32 @@ namespace ProjectFirst.Data
         [SerializeField] private List<RewardItem> _rewards = new();
         [SerializeField] private bool _isClaimed;
 
-        public int requiredPoints { get => _requiredPoints; set => _requiredPoints = value; }
-        public List<RewardItem> rewards { get => _rewards; set => _rewards = value; }
+        public int requiredPoints { get => _requiredPoints; set => _requiredPoints = Mathf.Max(0, value); }
+        public List<RewardItem> rewards { get => _rewards; set => _rewards = value ?? new List<RewardItem>(); }
+        public bool isClaimed { get => _isClaimed; set => _isClaimed = value; }
+    }
+
+    [Serializable]
+    public class MissionProgressRecord
+    {
+        [SerializeField] private string _missionId;
+        [SerializeField] private int _currentCount;
+        [SerializeField] private bool _isClaimed;
+
+        public string missionId { get => _missionId; set => _missionId = value; }
+        public int currentCount { get => _currentCount; set => _currentCount = Mathf.Max(0, value); }
+        public bool isClaimed { get => _isClaimed; set => _isClaimed = value; }
+    }
+
+    [Serializable]
+    public class MissionTierClaimRecord
+    {
+        [SerializeField] private MissionType _missionType;
+        [SerializeField] private int _requiredPoints;
+        [SerializeField] private bool _isClaimed;
+
+        public MissionType missionType { get => _missionType; set => _missionType = value; }
+        public int requiredPoints { get => _requiredPoints; set => _requiredPoints = Mathf.Max(0, value); }
         public bool isClaimed { get => _isClaimed; set => _isClaimed = value; }
     }
 }
