@@ -580,4 +580,3 @@ namespace ProjectFirst.Data
         public string key;
         public bool done;
     }
-}
