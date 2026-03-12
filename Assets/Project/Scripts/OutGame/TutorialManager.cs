@@ -5,9 +5,6 @@ using System.Linq;
 using ProjectFirst.Data;
 using UnityEngine;
 using UnityEngine.UIElements;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace ProjectFirst.OutGame
 {
@@ -16,40 +13,14 @@ namespace ProjectFirst.OutGame
     /// TryTrigger(triggerKey)瑜??몄텧?섎㈃ ?대떦 ?ㅼ쓽 ?쒗넗由ъ뼹???쒖옉?⑸땲??
     /// ?꾨즺???쒗넗由ъ뼹? PlayerPrefs??JSON?쇰줈 ??ν븯???ъ텧?μ쓣 諛⑹??⑸땲??
     /// </summary>
-#if ODIN_INSPECTOR
-    [HideMonoScript]
-#endif
     public class TutorialManager : MonoBehaviour
     {
         // ?? ?깃?????????????????????????????????????????????????
         public static TutorialManager Instance { get; private set; }
 
         // ?? Inspector ???????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("UI ?곌껐", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("UI")]
-        [LabelText("Tutorial UI")]
-        [Tooltip("?쒗넗由ъ뼹 UI UIDocument")]
-        [SceneObjectsOnly]
-#endif
         [SerializeField] private UIDocument _tutorialUI;
-
-#if ODIN_INSPECTOR
-        [BoxGroup("UI")]
-        [LabelText("PlayerData")]
-        [Tooltip("?뚮젅?댁뼱 ?곗씠??(?쒗넗由ъ뼹 ?꾨즺 ?곹깭 ???")]
-        [AssetsOnly]
-        [PreviewField(50, ObjectFieldAlignment.Left)]
-#endif
         [SerializeField] private PlayerData _playerData;
-
-#if ODIN_INSPECTOR
-        [Title("?④퀎", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("?④퀎")]
-        [LabelText("?쒗넗由ъ뼹 ?④퀎??)]
-        [Tooltip("紐⑤뱺 ?쒗넗由ъ뼹 ?④퀎 ?뺤쓽")]
-        [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
-#endif
         [SerializeField] private List<TutorialStep> _allSteps;
 
         // ?? ?고????????????????????????????????????????????????
@@ -544,4 +515,5 @@ namespace ProjectFirst.OutGame
         }
     }
 }
+
 

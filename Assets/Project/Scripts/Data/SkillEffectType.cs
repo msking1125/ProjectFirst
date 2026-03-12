@@ -1,4 +1,4 @@
-/// <summary>스킬 효과 타입</summary>
+﻿/// <summary>스킬 효과 타입</summary>
 public enum SkillEffectType
 {
     AllEnemies   = 0,  // 범위 공격: 범위 내 모든 적

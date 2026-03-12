@@ -1,39 +1,39 @@
-using System;
+﻿using System;
 
 namespace ProjectFirst.Network
 {
     /// <summary>
-    /// 서버 상태 enum
+    /// ?쒕쾭 ?곹깭 enum
     /// </summary>
     public enum ServerStatus
     {
-        /// <summary>원활 (접속 가능)</summary>
+        /// <summary>?먰솢 (?묒냽 媛??</summary>
         Smooth,
-        /// <summary>보통 (약간 혼잡)</summary>
+        /// <summary>蹂댄넻 (?쎄컙 ?쇱옟)</summary>
         Busy,
-        /// <summary>포화 (접속 불가)</summary>
+        /// <summary>?ы솕 (?묒냽 遺덇?)</summary>
         Full
     }
 
     /// <summary>
-    /// 서버 연결에 필요한 정보
+    /// ?쒕쾭 ?곌껐???꾩슂???뺣낫
     /// </summary>
     [Serializable]
     public class ServerInfo
     {
-        /// <summary>서버 고유 ID</summary>
+        /// <summary>?쒕쾭 怨좎쑀 ID</summary>
         public string serverId;
 
-        /// <summary>서버 표시 이름</summary>
+        /// <summary>?쒕쾭 ?쒖떆 ?대쫫</summary>
         public string serverName;
 
-        /// <summary>서버 IP 주소</summary>
+        /// <summary>?쒕쾭 IP 二쇱냼</summary>
         public string serverIP;
 
-        /// <summary>서버 포트</summary>
+        /// <summary>?쒕쾭 ?ы듃</summary>
         public int port;
 
-        /// <summary>서버 상태</summary>
+        /// <summary>?쒕쾭 ?곹깭</summary>
         public ServerStatus status;
 
         public override string ToString()

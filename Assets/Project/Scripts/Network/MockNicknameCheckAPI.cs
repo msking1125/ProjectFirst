@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -6,12 +6,12 @@ namespace ProjectFirst.Network
 {
     public class MockNicknameCheckAPI : INicknameCheckAPI
     {
-        // 흉내내기 위해 특정 닉네임은 중복되었다고 가정합니다.
+        // ?됰궡?닿린 ?꾪빐 ?뱀젙 ?됰꽕?꾩? 以묐났?섏뿀?ㅺ퀬 媛?뺥빀?덈떎.
         private readonly string[] duplicateNicknames = { "tester", "admin", "player1" };
 
         public async UniTask<bool> CheckDuplicateAsync(string nickname)
         {
-            // 네트워크 딜레이 흉내
+            // ?ㅽ듃?뚰겕 ?쒕젅???됰궡
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
 
             if (nickname == null) return false;
@@ -21,7 +21,7 @@ namespace ProjectFirst.Network
             {
                 if (lowerNick == duplicate)
                 {
-                    Debug.Log($"[MockAPI] '{nickname}' 은(는) 이미 존재하는 닉네임입니다.");
+                    Debug.Log($"[MockAPI] '{nickname}' ?(?? ?대? 議댁옱?섎뒗 ?됰꽕?꾩엯?덈떎.");
                     return false;
                 }
             }

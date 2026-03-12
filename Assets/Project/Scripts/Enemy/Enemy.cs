@@ -14,9 +14,6 @@ using UnityEngine.AI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using DG.Tweening;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace Project
 {
@@ -46,13 +43,8 @@ public class Enemy : MonoBehaviour
     private static readonly int HitTriggerId = Animator.StringToHash("Hit");
     private static readonly int DieTriggerId = Animator.StringToHash("Die");
 
-#if ODIN_INSPECTOR
-    [ShowInInspector, ReadOnly] private float CurrentHP => currentHP;
-    [ShowInInspector, ReadOnly] private CombatStats Stats => currentCombatStats;
-#else
     private float CurrentHP => currentHP;
     private CombatStats Stats => currentCombatStats;
-#endif
 
     [Header("Enemy Stats")]
     public float moveSpeed = 2f;

@@ -3,84 +3,75 @@ using UnityEngine.UIElements;
 using Cysharp.Threading.Tasks;
 using UnityEngine.AddressableAssets;
 
-[RequireComponent(typeof(UIDocument))]
-public class TitleLoadingManager : MonoBehaviour
+namespace ProjectFirst.Bootstrap
 {
-    [SerializeField] private string targetSceneName = "Lobby";
-    
-    private VisualElement progressBar;
-    private Label loadingLog;
-    private Button startButton;
-    private VisualElement loadingContainer;
-    private bool _isLoading;
-
-    private void OnEnable()
-    {
-        Debug.Log("[TitleLoadingManager] OnEnable 호출됨 → 스크립트 정상 작동 확인");
-
-        var root = GetComponent<UIDocument>().rootVisualElement;
-        if (root == null) return; // UIDocument가 비활성화된 경우 안전하게 종료
-
-        loadingContainer = root.Q<VisualElement>("loading-container");
-        progressBar = root.Q<VisualElement>("progress-bar");
-        loadingLog = root.Q<Label>("loading-log");
-        startButton = root.Q<Button>("start-button");
-
-        // 로딩 영역 강제 표시
-        if (loadingContainer != null) loadingContainer.style.display = DisplayStyle.Flex;
-        if (progressBar != null) progressBar.style.width = new Length(0, LengthUnit.Percent);
-
-        if (startButton != null)
-        {
-            startButton.clicked += OnStartButtonClicked;
-            Debug.Log("[TitleLoadingManager] 시작 버튼 이벤트 연결 완료");
-        }
-        else
-        {
-            Debug.LogError("[TitleLoadingManager] start-button을 찾지 못함! uxml 확인");
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (startButton != null) startButton.clicked -= OnStartButtonClicked;
-    }
-
-    private void OnStartButtonClicked()
-    {
-        TriggerLoad();
-    }
-
     /// <summary>
-    /// TitleManager의 UGUI 버튼에서도 호출 가능한 공개 진입점
+    /// 타이틀 씬에서 에셋 동적 로딩과 씬 전환 시 진행률을 시각화합니다.
+    /// UI Toolkit 배경과 프로그레스 바를 제어합니다.
     /// </summary>
-    public void TriggerLoad()
+    [RequireComponent(typeof(UIDocument))]
+    public class TitleLoadingManager : MonoBehaviour
     {
-        if (_isLoading) return;
-        Debug.Log("[TitleLoadingManager] 게임 시작 버튼 클릭 → 로딩 시작");
-        _isLoading = true;
-        StartLoadingAsync().Forget();
-    }
-
-    private async UniTaskVoid StartLoadingAsync()
-    {
-        loadingLog.text = "자산 로딩 중...";
-        progressBar.style.width = new Length(0, LengthUnit.Percent);
-
-        var handle = Addressables.LoadSceneAsync(targetSceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
+        [Header("Scene Settings")]
+        [SerializeField] private string _targetSceneName = "Lobby";
         
-        while (!handle.IsDone)
+        private VisualElement _progressBar;
+        private Label _loadingLog;
+        private VisualElement _loadingContainer;
+        private bool _isLoading;
+
+        private void OnEnable()
         {
-            float progress = handle.PercentComplete * 100f;
-            progressBar.style.width = new Length(progress, LengthUnit.Percent);
-            loadingLog.text = $"자산 로딩 중... {progress:F0}%";
-            await UniTask.Yield();
+            var root = GetComponent<UIDocument>().rootVisualElement;
+            if (root == null) return;
+
+            _loadingContainer = root.Q<VisualElement>("loading-container");
+            _progressBar = root.Q<VisualElement>("progress-bar");
+            _loadingLog = root.Q<Label>("loading-log");
+
+            // 초기 상태는 로딩 바 0% (로딩 중이 아닐 때 처리)
+            if (_loadingContainer != null) 
+                _loadingContainer.style.display = DisplayStyle.None;
+            
+            if (_progressBar != null) 
+                _progressBar.style.width = new Length(0, LengthUnit.Percent);
         }
 
-        loadingLog.text = "로딩 완료! 이동 중...";
-        progressBar.style.width = new Length(100, LengthUnit.Percent);
-        
-        await UniTask.Delay(300);
-        Debug.Log("[TitleLoadingManager] 로딩 완료 → Lobby 씬으로 이동");
+        /// <summary>
+        /// 타이틀 UI의 게임 시작 버튼 이벤트가 호출될 때 진행률 표시와 함께 씬 로드를 시작합니다.
+        /// </summary>
+        public void TriggerLoad()
+        {
+            if (_isLoading) return;
+            
+            _isLoading = true;
+            if (_loadingContainer != null)
+                _loadingContainer.style.display = DisplayStyle.Flex;
+
+            StartLoadingAsync().Forget();
+        }
+
+        private async UniTaskVoid StartLoadingAsync()
+        {
+            if (_loadingLog != null) _loadingLog.text = "자산 로딩 중...";
+            if (_progressBar != null) _progressBar.style.width = new Length(0, LengthUnit.Percent);
+
+            // Addressables를 통한 씬 비동기 로드
+            var handle = Addressables.LoadSceneAsync(_targetSceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
+            
+            while (!handle.IsDone)
+            {
+                float progress = handle.PercentComplete * 100f;
+                if (_progressBar != null) _progressBar.style.width = new Length(progress, LengthUnit.Percent);
+                if (_loadingLog != null) _loadingLog.text = $"자산 로딩 중... {progress:F0}%";
+                await UniTask.Yield();
+            }
+
+            if (_loadingLog != null) _loadingLog.text = "로딩 완료! 이동 중...";
+            if (_progressBar != null) _progressBar.style.width = new Length(100, LengthUnit.Percent);
+            
+            await UniTask.Delay(300);
+            Debug.Log($"[TitleLoadingManager] {_targetSceneName} 씬으로 성공적으로 이동했습니다.");
+        }
     }
 }

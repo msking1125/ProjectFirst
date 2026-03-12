@@ -1,4 +1,4 @@
-namespace ProjectFirst.Data
+﻿namespace ProjectFirst.Data
 {
     public enum AttackType
     {

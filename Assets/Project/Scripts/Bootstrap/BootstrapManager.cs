@@ -1,20 +1,20 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// 프로젝트 부트스트랩을 담당하는 매니저.
-/// 최초 실행 시 타이틀 씬을 Additive로 로드하며, 오브젝트를 씬 전환 간 유지합니다.
+/// ?꾨줈?앺듃 遺?몄뒪?몃옪???대떦?섎뒗 留ㅻ땲?.
+/// 理쒖큹 ?ㅽ뻾 ????댄? ?ъ쓣 Additive濡?濡쒕뱶?섎ŉ, ?ㅻ툕?앺듃瑜????꾪솚 媛??좎??⑸땲??
 /// </summary>
 public class BootstrapManager : MonoBehaviour
 {
-    // 전역에서 접근 가능한 싱글톤 인스턴스
+    // ?꾩뿭?먯꽌 ?묎렐 媛?ν븳 ?깃????몄뒪?댁뒪
     public static BootstrapManager Instance { get; private set; }
 
     [SerializeField] private string titleSceneName = "Title";
 
     private void Awake()
     {
-        // 이미 인스턴스가 있다면 중복 오브젝트 제거
+        // ?대? ?몄뒪?댁뒪媛 ?덈떎硫?以묐났 ?ㅻ툕?앺듃 ?쒓굅
         if (Instance != null && Instance != this)
         {
             Debug.LogWarning("[BootstrapManager] Duplicate instance detected. Destroying the new object.");
@@ -24,7 +24,7 @@ public class BootstrapManager : MonoBehaviour
 
         Instance = this;
 
-        // 씬이 바뀌어도 BootstrapManager를 유지
+        // ?ъ씠 諛붾뚯뼱??BootstrapManager瑜??좎?
         DontDestroyOnLoad(gameObject);
 
         EnsureAsyncSceneLoader();
@@ -34,24 +34,24 @@ public class BootstrapManager : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(titleSceneName))
         {
-            Debug.LogError("[BootstrapManager] Title Scene Name(titleSceneName)이 비어 있어 타이틀 씬 로드를 중단합니다.");
+            Debug.LogError("[BootstrapManager] Title Scene Name(titleSceneName)??鍮꾩뼱 ?덉뼱 ??댄? ??濡쒕뱶瑜?以묐떒?⑸땲??");
             return;
         }
 
         if (AsyncSceneLoader.Instance == null)
         {
-            Debug.LogWarning("[BootstrapManager] Start 시점에 AsyncSceneLoader.Instance가 null입니다. 재생성을 시도합니다.");
+            Debug.LogWarning("[BootstrapManager] Start ?쒖젏??AsyncSceneLoader.Instance媛 null?낅땲?? ?ъ깮?깆쓣 ?쒕룄?⑸땲??");
             EnsureAsyncSceneLoader();
         }
 
         if (AsyncSceneLoader.Instance == null)
         {
-            Debug.LogError($"[BootstrapManager] AsyncSceneLoader 초기화에 실패했습니다. 씬 '{titleSceneName}' 로드를 진행할 수 없습니다.");
+            Debug.LogError($"[BootstrapManager] AsyncSceneLoader 珥덇린?붿뿉 ?ㅽ뙣?덉뒿?덈떎. ??'{titleSceneName}' 濡쒕뱶瑜?吏꾪뻾?????놁뒿?덈떎.");
             return;
         }
 
         AsyncSceneLoader.Instance.LoadSceneAsync(titleSceneName, LoadSceneMode.Additive);
-        Debug.Log($"[BootstrapManager] 타이틀 씬 Additive 로드 요청: {titleSceneName}");
+        Debug.Log($"[BootstrapManager] ??댄? ??Additive 濡쒕뱶 ?붿껌: {titleSceneName}");
     }
 
     private void EnsureAsyncSceneLoader()
@@ -61,11 +61,11 @@ public class BootstrapManager : MonoBehaviour
             return;
         }
 
-        // 씬 내(비활성 포함) 기존 AsyncSceneLoader 탐색
+        // ????鍮꾪솢???ы븿) 湲곗〈 AsyncSceneLoader ?먯깋
         AsyncSceneLoader existingLoader = FindObjectOfType<AsyncSceneLoader>(true);
         if (existingLoader != null)
         {
-            Debug.Log("[BootstrapManager] 기존 AsyncSceneLoader를 발견했습니다.");
+            Debug.Log("[BootstrapManager] 湲곗〈 AsyncSceneLoader瑜?諛쒓껄?덉뒿?덈떎.");
             return;
         }
 
@@ -73,6 +73,6 @@ public class BootstrapManager : MonoBehaviour
         loaderObject.AddComponent<AsyncSceneLoader>();
         DontDestroyOnLoad(loaderObject);
 
-        Debug.Log("[BootstrapManager] AsyncSceneLoader가 없어 새 GameObject를 생성하고 AddComponent<AsyncSceneLoader>()로 초기화했습니다.");
+        Debug.Log("[BootstrapManager] AsyncSceneLoader媛 ?놁뼱 ??GameObject瑜??앹꽦?섍퀬 AddComponent<AsyncSceneLoader>()濡?珥덇린?뷀뻽?듬땲??");
     }
 }

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Project;
 
 // Animation state event bridge that fires the railgun skill once at a configured normalized time.

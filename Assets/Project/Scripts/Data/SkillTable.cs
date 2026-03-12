@@ -1,26 +1,14 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace ProjectFirst.Data
 {
     /// <summary>
     /// 스킬 데이터 테이블
     /// </summary>
-#if ODIN_INSPECTOR
-    [CreateAssetMenu(menuName = "Soul Ark/Skill Table")]
-#else
     [CreateAssetMenu(menuName = "Game/Skill Table")]
-#endif
     public class SkillTable : ScriptableObject
     {
-#if ODIN_INSPECTOR
-        [Title("스킬 목록", TitleAlignment = TitleAlignments.Centered)]
-        [TableList(ShowIndexLabels = true, AlwaysExpanded = true, DrawScrollView = true, MinScrollViewHeight = 300)]
-        [Searchable]
-#endif
         [SerializeField] private List<SkillRow> _rows = new();
 
         private readonly Dictionary<int, SkillRow> _index = new();
@@ -41,10 +29,6 @@ namespace ProjectFirst.Data
             return row;
         }
 
-#if ODIN_INSPECTOR
-        [Button("인덱스 재구축", ButtonSizes.Medium)]
-        [GUIColor(0.3f, 0.8f, 0.3f)]
-#endif
         private void RebuildIndex()
         {
             _index.Clear();

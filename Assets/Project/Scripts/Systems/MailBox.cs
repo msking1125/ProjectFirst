@@ -1,22 +1,22 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 인게임 우편함 ScriptableObject.
-/// 방치 보상·이벤트 보상 등이 이 우편함에 적재됩니다.
-/// 생성: Create → Game/Mail Box
-/// 권장 경로: Assets/Project/Data/MailBox.asset
+/// ?멸쾶???고렪??ScriptableObject.
+/// 諛⑹튂 蹂댁긽쨌?대깽??蹂댁긽 ?깆씠 ???고렪?⑥뿉 ?곸옱?⑸땲??
+/// ?앹꽦: Create ??Game/Mail Box
+/// 沅뚯옣 寃쎈줈: Assets/Project/Data/MailBox.asset
 /// </summary>
 [CreateAssetMenu(menuName = "Game/Mail Box", fileName = "MailBox")]
 public class MailBox : ScriptableObject
 {
     public List<MailItem> items = new List<MailItem>();
 
-    /// <summary>새 우편이 추가될 때 발행됩니다 (우편 UI 뱃지 갱신용).</summary>
+    /// <summary>???고렪??異붽?????諛쒗뻾?⑸땲??(?고렪 UI 諭껋? 媛깆떊??.</summary>
     public event Action OnMailReceived;
 
-    /// <summary>우편을 추가합니다.</summary>
+    /// <summary>?고렪??異붽??⑸땲??</summary>
     public void AddMail(string title, string body,
         int gold = 0, int ticket = 0, int diamond = 0)
     {
@@ -34,7 +34,7 @@ public class MailBox : ScriptableObject
         OnMailReceived?.Invoke();
     }
 
-    /// <summary>수령되지 않은 우편 수를 반환합니다.</summary>
+    /// <summary>?섎졊?섏? ?딆? ?고렪 ?섎? 諛섑솚?⑸땲??</summary>
     public int UnclaimedCount()
     {
         int count = 0;
@@ -44,28 +44,29 @@ public class MailBox : ScriptableObject
     }
 }
 
-/// <summary>우편 1건 데이터.</summary>
+/// <summary>?고렪 1嫄??곗씠??</summary>
 [Serializable]
 public struct MailItem
 {
-    [Tooltip("우편 제목")]
+    [Tooltip("?고렪 ?쒕ぉ")]
     public string title;
 
-    [Tooltip("우편 본문")]
+    [Tooltip("?고렪 蹂몃Ц")]
     public string body;
 
-    [Tooltip("첨부 골드")]
+    [Tooltip("泥⑤? 怨⑤뱶")]
     public int gold;
 
-    [Tooltip("첨부 티켓")]
+    [Tooltip("泥⑤? ?곗폆")]
     public int ticket;
 
-    [Tooltip("첨부 다이아")]
+    [Tooltip("Claim diamond")]
     public int diamond;
 
-    [Tooltip("발송 UTC 시각 (ISO 8601)")]
+    [Tooltip("諛쒖넚 UTC ?쒓컖 (ISO 8601)")]
     public string sentTime;
 
-    [Tooltip("수령 여부")]
+    [Tooltip("?섎졊 ?щ?")]
     public bool isClaimed;
 }
+

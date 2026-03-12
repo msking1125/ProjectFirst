@@ -9,9 +9,6 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using ProjectFirst.Data;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace Project
 {
@@ -30,75 +27,17 @@ namespace Project
 /// ?? Inspector 媛?대뱶 ?????????????????????????????????????????????????????
 /// 鍮꾩썙?먮㈃ ?먯떇 ?ㅻ툕?앺듃 ?대쫫?쇰줈 ?먮룞 ?먯깋?⑸땲??
 /// </summary>
-#if ODIN_INSPECTOR
-    [HideMonoScript]
-#endif
     public class CharUltimateController : MonoBehaviour
     {
         // ?? Inspector ?곌껐 ????????????????????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("UI ?곌껐 (鍮꾩슦硫??먮룞 ?먯깋)", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("UI", 0.33f)]
-        [BoxGroup("UI/踰꾪듉")]
-        [LabelText("Ult 踰꾪듉")]
-        [Tooltip("CharActive_1")]
-        [SceneObjectsOnly]
-#endif
         [Header("UI ?곌껐 (鍮꾩슦硫??먮룞 ?먯깋)")]
         [SerializeField] private Button   ultButton;       // CharActive_1
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("UI", 0.33f)]
-        [BoxGroup("UI/?꾩씠肄?)]
-        [LabelText("?ㅽ궗 ?꾩씠肄?)]
-        [Tooltip("SkillIcon")]
-        [PreviewField(50, ObjectFieldAlignment.Left)]
-#endif
         [SerializeField] private Image    skillIcon;       // SkillIcon
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("UI", 0.34f)]
-        [BoxGroup("UI/寃뚯씠吏")]
-        [LabelText("荑⑦???寃뚯씠吏")]
-        [Tooltip("CoolTimeDim (Image.Type.Filled)")]
-        [PreviewField(50, ObjectFieldAlignment.Left)]
-#endif
         [SerializeField] private Image    cooldownGauge;   // CoolTimeDim
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("UI2", 0.5f)]
-        [BoxGroup("UI2/?띿뒪??)]
-        [LabelText("荑⑦????띿뒪??)]
-        [Tooltip("CoolTime")]
-#endif
         [SerializeField] private TMP_Text cooldownText;    // CoolTime
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("UI2", 0.5f)]
-        [BoxGroup("UI2/罹먮┃??)]
-        [LabelText("罹먮┃???꾩씠肄?)]
-        [Tooltip("CharIcon")]
-        [PreviewField(50, ObjectFieldAlignment.Left)]
-#endif
         [SerializeField] private Image    charIcon;        // CharIcon
-
-#if ODIN_INSPECTOR
-        [Title("遺덇? ?곹깭 ?쒖떆", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("?곹깭", 0.5f)]
-        [BoxGroup("?곹깭/以鍮?)]
-        [LabelText("以鍮??됱긽")]
-        [Tooltip("荑⑦????꾨즺 ??踰꾪듉 ?됱긽")]
-#endif
         [Header("遺덇? ?곹깭 ?쒖떆")]
         [SerializeField] private Color readyColor    = Color.white;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("?곹깭", 0.5f)]
-        [BoxGroup("?곹깭/荑⑦???)]
-        [LabelText("荑⑦????됱긽")]
-        [GUIColor(0.2f, 0.2f, 0.2f)]
-        [Tooltip("荑⑦???以?踰꾪듉 ?됱긽")]
-#endif
         [SerializeField] private Color cooldownColor = new Color(0f, 0f, 0f, 0.6f);
 
     // ?? ?고??????????????????????????????????????????????????????????????????
@@ -307,6 +246,7 @@ namespace Project
     }
 }
 } // namespace Project
+
 
 
 

@@ -12,58 +12,17 @@ using ProjectFirst.Network;
 using ProjectFirst.OutGame.Data;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace ProjectFirst.OutGame
 {
-#if ODIN_INSPECTOR
-    [HideMonoScript]
-#endif
     public class LoginManager : MonoBehaviour
     {
         public static LoginManager Instance { get; private set; }
-
-#if ODIN_INSPECTOR
-        [Title("UI", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("UI")]
-        [LabelText("UI Document")]
-        [Tooltip("濡쒓렇??UI瑜??꾪븳 UIDocument")]
-        [SceneObjectsOnly]
-#endif
         [Header("UI Document")]
         [SerializeField] private UIDocument uiDocument;
-
-#if ODIN_INSPECTOR
-        [Title("?곗씠??, TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("?곗씠??, 0.33f)]
-        [BoxGroup("?곗씠???쒕쾭")]
-        [LabelText("?쒕쾭 紐⑸줉")]
-        [Tooltip("?쒕쾭 紐⑸줉 ScriptableObject")]
-        [AssetsOnly]
-        [PreviewField(50, ObjectFieldAlignment.Left)]
-#endif
         [Header("Data References")]
         [SerializeField] private ServerListSO serverListSO;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("?곗씠??, 0.33f)]
-        [BoxGroup("?곗씠??湲덉튃??)]
-        [LabelText("湲덉튃??CSV")]
-        [Tooltip("湲덉튃??CSV ?뚯씪")]
-        [AssetsOnly]
-#endif
         [SerializeField] private TextAsset badWordsCSV;
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("?곗씠??, 0.34f)]
-        [BoxGroup("?곗씠???뚮젅?댁뼱")]
-        [LabelText("PlayerData")]
-        [Tooltip("?뚮젅?댁뼱 ?곗씠??)]
-        [AssetsOnly]
-        [PreviewField(50, ObjectFieldAlignment.Left)]
-#endif
         [SerializeField] private PlayerData playerData;
 
         // UI Elements
@@ -478,6 +437,7 @@ namespace ProjectFirst.OutGame
         }
     }
 }
+
 
 
 

@@ -1,4 +1,4 @@
-#if ODIN_INSPECTOR
+﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 #endif
@@ -102,7 +102,12 @@ namespace ProjectFirst.Editor
         [EnableIf("@AgentTableAsset != null || MonsterTableAsset != null || SkillTableAsset != null")]
         private void RebuildAllIndices()
         {
-            if (AgentTableAsset != null) AgentTableAsset.RebuildIndex();
+            if (AgentTableAsset != null)
+            {
+                var method = typeof(AgentTable).GetMethod("RebuildIndex",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                method?.Invoke(AgentTableAsset, null);
+            }
             if (MonsterTableAsset != null)
             {
                 var method = typeof(MonsterTable).GetMethod("OnValidate",
@@ -212,3 +217,4 @@ namespace ProjectFirst.Editor
     }
 #endif
 }
+

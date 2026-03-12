@@ -9,191 +9,58 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using ProjectFirst.Data;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace Project
 {
     /// <summary>
     /// BattleGameManager: ?꾪닾 ?ъ쓽 寃뚯엫 ?먮쫫, 蹂댁긽, UI瑜?愿由ы븯???깃???
     /// </summary>
-#if ODIN_INSPECTOR
-    [HideMonoScript]
-#endif
     public class BattleGameManager : MonoBehaviour
     {
         public static BattleGameManager Instance { get; private set; }
 
         // ?? Inspector ?꾨뱶 ????????????????????????????????????????????????????????
 
-#if ODIN_INSPECTOR
-        [Title("湲곗? 諛??곗씠??, TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("Base", 0.5f)]
-        [BoxGroup("Base/湲곗?")]
-        [LabelText("湲곗? 泥대젰")]
-        [Required]
-        [Tooltip("湲곗?(Ark)??泥대젰 而댄룷?뚰듃")]
-#endif
         [Header("Base")]
         [SerializeField] private BaseHealth baseHealth;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("Base/?대쫫")]
-        [LabelText("湲곗? ?ㅻ툕?앺듃紐?)]
-        [Tooltip("Scene?먯꽌 湲곗? ?ㅻ툕?앺듃 ?대쫫")]
-#endif
         [SerializeField] private string baseObjectName = "Ark_Base";
 
-#if ODIN_INSPECTOR
-        [Title("?뚯씠釉??곗씠??, TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("Data", 0.5f)]
-        [BoxGroup("Data/紐ъ뒪??)]
-        [LabelText("紐ъ뒪???뚯씠釉?)]
-        [Required]
-        [AssetsOnly]
-        [Tooltip("紐ъ뒪???곗씠???뚯씠釉?SO")]
-#endif
         [Header("Data")]
         [SerializeField] private MonsterTable monsterTable;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("Data", 0.5f)]
-        [BoxGroup("Data/?ㅽ궗")]
-        [LabelText("?ㅽ궗 ?뚯씠釉?)]
-        [Required]
-        [AssetsOnly]
-        [Tooltip("?ㅽ궗 ?곗씠???뚯씠釉?SO")]
-#endif
         [SerializeField] private SkillTable skillTable;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("Data/?뚮젅?댁뼱")]
-        [LabelText("?뚮젅?댁뼱 ?먯씠?꾪듃")]
-        [Required]
-        [SceneObjectsOnly]
-        [Tooltip("?뚮젅?댁뼱 罹먮┃??Agent 而댄룷?뚰듃")]
-#endif
         [SerializeField] private Agent playerAgent;
 
-#if ODIN_INSPECTOR
-        [Title("?뚮젅?댁뼱 ?곗씠??, TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("Player", 0.5f)]
-        [BoxGroup("Player/SO")]
-        [LabelText("PlayerData")]
-        [Required]
-        [AssetsOnly]
-        [Tooltip("?밸━ 蹂댁긽 怨⑤뱶瑜?洹?띿떆??PlayerData ?먯뀑")]
-#endif
         [Header("Player Data")]
         [SerializeField] private PlayerData playerData;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("Player", 0.5f)]
-        [BoxGroup("Player/鍮꾩쑉")]
-        [LabelText("?⑤같 蹂댁긽 鍮꾩쑉")]
-        [PropertyRange(0f, 1f)]
-        [SuffixLabel("%", true)]
-        [Tooltip("?⑤같 ?쒖뿉???띾뱷 怨⑤뱶????鍮꾩쑉留뚰겮 吏湲?(0 = 誘몄?湲? 0.5 = 50%)")]
-#endif
         [Range(0f, 1f)]
         [SerializeField] private float defeatGoldRatio = 0f;
 
-#if ODIN_INSPECTOR
-        [Title("HUD ?곌껐", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("HUD", 0.5f)]
-        [BoxGroup("HUD/罹붾쾭??)]
-        [LabelText("?寃?罹붾쾭??)]
-        [SceneObjectsOnly]
-#endif
         [Header("HUD")]
         [SerializeField] private Canvas targetCanvas;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("HUD/罹붾쾭??)]
-        [LabelText("UI CanvasGroup")]
-        [Tooltip("?쒕꽕留덊떛 以??④만 UI CanvasGroup (鍮꾩슦硫?targetCanvas???먮룞 異붽?)")]
-        [SceneObjectsOnly]
-#endif
         [SerializeField] private CanvasGroup uiCanvasGroup;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("HUD", 0.5f)]
-        [BoxGroup("HUD/酉?)]
-        [LabelText("Status HUD")]
-        [Tooltip("?덈꺼/寃쏀뿕移?怨⑤뱶 ?쒖떆 HUD")]
-        [SceneObjectsOnly]
-#endif
         [SerializeField] private StatusHudView statusHudView;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("HUD/酉?)]
-        [LabelText("沅곴레湲?而⑦듃濡ㅻ윭")]
-        [Tooltip("罹먮┃??怨좎쑀 ?ㅽ궗 踰꾪듉 而⑦듃濡ㅻ윭")]
-        [SceneObjectsOnly]
-#endif
         [SerializeField] private CharUltimateController charUltimateController;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("HUD/?ㅽ궗", 0.5f)]
-        [BoxGroup("HUD/?ㅽ궗/諛?)]
-        [LabelText("?ㅽ궗 諛?)]
-        [Tooltip("?μ갑???ㅽ궗 ?쒖떆 諛?)]
-        [SceneObjectsOnly]
-#endif
         [SerializeField] private SkillBarController skillBarController;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("HUD/?ㅽ궗", 0.5f)]
-        [BoxGroup("HUD/?ㅽ궗/?좏깮")]
-        [LabelText("?ㅽ궗 ?좏깮 ?⑤꼸")]
-        [Tooltip("?덈꺼?????ㅽ궗 ?좏깮 ?⑤꼸")]
-        [SceneObjectsOnly]
-#endif
         [SerializeField] private SkillSelectPanelController skillSelectPanelController;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("HUD/?꾨━??)]
-        [LabelText("?ㅽ궗 諛??꾨━??)]
-        [AssetsOnly]
-        [Tooltip("?숈쟻 ?앹꽦???ㅽ궗 諛??꾨━??)]
-#endif
         [SerializeField] private SkillBarController skillBarPrefab;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("HUD/?꾨━??)]
-        [LabelText("?ㅽ궗 ?좏깮 ?꾨━??)]
-        [AssetsOnly]
-        [Tooltip("?숈쟻 ?앹꽦???ㅽ궗 ?좏깮 ?⑤꼸 ?꾨━??)]
-#endif
         [SerializeField] private SkillSelectPanelController skillSelectPanelPrefab;
 
-#if ODIN_INSPECTOR
-        [Title("寃곌낵 UI", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("Result", 0.5f)]
-        [BoxGroup("Result/?⑤꼸")]
-        [LabelText("寃곌낵 ?⑤꼸")]
-        [Tooltip("?밸━/?⑤같 寃곌낵 ?쒖떆 ?⑤꼸 GameObject")]
-        [SceneObjectsOnly]
-#endif
         [Header("Result UI")]
         [SerializeField] private GameObject resultPanel;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("Result", 0.5f)]
-        [BoxGroup("Result/留ㅻ땲?")]
-        [LabelText("寃곌낵 留ㅻ땲?")]
-        [Tooltip("ResultPanelManager 而댄룷?뚰듃")]
-        [SceneObjectsOnly]
-#endif
         [SerializeField] private ResultPanelManager resultPanelManager;
 
-#if ODIN_INSPECTOR
-        [Title("???ㅼ젙", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("??)]
-        [LabelText("??댄? ???대쫫")]
-        [Tooltip("BackToTitle()濡??대룞?????대쫫")]
-#endif
         [Header("Scene")]
         [SerializeField] private string titleSceneName = "Title";
 

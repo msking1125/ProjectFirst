@@ -1,19 +1,19 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 /// <summary>
-/// 파라미터 없는 ScriptableObject 이벤트 채널
-/// 버튼 이벤트 등 단순 신호 전달에 사용
+/// ?뚮씪誘명꽣 ?녿뒗 ScriptableObject ?대깽??梨꾨꼸
+/// 踰꾪듉 ?대깽?????⑥닚 ?좏샇 ?꾨떖???ъ슜
 /// </summary>
 [CreateAssetMenu(
     menuName = "Events/Void Event Channel",
     fileName = "NewVoidEventChannel")]
 public class VoidEventChannelSO : ScriptableObject
 {
-    /// <summary>이벤트를 수신할 리스너들</summary>
+    /// <summary>?대깽?몃? ?섏떊??由ъ뒪?덈뱾</summary>
     public event Action OnEventRaised;
 
-    /// <summary>이벤트 발행 (버튼 클릭 등에서 호출)</summary>
+    /// <summary>?대깽??諛쒗뻾 (踰꾪듉 ?대┃ ?깆뿉???몄텧)</summary>
     public void RaiseEvent()
     {
         OnEventRaised?.Invoke();

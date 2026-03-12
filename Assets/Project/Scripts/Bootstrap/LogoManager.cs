@@ -1,13 +1,13 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// 로고 씬을 관리합니다.
-/// CompanyLogo → GameLogo 순서로 FadeIn(0.5초) → 유지(2초) → FadeOut(0.5초) 재생 후
-/// 타이틀 씬으로 자동 이동합니다.
-/// 로고 이미지는 Resources/UI/Logos/ 경로에서 로드합니다.
+/// 濡쒓퀬 ?ъ쓣 愿由ы빀?덈떎.
+/// CompanyLogo ??GameLogo ?쒖꽌濡?FadeIn(0.5珥? ???좎?(2珥? ??FadeOut(0.5珥? ?ъ깮 ??
+/// ??댄? ?ъ쑝濡??먮룞 ?대룞?⑸땲??
+/// 濡쒓퀬 ?대?吏??Resources/UI/Logos/ 寃쎈줈?먯꽌 濡쒕뱶?⑸땲??
 /// </summary>
 public class LogoManager : MonoBehaviour
 {
@@ -29,7 +29,7 @@ public class LogoManager : MonoBehaviour
 
     private void Start()
     {
-        // 로고 씬의 배경을 검은색으로 고정합니다.
+        // 濡쒓퀬 ?ъ쓽 諛곌꼍??寃??됱쑝濡?怨좎젙?⑸땲??
         if (Camera.main != null)
         {
             Camera.main.clearFlags = CameraClearFlags.SolidColor;
@@ -46,7 +46,7 @@ public class LogoManager : MonoBehaviour
 
     private void LoadLogoSprites()
     {
-        // 인스펙터에 이미 스프라이트가 할당되어 있다면 Resources.Load를 건너뜁니다.
+        // ?몄뒪?숉꽣???대? ?ㅽ봽?쇱씠?멸? ?좊떦?섏뼱 ?덈떎硫?Resources.Load瑜?嫄대꼫?곷땲??
         if (companyLogoImage.sprite == null)
         {
             Sprite companySprite = Resources.Load<Sprite>(LogoResourcePath + "CompanyLogo");
@@ -56,7 +56,7 @@ public class LogoManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[LogoManager] CompanyLogo 스프라이트를 찾을 수 없습니다: {LogoResourcePath}CompanyLogo\nResources 폴더 내부에 에셋이 있는지 확인하거나 인스펙터에서 직접 할당해주세요.");
+                Debug.LogWarning($"[LogoManager] CompanyLogo ?ㅽ봽?쇱씠?몃? 李얠쓣 ???놁뒿?덈떎: {LogoResourcePath}CompanyLogo\nResources ?대뜑 ?대????먯뀑???덈뒗吏 ?뺤씤?섍굅???몄뒪?숉꽣?먯꽌 吏곸젒 ?좊떦?댁＜?몄슂.");
             }
         }
 
@@ -69,7 +69,7 @@ public class LogoManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[LogoManager] GameLogo 스프라이트를 찾을 수 없습니다: {LogoResourcePath}GameLogo\nResources 폴더 내부에 에셋이 있는지 확인하거나 인스펙터에서 직접 할당해주세요.");
+                Debug.LogWarning($"[LogoManager] GameLogo ?ㅽ봽?쇱씠?몃? 李얠쓣 ???놁뒿?덈떎: {LogoResourcePath}GameLogo\nResources ?대뜑 ?대????먯뀑???덈뒗吏 ?뺤씤?섍굅???몄뒪?숉꽣?먯꽌 吏곸젒 ?좊떦?댁＜?몄슂.");
             }
         }
     }
@@ -111,7 +111,7 @@ public class LogoManager : MonoBehaviour
         }
         else
         {
-            // AsyncSceneLoader가 없으면 새로 생성 후 사용
+            // AsyncSceneLoader媛 ?놁쑝硫??덈줈 ?앹꽦 ???ъ슜
             EnsureAsyncSceneLoader();
 
             if (AsyncSceneLoader.Instance != null)
@@ -120,7 +120,7 @@ public class LogoManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("[LogoManager] AsyncSceneLoader 생성에 실패하여 SceneManager.LoadScene으로 직접 전환합니다.");
+                Debug.LogWarning("[LogoManager] AsyncSceneLoader ?앹꽦???ㅽ뙣?섏뿬 SceneManager.LoadScene?쇰줈 吏곸젒 ?꾪솚?⑸땲??");
                 SceneManager.LoadScene(titleSceneName);
             }
         }
@@ -133,19 +133,19 @@ public class LogoManager : MonoBehaviour
             return;
         }
 
-        // 씬 내(비활성 포함) 기존 AsyncSceneLoader 탐색
+        // ????鍮꾪솢???ы븿) 湲곗〈 AsyncSceneLoader ?먯깋
         AsyncSceneLoader existingLoader = FindObjectOfType<AsyncSceneLoader>(true);
         if (existingLoader != null)
         {
-            Debug.Log("[LogoManager] 기존 AsyncSceneLoader를 발견했습니다.");
+            Debug.Log("[LogoManager] 湲곗〈 AsyncSceneLoader瑜?諛쒓껄?덉뒿?덈떎.");
             return;
         }
 
-        // 없으면 새로 생성
+        // ?놁쑝硫??덈줈 ?앹꽦
         GameObject loaderObject = new GameObject("AsyncSceneLoader");
         loaderObject.AddComponent<AsyncSceneLoader>();
         DontDestroyOnLoad(loaderObject);
 
-        Debug.Log("[LogoManager] AsyncSceneLoader가 없어 새 GameObject를 생성하고 AddComponent<AsyncSceneLoader>()로 초기화했습니다.");
+        Debug.Log("[LogoManager] AsyncSceneLoader媛 ?놁뼱 ??GameObject瑜??앹꽦?섍퀬 AddComponent<AsyncSceneLoader>()濡?珥덇린?뷀뻽?듬땲??");
     }
 }

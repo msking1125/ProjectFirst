@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using ProjectFirst.OutGame.Data;
 
 namespace ProjectFirst.Network
@@ -6,8 +6,8 @@ namespace ProjectFirst.Network
     public interface IServerConnectionAPI
     {
         /// <summary>
-        /// 선택한 서버 정보로 접속을 시도합니다.
-        /// 반환값이 true이면 접속 성공, false이면 실패.
+        /// ?좏깮???쒕쾭 ?뺣낫濡??묒냽???쒕룄?⑸땲??
+        /// 諛섑솚媛믪씠 true?대㈃ ?묒냽 ?깃났, false?대㈃ ?ㅽ뙣.
         /// </summary>
         UniTask<bool> ConnectToAsync(ServerInfo serverInfo);
     }

@@ -1,31 +1,31 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using ProjectFirst.Data;
 
 /// <summary>
-/// UIToolkit(UIDocument) 기반 설정 패널.
+/// UIToolkit(UIDocument) 湲곕컲 ?ㅼ젙 ?⑤꼸.
 ///
-/// [Inspector 연결 가이드]
-/// ┌ uiDocument        : 이 GameObject의 UIDocument 컴포넌트
-/// ├ audioMixer        : 프로젝트 AudioMixer (BGMVolume / SFXVolume 파라미터 필요)
-/// ├ playerData        : PlayerData.asset (계정 탭 UID 표시용, 선택)
-/// └ defaultLoginMethod: "Guest" 등 로그인 방식 기본값
+/// [Inspector ?곌껐 媛?대뱶]
+/// ??uiDocument        : ??GameObject??UIDocument 而댄룷?뚰듃
+/// ??audioMixer        : ?꾨줈?앺듃 AudioMixer (BGMVolume / SFXVolume ?뚮씪誘명꽣 ?꾩슂)
+/// ??playerData        : PlayerData.asset (怨꾩젙 ??UID ?쒖떆?? ?좏깮)
+/// ??defaultLoginMethod: "Guest" ??濡쒓렇??諛⑹떇 湲곕낯媛?
 ///
-/// [LobbyManager 연동]
-/// LobbyManager.settingPanel 에 이 컴포넌트를 연결하면
-/// 설정 버튼 클릭 시 OpenPanel()이 자동 호출됩니다.
+/// [LobbyManager ?곕룞]
+/// LobbyManager.settingPanel ????而댄룷?뚰듃瑜??곌껐?섎㈃
+/// ?ㅼ젙 踰꾪듉 ?대┃ ??OpenPanel()???먮룞 ?몄텧?⑸땲??
 ///
-/// [AudioMixer 파라미터]
-/// Exposed Parameter 이름을 반드시 "BGMVolume", "SFXVolume" 으로 지정하세요.
+/// [AudioMixer ?뚮씪誘명꽣]
+/// Exposed Parameter ?대쫫??諛섎뱶??"BGMVolume", "SFXVolume" ?쇰줈 吏?뺥븯?몄슂.
 /// </summary>
 [DisallowMultipleComponent]
 public class SettingPanel : MonoBehaviour
 {
     public static SettingPanel Instance { get; private set; }
 
-    // ── Inspector ──────────────────────────────────────────
+    // ?? Inspector ??????????????????????????????????????????
 
     [Header("UI")]
     [SerializeField] private UIDocument uiDocument;
@@ -33,12 +33,12 @@ public class SettingPanel : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioMixer audioMixer;
 
-    [Header("Account (선택)")]
+    [Header("Account (?좏깮)")]
     [SerializeField] private PlayerData playerData;
     [SerializeField] private string defaultLoginMethod = "Guest";
     [SerializeField] private GameSettingsData settingsData;
 
-    // ── PlayerPrefs 키 ─────────────────────────────────────
+    // ?? PlayerPrefs ???????????????????????????????????????
 
     private const string KEY_BGM_VOL  = "bgmVol";
     private const string KEY_SFX_VOL  = "sfxVol";
@@ -49,35 +49,35 @@ public class SettingPanel : MonoBehaviour
     private const string KEY_BLOOM    = "bloomOn";
     private const string KEY_BLUR     = "blurOn";
 
-    // AudioMixer Exposed Parameter 이름
+    // AudioMixer Exposed Parameter ?대쫫
     private const string MIXER_BGM = "BGMVolume";
     private const string MIXER_SFX = "SFXVolume";
 
-    // ── UI 캐시 ────────────────────────────────────────────
+    // ?? UI 罹먯떆 ????????????????????????????????????????????
 
-    // 배경/루트
+    // 諛곌꼍/猷⑦듃
     private VisualElement _backdrop;
 
-    // 탭 버튼
+    // ??踰꾪듉
     private Button _tabGraphicsBtn;
     private Button _tabSoundBtn;
     private Button _tabAccountBtn;
 
-    // 탭 콘텐츠
+    // ??肄섑뀗痢?
     private VisualElement _graphicsTab;
     private VisualElement _soundTab;
     private VisualElement _accountTab;
 
-    // 그래픽: 프레임 선택 (RadioButtonGroup — value=0:상 1:중 2:하)
+    // 洹몃옒?? ?꾨젅???좏깮 (RadioButtonGroup ??value=0:??1:以?2:??
     private RadioButtonGroup _frameGroup;
     private Toggle           _shakeToggle;
     private Toggle           _bloomToggle;
     private Toggle           _blurToggle;
 
-    // AudioMixer 파라미터 사용 가능 여부 (Exposed 미설정 시 false)
+    // AudioMixer ?뚮씪誘명꽣 ?ъ슜 媛???щ? (Exposed 誘몄꽕????false)
     private bool _audioReady;
 
-    // 사운드
+    // ?ъ슫??
     private Slider _bgmSlider;
     private Slider _sfxSlider;
     private Label  _bgmValueLabel;
@@ -85,22 +85,22 @@ public class SettingPanel : MonoBehaviour
     private Toggle _bgmMuteToggle;
     private Toggle _sfxMuteToggle;
 
-    // 음소거 전 볼륨 캐시 (슬라이더 수치 유지, 출력만 0)
+    // ?뚯냼嫄???蹂쇰ⅷ 罹먯떆 (?щ씪?대뜑 ?섏튂 ?좎?, 異쒕젰留?0)
     private float _bgmVolCache;
     private float _sfxVolCache;
 
-    // 계정
+    // 怨꾩젙
     private Label  _uidLabel;
     private Label  _loginMethodLabel;
     private Button _logoutBtn;
     private Button _copyBtn;
 
-    // 로그아웃 확인 팝업
+    // 濡쒓렇?꾩썐 ?뺤씤 ?앹뾽
     private VisualElement _confirmOverlay;
     private Button        _confirmYesBtn;
     private Button        _confirmNoBtn;
 
-    // ─────────────────────────────────────────────────────────
+    // ?????????????????????????????????????????????????????????
 
     private void Awake()
     {
@@ -116,14 +116,14 @@ public class SettingPanel : MonoBehaviour
         Hide();
     }
 
-    // ── 공개 API ─────────────────────────────────────────────
+    // ?? 怨듦컻 API ?????????????????????????????????????????????
 
-    /// <summary>설정 패널을 표시하고 저장된 값으로 초기화합니다.</summary>
+    /// <summary>?ㅼ젙 ?⑤꼸???쒖떆?섍퀬 ??λ맂 媛믪쑝濡?珥덇린?뷀빀?덈떎.</summary>
     public void Show()
     {
         if (_backdrop == null) return;
 
-        // 다른 UIDocument보다 위에 렌더링되도록 Sort Order 우선 설정
+        // ?ㅻⅨ UIDocument蹂대떎 ?꾩뿉 ?뚮뜑留곷릺?꾨줉 Sort Order ?곗꽑 ?ㅼ젙
         if (uiDocument != null)
             uiDocument.sortingOrder = 100;
 
@@ -132,7 +132,7 @@ public class SettingPanel : MonoBehaviour
         SwitchTab(0);
     }
 
-    /// <summary>모든 설정을 저장하고 패널을 숨깁니다.</summary>
+    /// <summary>紐⑤뱺 ?ㅼ젙????ν븯怨??⑤꼸???④퉩?덈떎.</summary>
     public void Hide()
     {
         if (_backdrop == null) return;
@@ -141,19 +141,19 @@ public class SettingPanel : MonoBehaviour
         _backdrop.style.display = DisplayStyle.None;
     }
 
-    /// <summary>LobbyManager 호환 — Show()와 동일합니다.</summary>
+    /// <summary>LobbyManager ?명솚 ??Show()? ?숈씪?⑸땲??</summary>
     public void OpenPanel() => Show();
 
-    /// <summary>LobbyManager 호환 — Hide()와 동일합니다.</summary>
+    /// <summary>LobbyManager ?명솚 ??Hide()? ?숈씪?⑸땲??</summary>
     public void ClosePanel() => Hide();
 
-    // ── UI 바인딩 ─────────────────────────────────────────────
+    // ?? UI 諛붿씤???????????????????????????????????????????????
 
     private void BindUI()
     {
         if (uiDocument == null)
         {
-            Debug.LogError("[SettingPanel] UIDocument가 할당되지 않았습니다.");
+            Debug.LogError("[SettingPanel] UIDocument媛 ?좊떦?섏? ?딆븯?듬땲??");
             return;
         }
 
@@ -161,10 +161,10 @@ public class SettingPanel : MonoBehaviour
 
         _backdrop = root.Q<VisualElement>("setting-backdrop");
 
-        // 헤더 닫기
+        // ?ㅻ뜑 ?リ린
         root.Q<Button>("close-btn")?.RegisterCallback<ClickEvent>(_ => Hide());
 
-        // 탭 버튼
+        // ??踰꾪듉
         _tabGraphicsBtn = root.Q<Button>("tab-graphics");
         _tabSoundBtn    = root.Q<Button>("tab-sound");
         _tabAccountBtn  = root.Q<Button>("tab-account");
@@ -173,12 +173,12 @@ public class SettingPanel : MonoBehaviour
         _tabSoundBtn?.RegisterCallback<ClickEvent>(_    => SwitchTab(1));
         _tabAccountBtn?.RegisterCallback<ClickEvent>(_  => SwitchTab(2));
 
-        // 탭 콘텐츠
+        // ??肄섑뀗痢?
         _graphicsTab = root.Q<VisualElement>("graphics-tab");
         _soundTab    = root.Q<VisualElement>("sound-tab");
         _accountTab  = root.Q<VisualElement>("account-tab");
 
-        // ── 그래픽 ──────────────────────────────────────────
+        // ?? 洹몃옒????????????????????????????????????????????
 
         _frameGroup = root.Q<RadioButtonGroup>("frame-group");
         _frameGroup?.RegisterValueChangedCallback(e => ApplyGraphicsSettings(e.newValue));
@@ -191,7 +191,7 @@ public class SettingPanel : MonoBehaviour
         _bloomToggle?.RegisterValueChangedCallback(e => PlayerPrefs.SetInt(KEY_BLOOM, e.newValue ? 1 : 0));
         _blurToggle?.RegisterValueChangedCallback(e  => PlayerPrefs.SetInt(KEY_BLUR,  e.newValue ? 1 : 0));
 
-        // ── 사운드 ──────────────────────────────────────────
+        // ?? ?ъ슫????????????????????????????????????????????
 
         _bgmSlider     = root.Q<Slider>("bgm-slider");
         _sfxSlider     = root.Q<Slider>("sfx-slider");
@@ -205,7 +205,7 @@ public class SettingPanel : MonoBehaviour
         _bgmMuteToggle?.RegisterValueChangedCallback(OnBgmMuteToggled);
         _sfxMuteToggle?.RegisterValueChangedCallback(OnSfxMuteToggled);
 
-        // ── 계정 ────────────────────────────────────────────
+        // ?? 怨꾩젙 ????????????????????????????????????????????
 
         _uidLabel         = root.Q<Label>("uid-label");
         _loginMethodLabel = root.Q<Label>("login-method-label");
@@ -215,7 +215,7 @@ public class SettingPanel : MonoBehaviour
         _logoutBtn?.RegisterCallback<ClickEvent>(_ => ShowConfirmDialog());
         _copyBtn?.RegisterCallback<ClickEvent>(_   => CopyUid());
 
-        // ── 확인 팝업 ────────────────────────────────────────
+        // ?? ?뺤씤 ?앹뾽 ????????????????????????????????????????
 
         _confirmOverlay = root.Q<VisualElement>("confirm-overlay");
         _confirmYesBtn  = root.Q<Button>("confirm-yes-btn");
@@ -225,9 +225,9 @@ public class SettingPanel : MonoBehaviour
         _confirmNoBtn?.RegisterCallback<ClickEvent>(_  => HideConfirmDialog());
     }
 
-    // ── 탭 전환 ──────────────────────────────────────────────
+    // ?? ???꾪솚 ??????????????????????????????????????????????
 
-    /// <param name="tabIndex">0=그래픽, 1=사운드, 2=계정</param>
+    /// <param name="tabIndex">0=洹몃옒?? 1=?ъ슫?? 2=怨꾩젙</param>
     private void SwitchTab(int tabIndex)
     {
         SetTabVisible(_graphicsTab, tabIndex == 0);
@@ -255,7 +255,7 @@ public class SettingPanel : MonoBehaviour
         else        btn.RemoveFromClassList("tab-active");
     }
 
-    // ── 설정 로드 ─────────────────────────────────────────────
+    // ?? ?ㅼ젙 濡쒕뱶 ?????????????????????????????????????????????
 
     private void LoadSettings()
     {
@@ -288,7 +288,7 @@ public class SettingPanel : MonoBehaviour
         ApplyGraphicsSettingsSilent(frame);
     }
 
-    // ── 설정 저장 ─────────────────────────────────────────────
+    // ?? ?ㅼ젙 ????????????????????????????????????????????????
 
     private void SaveAllSettings()
     {
@@ -317,7 +317,7 @@ public class SettingPanel : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // ── 사운드 핸들러 ─────────────────────────────────────────
+    // ?? ?ъ슫???몃뱾???????????????????????????????????????????
 
     private void OnBgmSliderChanged(ChangeEvent<float> evt)
     {
@@ -360,8 +360,8 @@ public class SettingPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// AudioMixer Exposed Parameter 존재 여부를 한 번만 검증합니다.
-    /// AudioMixer가 없거나 파라미터가 노출되지 않았으면 볼륨 제어를 건너뜁니다.
+    /// AudioMixer Exposed Parameter 議댁옱 ?щ?瑜???踰덈쭔 寃利앺빀?덈떎.
+    /// AudioMixer媛 ?녾굅???뚮씪誘명꽣媛 ?몄텧?섏? ?딆븯?쇰㈃ 蹂쇰ⅷ ?쒖뼱瑜?嫄대꼫?곷땲??
     /// </summary>
     private void ValidateAudio()
     {
@@ -372,8 +372,8 @@ public class SettingPanel : MonoBehaviour
         _audioReady = bgmOk && sfxOk;
 
         if (!_audioReady)
-            Debug.LogWarning("[SettingPanel] AudioMixer에 'BGMVolume' / 'SFXVolume' " +
-                             "Exposed Parameter를 설정하세요. 볼륨 제어가 비활성화됩니다.");
+            Debug.LogWarning("[SettingPanel] AudioMixer??'BGMVolume' / 'SFXVolume' " +
+                             "Exposed Parameter瑜??ㅼ젙?섏꽭?? 蹂쇰ⅷ ?쒖뼱媛 鍮꾪솢?깊솕?⑸땲??");
     }
 
     private void ApplyBgmVolume(float vol)
@@ -402,7 +402,7 @@ public class SettingPanel : MonoBehaviour
             _sfxValueLabel.text = Mathf.RoundToInt(val).ToString();
     }
 
-    // ── 그래픽 핸들러 ─────────────────────────────────────────
+    // ?? 洹몃옒???몃뱾???????????????????????????????????????????
 
     private void ApplyGraphicsSettings(int frameLevel)
     {
@@ -416,12 +416,12 @@ public class SettingPanel : MonoBehaviour
 
     private static void ApplyGraphicsSettingsSilent(int frameLevel)
     {
-        // 0=상(60fps), 1=중(30fps), 2=하(30fps + 최저 품질)
+        // 0=??60fps), 1=以?30fps), 2=??30fps + 理쒖? ?덉쭏)
         Application.targetFrameRate = frameLevel == 0 ? 60 : 30;
         QualitySettings.SetQualityLevel(frameLevel == 2 ? 0 : 2, true);
     }
 
-    // ── 계정 탭 ───────────────────────────────────────────────
+    // ?? 怨꾩젙 ?????????????????????????????????????????????????
 
     private void RefreshAccountInfo()
     {
@@ -437,10 +437,10 @@ public class SettingPanel : MonoBehaviour
     {
         if (_uidLabel == null) return;
         GUIUtility.systemCopyBuffer = _uidLabel.text;
-        Debug.Log($"[SettingPanel] UID 복사: {_uidLabel.text}");
+        Debug.Log($"[SettingPanel] UID 蹂듭궗: {_uidLabel.text}");
     }
 
-    // ── 로그아웃 확인 팝업 ───────────────────────────────────
+    // ?? 濡쒓렇?꾩썐 ?뺤씤 ?앹뾽 ???????????????????????????????????
 
     private void ShowConfirmDialog()
     {

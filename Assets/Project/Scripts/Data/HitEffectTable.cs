@@ -1,7 +1,4 @@
-using UnityEngine;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
+﻿using UnityEngine;
 
 namespace ProjectFirst.Data
 {
@@ -12,66 +9,17 @@ namespace ProjectFirst.Data
     /// 생성: Project 우클릭 → Create → Soul Ark/Hit Effect Table
     /// 경로 권장: Assets/Project/Data/HitEffectTable.asset
     /// </summary>
-#if ODIN_INSPECTOR
-    [CreateAssetMenu(menuName = "Soul Ark/Hit Effect Table", fileName = "HitEffectTable")]
-#else
     [CreateAssetMenu(menuName = "Game/Hit Effect Table", fileName = "HitEffectTable")]
-#endif
     public class HitEffectTable : ScriptableObject
     {
-#if ODIN_INSPECTOR
-        [Title("일반 피격", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("일반", 0.5f)]
-        [BoxGroup("일반/기본")]
-        [LabelText("일반 피격")]
-        [AssetsOnly]
-        [PreviewField(60, ObjectFieldAlignment.Left)]
-        [Tooltip("일반 공격 피격 이펙트\nAssets/Project/Art/VFX/toss/Hit_normal.prefab")]
-#endif
         public GameObject normalHitVfx;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("일반", 0.5f)]
-        [BoxGroup("일반/치명타")]
-        [LabelText("치명타 피격")]
-        [AssetsOnly]
-        [PreviewField(60, ObjectFieldAlignment.Left)]
-        [Tooltip("치명타 공격 피격 이펙트\nAssets/Project/Art/VFX/toss/Hit_critical.prefab")]
-#endif
         public GameObject critHitVfx;
 
-#if ODIN_INSPECTOR
-        [Title("스킬 속성별 피격", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("속성", 0.33f)]
-        [BoxGroup("속성/Passion")]
-        [LabelText("Passion")]
-        [AssetsOnly]
-        [PreviewField(60, ObjectFieldAlignment.Left)]
-        [GUIColor(1f, 0.3f, 0.3f)]
-        [Tooltip("Passion 속성 스킬 피격\nAssets/Project/Art/VFX/toss/Hit_passion.prefab")]
-#endif
         public GameObject passionHitVfx;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("속성", 0.33f)]
-        [BoxGroup("속성/Intuition")]
-        [LabelText("Intuition")]
-        [AssetsOnly]
-        [PreviewField(60, ObjectFieldAlignment.Left)]
-        [GUIColor(1f, 0.8f, 0.3f)]
-        [Tooltip("Intuition 속성 스킬 피격\nAssets/Project/Art/VFX/toss/Hit_intuition.prefab")]
-#endif
         public GameObject intuitionHitVfx;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("속성", 0.34f)]
-        [BoxGroup("속성/Reason")]
-        [LabelText("Reason")]
-        [AssetsOnly]
-        [PreviewField(60, ObjectFieldAlignment.Left)]
-        [GUIColor(0.3f, 0.6f, 1f)]
-        [Tooltip("Reason 속성 스킬 피격\nAssets/Project/Art/VFX/toss/Hit_reason.prefab")]
-#endif
         public GameObject reasonHitVfx;
 
         /// <summary>

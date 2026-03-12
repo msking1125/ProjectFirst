@@ -1,4 +1,4 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -30,7 +30,7 @@ public class DamageText : MonoBehaviour
             canvasGroup = GetComponent<CanvasGroup>();
         }
 
-        // 텍스트 위치 무작위 흔들림 또는 오프셋 초기화 보장
+        // ?띿뒪???꾩튂 臾댁옉???붾뱾由??먮뒗 ?ㅽ봽??珥덇린??蹂댁옣
         if (valueText != null && valueText.rectTransform != null)
         {
             valueText.rectTransform.anchoredPosition = Vector2.zero;
@@ -38,7 +38,7 @@ public class DamageText : MonoBehaviour
 
         if (valueText != null)
         {
-            // 전역 기본 폰트(TMP Settings)가 있다면 자동으로 적용합니다.
+            // ?꾩뿭 湲곕낯 ?고듃(TMP Settings)媛 ?덈떎硫??먮룞?쇰줈 ?곸슜?⑸땲??
             if (TMP_Settings.defaultFontAsset != null)
             {
                 valueText.font = TMP_Settings.defaultFontAsset;
@@ -59,7 +59,7 @@ public class DamageText : MonoBehaviour
             canvasGroup.DOFade(0f, duration);
         }
 
-        // 빌보드 처리 (항상 카메라를 바라보도록)
+        // 鍮뚮낫??泥섎━ (??긽 移대찓?쇰? 諛붾씪蹂대룄濡?
         if (cam != null)
         {
             transform.forward = cam.transform.forward;
@@ -71,7 +71,7 @@ public class DamageText : MonoBehaviour
 
     private void LateUpdate()
     {
-        // 텍스트가 위로 올라가는 동안에도 빌보드 유지
+        // ?띿뒪?멸? ?꾨줈 ?щ씪媛???숈븞?먮룄 鍮뚮낫???좎?
         if (cam != null)
         {
             transform.forward = cam.transform.forward;

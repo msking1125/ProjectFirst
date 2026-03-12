@@ -1,27 +1,15 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace ProjectFirst.Data
 {
     /// <summary>
     /// 챕터 데이터 테이블. CSV 임포트를 통해 데이터가 채워집니다.
     /// </summary>
-#if ODIN_INSPECTOR
-    [CreateAssetMenu(menuName = "Soul Ark/Chapter Table")]
-#else
     [CreateAssetMenu(menuName = "Game/Chapter Table")]
-#endif
     public class ChapterTable : ScriptableObject
     {
-#if ODIN_INSPECTOR
-        [Title("챕터 목록", TitleAlignment = TitleAlignments.Centered)]
-        [TableList(ShowIndexLabels = true, AlwaysExpanded = true)]
-        [Searchable]
-#endif
         public List<ChapterRow> rows = new List<ChapterRow>();
 
         private Dictionary<int, ChapterRow> _index;

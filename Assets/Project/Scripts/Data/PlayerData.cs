@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace ProjectFirst.Data
 {
@@ -17,237 +14,79 @@ namespace ProjectFirst.Data
     ///   ?좉퇋 ??gold(long), gem(long), stamina/staminaMax(int)
     ///   ?덇굅????ticket(int), diamond(int)  ??IdleRewardManager ??湲곗〈 ?쒖뒪???명솚??
     /// </summary>
-#if ODIN_INSPECTOR
-    [CreateAssetMenu(menuName = "Soul Ark/Player Data", fileName = "PlayerData")]
-#else
     [CreateAssetMenu(menuName = "Game/Player Data", fileName = "PlayerData")]
-#endif
     public class PlayerData : ScriptableObject
     {
         // ?? 怨꾩젙 ??????????????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("怨꾩젙 ?뺣낫", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("怨꾩젙")]
-        [HorizontalGroup("怨꾩젙/Info", 0.5f)]
-        [LabelText("UID")]
-        [ReadOnly]
-#endif
         public string uid;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("怨꾩젙/Info", 0.5f)]
-        [LabelText("?됰꽕??)]
-#endif
         public string nickname;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("怨꾩젙/Level", 0.5f)]
-        [LabelText("怨꾩젙 ?덈꺼")]
-        [ProgressBar(1, 100, ColorGetter = "GetLevelColor")]
-#endif
         public int accountLevel;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("怨꾩젙/Level", 0.5f)]
-        [LabelText("寃쏀뿕移?)]
-        [ProgressBar(0, 100, ColorGetter = "GetExpColor")]
-#endif
         public int accountExp;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("怨꾩젙")]
-        [LabelText("理쒕? 寃쏀뿕移?)]
-        [HideIf("@accountExpMax <= 0")]
-#endif
         public int accountExpMax = 100;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("怨꾩젙")]
-        [LabelText("?좏깮???쒕쾭")]
-#endif
         public string selectedServerId;
 
         // ?? 罹먮┃??????????????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("罹먮┃??, TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("罹먮┃??)]
-        [LabelText("硫붿씤 罹먮┃??ID")]
-        [Tooltip("濡쒕퉬?먯꽌 ?쒖떆??硫붿씤 罹먮┃??ID (AgentTable.id 湲곗?).")]
-#endif
         public int mainCharacterId;
 
         // ?? 吏꾪뻾??????????????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("吏꾪뻾??, TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("吏꾪뻾??, 0.33f)]
-        [BoxGroup("吏꾪뻾??梨뺥꽣")]
-        [LabelText("?꾩옱 梨뺥꽣")]
-#endif
         public int currentChapter;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("吏꾪뻾??, 0.33f)]
-        [BoxGroup("吏꾪뻾???ㅽ뀒?댁?")]
-        [LabelText("?꾩옱 ?ㅽ뀒?댁?")]
-#endif
         public int currentStage;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("吏꾪뻾??, 0.34f)]
-        [BoxGroup("吏꾪뻾??吏꾪뻾瑜?)]
-        [LabelText("?꾩껜 吏꾪뻾??)]
-        [ProgressBar(0, 100)]
-        [Tooltip("0~100 ?꾩껜 ?ㅽ뀒?댁? 吏꾪뻾?? 濡쒕퉬 諛곌꼍 ?좏깮???ъ슜?⑸땲??(index = stageProgress / 10).")]
-#endif
         public int stageProgress;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("吏꾪뻾??)]
-        [LabelText("?ㅽ뀒?댁? ?몃뜳??)]
-        [HideInInspector]
-#endif
         [Tooltip("?꾩옱 ?꾨떖???ㅽ뀒?댁? ?몃뜳??(0-based, ?덇굅??. 湲곗〈 RefreshCenterUI ?명솚??")]
         public int currentStageIndex;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("吏꾪뻾??)]
-        [LabelText("罹먮┃???몃뜳??)]
-        [HideInInspector]
-#endif
         [Tooltip("?꾩옱 ?좏깮??罹먮┃???몃뜳??(0-based, ?덇굅??.")]
         public int currentAgentIndex;
 
         // ?? ?ㅽ깭誘몃굹 ??????????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("?ㅽ깭誘몃굹", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("?ㅽ깭誘몃굹", 0.5f)]
-        [BoxGroup("?ㅽ깭誘몃굹/?꾩옱")]
-        [LabelText("?꾩옱 ?ㅽ깭誘몃굹")]
-        [ProgressBar(0, "staminaMax", ColorGetter = "GetStaminaColor")]
-#endif
         public int stamina;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("?ㅽ깭誘몃굹", 0.5f)]
-        [BoxGroup("?ㅽ깭誘몃굹/理쒕?")]
-        [LabelText("理쒕? ?ㅽ깭誘몃굹")]
-#endif
         public int staminaMax;
 
         // ?? ?ы솕 (?좉퇋) ???????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("?ы솕", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("?ы솕", 0.5f)]
-        [BoxGroup("?ы솕/怨⑤뱶")]
-        [LabelText("怨⑤뱶")]
-        [SuffixLabel("G", true)]
-#endif
         public long gold;
 
-#if ODIN_INSPECTOR
-        [HorizontalGroup("?ы솕", 0.5f)]
-        [BoxGroup("?ы솕/??)]
-        [LabelText("??)]
-        [SuffixLabel("GEM", true)]
-        [GUIColor(0.8f, 0.4f, 0.9f)]
-#endif
         public long gem;
 
         // ?? ?ы솕 (?덇굅?? ??IdleRewardManager ??湲곗〈 ?명솚 ????????
-#if ODIN_INSPECTOR
-        [FoldoutGroup("?덇굅???ы솕")]
-        [LabelText("?곗폆")]
-        [Tooltip("湲곗〈 ?쒖뒪??IdleRewardManager ???먯꽌 ?ъ슜?섎뒗 ?곗폆.")]
-#endif
         [Header("?ы솕 (?덇굅??")]
         public int ticket;
 
-#if ODIN_INSPECTOR
-        [FoldoutGroup("?덇굅???ы솕")]
-        [LabelText("?ㅼ씠??)]
-        [Tooltip("湲곗〈 ?쒖뒪?쒖뿉???ъ슜?섎뒗 ?ㅼ씠?? ?좉퇋 肄붾뱶??gem ?ъ슜.")]
-#endif
         public int diamond;
 
         // ?? 蹂댁쑀 紐⑸줉 ?????????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("蹂댁쑀 紐⑸줉", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("蹂댁쑀")]
-        [LabelText("蹂댁쑀 罹먮┃??ID")]
-        [ListDrawerSettings(Expanded = false, ShowPaging = true)]
-#endif
         [Header("蹂댁쑀 紐⑸줉")]
         public List<int> ownedCharacterIds = new List<int>();
 
-#if ODIN_INSPECTOR
-        [BoxGroup("蹂댁쑀")]
-        [LabelText("蹂댁쑀 ??ID")]
-        [ListDrawerSettings(Expanded = false, ShowPaging = true)]
-#endif
         public List<int> ownedPetIds = new List<int>();
 
-#if ODIN_INSPECTOR
-        [BoxGroup("蹂댁쑀")]
-        [LabelText("蹂댁쑀 ?λ퉬 ID")]
-        [ListDrawerSettings(Expanded = false, ShowPaging = true)]
-#endif
         public List<int> ownedEquipmentIds = new List<int>();
 
         // ?? 罹먮┃???깆옣 ???????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("罹먮┃???깆옣", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("?깆옣")]
-        [LabelText("罹먮┃??吏꾪뻾 湲곕줉")]
-        [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
-#endif
         [Header("罹먮┃???깆옣")]
         public List<CharacterProgressRecord> characterProgressRecords = new List<CharacterProgressRecord>();
 
-#if ODIN_INSPECTOR
-        [BoxGroup("?깆옣")]
-        [LabelText("寃쏀뿕移??꾩씠??)]
-        [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
-#endif
         public List<ExpItemInventoryRecord> expItemInventoryRecords = new List<ExpItemInventoryRecord>();
 
         // ?? 誘몄뀡 ?곹깭 ?????????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("誘몄뀡 ?곹깭", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("誘몄뀡")]
-        [LabelText("誘몄뀡 吏꾪뻾 湲곕줉")]
-        [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
-#endif
         [Header("誘몄뀡 ?곹깭")]
         public List<MissionProgressRecord> missionProgressRecords = new List<MissionProgressRecord>();
 
-#if ODIN_INSPECTOR
-        [BoxGroup("誘몄뀡")]
-        [LabelText("誘몄뀡 ?곗뼱 蹂댁긽")]
-        [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
-#endif
         public List<MissionTierClaimRecord> missionTierClaimRecords = new List<MissionTierClaimRecord>();
 
-#if ODIN_INSPECTOR
-        [BoxGroup("誘몄뀡")]
-        [LabelText("?쇱씪 誘몄뀡 由ъ뀑")]
-        [ReadOnly]
-#endif
         public string lastDailyMissionResetUtc;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("誘몄뀡")]
-        [LabelText("二쇨컙 誘몄뀡 由ъ뀑")]
-        [ReadOnly]
-#endif
         public string lastWeeklyMissionResetUtc;
 
         // ?? ?쒗넗由ъ뼹 ????????????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("?쒗넗由ъ뼹", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("?쒗넗由ъ뼹")]
-        [LabelText("?쒗넗由ъ뼹 ?뚮옒洹?)]
-        [Tooltip("triggerKey ???꾨즺 ?щ?. TutorialManager?먯꽌 愿由ы빀?덈떎.")]
-#endif
         [Header("?쒗넗由ъ뼹")]
         [HideInInspector]
         public List<TutorialFlagEntry> tutorialFlagEntries = new List<TutorialFlagEntry>();
@@ -276,40 +115,15 @@ namespace ProjectFirst.Data
         }
 
         // ?? 諛⑹튂 蹂댁긽 ?????????????????????????????????????????????
-#if ODIN_INSPECTOR
-        [Title("諛⑹튂 蹂댁긽", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("諛⑹튂")]
-        [LabelText("留덉?留??섎졊 ?쒓컙")]
-        [ReadOnly]
-        [Tooltip("留덉?留됱쑝濡?諛⑹튂 蹂댁긽???섎졊??UTC ?쒓컖 (ISO 8601). ?고??꾩뿉 ?먮룞 媛깆떊?⑸땲??")]
-#endif
         [Header("諛⑹튂 蹂댁긽")]
         public string lastIdleRewardTime;
 
         // ?? ?대깽??梨꾨꼸 (VoidEventChannelSO) ?????????????????????
-#if ODIN_INSPECTOR
-        [Title("?대깽??梨꾨꼸", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("?대깽??)]
-        [LabelText("?ы솕 蹂寃?)]
-        [AssetsOnly]
-        [Tooltip("?ы솕 蹂寃???諛쒗뻾. LobbyManager ??UIToolkit 湲곕컲 酉곌? 援щ룆?⑸땲??")]
-#endif
         [Header("?대깽??梨꾨꼸")]
         public VoidEventChannelSO onCurrencyChanged;
 
-#if ODIN_INSPECTOR
-        [BoxGroup("?대깽??)]
-        [LabelText("罹먮┃??蹂寃?)]
-        [AssetsOnly]
-        [Tooltip("罹먮┃??蹂寃???諛쒗뻾.")]
-#endif
         public VoidEventChannelSO onCharacterChanged;
 
-#if ODIN_INSPECTOR
-        private static Color GetLevelColor() => new Color(0.3f, 0.7f, 1f);
-        private static Color GetExpColor() => new Color(0.3f, 0.8f, 0.3f);
-        private static Color GetStaminaColor() => new Color(1f, 0.6f, 0.2f);
-#endif
 
         // ?? ?덇굅???대깽??(Action, 湲곗〈 ?쒖뒪???명솚) ?????????????
 

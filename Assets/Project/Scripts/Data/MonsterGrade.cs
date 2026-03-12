@@ -1,4 +1,4 @@
-public enum MonsterGrade
+﻿public enum MonsterGrade
 {
     Normal = 0,
     Elite = 1,

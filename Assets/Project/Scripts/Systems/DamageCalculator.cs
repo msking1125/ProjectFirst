@@ -1,38 +1,38 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
-/// 캐릭터/몬스터 데미지 계산 유틸리티
+/// 罹먮┃??紐ъ뒪???곕?吏 怨꾩궛 ?좏떥由ы떚
 /// </summary>
 public static class DamageCalculator
 {
     public const float MaxCritChance = 0.8f;
 
     /// <summary>
-    /// 공격자의 ATK, 방어자의 DEF, 크리티컬 확률/배수로 최종 피해량 계산
-    /// 데미지 = (공격력 - 방어력 × 방어계수) × (치명타? 치명타배율 : 1) × 속성상성계수
+    /// 怨듦꺽?먯쓽 ATK, 諛⑹뼱?먯쓽 DEF, ?щ━?곗뺄 ?뺣쪧/諛곗닔濡?理쒖쥌 ?쇳빐??怨꾩궛
+    /// ?곕?吏 = (怨듦꺽??- 諛⑹뼱??횞 諛⑹뼱怨꾩닔) 횞 (移섎챸?? 移섎챸?諛곗쑉 : 1) 횞 ?띿꽦?곸꽦怨꾩닔
     /// </summary>
     public static int ComputeDamage(float attackerAtk, float defenderDef, float critChance, float critMultiplier, 
         ElementType attackerElement, ElementType defenderElement, out bool isCrit, float defCoefficient = 0.5f)
     {
-        // 1. 기본 데미지 계산 (방어 계수 적용)
+        // 1. 湲곕낯 ?곕?吏 怨꾩궛 (諛⑹뼱 怨꾩닔 ?곸슜)
         float baseDmg = Mathf.Max(1f, attackerAtk - (defenderDef * defCoefficient));
 
-        // 2. 크리티컬 판정 (최대 80% 캡 적용)
+        // 2. ?щ━?곗뺄 ?먯젙 (理쒕? 80% 罹??곸슜)
         float clampedCritChance = Mathf.Clamp(critChance, 0f, MaxCritChance);
         isCrit = Random.value < clampedCritChance;
         float critFactor = isCrit ? Mathf.Max(1f, critMultiplier) : 1f;
 
-        // 3. 속성 상성 적용
+        // 3. ?띿꽦 ?곸꽦 ?곸슜
         float elementFactor = ElementRules.GetMultiplier(attackerElement, defenderElement);
 
-        // 4. 최종 데미지 합산
+        // 4. 理쒖쥌 ?곕?吏 ?⑹궛
         float finalDmg = baseDmg * critFactor * elementFactor;
 
         return Mathf.Max(1, Mathf.RoundToInt(finalDmg));
     }
 
     /// <summary>
-    /// 레거시 지원을 위한 오버로드
+    /// ?덇굅??吏?먯쓣 ?꾪븳 ?ㅻ쾭濡쒕뱶
     /// </summary>
     public static int ComputeCharacterDamage(float atk, float def, float critChance, float critMultiplier, out bool isCrit)
     {

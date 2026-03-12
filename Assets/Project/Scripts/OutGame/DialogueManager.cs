@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +9,7 @@ using ProjectFirst.Data;
 namespace ProjectFirst.OutGame
 {
     /// <summary>
-    /// 대화 시스템 매니저. 싱글톤 패턴으로 대화 그룹 재생을 관리합니다.
+    /// ????쒖뒪??留ㅻ땲?. ?깃????⑦꽩?쇰줈 ???洹몃９ ?ъ깮??愿由ы빀?덈떎.
     /// </summary>
     public class DialogueManager : MonoBehaviour
     {
@@ -29,7 +29,7 @@ namespace ProjectFirst.OutGame
         private bool _isTyping;
         private Coroutine _typingCoroutine;
 
-        // UI 요소
+        // UI ?붿냼
         private VisualElement _root;
         private VisualElement _bgImage;
         private VisualElement _charLeft;
@@ -50,7 +50,7 @@ namespace ProjectFirst.OutGame
         private Button _confirmYesBtn;
         private Button _confirmNoBtn;
 
-        // 대화 상태
+        // ????곹깭
         private string _currentGroupId;
         private int _currentLineIndex;
         private List<DialogueLine> _currentGroup;
@@ -77,7 +77,7 @@ namespace ProjectFirst.OutGame
         }
 
         /// <summary>
-        /// 지정 그룹의 대화를 재생합니다.
+        /// 吏??洹몃９????붾? ?ъ깮?⑸땲??
         /// </summary>
         public void PlayGroup(string groupId, Action onComplete = null)
         {
@@ -99,7 +99,7 @@ namespace ProjectFirst.OutGame
         }
 
         /// <summary>
-        /// 대화 UI를 숨기고 상태를 초기화합니다.
+        /// ???UI瑜??④린怨??곹깭瑜?珥덇린?뷀빀?덈떎.
         /// </summary>
         public void Hide()
         {
@@ -280,7 +280,7 @@ namespace ProjectFirst.OutGame
             if (line == null)
             {
                 Debug.LogWarning(
-                    $"[DialogueManager] 대화 ID를 찾을 수 없습니다: {dialogueId}");
+                    $"[DialogueManager] ???ID瑜?李얠쓣 ???놁뒿?덈떎: {dialogueId}");
                 Hide();
                 _onGroupComplete?.Invoke();
                 return;
@@ -366,7 +366,7 @@ namespace ProjectFirst.OutGame
             }
         }
 
-        // --- 콜백 ---
+        // --- 肄쒕갚 ---
 
         private void OnSkipClicked(ClickEvent evt)
         {

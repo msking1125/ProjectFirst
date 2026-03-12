@@ -1,5 +1,5 @@
 /* ========================================
-   Title Screen - 9:16 세로 레이아웃
+   Title Screen - 9:16 Vertical Layout
    ======================================== */
 
 .title-root {
@@ -8,82 +8,115 @@
     flex-direction: column;
     justify-content: flex-end;
     align-items: stretch;
-    padding-bottom: 36px;
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-bottom: 60px;
+    padding-left: 40px;
+    padding-right: 40px;
     background-color: rgba(0, 0, 0, 0);
 }
 
 .spacer {
     flex-grow: 1;
-    background-color: rgba(0, 0, 0, 0);
 }
 
-/* ==================== 로딩 영역 (gradient 경고 해결) ==================== */
+/* ==================== Loading Container ==================== */
 .loading-container {
     flex-direction: column;
     align-items: center;
-    padding-bottom: 24px;
-    background-color: rgba(0, 0, 0, 0);
+    padding-bottom: 40px;
     width: 100%;
+    transition: opacity 0.3s ease-in-out;
 }
 
 .loading-log {
-    color: #ffffff;
-    font-size: 14px;
+    color: #00ffff;
+    font-size: 16px;
+    -unity-font-style: bold;
     -unity-text-align: middle-center;
-    margin-bottom: 8px;
-    opacity: 0.85;
+    margin-bottom: 12px;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
 .progress-bar-container {
-    width: 80%;
-    height: 6px;
-    background-color: rgba(255,255,255,0.15);
-    border-radius: 3px;
+    width: 90%;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
     overflow: hidden;
+    border-width: 1px;
+    border-color: rgba(0, 255, 255, 0.2);
 }
 
 .progress-bar {
     height: 100%;
     width: 0%;
-    background-color: #1976d2;           /* gradient 대신 solid 색상 (UI Toolkit 호환) */
-    transition: width 0.1s linear;
+    background-color: #00e5ff;
+    transition: width 0.2s ease-out;
 }
 
-/* 버튼 영역 (기존 유지) */
+/* ==================== Button Container ==================== */
 .button-container {
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: space-around;
     align-items: center;
     width: 100%;
-    padding-left: 4px;
-    padding-right: 4px;
     background-color: rgba(0, 0, 0, 0);
 }
 
 .title-button {
-    flex-grow: 1;
-    height: 56px;
-    font-size: 18px;
+    width: 100%;
+    height: 64px;
+    font-size: 22px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    background-color: rgba(41, 121, 220, 0.90);
+    background-color: rgba(20, 25, 40, 0.85);
     color: #ffffff;
-    border-radius: 8px;
-    border-width: 0;
-    margin-left: 5px;
-    margin-right: 5px;
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: rgba(0, 255, 255, 0.3);
+    margin-bottom: 15px;
+    transition: all 0.15s ease-in-out;
+    border-left-width: 6px; /* Cyberpunk side line style */
 }
 
-.title-button:hover { background-color: rgba(83, 148, 240, 0.97); }
-.title-button:active { background-color: rgba(44, 94, 164, 1.0); }
+/* Standard Button Hover/Active */
+.title-button:hover { 
+    background-color: rgba(0, 255, 255, 0.15);
+    border-color: #00ffff;
+    scale: 1.02;
+}
 
-#server-select-button { background-color: rgba(25, 150, 100, 0.90); }
-#server-select-button:hover { background-color: rgba(66, 200, 150, 0.95); }
+.title-button:active { 
+    background-color: rgba(0, 255, 255, 0.3);
+    scale: 0.98;
+}
 
-#start-button { background-color: rgba(25, 118, 210, 0.93); }
-#start-button:hover { background-color: rgba(66, 165, 245, 0.98); }
+/* Specific Button Colors */
+#server-select-button { 
+    border-left-color: #00ffa2; 
+}
+#server-select-button:hover {
+    color: #00ffa2;
+}
 
-#quit-button { background-color: rgba(60, 70, 80, 0.90); }
-#quit-button:hover { background-color: rgba(90, 105, 120, 0.97); }
+#start-button { 
+    border-left-color: #00e5ff; 
+}
+#start-button:hover {
+    color: #00e5ff;
+}
+
+#settings-button { 
+    border-left-color: #f0f0f0; 
+}
+#settings-button:hover {
+    color: #ffffff;
+}
+
+#quit-button { 
+    border-left-color: #ff2a6d; 
+    margin-bottom: 0;
+}
+#quit-button:hover {
+    color: #ff2a6d;
+    background-color: rgba(255, 42, 109, 0.1);
+}

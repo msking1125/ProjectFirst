@@ -1,26 +1,30 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using ProjectFirst.OutGame;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 
-namespace Project
+namespace ProjectFirst.Bootstrap
 {
+    /// <summary>
+    /// 타이틀 씬의 메인 흐름을 관리하는 매니저 클래스입니다.
+    /// UI Toolkit을 통해 버튼 이벤트를 연결하고 대기/로딩 상태를 제어합니다.
+    /// </summary>
     public class TitleManager : MonoBehaviour
     {
+        /// <summary>
+        /// 싱글톤 인스턴스
+        /// </summary>
         public static TitleManager Instance { get; private set; }
 
         [Header("Scene Settings")]
-        [SerializeField] private string gameSceneName = "Battle_Test";
+        [SerializeField] private string _gameSceneName = "Lobby";
 
-        [Header("Dependencies")]
-        [SerializeField] private TitleUIManager uiManager;
-        [SerializeField] private TitleSettingsManager settingsManager;
-        [SerializeField] private SettingPanel settingPanel;
+        [Header("UI Document")]
+        [SerializeField] private UIDocument _uiDocument;
 
         [Header("Events")]
-        [SerializeField] private VoidEventChannelSO startButtonEvent;
-        [SerializeField] private VoidEventChannelSO settingsButtonEvent;
+        [SerializeField] private VoidEventChannelSO _startButtonEvent;
+        [SerializeField] private VoidEventChannelSO _settingsButtonEvent;
 
         private void Awake()
         {
@@ -32,28 +36,11 @@ namespace Project
 
             Instance = this;
 
-            uiManager ??= GetComponent<TitleUIManager>();
-            if (uiManager == null)
+            if (_uiDocument == null)
             {
-                uiManager = gameObject.AddComponent<TitleUIManager>();
+                _uiDocument = GetComponent<UIDocument>();
             }
 
-            settingsManager ??= GetComponent<TitleSettingsManager>();
-            if (settingsManager == null)
-            {
-                settingsManager = gameObject.AddComponent<TitleSettingsManager>();
-            }
-
-            settingPanel ??= FindObjectOfType<SettingPanel>(true);
-
-            uiManager.OnStartClicked = OnStartClicked;
-            uiManager.OnServerSelectClicked = OnServerSelectClicked;
-            uiManager.OnSettingsClicked = OnSettingsClicked;
-
-            uiManager.Initialize();
-            settingsManager.Initialize();
-
-            ShowTitleButtons();
             SetupUxmlButtonEvents();
         }
 
@@ -67,16 +54,16 @@ namespace Project
 
         private void SetupUxmlButtonEvents()
         {
-            UIDocument uiDocument = GetComponent<UIDocument>();
-            if (uiDocument == null)
-            {
-                return;
-            }
+            if (_uiDocument == null) return;
 
-            VisualElement root = uiDocument.rootVisualElement;
-            if (root == null)
+            VisualElement root = _uiDocument.rootVisualElement;
+            if (root == null) return;
+
+            // UXML 버튼 바인딩
+            Button startButton = root.Q<Button>("start-button");
+            if (startButton != null)
             {
-                return;
+                startButton.clicked += OnStartClicked;
             }
 
             Button serverSelectButton = root.Q<Button>("server-select-button");
@@ -98,16 +85,15 @@ namespace Project
             }
         }
 
-        public void ShowTitleButtons()
-        {
-            uiManager?.ShowTitleButtons();
-        }
-
-        private void OnStartClicked()
+        /// <summary>
+        /// 게임 시작 버튼 클릭 이벤트 핸들러
+        /// </summary>
+        public void OnStartClicked()
         {
             Debug.Log("[TitleManager] Game start clicked.");
-            startButtonEvent?.RaiseEvent();
+            _startButtonEvent?.RaiseEvent();
 
+            // TitleLoadingManager가 있다면 로딩 트리거, 없다면 직접 로드
             TitleLoadingManager loadingManager = FindObjectOfType<TitleLoadingManager>();
             if (loadingManager != null)
             {
@@ -115,7 +101,14 @@ namespace Project
             }
             else
             {
-                LoadGameSceneAsync().Forget();
+                if (AsyncSceneLoader.Instance != null)
+                {
+                    AsyncSceneLoader.Instance.LoadScene(_gameSceneName);
+                }
+                else
+                {
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(_gameSceneName);
+                }
             }
         }
 
@@ -135,33 +128,19 @@ namespace Project
         private void OnSettingsClicked()
         {
             Debug.Log("[TitleManager] Settings clicked.");
-            settingsButtonEvent?.RaiseEvent();
+            _settingsButtonEvent?.RaiseEvent();
 
-            settingPanel ??= FindObjectOfType<SettingPanel>(true);
+            // SettingPanel(UI Toolkit 기반)을 찾아 오픈
+            SettingPanel settingPanel = FindObjectOfType<SettingPanel>(true);
             if (settingPanel != null)
             {
                 settingPanel.OpenPanel();
-                return;
-            }
-
-            settingsManager?.OpenSettingsPanel();
-        }
-
-        private async UniTaskVoid LoadGameSceneAsync()
-        {
-            if (string.IsNullOrWhiteSpace(gameSceneName))
-            {
-                Debug.LogError("[TitleManager] gameSceneName is empty.");
-                return;
-            }
-
-            var handle = Addressables.LoadSceneAsync(gameSceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
-            while (!handle.IsDone)
-            {
-                await UniTask.Yield();
             }
         }
 
+        /// <summary>
+        /// 게임 종료 메서드
+        /// </summary>
         public void QuitGame()
         {
 #if UNITY_EDITOR

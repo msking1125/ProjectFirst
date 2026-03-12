@@ -1,27 +1,15 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace ProjectFirst.Data
 {
     /// <summary>
     /// 스테이지 데이터 테이블. CSV 임포트를 통해 데이터가 채워집니다.
     /// </summary>
-#if ODIN_INSPECTOR
-    [CreateAssetMenu(menuName = "Soul Ark/Stage Table")]
-#else
     [CreateAssetMenu(menuName = "Game/Stage Table")]
-#endif
     public class StageTable : ScriptableObject
     {
-#if ODIN_INSPECTOR
-        [Title("스테이지 목록", TitleAlignment = TitleAlignments.Centered)]
-        [TableList(ShowIndexLabels = true, AlwaysExpanded = true, DrawScrollView = true)]
-        [Searchable]
-#endif
         public List<StageRow> rows = new List<StageRow>();
 
         private Dictionary<int, StageRow> _idIndex;

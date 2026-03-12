@@ -1,10 +1,10 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 튜토리얼 한 단계를 정의하는 ScriptableObject.
-    /// 하이라이트 대상 UI, 안내 텍스트, 팝업, 자동 진행 등을 설정합니다.
+    /// ?쒗넗由ъ뼹 ???④퀎瑜??뺤쓽?섎뒗 ScriptableObject.
+    /// ?섏씠?쇱씠?????UI, ?덈궡 ?띿뒪?? ?앹뾽, ?먮룞 吏꾪뻾 ?깆쓣 ?ㅼ젙?⑸땲??
     /// </summary>
     [CreateAssetMenu(fileName = "TutorialStep", menuName = "MindArk/Tutorial/Step")]
     public class TutorialStep : ScriptableObject
@@ -27,37 +27,37 @@ namespace ProjectFirst.Data
         [SerializeField] private float _autoAdvanceDelay;
         [SerializeField] private string _nextStepId;
 
-        /// <summary>이 스텝의 고유 식별자.</summary>
+        /// <summary>???ㅽ뀦??怨좎쑀 ?앸퀎??</summary>
         public string StepId => _stepId;
 
-        /// <summary>PlayerData.TutorialFlags의 키와 동일한 트리거 키.</summary>
+        /// <summary>PlayerData.TutorialFlags???ㅼ? ?숈씪???몃━嫄???</summary>
         public string TriggerKey => _triggerKey;
 
-        /// <summary>하이라이트할 UXML 요소의 name 속성값.</summary>
+        /// <summary>?섏씠?쇱씠?명븷 UXML ?붿냼??name ?띿꽦媛?</summary>
         public string TargetUIElementName => _targetUIElementName;
 
-        /// <summary>안내 텍스트 패널의 위치 (UpperLeft / MiddleCenter / LowerCenter).</summary>
+        /// <summary>?덈궡 ?띿뒪???⑤꼸???꾩튂 (UpperLeft / MiddleCenter / LowerCenter).</summary>
         public TextAnchor TextPanelPosition => _textPanelPosition;
 
-        /// <summary>안내 텍스트 내용.</summary>
+        /// <summary>?덈궡 ?띿뒪???댁슜.</summary>
         public string GuideText => _guideText;
 
-        /// <summary>팝업 이미지. null이면 팝업 없이 하이라이트만 표시합니다.</summary>
+        /// <summary>?앹뾽 ?대?吏. null?대㈃ ?앹뾽 ?놁씠 ?섏씠?쇱씠?몃쭔 ?쒖떆?⑸땲??</summary>
         public Sprite PopupImage => _popupImage;
 
-        /// <summary>팝업 제목.</summary>
+        /// <summary>?앹뾽 ?쒕ぉ.</summary>
         public string PopupTitle => _popupTitle;
 
-        /// <summary>팝업 설명.</summary>
+        /// <summary>?앹뾽 ?ㅻ챸.</summary>
         public string PopupDesc => _popupDesc;
 
-        /// <summary>true면 클릭 시 다음 단계, false면 autoAdvanceDelay 후 자동 진행.</summary>
+        /// <summary>true硫??대┃ ???ㅼ쓬 ?④퀎, false硫?autoAdvanceDelay ???먮룞 吏꾪뻾.</summary>
         public bool WaitForClick => _waitForClick;
 
-        /// <summary>자동 진행 대기 시간(초). waitForClick이 false일 때 사용.</summary>
+        /// <summary>?먮룞 吏꾪뻾 ?湲??쒓컙(珥?. waitForClick??false?????ъ슜.</summary>
         public float AutoAdvanceDelay => _autoAdvanceDelay;
 
-        /// <summary>다음 스텝 ID. 빈 문자열이면 튜토리얼 종료.</summary>
+        /// <summary>?ㅼ쓬 ?ㅽ뀦 ID. 鍮?臾몄옄?댁씠硫??쒗넗由ъ뼹 醫낅즺.</summary>
         public string NextStepId => _nextStepId;
     }
 }

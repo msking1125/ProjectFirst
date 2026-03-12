@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
@@ -7,68 +7,68 @@ namespace Project
 {
 
 /// <summary>
-/// 몬스터 사망 시 물리적으로 날아가며 + 글리치 이펙트로 소멸하는 연출 담당.
-/// Enemy 프리팹에 부착(선택).
+/// 紐ъ뒪???щ쭩 ??臾쇰━?곸쑝濡??좎븘媛硫?+ 湲由ъ튂 ?댄럺?몃줈 ?뚮㈇?섎뒗 ?곗텧 ?대떦.
+/// Enemy ?꾨━?뱀뿉 遺李??좏깮).
 /// </summary>
 public class EnemyDeathEffect : MonoBehaviour
 {
-    // ─── 날아가는 연출 ──────────────────────────────────────────────────────
-    [Header("날아가는 힘 (수평)")]
-    [Tooltip("충격으로 날아가는 수평 힘. 클수록 멀리 튕김.")]
+    // ??? ?좎븘媛???곗텧 ??????????????????????????????????????????????????????
+    [Header("?좎븘媛????(?섑룊)")]
+    [Tooltip("異⑷꺽?쇰줈 ?좎븘媛???섑룊 ?? ?댁닔濡?硫由??뺢?.")]
     [SerializeField] private float flyPower = 12f;
 
-    [Header("올라가는 계수 (Y축)")]
-    [Tooltip("위쪽 상승 힘 계수. 작으면 수평에 가깝게 날아감.")]
+    [Header("?щ씪媛??怨꾩닔 (Y異?")]
+    [Tooltip("?꾩そ ?곸듅 ??怨꾩닔. ?묒쑝硫??섑룊??媛源앷쾶 ?좎븘媛?")]
     [SerializeField] private float upwardRatio = 0.3f;
 
-    [Header("연출 타이밍")]
-    [Tooltip("전체 사망 연출(물리+글리치+축소) 시간(초)")]
+    [Header("?곗텧 ??대컢")]
+    [Tooltip("?꾩껜 ?щ쭩 ?곗텧(臾쇰━+湲由ъ튂+異뺤냼) ?쒓컙(珥?")]
     [SerializeField] private float totalDuration = 1.5f;
 
-    [Tooltip("축소 시작 타이밍 비율 [0.1~0.9]")]
+    [Tooltip("異뺤냼 ?쒖옉 ??대컢 鍮꾩쑉 [0.1~0.9]")]
     [Range(0.1f, 0.9f)] [SerializeField] private float shrinkStartRatio = 0.4f;
 
-    // ─── 글리치 연출 ──────────────────────────────────────────────────────
+    // ??? 湲由ъ튂 ?곗텧 ??????????????????????????????????????????????????????
     [Header("Glitch Death")]
-    [Tooltip("GlitchDeath.shader를 사용하는 머티리얼. Inspector에서 할당.")]
+    [Tooltip("GlitchDeath.shader瑜??ъ슜?섎뒗 癒명떚由ъ뼹. Inspector?먯꽌 ?좊떦.")]
     [SerializeField] private Material glitchDeathMaterial;
 
-    [Tooltip("글리치 UV 흔들림 최대 강도 (0~1)")]
+    [Tooltip("湲由ъ튂 UV ?붾뱾由?理쒕? 媛뺣룄 (0~1)")]
     [SerializeField] private float glitchIntensityMax = 0.8f;
 
-    [Tooltip("색수차(RGB 분리) 최대 값 (0~0.1)")]
+    [Tooltip("?됱닔李?RGB 遺꾨━) 理쒕? 媛?(0~0.1)")]
     [SerializeField] private float chromaShiftMax = 0.04f;
 
-    [Tooltip("글리치 발광 색상")]
+    [Tooltip("湲由ъ튂 諛쒓킅 ?됱긽")]
     [SerializeField] private Color glitchEmissionColor = new Color(0f, 1f, 0.8f, 1f);
 
-    [Tooltip("글리치 시작 지연 시간(초). 0이면 사망 직후 즉시 시작.")]
+    [Tooltip("湲由ъ튂 ?쒖옉 吏???쒓컙(珥?. 0?대㈃ ?щ쭩 吏곹썑 利됱떆 ?쒖옉.")]
     [SerializeField, Min(0f)] private float glitchStartDelay = 0.1f;
 
-    [Tooltip("글리치 강도가 최대에 도달하는 시간(초)")]
+    [Tooltip("湲由ъ튂 媛뺣룄媛 理쒕????꾨떖?섎뒗 ?쒓컙(珥?")]
     [SerializeField, Min(0.05f)] private float glitchRampDuration = 0.35f;
 
-    [Tooltip("디졸브 소멸이 시작되는 타이밍 비율 [0.2~0.8]")]
+    [Tooltip("?붿「釉??뚮㈇???쒖옉?섎뒗 ??대컢 鍮꾩쑉 [0.2~0.8]")]
     [Range(0.2f, 0.8f)] [SerializeField] private float dissolveStartRatio = 0.45f;
 
-    // ─── 선택적: 보조 파티클 ──────────────────────────────────────────────
-    [Header("보조 파티클 (선택)")]
-    [Tooltip("Legacy Particle Pack의 ElectricalSparksEffect 등 할당.")]
+    // ??? ?좏깮?? 蹂댁“ ?뚰떚????????????????????????????????????????????????
+    [Header("蹂댁“ ?뚰떚??(?좏깮)")]
+    [Tooltip("Legacy Particle Pack??ElectricalSparksEffect ???좊떦.")]
     [SerializeField] private GameObject deathSparksPrefab;
 
-    [Tooltip("파티클 자동 소멸 시간(초)")]
+    [Tooltip("?뚰떚???먮룞 ?뚮㈇ ?쒓컙(珥?")]
     [SerializeField] private float sparksLifetime = 1.5f;
 
-    // ─── 캐싱 ─────────────────────────────────────────────────────────────
+    // ??? 罹먯떛 ?????????????????????????????????????????????????????????????
     private Rigidbody     _rb;
     private Animator      _anim;
     private Collider      _col;
     private Renderer[]    _renderers;
-    private Material[]    _originalMaterials;   // 원본 머티리얼 보존 (풀 반환 시 복원)
+    private Material[]    _originalMaterials;   // ?먮낯 癒명떚由ъ뼹 蹂댁〈 (? 諛섑솚 ??蹂듭썝)
     private Transform     _attacker;
     private Coroutine     _glitchCoroutine;
 
-    // ─── Shader Property ID ───────────────────────────────────────────────
+    // ??? Shader Property ID ???????????????????????????????????????????????
     private static readonly int GlitchIntensityId  = Shader.PropertyToID("_GlitchIntensity");
     private static readonly int ChromaShiftId      = Shader.PropertyToID("_ChromaShift");
     private static readonly int DissolveId         = Shader.PropertyToID("_Dissolve");
@@ -77,8 +77,8 @@ public class EnemyDeathEffect : MonoBehaviour
     private static readonly Vector3 VectorZero = Vector3.zero;
     private static readonly Vector3 VectorOne  = Vector3.one;
 
-    // ─── 런타임 상태 ──────────────────────────────────────────────────────
-    // 현재 인스턴스화된 글리치 머티리얼들 (DOKill 및 복원을 위해)
+    // ??? ?고????곹깭 ??????????????????????????????????????????????????????
+    // ?꾩옱 ?몄뒪?댁뒪?붾맂 湲由ъ튂 癒명떚由ъ뼹??(DOKill 諛?蹂듭썝???꾪빐)
     private Material[] _glitchMaterialInstances;
 
     private void Awake()
@@ -88,31 +88,31 @@ public class EnemyDeathEffect : MonoBehaviour
         _col        = GetComponent<Collider>();
         _renderers  = GetComponentsInChildren<Renderer>(true);
 
-        // 원본 머티리얼 스냅샷 (풀 반환용)
+        // ?먮낯 癒명떚由ъ뼹 ?ㅻ깄??(? 諛섑솚??
         CacheOriginalMaterials();
     }
 
-    // ────────────────────────────────────────────────────────────────────────
+    // ????????????????????????????????????????????????????????????????????????
     // Public API
-    // ────────────────────────────────────────────────────────────────────────
+    // ????????????????????????????????????????????????????????????????????????
 
-    /// <summary>공격자 방향을 지정합니다.</summary>
+    /// <summary>怨듦꺽??諛⑺뼢??吏?뺥빀?덈떎.</summary>
     public void SetTarget(Transform attacker) => _attacker = attacker;
 
     /// <summary>
-    /// 사망 연출 실행. 물리 날아가기 + 글리치 소멸을 동시에 진행하며
-    /// 완전히 소멸하면 onComplete를 호출합니다.
+    /// ?щ쭩 ?곗텧 ?ㅽ뻾. 臾쇰━ ?좎븘媛湲?+ 湲由ъ튂 ?뚮㈇???숈떆??吏꾪뻾?섎ŉ
+    /// ?꾩쟾???뚮㈇?섎㈃ onComplete瑜??몄텧?⑸땲??
     /// </summary>
     public void Play(Action onComplete)
     {
-        // 애니메이터 / 콜라이더 비활성화
+        // ?좊땲硫붿씠??/ 肄쒕씪?대뜑 鍮꾪솢?깊솕
         if (_anim) _anim.enabled = false;
         if (_col)  _col.enabled  = false;
 
-        // 1. 물리 날아가기
+        // 1. 臾쇰━ ?좎븘媛湲?
         ApplyLaunchForce();
 
-        // 2. DOTween 축소 (기존 연출 유지)
+        // 2. DOTween 異뺤냼 (湲곗〈 ?곗텧 ?좎?)
         float shrinkDelay    = totalDuration * (1f - shrinkStartRatio);
         float shrinkDuration = totalDuration * shrinkStartRatio;
 
@@ -122,36 +122,36 @@ public class EnemyDeathEffect : MonoBehaviour
             .SetEase(Ease.InBack)
             .OnComplete(() => onComplete?.Invoke());
 
-        // 3. 글리치 코루틴 동시 시작
+        // 3. 湲由ъ튂 肄붾（???숈떆 ?쒖옉
         if (_glitchCoroutine != null)
             StopCoroutine(_glitchCoroutine);
         _glitchCoroutine = StartCoroutine(GlitchSequence());
 
-        // 4. 보조 파티클 스폰 (선택)
+        // 4. 蹂댁“ ?뚰떚???ㅽ룿 (?좏깮)
         SpawnSparks();
     }
 
     /// <summary>
-    /// 풀 반환 시 상태 완전 초기화.
-    /// Enemy.ResetForPool()에서 호출 필요.
+    /// ? 諛섑솚 ???곹깭 ?꾩쟾 珥덇린??
+    /// Enemy.ResetForPool()?먯꽌 ?몄텧 ?꾩슂.
     /// </summary>
     public void ResetState()
     {
-        // 글리치 코루틴 중단
+        // 湲由ъ튂 肄붾（??以묐떒
         if (_glitchCoroutine != null)
         {
             StopCoroutine(_glitchCoroutine);
             _glitchCoroutine = null;
         }
 
-        // Tween 정리 및 스케일 복원
+        // Tween ?뺣━ 諛??ㅼ???蹂듭썝
         transform.DOKill();
         transform.localScale = VectorOne;
 
-        // 글리치 머티리얼 인스턴스 해제 + 원본 복원
+        // 湲由ъ튂 癒명떚由ъ뼹 ?몄뒪?댁뒪 ?댁젣 + ?먮낯 蹂듭썝
         RestoreOriginalMaterials();
 
-        // Rigidbody / Collider / Animator 복원
+        // Rigidbody / Collider / Animator 蹂듭썝
         if (_rb)
         {
             _rb.isKinematic    = false;
@@ -167,9 +167,9 @@ public class EnemyDeathEffect : MonoBehaviour
         _attacker = null;
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // Private — 물리
-    // ────────────────────────────────────────────────────────────────────────
+    // ????????????????????????????????????????????????????????????????????????
+    // Private ??臾쇰━
+    // ????????????????????????????????????????????????????????????????????????
 
     private void ApplyLaunchForce()
     {
@@ -200,29 +200,29 @@ public class EnemyDeathEffect : MonoBehaviour
         _rb.AddForce(force, ForceMode.Impulse);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // Private — 글리치 코루틴
-    // ────────────────────────────────────────────────────────────────────────
+    // ????????????????????????????????????????????????????????????????????????
+    // Private ??湲由ъ튂 肄붾（??
+    // ????????????????????????????????????????????????????????????????????????
 
     private IEnumerator GlitchSequence()
     {
-        // 글리치 머티리얼이 없으면 스킵
+        // 湲由ъ튂 癒명떚由ъ뼹???놁쑝硫??ㅽ궢
         if (glitchDeathMaterial == null || _renderers == null || _renderers.Length == 0)
             yield break;
 
-        // 시작 지연
+        // ?쒖옉 吏??
         if (glitchStartDelay > 0f)
             yield return new WaitForSeconds(glitchStartDelay);
 
-        // 각 렌더러에 글리치 머티리얼 인스턴스를 적용
+        // 媛??뚮뜑?ъ뿉 湲由ъ튂 癒명떚由ъ뼹 ?몄뒪?댁뒪瑜??곸슜
         ApplyGlitchMaterials();
 
         float dissolveStartTime = totalDuration * dissolveStartRatio;
         float dissolveDuration  = totalDuration - dissolveStartTime - glitchStartDelay;
         dissolveDuration        = Mathf.Max(0.1f, dissolveDuration);
 
-        // ── Phase 1: 글리치 Ramp-up ──────────────────────────────────────
-        // _GlitchIntensity / _ChromaShift 를 rampDuration 동안 0→max로 증가
+        // ?? Phase 1: 湲由ъ튂 Ramp-up ??????????????????????????????????????
+        // _GlitchIntensity / _ChromaShift 瑜?rampDuration ?숈븞 0?뭢ax濡?利앷?
         float elapsed = 0f;
         while (elapsed < glitchRampDuration)
         {
@@ -239,17 +239,17 @@ public class EnemyDeathEffect : MonoBehaviour
             yield return null;
         }
 
-        // ── Phase 2: 글리치 유지 + 디졸브 시작 ──────────────────────────
+        // ?? Phase 2: 湲由ъ튂 ?좎? + ?붿「釉??쒖옉 ??????????????????????????
         float dissolveElapsed = 0f;
         while (dissolveElapsed < dissolveDuration)
         {
             dissolveElapsed += Time.deltaTime;
             float t       = Mathf.Clamp01(dissolveElapsed / dissolveDuration);
 
-            // 디졸브: Ease In Quad (천천히 시작해서 빠르게 소멸)
+            // ?붿「釉? Ease In Quad (泥쒖쿇???쒖옉?댁꽌 鍮좊Ⅴ寃??뚮㈇)
             float dissolve = t * t;
 
-            // 글리치 강도는 최대로 유지하되, 마지막 30%에서 약해짐
+            // 湲由ъ튂 媛뺣룄??理쒕?濡??좎??섎릺, 留덉?留?30%?먯꽌 ?쏀빐吏?
             float fadeOff  = Mathf.InverseLerp(0.7f, 1f, t);
             float intensity = Mathf.Lerp(glitchIntensityMax, 0f, fadeOff);
             float chroma    = Mathf.Lerp(chromaShiftMax,      0f, fadeOff);
@@ -258,20 +258,20 @@ public class EnemyDeathEffect : MonoBehaviour
             yield return null;
         }
 
-        // 완전 소멸
+        // ?꾩쟾 ?뚮㈇
         SetGlitchParams(0f, 0f, 1f);
         _glitchCoroutine = null;
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // Private — 머티리얼 관리
-    // ────────────────────────────────────────────────────────────────────────
+    // ????????????????????????????????????????????????????????????????????????
+    // Private ??癒명떚由ъ뼹 愿由?
+    // ????????????????????????????????????????????????????????????????????????
 
     private void CacheOriginalMaterials()
     {
         if (_renderers == null) return;
 
-        // 렌더러 수만큼 배열 할당
+        // ?뚮뜑???섎쭔??諛곗뿴 ?좊떦
         int total = 0;
         foreach (var rend in _renderers)
             if (rend != null) total += rend.sharedMaterials.Length;
@@ -294,10 +294,10 @@ public class EnemyDeathEffect : MonoBehaviour
         {
             if (_renderers[i] == null) continue;
 
-            // 원본 텍스처를 글리치 머티리얼 인스턴스에 이식
+            // ?먮낯 ?띿뒪泥섎? 湲由ъ튂 癒명떚由ъ뼹 ?몄뒪?댁뒪???댁떇
             Material instance = new Material(glitchDeathMaterial);
 
-            // 원본 머티리얼의 _BaseMap 텍스처가 있으면 이식
+            // ?먮낯 癒명떚由ъ뼹??_BaseMap ?띿뒪泥섍? ?덉쑝硫??댁떇
             if (_originalMaterials != null && i < _originalMaterials.Length && _originalMaterials[i] != null)
             {
                 Material orig = _originalMaterials[i];
@@ -306,12 +306,12 @@ public class EnemyDeathEffect : MonoBehaviour
                 else if (orig.HasProperty("_MainTex"))
                     instance.SetTexture("_BaseMap", orig.GetTexture("_MainTex"));
 
-                // 원본 Base Color 이식
+                // ?먮낯 Base Color ?댁떇
                 if (orig.HasProperty("_BaseColor"))
                     instance.SetColor("_BaseColor", orig.GetColor("_BaseColor"));
             }
 
-            // 글리치 색상 설정
+            // 湲由ъ튂 ?됱긽 ?ㅼ젙
             instance.SetColor(GlitchColorId, glitchEmissionColor);
             instance.SetFloat(GlitchIntensityId, 0f);
             instance.SetFloat(ChromaShiftId, 0f);
@@ -337,7 +337,7 @@ public class EnemyDeathEffect : MonoBehaviour
 
     private void RestoreOriginalMaterials()
     {
-        // 글리치 인스턴스 파괴
+        // 湲由ъ튂 ?몄뒪?댁뒪 ?뚭눼
         if (_glitchMaterialInstances != null)
         {
             foreach (var mat in _glitchMaterialInstances)
@@ -348,7 +348,7 @@ public class EnemyDeathEffect : MonoBehaviour
             _glitchMaterialInstances = null;
         }
 
-        // 원본 머티리얼 복원
+        // ?먮낯 癒명떚由ъ뼹 蹂듭썝
         if (_renderers == null || _originalMaterials == null) return;
 
         for (int i = 0; i < _renderers.Length && i < _originalMaterials.Length; i++)
@@ -358,9 +358,9 @@ public class EnemyDeathEffect : MonoBehaviour
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────────
-    // Private — 보조 파티클
-    // ────────────────────────────────────────────────────────────────────────
+    // ????????????????????????????????????????????????????????????????????????
+    // Private ??蹂댁“ ?뚰떚??
+    // ????????????????????????????????????????????????????????????????????????
 
     private void SpawnSparks()
     {
@@ -370,7 +370,7 @@ public class EnemyDeathEffect : MonoBehaviour
         GameObject sparks = Instantiate(deathSparksPrefab, spawnPos, Quaternion.identity);
         if (sparks == null) return;
 
-        // 파티클 자동 정지 + 지연 파괴
+        // ?뚰떚???먮룞 ?뺤? + 吏???뚭눼
         foreach (var ps in sparks.GetComponentsInChildren<ParticleSystem>(true))
             ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 

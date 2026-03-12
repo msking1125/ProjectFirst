@@ -1,17 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace ProjectFirst.Data
 {
     [CreateAssetMenu(menuName = "Game/Monster Table")]
     public class MonsterTable : ScriptableObject
     {
-#if ODIN_INSPECTOR
-        [TableList]
-#endif
         public List<MonsterRow> rows = new();
 
         private readonly Dictionary<int, MonsterRow> _idLookup = new();
@@ -80,3 +74,4 @@ namespace ProjectFirst.Data
         }
     }
 }
+

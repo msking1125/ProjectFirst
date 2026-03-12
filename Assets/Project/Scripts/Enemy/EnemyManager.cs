@@ -1,44 +1,18 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace Project
 {
     /// <summary>
-    /// 적(Enemy) 객체들을 관리하는 싱글턴 매니저.
+    /// ??Enemy) 媛앹껜?ㅼ쓣 愿由ы븯???깃???留ㅻ땲?.
     /// </summary>
     public class EnemyManager : MonoBehaviour
     {
         public static EnemyManager Instance;
-
-#if ODIN_INSPECTOR
-        [BoxGroup("상태")]
-        [ShowInInspector, ReadOnly]
-        [LabelText("활성 적 수")]
-        [GUIColor(1f, 0.4f, 0.4f)]
-#endif
         public int ActiveEnemyCount => activeEnemies?.Count ?? 0;
-
-#if ODIN_INSPECTOR
-        [BoxGroup("상태")]
-        [ShowInInspector, ReadOnly]
-        [LabelText("생존 적 수")]
-        [ProgressBar(0, 50, ColorGetter = "GetAliveColor")]
-#endif
         public int AliveEnemyCount => GetAliveCount();
 
-#if ODIN_INSPECTOR
-        private static Color GetAliveColor() => new Color(1f, 0.4f, 0.4f);
-#endif
-
         [SerializeField]
-#if ODIN_INSPECTOR
-        [BoxGroup("내부")]
-        [ListDrawerSettings(Expanded = false, ShowPaging = true)]
-        [LabelText("활성 적 리스트")]
-#endif
         private List<Enemy> activeEnemies = new List<Enemy>();
 
         private readonly List<Enemy> _aliveEnemies = new List<Enemy>();
@@ -49,7 +23,7 @@ namespace Project
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogError("[EnemyManager] 중복 Instance가 감지되었습니다.");
+                Debug.LogError("[EnemyManager] 以묐났 Instance媛 媛먯??섏뿀?듬땲??");
                 return;
             }
 
@@ -64,12 +38,12 @@ namespace Project
             }
         }
 
-        /// <summary>적을 등록합니다.</summary>
+        /// <summary>?곸쓣 ?깅줉?⑸땲??</summary>
         public void Register(Enemy enemy)
         {
             if (enemy == null)
             {
-                Debug.LogError("[EnemyManager] null Enemy를 Register하려고 했습니다.");
+                Debug.LogError("[EnemyManager] null Enemy瑜?Register?섎젮怨??덉뒿?덈떎.");
                 return;
             }
 
@@ -79,19 +53,19 @@ namespace Project
             }
         }
 
-        /// <summary>적 등록을 해제합니다.</summary>
+        /// <summary>???깅줉???댁젣?⑸땲??</summary>
         public void Unregister(Enemy enemy)
         {
             if (enemy == null)
             {
-                Debug.LogError("[EnemyManager] null Enemy를 Unregister하려고 했습니다.");
+                Debug.LogError("[EnemyManager] null Enemy瑜?Unregister?섎젮怨??덉뒿?덈떎.");
                 return;
             }
 
             activeEnemies.Remove(enemy);
         }
 
-        /// <summary>생존한 적의 수를 반환합니다.</summary>
+        /// <summary>?앹〈???곸쓽 ?섎? 諛섑솚?⑸땲??</summary>
         public int GetAliveCount()
         {
             RefreshAliveEnemies();
@@ -120,7 +94,7 @@ namespace Project
             }
         }
 
-        /// <summary>주어진 위치에서 가장 가까운 생존 적을 반환합니다.</summary>
+        /// <summary>二쇱뼱吏??꾩튂?먯꽌 媛??媛源뚯슫 ?앹〈 ?곸쓣 諛섑솚?⑸땲??</summary>
         public Enemy GetClosest(Vector3 pos, float range)
         {
             float min = range;
@@ -146,14 +120,14 @@ namespace Project
             return closest;
         }
 
-        /// <summary>모든 생존 적을 반환합니다.</summary>
+        /// <summary>紐⑤뱺 ?앹〈 ?곸쓣 諛섑솚?⑸땲??</summary>
         public IReadOnlyList<Enemy> GetAliveEnemies()
         {
             RefreshAliveEnemies();
             return _aliveEnemies;
         }
 
-        /// <summary>생존 적을 비할당 리스트에 채웁니다.</summary>
+        /// <summary>?앹〈 ?곸쓣 鍮꾪븷??由ъ뒪?몄뿉 梨꾩썎?덈떎.</summary>
         public int FillAliveEnemiesNonAlloc(List<Enemy> buffer)
         {
             if (buffer == null)
@@ -168,3 +142,4 @@ namespace Project
         }
     }
 }
+

@@ -1,8 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
 
 namespace Project
 {
@@ -11,52 +8,13 @@ namespace Project
     /// UIDocument?먯꽌 root VisualElement瑜?李얠븘 ????寃곌낵瑜??쒖떆?⑸땲??
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
-#if ODIN_INSPECTOR
-    [HideMonoScript]
-#endif
     public class ResultPanelManager : MonoBehaviour
     {
-#if ODIN_INSPECTOR
-        [Title("?띿뒪???ㅼ젙", TitleAlignment = TitleAlignments.Left)]
-        [HorizontalGroup("?띿뒪??, 0.5f)]
-        [BoxGroup("?띿뒪???밸━")]
-        [LabelText("?밸━ ??댄?")]
-        [Tooltip("?밸━ ???쒖떆????댄?")]
-#endif
         [Header("Texts (Optional Override)")]
         [SerializeField] private string winTitleText     = "?밸━";
-
-#if ODIN_INSPECTOR
-        [BoxGroup("?띿뒪???밸━")]
-        [LabelText("?밸━ ?ㅻ챸")]
-        [Tooltip("?밸━ ???쒖떆???ㅻ챸")]
-#endif
         [SerializeField] private string winSubtitleText  = "湲곗?瑜?吏耳쒕깉?듬땲??";
-
-#if ODIN_INSPECTOR
-        [HorizontalGroup("?띿뒪??, 0.5f)]
-        [BoxGroup("?띿뒪???⑤같")]
-        [LabelText("?⑤같 ??댄?")]
-        [GUIColor(1f, 0.4f, 0.4f)]
-        [Tooltip("?⑤같 ???쒖떆????댄?")]
-#endif
         [SerializeField] private string loseTitleText    = "?⑤같";
-
-#if ODIN_INSPECTOR
-        [BoxGroup("?띿뒪???⑤같")]
-        [LabelText("?⑤같 ?ㅻ챸")]
-        [GUIColor(1f, 0.4f, 0.4f)]
-        [Tooltip("?⑤같 ???쒖떆???ㅻ챸")]
-#endif
         [SerializeField] private string loseSubtitleText = "湲곗?媛 ?뚭눼?섏뿀?듬땲??..";
-
-#if ODIN_INSPECTOR
-        [Title("罹붾쾭???ㅼ젙", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("罹붾쾭??)]
-        [LabelText("Sort Order")]
-        [Tooltip("Canvas ???ㅻⅨ UI蹂대떎 ?믨쾶 ?ㅼ젙?섏꽭?? (湲곕낯 100)")]
-        [PropertyRange(0, 999)]
-#endif
         [Header("Sort Order (?ㅻⅨ UI ?꾩뿉 ?쒖떆)")]
         [SerializeField] private int sortOrder = 100;
 
@@ -290,4 +248,5 @@ namespace Project
     }
 }
 } // namespace Project
+
 

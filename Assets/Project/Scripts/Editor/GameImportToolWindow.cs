@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -35,7 +35,7 @@ public class GameImportToolWindow : EditorWindow
     {
         EditorGUILayout.Space(8f);
         EditorGUILayout.LabelField("Import Tables", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("임포트할 테이블을 여러 개 선택한 뒤, 'Import Selected'를 눌러 일괄 임포트하세요.", MessageType.Info);
+        EditorGUILayout.HelpBox("?꾪룷?명븷 ?뚯씠釉붿쓣 ?щ윭 媛??좏깮???? 'Import Selected'瑜??뚮윭 ?쇨큵 ?꾪룷?명븯?몄슂.", MessageType.Info);
 
         using (new EditorGUILayout.HorizontalScope())
         {
@@ -81,11 +81,11 @@ public class GameImportToolWindow : EditorWindow
         List<ImportItem> selected = items.FindAll(i => i.Selected);
         if (selected.Count == 0)
         {
-            EditorUtility.DisplayDialog("Game Import Tool", "선택된 테이블이 없습니다.", "확인");
+            EditorUtility.DisplayDialog("Game Import Tool", "?좏깮???뚯씠釉붿씠 ?놁뒿?덈떎.", "?뺤씤");
             return;
         }
 
-        if (!EditorUtility.DisplayDialog("Game Import Tool", $"선택된 {selected.Count}개 테이블을 임포트하시겠습니까?", "Import", "Cancel"))
+        if (!EditorUtility.DisplayDialog("Game Import Tool", $"?좏깮??{selected.Count}媛??뚯씠釉붿쓣 ?꾪룷?명븯?쒓쿋?듬땲源?", "Import", "Cancel"))
             return;
 
         try
@@ -99,8 +99,8 @@ public class GameImportToolWindow : EditorWindow
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[GameImportToolWindow] Import 중 오류 발생: {ex}");
-            EditorUtility.DisplayDialog("Game Import Tool", "Import 중 오류가 발생했습니다. Console을 확인하세요.", "확인");
+            Debug.LogError($"[GameImportToolWindow] Import 以??ㅻ쪟 諛쒖깮: {ex}");
+            EditorUtility.DisplayDialog("Game Import Tool", "Import 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎. Console???뺤씤?섏꽭??", "?뺤씤");
             throw;
         }
         finally
@@ -109,7 +109,7 @@ public class GameImportToolWindow : EditorWindow
         }
 
         AssetDatabase.Refresh();
-        EditorUtility.DisplayDialog("Game Import Tool", "선택된 테이블 임포트가 완료되었습니다.", "확인");
+        EditorUtility.DisplayDialog("Game Import Tool", "?좏깮???뚯씠釉??꾪룷?멸? ?꾨즺?섏뿀?듬땲??", "?뺤씤");
     }
 
     private sealed class ImportItem

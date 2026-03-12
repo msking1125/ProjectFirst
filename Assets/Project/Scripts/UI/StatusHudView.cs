@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,66 +6,66 @@ namespace Project
 {
 
 /// <summary>
-/// 레벨 · 경험치 · 골드를 각각 분리된 영역으로 표시하는 HUD 컴포넌트.
+/// ?덈꺼 쨌 寃쏀뿕移?쨌 怨⑤뱶瑜?媛곴컖 遺꾨━???곸뿭?쇰줈 ?쒖떆?섎뒗 HUD 而댄룷?뚰듃.
 ///
-/// ── Inspector 연결 가이드 ─────────────────────────────────────────────────
-/// 직접 연결하거나, 비워두면 Awake에서 자식 오브젝트를 자동 탐색합니다.
+/// ?? Inspector ?곌껐 媛?대뱶 ?????????????????????????????????????????????????
+/// 吏곸젒 ?곌껐?섍굅?? 鍮꾩썙?먮㈃ Awake?먯꽌 ?먯떇 ?ㅻ툕?앺듃瑜??먮룞 ?먯깋?⑸땲??
 ///
-/// [레벨]
-///   Level Frame   : Image  - 레벨 숫자 뒤에 깔리는 프레임 이미지
-///   Level Text    : TMP_Text - "1" "2" 형태로 표시
+/// [?덈꺼]
+///   Level Frame   : Image  - ?덈꺼 ?レ옄 ?ㅼ뿉 源붾━???꾨젅???대?吏
+///   Level Text    : TMP_Text - "1" "2" ?뺥깭濡??쒖떆
 ///
-/// [경험치]
-///   Exp Icon      : Image  - 경험치 아이콘 (EXP 마크)
-///   Exp Gauge     : Image  - fillAmount 방식 (Image Type = Filled)
-///   Exp Text      : TMP_Text - "0 / 10" (선택)
+/// [寃쏀뿕移?
+///   Exp Icon      : Image  - 寃쏀뿕移??꾩씠肄?(EXP 留덊겕)
+///   Exp Gauge     : Image  - fillAmount 諛⑹떇 (Image Type = Filled)
+///   Exp Text      : TMP_Text - "0 / 10" (?좏깮)
 ///
-/// [골드]
-///   Gold Icon     : Image  - 골드 코인 아이콘
-///   Gold Text     : TMP_Text - "1,250" 형태로 표시
+/// [怨⑤뱶]
+///   Gold Icon     : Image  - 怨⑤뱶 肄붿씤 ?꾩씠肄?
+///   Gold Text     : TMP_Text - "1,250" ?뺥깭濡??쒖떆
 /// </summary>
 public class StatusHudView : MonoBehaviour
 {
-    // ── 레벨 ─────────────────────────────────────────────────────────────────
-    [Header("레벨")]
-    [Tooltip("레벨 숫자 뒤에 표시되는 프레임 이미지 (선택)")]
+    // ?? ?덈꺼 ?????????????????????????????????????????????????????????????????
+    [Header("?덈꺼")]
+    [Tooltip("?덈꺼 ?レ옄 ?ㅼ뿉 ?쒖떆?섎뒗 ?꾨젅???대?吏 (?좏깮)")]
     [SerializeField] private Image     levelFrame;
-    [Tooltip("레벨 숫자 텍스트")]
+    [Tooltip("Level text")]
     [SerializeField] private TMP_Text  levelText;
 
-    // ── 경험치 ───────────────────────────────────────────────────────────────
-    [Header("경험치")]
-    [Tooltip("EXP 아이콘 이미지 (선택)")]
+    // ?? 寃쏀뿕移????????????????????????????????????????????????????????????????
+    [Header("EXP")]
+    [Tooltip("EXP ?꾩씠肄??대?吏 (?좏깮)")]
     [SerializeField] private Image     expIcon;
-    [Tooltip("경험치 게이지 (Image Type: Filled, Fill Method: Horizontal)")]
+    [Tooltip("寃쏀뿕移?寃뚯씠吏 (Image Type: Filled, Fill Method: Horizontal)")]
     [SerializeField] private Image     expGauge;
-    [Tooltip("경험치 숫자 텍스트 (0/10 형태, 선택)")]
+    [Tooltip("寃쏀뿕移??レ옄 ?띿뒪??(0/10 ?뺥깭, ?좏깮)")]
     [SerializeField] private TMP_Text  expText;
 
-    // ── 골드 ─────────────────────────────────────────────────────────────────
-    [Header("골드")]
-    [Tooltip("골드 코인 아이콘 이미지 (선택)")]
+    // ?? 怨⑤뱶 ?????????????????????????????????????????????????????????????????
+    [Header("怨⑤뱶")]
+    [Tooltip("怨⑤뱶 肄붿씤 ?꾩씠肄??대?吏 (?좏깮)")]
     [SerializeField] private Image     goldIcon;
-    [Tooltip("골드 숫자 텍스트")]
+    [Tooltip("Gold text")]
     [SerializeField] private TMP_Text  goldText;
 
-    // ── 자동 생성 설정 ────────────────────────────────────────────────────────
-    [Header("자동 생성 설정 (Inspector 연결 없을 때)")]
+    // ?? ?먮룞 ?앹꽦 ?ㅼ젙 ????????????????????????????????????????????????????????
+    [Header("?먮룞 ?앹꽦 ?ㅼ젙 (Inspector ?곌껐 ?놁쓣 ??")]
     [SerializeField] private float levelFontSize  = 36f;
     [SerializeField] private float expFontSize    = 22f;
     [SerializeField] private float goldFontSize   = 28f;
-    [SerializeField] private Color gaugeColor     = new Color(0.2f, 0.8f, 1f, 1f);   // 시안 계열
+    [SerializeField] private Color gaugeColor     = new Color(0.2f, 0.8f, 1f, 1f);   // ?쒖븞 怨꾩뿴
     [SerializeField] private Color gaugeBgColor   = new Color(0.1f, 0.1f, 0.1f, 0.7f);
-    [SerializeField] private Color goldTextColor  = new Color(1f, 0.85f, 0.2f, 1f);  // 골드 색상
+    [SerializeField] private Color goldTextColor  = new Color(1f, 0.85f, 0.2f, 1f);  // 怨⑤뱶 ?됱긽
     [SerializeField] private Color levelTextColor = Color.white;
 
-    // ── 공개 프로퍼티 (외부 참조용) ──────────────────────────────────────────
+    // ?? 怨듦컻 ?꾨줈?쇳떚 (?몃? 李몄“?? ??????????????????????????????????????????
     public TMP_Text LevelText => levelText;
     public TMP_Text GoldText  => goldText;
     public TMP_Text ExpText   => expText;
     public Image    ExpGauge  => expGauge;
 
-    // ────────────────────────────────────────────────────────────────────────
+    // ????????????????????????????????????????????????????????????????????????
 
     private void Awake()
     {
@@ -74,7 +74,7 @@ public class StatusHudView : MonoBehaviour
 
     private void AutoBind()
     {
-        // 이름으로 자식 탐색 (공통 헬퍼)
+        // ?대쫫?쇰줈 ?먯떇 ?먯깋 (怨듯넻 ?ы띁)
         TMP_Text  FindText(string n)  => transform.Find(n)?.GetComponent<TMP_Text>();
         Image     FindImage(string n) => transform.Find(n)?.GetComponent<Image>();
 
@@ -86,16 +86,16 @@ public class StatusHudView : MonoBehaviour
         goldIcon   ??= FindImage("GoldIcon");
         goldText   ??= FindText("GoldText")    ?? FindText("Gold");
 
-        // 모두 없으면 코드로 자동 생성
+        // 紐⑤몢 ?놁쑝硫?肄붾뱶濡??먮룞 ?앹꽦
         if (levelText == null) BuildLevelUI();
         if (expGauge  == null) BuildExpUI();
         if (goldText  == null) BuildGoldUI();
     }
 
-    // ── 데이터 갱신 (BattleGameManager에서 호출) ─────────────────────────────
+    // ?? ?곗씠??媛깆떊 (BattleGameManager?먯꽌 ?몄텧) ?????????????????????????????
 
     /// <summary>
-    /// 레벨, 경험치, 골드를 한 번에 갱신합니다.
+    /// ?덈꺼, 寃쏀뿕移? 怨⑤뱶瑜???踰덉뿉 媛깆떊?⑸땲??
     /// </summary>
     public void Refresh(int level, int exp, int expMax, int gold)
     {
@@ -124,18 +124,18 @@ public class StatusHudView : MonoBehaviour
     public void SetGold(int gold)
     {
         if (goldText != null)
-            goldText.text = gold.ToString("N0"); // 1,250 형태
+            goldText.text = gold.ToString("N0"); // 1,250 ?뺥깭
     }
 
-    // ── 자동 UI 생성 ──────────────────────────────────────────────────────────
+    // ?? ?먮룞 UI ?앹꽦 ??????????????????????????????????????????????????????????
 
     /// <summary>
-    /// 레벨 프레임 + 텍스트 자동 생성.
-    /// 좌상단: 프레임 배경 Image 위에 레벨 텍스트.
+    /// ?덈꺼 ?꾨젅??+ ?띿뒪???먮룞 ?앹꽦.
+    /// 醫뚯긽?? ?꾨젅??諛곌꼍 Image ?꾩뿉 ?덈꺼 ?띿뒪??
     /// </summary>
     private void BuildLevelUI()
     {
-        // 프레임 배경 (80×80)
+        // ?꾨젅??諛곌꼍 (80횞80)
         GameObject frameGo = new GameObject("LevelFrame", typeof(RectTransform), typeof(Image));
         frameGo.transform.SetParent(transform, false);
         RectTransform frameRt = frameGo.GetComponent<RectTransform>();
@@ -149,7 +149,7 @@ public class StatusHudView : MonoBehaviour
         levelFrame.color = new Color(0.1f, 0.1f, 0.2f, 0.85f);
         levelFrame.raycastTarget = false;
 
-        // 레벨 텍스트 (프레임 자식)
+        // ?덈꺼 ?띿뒪??(?꾨젅???먯떇)
         GameObject textGo = new GameObject("LevelText", typeof(RectTransform), typeof(TextMeshProUGUI));
         textGo.transform.SetParent(frameGo.transform, false);
         RectTransform textRt = textGo.GetComponent<RectTransform>();
@@ -166,7 +166,7 @@ public class StatusHudView : MonoBehaviour
         levelText.alignment = TextAlignmentOptions.Center;
         levelText.raycastTarget = false;
 
-        // "Lv" 레이블 (프레임 상단)
+        // "Lv" ?덉씠釉?(?꾨젅???곷떒)
         GameObject lbGo = new GameObject("LvLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
         lbGo.transform.SetParent(frameGo.transform, false);
         RectTransform lbRt = lbGo.GetComponent<RectTransform>();
@@ -183,28 +183,28 @@ public class StatusHudView : MonoBehaviour
         lbTmp.alignment = TextAlignmentOptions.Center;
         lbTmp.raycastTarget = false;
 
-        // 레벨 숫자를 하단으로
+        // ?덈꺼 ?レ옄瑜??섎떒?쇰줈
         textRt.anchorMin = new Vector2(0f, 0f);
         textRt.anchorMax = new Vector2(1f, 0.65f);
     }
 
     /// <summary>
-    /// 경험치 게이지 + 아이콘 + 텍스트 자동 생성.
-    /// 레벨 프레임 아래에 배치.
+    /// 寃쏀뿕移?寃뚯씠吏 + ?꾩씠肄?+ ?띿뒪???먮룞 ?앹꽦.
+    /// ?덈꺼 ?꾨젅???꾨옒??諛곗튂.
     /// </summary>
     private void BuildExpUI()
     {
-        // 컨테이너 (경험치 게이지 영역)
+        // 而⑦뀒?대꼫 (寃쏀뿕移?寃뚯씠吏 ?곸뿭)
         GameObject container = new GameObject("ExpContainer", typeof(RectTransform));
         container.transform.SetParent(transform, false);
         RectTransform cRt = container.GetComponent<RectTransform>();
         cRt.anchorMin = new Vector2(0f, 1f);
         cRt.anchorMax = new Vector2(0f, 1f);
         cRt.pivot     = new Vector2(0f, 1f);
-        cRt.anchoredPosition = new Vector2(10f, -100f); // 레벨 프레임(80) + 여백(10)
+        cRt.anchoredPosition = new Vector2(10f, -100f); // ?덈꺼 ?꾨젅??80) + ?щ갚(10)
         cRt.sizeDelta = new Vector2(220f, 22f);
 
-        // 게이지 배경
+        // 寃뚯씠吏 諛곌꼍
         GameObject bgGo = new GameObject("ExpGaugeBG", typeof(RectTransform), typeof(Image));
         bgGo.transform.SetParent(container.transform, false);
         RectTransform bgRt = bgGo.GetComponent<RectTransform>();
@@ -216,7 +216,7 @@ public class StatusHudView : MonoBehaviour
         bgImg.color = gaugeBgColor;
         bgImg.raycastTarget = false;
 
-        // 게이지 Fill
+        // 寃뚯씠吏 Fill
         GameObject fillGo = new GameObject("ExpGauge", typeof(RectTransform), typeof(Image));
         fillGo.transform.SetParent(container.transform, false);
         RectTransform fillRt = fillGo.GetComponent<RectTransform>();
@@ -232,7 +232,7 @@ public class StatusHudView : MonoBehaviour
         expGauge.fillAmount = 0f;
         expGauge.raycastTarget = false;
 
-        // EXP 텍스트 (게이지 위 오버레이)
+        // EXP ?띿뒪??(寃뚯씠吏 ???ㅻ쾭?덉씠)
         GameObject txtGo = new GameObject("ExpText", typeof(RectTransform), typeof(TextMeshProUGUI));
         txtGo.transform.SetParent(container.transform, false);
         RectTransform txtRt = txtGo.GetComponent<RectTransform>();
@@ -249,7 +249,7 @@ public class StatusHudView : MonoBehaviour
         expText.alignment = TextAlignmentOptions.Center;
         expText.raycastTarget = false;
 
-        // EXP 라벨 (게이지 왼쪽 상단)
+        // EXP ?쇰꺼 (寃뚯씠吏 ?쇱そ ?곷떒)
         GameObject expLabelGo = new GameObject("ExpLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
         expLabelGo.transform.SetParent(transform, false);
         RectTransform expLabelRt = expLabelGo.GetComponent<RectTransform>();
@@ -269,22 +269,22 @@ public class StatusHudView : MonoBehaviour
     }
 
     /// <summary>
-    /// 골드 아이콘 + 텍스트 자동 생성.
-    /// 경험치 게이지 아래에 배치.
+    /// 怨⑤뱶 ?꾩씠肄?+ ?띿뒪???먮룞 ?앹꽦.
+    /// 寃쏀뿕移?寃뚯씠吏 ?꾨옒??諛곗튂.
     /// </summary>
     private void BuildGoldUI()
     {
-        // 컨테이너
+        // 而⑦뀒?대꼫
         GameObject container = new GameObject("GoldContainer", typeof(RectTransform));
         container.transform.SetParent(transform, false);
         RectTransform cRt = container.GetComponent<RectTransform>();
         cRt.anchorMin = new Vector2(0f, 1f);
         cRt.anchorMax = new Vector2(0f, 1f);
         cRt.pivot     = new Vector2(0f, 1f);
-        cRt.anchoredPosition = new Vector2(10f, -132f); // EXP 컨테이너 아래
+        cRt.anchoredPosition = new Vector2(10f, -132f); // EXP 而⑦뀒?대꼫 ?꾨옒
         cRt.sizeDelta = new Vector2(160f, 36f);
 
-        // 골드 아이콘 (원형 노란 배경으로 대체)
+        // 怨⑤뱶 ?꾩씠肄?(?먰삎 ?몃? 諛곌꼍?쇰줈 ?泥?
         GameObject iconGo = new GameObject("GoldIcon", typeof(RectTransform), typeof(Image));
         iconGo.transform.SetParent(container.transform, false);
         RectTransform iconRt = iconGo.GetComponent<RectTransform>();
@@ -298,7 +298,7 @@ public class StatusHudView : MonoBehaviour
         goldIcon.color = new Color(1f, 0.8f, 0.1f, 1f);
         goldIcon.raycastTarget = false;
 
-        // "G" 레이블 (아이콘 위)
+        // "G" ?덉씠釉?(?꾩씠肄???
         GameObject gLabelGo = new GameObject("GLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
         gLabelGo.transform.SetParent(iconGo.transform, false);
         RectTransform gLabelRt = gLabelGo.GetComponent<RectTransform>();
@@ -315,7 +315,7 @@ public class StatusHudView : MonoBehaviour
         gTmp.alignment = TextAlignmentOptions.Center;
         gTmp.raycastTarget = false;
 
-        // 골드 텍스트
+        // 怨⑤뱶 ?띿뒪??
         GameObject txtGo = new GameObject("GoldText", typeof(RectTransform), typeof(TextMeshProUGUI));
         txtGo.transform.SetParent(container.transform, false);
         RectTransform txtRt = txtGo.GetComponent<RectTransform>();
@@ -334,3 +334,4 @@ public class StatusHudView : MonoBehaviour
     }
 }
 } // namespace Project
+

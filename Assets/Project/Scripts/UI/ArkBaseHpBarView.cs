@@ -1,15 +1,15 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Project;
 
 public class ArkBaseHpBarView : MonoBehaviour
 {
-    [Header("Editor 연결 체크리스트")]
-    // 1) Canvas 하위 UI 오브젝트에 ArkBaseHpBarView를 추가합니다.
-    // 2) fillImage에는 Image Type이 Filled인 게이지 이미지를 연결합니다.
-    // 3) hpText에는 TMP_Text를 연결합니다.
-    // 4) 가능하면 target에 Ark_Base의 BaseHealth를 직접 연결합니다(미연결 시 자동 탐색).
+    [Header("Editor binding checklist")]
+    // 1) Canvas ?섏쐞 UI ?ㅻ툕?앺듃??ArkBaseHpBarView瑜?異붽??⑸땲??
+    // 2) fillImage?먮뒗 Image Type??Filled??寃뚯씠吏 ?대?吏瑜??곌껐?⑸땲??
+    // 3) hpText?먮뒗 TMP_Text瑜??곌껐?⑸땲??
+    // 4) 媛?ν븯硫?target??Ark_Base??BaseHealth瑜?吏곸젒 ?곌껐?⑸땲??誘몄뿰寃????먮룞 ?먯깋).
     [SerializeField] private BaseHealth target;
     [SerializeField] private Image fillImage;
     [SerializeField] private TMP_Text hpText;
@@ -125,3 +125,4 @@ public class ArkBaseHpBarView : MonoBehaviour
         }
     }
 }
+
