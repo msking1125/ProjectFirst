@@ -13,6 +13,17 @@
 - 한 파일 최대 400줄 (초과 시 분리)
 - 모든 public 메서드에 `<summary>` XML 주석 필수
 
+## Odin Inspector 규칙
+- 기준 문서: `Assets/Project/Scripts/Editor/ODIN_INSPECTOR_GUIDE.md`
+- Odin 관련 `using`, attribute, `OdinEditorWindow` 상속은 모두 `#if ODIN_INSPECTOR`로 감싼다
+- 데이터 클래스는 `ProjectFirst.Data`, 에디터 툴은 `ProjectFirst.Editor` 네임스페이스를 우선 사용한다
+- 테이블 데이터는 `ScriptableObject + List<Row>` 패턴을 사용하고 Row 클래스에는 `[Serializable]`을 기본 적용한다
+- Row/UI 데이터는 필요 시 `[HideLabel]`, `[BoxGroup]`, `[HorizontalGroup]`, `[TableList]`, `[Searchable]`, `[InlineProperty]` 패턴을 우선 적용한다
+- 에셋 참조는 `[PreviewField]` + `[AssetsOnly]`, enum 표시에는 `[EnumToggleButtons]`, 수치 표시에는 `[ProgressBar]` 사용을 우선 검토한다
+- 조건부 표시와 검증은 `[ShowIf]`, `[EnableIf]`, `[OnValueChanged]`, `[ValidateInput]`, `[InfoBox]` 패턴을 우선 사용한다
+- 버튼 색상은 가이드의 팔레트를 따른다: 성공(녹색), 경고(주황), 정보(파랑), 위험(빨강)
+- Odin 미설치 환경에서도 컴파일 가능해야 하므로 Odin 전용 코드에 비Odin 대체 경로를 함께 고려한다
+
 ## 현재 완료된 핵심 파일 (참조 가능)
 - `BattleGameManager.cs` (`Assets/Project/Scripts/Core/`) — 전투 흐름 총괄
 - `Agent.cs` (`Assets/Project/Scripts/Agent/`) — 플레이어 캐릭터 전투 AI

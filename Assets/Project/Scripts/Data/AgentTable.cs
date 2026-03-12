@@ -1,89 +1,106 @@
 using System.Collections.Generic;
 using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
-[CreateAssetMenu(menuName = "Game/Agent Table")]
-public class AgentTable : ScriptableObject
+namespace ProjectFirst.Data
 {
-    [SerializeField] private CombatStats defaultStats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
-    [SerializeField] private ElementType defaultElement = ElementType.Reason;
-    public List<AgentRow> rows = new();
-
-    [Header("캐릭터 상세 정보")]
-    [SerializeField] private List<AgentInfo> _agentInfos = new();
-
-    private readonly Dictionary<int, AgentRow> index = new();
-
-    private void OnEnable()
+    /// <summary>
+    /// 에이전트(캐릭터) 데이터 테이블
+    /// </summary>
+#if ODIN_INSPECTOR
+    [CreateAssetMenu(menuName = "Soul Ark/Agent Table")]
+#else
+    [CreateAssetMenu(menuName = "Game/Agent Table")]
+#endif
+    public class AgentTable : ScriptableObject
     {
-        RebuildIndex();
-    }
+#if ODIN_INSPECTOR
+        [BoxGroup("기본 설정")]
+        [LabelText("기본 스탯")]
+        [InlineProperty]
+#endif
+        [SerializeField] private CombatStats _defaultStats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
 
-    private void OnValidate()
-    {
-        RebuildIndex();
-    }
+#if ODIN_INSPECTOR
+        [BoxGroup("기본 설정")]
+        [LabelText("기본 속성")]
+        [EnumToggleButtons]
+#endif
+        [SerializeField] private ElementType _defaultElement = ElementType.Reason;
 
-    public AgentRow GetById(int id)
-    {
-        if (id <= 0)
+#if ODIN_INSPECTOR
+        [Title("캐릭터 목록", TitleAlignment = TitleAlignments.Centered)]
+        [TableList(ShowIndexLabels = true, AlwaysExpanded = true)]
+        [Searchable]
+#endif
+        public List<AgentRow> rows = new();
+
+#if ODIN_INSPECTOR
+        [Title("캐릭터 상세 정보", TitleAlignment = TitleAlignments.Centered)]
+        [ListDrawerSettings(Expanded = true, ShowPaging = true, NumberOfItemsPerPage = 5)]
+        [Searchable]
+#endif
+        [Header("캐릭터 상세 정보")]
+        [SerializeField] private List<AgentInfo> _agentInfos = new();
+
+        private readonly Dictionary<int, AgentRow> _index = new();
+
+        private void OnEnable() => RebuildIndex();
+        private void OnValidate() => RebuildIndex();
+
+        /// <summary>ID로 AgentRow를 조회합니다.</summary>
+        public AgentRow GetById(int id)
         {
+            if (id <= 0) return null;
+            if (_index.Count != rows.Count) RebuildIndex();
+            return _index.TryGetValue(id, out AgentRow row) ? row : null;
+        }
+
+        /// <summary>ID로 스탯을 조회합니다.</summary>
+        public CombatStats GetStats(int id)
+        {
+            AgentRow row = GetById(id);
+            return row != null ? row.ToCombatStats() : _defaultStats.Sanitized();
+        }
+
+        /// <summary>ID로 속성을 조회합니다.</summary>
+        public ElementType GetElement(int id)
+        {
+            AgentRow row = GetById(id);
+            return row != null ? row.element : _defaultElement;
+        }
+
+        /// <summary>모든 AgentInfo 목록을 반환합니다.</summary>
+        public IReadOnlyList<AgentInfo> GetAll() => _agentInfos;
+
+        /// <summary>ID로 AgentInfo를 검색합니다.</summary>
+        public AgentInfo GetAgentInfo(int id)
+        {
+            for (int i = 0; i < _agentInfos.Count; i++)
+            {
+                if (_agentInfos[i] != null && _agentInfos[i].id == id)
+                    return _agentInfos[i];
+            }
             return null;
         }
 
-        if (index.Count != rows.Count)
+#if ODIN_INSPECTOR
+        [Button("인덱스 재구축", ButtonSizes.Medium)]
+        [GUIColor(0.3f, 0.8f, 0.3f)]
+#endif
+        private void RebuildIndex()
         {
-            RebuildIndex();
-        }
+            _index.Clear();
+            if (rows == null) return;
 
-        return index.TryGetValue(id, out AgentRow row) ? row : null;
-    }
-
-    public CombatStats GetStats(int id)
-    {
-        AgentRow row = GetById(id);
-        return row != null ? row.ToCombatStats() : defaultStats.Sanitized();
-    }
-
-    public ElementType GetElement(int id)
-    {
-        AgentRow row = GetById(id);
-        return row != null ? row.element : defaultElement;
-    }
-
-    /// <summary>모든 AgentInfo 목록을 반환합니다.</summary>
-    public IReadOnlyList<AgentInfo> GetAll() => _agentInfos;
-
-    /// <summary>ID로 AgentInfo를 검색합니다.</summary>
-    public AgentInfo GetAgentInfo(int id)
-    {
-        for (int i = 0; i < _agentInfos.Count; i++)
-        {
-            if (_agentInfos[i] != null && _agentInfos[i].id == id)
+            for (int i = 0; i < rows.Count; i++)
             {
-                return _agentInfos[i];
+                AgentRow row = rows[i];
+                if (row == null || row.id <= 0) continue;
+                _index[row.id] = row;
             }
-        }
-        return null;
-    }
-
-    private void RebuildIndex()
-    {
-        index.Clear();
-
-        if (rows == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < rows.Count; i++)
-        {
-            AgentRow row = rows[i];
-            if (row == null || row.id <= 0)
-            {
-                continue;
-            }
-
-            index[row.id] = row;
         }
     }
 }

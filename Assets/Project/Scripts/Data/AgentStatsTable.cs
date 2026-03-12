@@ -1,70 +1,81 @@
 using System.Collections.Generic;
 using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
-[CreateAssetMenu(menuName = "Game/Agent Stats Table")]
-public class AgentStatsTable : ScriptableObject
+namespace ProjectFirst.Data
 {
-    [SerializeField] private CombatStats defaultStats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
-    [SerializeField] private ElementType defaultElement = ElementType.Reason;
-    public List<AgentStatsRow> rows = new();
-
-    private readonly Dictionary<int, AgentStatsRow> index = new();
-
-    private void OnEnable()
+    /// <summary>
+    /// 에이전트(캐릭터) 스탯 데이터 테이블
+    /// </summary>
+#if ODIN_INSPECTOR
+    [CreateAssetMenu(menuName = "Soul Ark/Agent Stats Table")]
+#else
+    [CreateAssetMenu(menuName = "Game/Agent Stats Table")]
+#endif
+    public class AgentStatsTable : ScriptableObject
     {
-        RebuildIndex();
-    }
+#if ODIN_INSPECTOR
+        [BoxGroup("기본 설정")]
+        [LabelText("기본 스탯")]
+        [InlineProperty]
+#endif
+        [SerializeField] private CombatStats _defaultStats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
 
-    private void OnValidate()
-    {
-        RebuildIndex();
-    }
+#if ODIN_INSPECTOR
+        [BoxGroup("기본 설정")]
+        [LabelText("기본 속성")]
+        [EnumToggleButtons]
+#endif
+        [SerializeField] private ElementType _defaultElement = ElementType.Reason;
 
-    public CombatStats GetStats(int agentId)
-    {
-        AgentStatsRow row = GetById(agentId);
-        return row != null ? row.stats.Sanitized() : defaultStats.Sanitized();
-    }
+#if ODIN_INSPECTOR
+        [Title("에이전트 스탯 목록", TitleAlignment = TitleAlignments.Centered)]
+        [TableList(ShowIndexLabels = true, AlwaysExpanded = true)]
+        [Searchable]
+#endif
+        public List<AgentStatsRow> rows = new();
 
-    public ElementType GetElement(int agentId)
-    {
-        AgentStatsRow row = GetById(agentId);
-        return row != null ? row.element : defaultElement;
-    }
+        private readonly Dictionary<int, AgentStatsRow> _index = new();
 
-    private AgentStatsRow GetById(int agentId)
-    {
-        if (agentId <= 0)
+        private void OnEnable() => RebuildIndex();
+        private void OnValidate() => RebuildIndex();
+
+        public CombatStats GetStats(int agentId)
         {
-            return null;
+            AgentStatsRow row = GetById(agentId);
+            return row != null ? row.stats.Sanitized() : _defaultStats.Sanitized();
         }
 
-        if (index.Count != rows.Count)
+        public ElementType GetElement(int agentId)
         {
-            RebuildIndex();
+            AgentStatsRow row = GetById(agentId);
+            return row != null ? row.element : _defaultElement;
         }
 
-        return index.TryGetValue(agentId, out AgentStatsRow row) ? row : null;
-    }
-
-    private void RebuildIndex()
-    {
-        index.Clear();
-
-        if (rows == null)
+        private AgentStatsRow GetById(int agentId)
         {
-            return;
+            if (agentId <= 0) return null;
+            if (_index.Count != rows.Count) RebuildIndex();
+            return _index.TryGetValue(agentId, out AgentStatsRow row) ? row : null;
         }
 
-        for (int i = 0; i < rows.Count; i++)
+#if ODIN_INSPECTOR
+        [Button("인덱스 재구축", ButtonSizes.Medium)]
+        [GUIColor(0.3f, 0.8f, 0.3f)]
+#endif
+        private void RebuildIndex()
         {
-            AgentStatsRow row = rows[i];
-            if (row == null || row.id <= 0)
+            _index.Clear();
+            if (rows == null) return;
+
+            for (int i = 0; i < rows.Count; i++)
             {
-                continue;
+                AgentStatsRow row = rows[i];
+                if (row == null || row.id <= 0) continue;
+                _index[row.id] = row;
             }
-
-            index[row.id] = row;
         }
     }
 }

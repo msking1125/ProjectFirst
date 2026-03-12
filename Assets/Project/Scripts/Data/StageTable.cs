@@ -1,60 +1,75 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
-/// <summary>
-/// 스테이지 데이터 테이블. CSV 임포트를 통해 데이터가 채워집니다.
-/// </summary>
-[CreateAssetMenu(menuName = "Game/Stage Table")]
-public class StageTable : ScriptableObject
+namespace ProjectFirst.Data
 {
-    public List<StageRow> rows = new List<StageRow>();
-
-    private Dictionary<int, StageRow> _idIndex;
-    private Dictionary<int, List<StageRow>> _chapterIndex;
-
-    private void OnEnable() => BuildIndex();
-    private void OnValidate() => BuildIndex();
-
-    private void BuildIndex()
+    /// <summary>
+    /// 스테이지 데이터 테이블. CSV 임포트를 통해 데이터가 채워집니다.
+    /// </summary>
+#if ODIN_INSPECTOR
+    [CreateAssetMenu(menuName = "Soul Ark/Stage Table")]
+#else
+    [CreateAssetMenu(menuName = "Game/Stage Table")]
+#endif
+    public class StageTable : ScriptableObject
     {
-        _idIndex = new Dictionary<int, StageRow>();
-        _chapterIndex = new Dictionary<int, List<StageRow>>();
-        if (rows == null) return;
+#if ODIN_INSPECTOR
+        [Title("스테이지 목록", TitleAlignment = TitleAlignments.Centered)]
+        [TableList(ShowIndexLabels = true, AlwaysExpanded = true, DrawScrollView = true)]
+        [Searchable]
+#endif
+        public List<StageRow> rows = new List<StageRow>();
 
-        foreach (var row in rows)
+        private Dictionary<int, StageRow> _idIndex;
+        private Dictionary<int, List<StageRow>> _chapterIndex;
+
+        private void OnEnable() => BuildIndex();
+        private void OnValidate() => BuildIndex();
+
+        private void BuildIndex()
         {
-            if (row == null) continue;
+            _idIndex = new Dictionary<int, StageRow>();
+            _chapterIndex = new Dictionary<int, List<StageRow>>();
+            if (rows == null) return;
 
-            if (row.id > 0)
-                _idIndex[row.id] = row;
-
-            if (!_chapterIndex.TryGetValue(row.chapterId, out var list))
+            foreach (var row in rows)
             {
-                list = new List<StageRow>();
-                _chapterIndex[row.chapterId] = list;
+                if (row == null) continue;
+
+                if (row.id > 0)
+                    _idIndex[row.id] = row;
+
+                if (!_chapterIndex.TryGetValue(row.chapterId, out var list))
+                {
+                    list = new List<StageRow>();
+                    _chapterIndex[row.chapterId] = list;
+                }
+                list.Add(row);
             }
-            list.Add(row);
         }
-    }
 
-    /// <summary>
-    /// ID로 스테이지를 조회합니다.
-    /// </summary>
-    public StageRow GetById(int id)
-    {
-        BuildIndex();
-        return _idIndex.TryGetValue(id, out var row) ? row : null;
-    }
+        /// <summary>
+        /// ID로 스테이지를 조회합니다.
+        /// </summary>
+        public StageRow GetById(int id)
+        {
+            BuildIndex();
+            return _idIndex.TryGetValue(id, out var row) ? row : null;
+        }
 
-    /// <summary>
-    /// 특정 챕터에 속한 스테이지를 stageNumber 오름차순으로 반환합니다.
-    /// </summary>
-    public List<StageRow> GetByChapter(int chapterId)
-    {
-        BuildIndex();
-        if (_chapterIndex.TryGetValue(chapterId, out var list))
-            return list.OrderBy(s => s.stageNumber).ToList();
-        return new List<StageRow>();
+        /// <summary>
+        /// 특정 챕터에 속한 스테이지를 stageNumber 오름차순으로 반환합니다.
+        /// </summary>
+        public List<StageRow> GetByChapter(int chapterId)
+        {
+            BuildIndex();
+            if (_chapterIndex.TryGetValue(chapterId, out var list))
+                return list.OrderBy(s => s.stageNumber).ToList();
+            return new List<StageRow>();
+        }
     }
 }
