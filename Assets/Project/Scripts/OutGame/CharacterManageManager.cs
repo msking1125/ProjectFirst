@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ProjectFirst.Data;
+using ProjectFirst.OutGame.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -17,6 +18,7 @@ namespace ProjectFirst.OutGame
         [SerializeField] private AgentTable _agentTable;
         [SerializeField] private PlayerData _playerData;
         [SerializeField] private Transform _modelSpawnPoint;
+        [SerializeField] private CharacterLevelUpPanel _levelUpPanel;
 
         // ── 필터 / 정렬 상태 ────────────────────────────────────
         private ElementType _filterElement = ElementType.All;
@@ -352,6 +354,10 @@ namespace ProjectFirst.OutGame
             {
                 ShowInfoTab();
             }
+            else if (tab == DetailTab.LevelUp)
+            {
+                ShowLevelUpTab();
+            }
         }
 
         private static void SetTabVisible(VisualElement tab, bool visible)
@@ -364,6 +370,14 @@ namespace ProjectFirst.OutGame
         {
             if (btn == null) return;
             btn.EnableInClassList("tab-active", active);
+        }
+
+        /// <summary>레벨업 탭을 초기화하고 패널에 데이터를 전달합니다.</summary>
+        private void ShowLevelUpTab()
+        {
+            if (_selectedAgent == null || _levelUpPanel == null || _levelUpTab == null) return;
+
+            _levelUpPanel.Setup(_selectedAgent, _selectedAgentLevel, _levelUpTab);
         }
 
         /// <summary>정보 탭 내용을 현재 선택된 캐릭터 기준으로 표시합니다.</summary>
@@ -477,8 +491,14 @@ namespace ProjectFirst.OutGame
 
         private bool CanLevelUp(int agentId)
         {
-            // TODO: P4-S2에서 레벨업 조건 구현
-            return false;
+            int level = GetLevel(agentId);
+            if (level >= 100) return false;
+
+            int totalExpItems = PlayerPrefs.GetInt($"exp_item_{(int)ExpItemType.Small}", 0)
+                              + PlayerPrefs.GetInt($"exp_item_{(int)ExpItemType.Medium}", 0)
+                              + PlayerPrefs.GetInt($"exp_item_{(int)ExpItemType.Large}", 0)
+                              + PlayerPrefs.GetInt($"exp_item_{(int)ExpItemType.Crystal}", 0);
+            return totalExpItems > 0;
         }
     }
 }
