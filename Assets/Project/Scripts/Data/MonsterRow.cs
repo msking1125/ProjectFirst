@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 紐ъ뒪???곗씠????
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public class MonsterRow

@@ -30,7 +30,7 @@ public class DamageText : MonoBehaviour
             canvasGroup = GetComponent<CanvasGroup>();
         }
 
-        // ?띿뒪???꾩튂 臾댁옉???붾뱾由??먮뒗 ?ㅽ봽??珥덇린??蹂댁옣
+        // Note: cleaned comment.
         if (valueText != null && valueText.rectTransform != null)
         {
             valueText.rectTransform.anchoredPosition = Vector2.zero;
@@ -38,7 +38,7 @@ public class DamageText : MonoBehaviour
 
         if (valueText != null)
         {
-            // ?꾩뿭 湲곕낯 ?고듃(TMP Settings)媛 ?덈떎硫??먮룞?쇰줈 ?곸슜?⑸땲??
+            // Note: cleaned comment.
             if (TMP_Settings.defaultFontAsset != null)
             {
                 valueText.font = TMP_Settings.defaultFontAsset;
@@ -59,7 +59,7 @@ public class DamageText : MonoBehaviour
             canvasGroup.DOFade(0f, duration);
         }
 
-        // 鍮뚮낫??泥섎━ (??긽 移대찓?쇰? 諛붾씪蹂대룄濡?
+        // Note: cleaned comment.
         if (cam != null)
         {
             transform.forward = cam.transform.forward;
@@ -71,7 +71,7 @@ public class DamageText : MonoBehaviour
 
     private void LateUpdate()
     {
-        // ?띿뒪?멸? ?꾨줈 ?щ씪媛???숈븞?먮룄 鍮뚮낫???좎?
+        // Note: cleaned comment.
         if (cam != null)
         {
             transform.forward = cam.transform.forward;

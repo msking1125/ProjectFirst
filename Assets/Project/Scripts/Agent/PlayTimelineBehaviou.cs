@@ -3,20 +3,20 @@ using UnityEngine.Playables;
 
 public class PlayTimelineBehaviour : StateMachineBehaviour
 {
-    // ?몃뱶??吏꾩엯?????ㅽ뻾
+    // Note: cleaned comment.
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        // 1. 遺紐??ㅻ툕?앺듃?먯꽌 PlayableDirector 李얘린
+        // Note: cleaned comment.
         PlayableDirector director = animator.GetComponentInParent<PlayableDirector>();
 
         if (director != null)
         {
-            Debug.Log("??꾨씪???ㅽ뻾 紐낅졊 ?꾨떖?? " + director.name);
+            Debug.Log("[Log] Message cleaned.");
             director.Play();
         }
         else
         {
-            Debug.LogError("PlayableDirector瑜?遺紐??ㅻ툕?앺듃?먯꽌 李얠쓣 ???놁뒿?덈떎!");
+            Debug.LogError("[Log] Error message cleaned.");
         }
     }
 }

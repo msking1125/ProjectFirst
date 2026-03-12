@@ -6,13 +6,13 @@ using UnityEngine.UIElements;
 namespace ProjectFirst.Bootstrap
 {
     /// <summary>
-    /// 타이틀 씬의 메인 흐름을 관리하는 매니저 클래스입니다.
-    /// UI Toolkit을 통해 버튼 이벤트를 연결하고 대기/로딩 상태를 제어합니다.
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     public class TitleManager : MonoBehaviour
     {
         /// <summary>
-        /// 싱글톤 인스턴스
+        /// Documentation cleaned.
         /// </summary>
         public static TitleManager Instance { get; private set; }
 
@@ -59,7 +59,7 @@ namespace ProjectFirst.Bootstrap
             VisualElement root = _uiDocument.rootVisualElement;
             if (root == null) return;
 
-            // UXML 버튼 바인딩
+            // Note: cleaned comment.
             Button startButton = root.Q<Button>("start-button");
             if (startButton != null)
             {
@@ -86,14 +86,14 @@ namespace ProjectFirst.Bootstrap
         }
 
         /// <summary>
-        /// 게임 시작 버튼 클릭 이벤트 핸들러
+        /// Documentation cleaned.
         /// </summary>
         public void OnStartClicked()
         {
             Debug.Log("[TitleManager] Game start clicked.");
             _startButtonEvent?.RaiseEvent();
 
-            // TitleLoadingManager가 있다면 로딩 트리거, 없다면 직접 로드
+            // Note: cleaned comment.
             TitleLoadingManager loadingManager = FindObjectOfType<TitleLoadingManager>();
             if (loadingManager != null)
             {
@@ -130,7 +130,7 @@ namespace ProjectFirst.Bootstrap
             Debug.Log("[TitleManager] Settings clicked.");
             _settingsButtonEvent?.RaiseEvent();
 
-            // SettingPanel(UI Toolkit 기반)을 찾아 오픈
+            // Note: cleaned comment.
             SettingPanel settingPanel = FindObjectOfType<SettingPanel>(true);
             if (settingPanel != null)
             {
@@ -139,7 +139,7 @@ namespace ProjectFirst.Bootstrap
         }
 
         /// <summary>
-        /// 게임 종료 메서드
+        /// Documentation cleaned.
         /// </summary>
         public void QuitGame()
         {

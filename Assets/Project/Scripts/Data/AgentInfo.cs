@@ -5,8 +5,8 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 罹먮┃??愿由??붾㈃?먯꽌 ?ъ슜?섎뒗 罹먮┃???곸꽭 ?뺣낫.
-    /// AgentTable.agentInfos 由ъ뒪?몃줈 愿由щ맗?덈떎.
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public class AgentInfo
@@ -20,13 +20,13 @@ namespace ProjectFirst.Data
         [SerializeField] private Sprite _thumbnail;
         [SerializeField] private GameObject _modelPrefab;
         [SerializeField] private SkillRow[] _skills;
-        [Header("湲곕낯 ?ㅽ꺈")]
+        [Header("Settings")]
         [SerializeField] private float _baseHp;
         [SerializeField] private float _baseAtk;
         [SerializeField] private float _baseDef;
         [SerializeField] private float _critRate;
         [SerializeField] private float _critMult = 1.5f;
-        [Header("?깆옣 諛곗쑉")]
+        [Header("Settings")]
         [SerializeField] private float _hpGrowth = 0.08f;
         [SerializeField] private float _atkGrowth = 0.06f;
         [SerializeField] private float _defGrowth = 0.04f;
@@ -46,16 +46,16 @@ namespace ProjectFirst.Data
         public float critRate => _critRate;
         public float critMult => _critMult;
 
-        /// <summary>?덈꺼???곕Ⅸ HP瑜?諛섑솚?⑸땲??</summary>
+        /// Documentation cleaned.
         public float GetHp(int level) => _baseHp * (1 + _hpGrowth * (level - 1));
 
-        /// <summary>?덈꺼???곕Ⅸ ATK瑜?諛섑솚?⑸땲??</summary>
+        /// Documentation cleaned.
         public float GetAtk(int level) => _baseAtk * (1 + _atkGrowth * (level - 1));
 
-        /// <summary>?덈꺼???곕Ⅸ DEF瑜?諛섑솚?⑸땲??</summary>
+        /// Documentation cleaned.
         public float GetDef(int level) => _baseDef * (1 + _defGrowth * (level - 1));
 
-        /// <summary>?덈꺼 湲곕컲 醫낇빀 ?꾪닾?μ쓣 諛섑솚?⑸땲??</summary>
+        /// Documentation cleaned.
         public int GetPower(int level) => (int)(GetHp(level) * 0.5f + GetAtk(level) * 3f + GetDef(level) * 2f);
     }
 }

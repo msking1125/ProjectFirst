@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// ?꾪닾 ?ㅽ꺈 ?곗씠??(HP, ATK, DEF, 移섎챸?)
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public struct CombatStats

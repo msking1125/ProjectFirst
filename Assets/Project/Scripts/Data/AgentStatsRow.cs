@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// ?먯씠?꾪듃(罹먮┃?? ?ㅽ꺈 ?곗씠????
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public class AgentStatsRow
@@ -15,7 +15,7 @@ namespace ProjectFirst.Data
         public ElementType element = ElementType.Reason;
 
         /// <summary>
-        /// CombatStats濡?蹂?섑빀?덈떎.
+        /// Documentation cleaned.
         /// </summary>
         public CombatStats ToCombatStats() => stats.Sanitized();
     }

@@ -23,13 +23,13 @@ public static class BadwordTableImporter
                 LegacyCsvPathResources,
                 LegacyCsvPathResourcesUpper))
         {
-            Debug.LogError($"[BadwordTableImporter] CSV瑜?李얠쓣 ???놁뒿?덈떎: {CsvPathProject} (?먮뒗 ?덇굅??寃쎈줈)");
+            Debug.LogError($"[BadwordTableImporter] CSV를 찾을 수 없거나 데이터 행이 없습니다.");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[BadwordTableImporter] ?곗씠???됱씠 ?놁뒿?덈떎: {csvPath}");
+            Debug.LogError($"[BadwordTableImporter] CSV를 찾을 수 없거나 데이터 행이 없습니다.");
             return;
         }
 
@@ -39,7 +39,7 @@ public static class BadwordTableImporter
         int wordIdx = CsvImportUtility.FindColumn(header, "word");
         if (wordIdx < 0)
         {
-            // ?⑥씪 而щ읆 CSV(?ㅻ뜑 ?놁씠 ?⑥뼱留??섏뿴)???명솚
+            // 헤더가 없으면 첫 번째 컬럼을 금칙어 컬럼으로 간주
             wordIdx = 0;
         }
 
@@ -63,7 +63,6 @@ public static class BadwordTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[BadwordTableImporter] {uniqueWords.Count}媛?湲덉튃???꾪룷???꾨즺 ??{AssetPath}");
     }
 
     private static void TryMoveLegacyCsvToProjectData()
@@ -93,7 +92,7 @@ public static class BadwordTableImporter
             FileUtil.CopyFileOrDirectory(metaSource, metaTarget);
 
         AssetDatabase.Refresh();
-        Debug.Log($"[BadwordTableImporter] ?덇굅??CSV瑜?Project/Data濡??대룞(蹂듭궗)?덉뒿?덈떎: {legacyPath} -> {targetPath}");
+        Debug.Log($"[BadwordTableImporter] 레거시 CSV를 Project/Data 경로로 복사했습니다 → {targetPath}");
     }
 }
 #endif

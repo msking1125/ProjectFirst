@@ -9,33 +9,33 @@ using UnityEngine.UIElements;
 namespace ProjectFirst.OutGame
 {
     /// <summary>
-    /// 罹먮┃??愿由??붾㈃??由ъ뒪?맞룹긽?맞?D 紐⑤뜽 ?ㅽ룿??珥앷큵?섎뒗 留ㅻ땲?.
+    /// Documentation cleaned.
     /// </summary>
     public class CharacterManageManager : MonoBehaviour
     {
-        // ?? Inspector ???????????????????????????????????????????
+        // Note: cleaned comment.
         [SerializeField] private UIDocument _uiDocument;
         [SerializeField] private AgentTable _agentTable;
         [SerializeField] private PlayerData _playerData;
         [SerializeField] private Transform _modelSpawnPoint;
         [SerializeField] private CharacterLevelUpPanel _levelUpPanel;
 
-        // ?? ?꾪꽣 / ?뺣젹 ?곹깭 ????????????????????????????????????
+        // Note: cleaned comment.
         private ElementType _filterElement = ElementType.All;
         private SortType _sortType = SortType.Power_Desc;
 
-        // ?? ?꾩옱 ?좏깮 罹먮┃??????????????????????????????????????
+        // Note: cleaned comment.
         private AgentInfo _selectedAgent;
         private int _selectedAgentLevel;
 
-        // ?? ????????????????????????????????????????????????????
+        // Note: cleaned comment.
         private enum DetailTab { Info, LevelUp, Equipment, Collection }
         private DetailTab _currentTab;
 
-        // ?? 3D 紐⑤뜽 ?????????????????????????????????????????????
+        // Note: cleaned comment.
         private GameObject _currentModel;
 
-        // ?? UI ?붿냼 罹먯떆 ????????????????????????????????????????
+        // Note: cleaned comment.
         private VisualElement _root;
         private ListView _agentListView;
         private VisualElement _rightPanel;
@@ -47,7 +47,7 @@ namespace ProjectFirst.OutGame
         private Button _filterReasonBtn;
         private DropdownField _sortDropdown;
 
-        // ?곸꽭 ?⑤꼸 ?붿냼
+        // Note: cleaned comment.
         private Label _nameLabel;
         private Label _subNameLabel;
         private VisualElement _gradeStarsRow;
@@ -60,22 +60,22 @@ namespace ProjectFirst.OutGame
         private Label _critMultLabel;
         private VisualElement _skillRow;
 
-        // ??踰꾪듉
+        // Note: cleaned comment.
         private Button _tabInfoBtn;
         private Button _tabLevelUpBtn;
         private Button _tabEquipmentBtn;
         private Button _tabCollectionBtn;
 
-        // ??而⑦뀗痢?
+        // Note: cleaned comment.
         private VisualElement _infoTab;
         private VisualElement _levelUpTab;
         private VisualElement _equipmentTab;
         private VisualElement _collectionTab;
 
-        // ?? 由ъ뒪???곗씠?????????????????????????????????????????
+        // Note: cleaned comment.
         private List<AgentInfo> _filteredAgents = new();
 
-        // ?? ?깃툒 ?뚮몢由??됱긽 ????????????????????????????????????
+        // Note: cleaned comment.
         private static readonly Dictionary<int, Color> GradeColors = new()
         {
             { 1, ColorUtility.TryParseHtmlString("#9CA3AF", out Color c1) ? c1 : Color.gray },
@@ -85,9 +85,9 @@ namespace ProjectFirst.OutGame
             { 5, ColorUtility.TryParseHtmlString("#F97316", out Color c5) ? c5 : Color.yellow }
         };
 
-        // ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
         // Lifecycle
-        // ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
 
         private void OnEnable()
         {
@@ -102,15 +102,15 @@ namespace ProjectFirst.OutGame
             DestroyCurrentModel();
         }
 
-        // ?????????????????????????????????????????????????????????
-        // UI 諛붿씤??
-        // ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
+        // Note: cleaned comment.
+        // Note: cleaned comment.
 
         private void BindUI()
         {
             _root = _uiDocument.rootVisualElement;
 
-            // ?꾪꽣 踰꾪듉
+            // Note: cleaned comment.
             _filterAllBtn = _root.Q<Button>("filter-all-btn");
             _filterPassionBtn = _root.Q<Button>("filter-passion-btn");
             _filterIntuitionBtn = _root.Q<Button>("filter-intuition-btn");
@@ -121,7 +121,7 @@ namespace ProjectFirst.OutGame
             _filterIntuitionBtn?.RegisterCallback<ClickEvent>(_ => OnFilterChanged(ElementType.Intuition));
             _filterReasonBtn?.RegisterCallback<ClickEvent>(_ => OnFilterChanged(ElementType.Reason));
 
-            // ?뺣젹 ?쒕∼?ㅼ슫
+            // Note: cleaned comment.
             _sortDropdown = _root.Q<DropdownField>("sort-dropdown");
             if (_sortDropdown != null)
             {
@@ -130,7 +130,7 @@ namespace ProjectFirst.OutGame
                 _sortDropdown.RegisterValueChangedCallback(OnSortChanged);
             }
 
-            // 由ъ뒪?몃럭
+            // Note: cleaned comment.
             _agentListView = _root.Q<ListView>("agent-list");
             if (_agentListView != null)
             {
@@ -141,11 +141,11 @@ namespace ProjectFirst.OutGame
                 _agentListView.fixedItemHeight = 120;
             }
 
-            // ?곗륫 ?⑤꼸
+            // Note: cleaned comment.
             _rightPanel = _root.Q<VisualElement>("right-panel");
             _tabContentArea = _root.Q<VisualElement>("tab-content-area");
 
-            // ?곸꽭 ?뺣낫 ?덉씠釉?
+            // Note: cleaned comment.
             _nameLabel = _root.Q<Label>("agent-detail-name");
             _subNameLabel = _root.Q<Label>("agent-detail-subname");
             _gradeStarsRow = _root.Q<VisualElement>("grade-stars-row");
@@ -158,7 +158,7 @@ namespace ProjectFirst.OutGame
             _critMultLabel = _root.Q<Label>("stat-crit-mult");
             _skillRow = _root.Q<VisualElement>("skill-row");
 
-            // ??踰꾪듉
+            // Note: cleaned comment.
             _tabInfoBtn = _root.Q<Button>("tab-info-btn");
             _tabLevelUpBtn = _root.Q<Button>("tab-levelup-btn");
             _tabEquipmentBtn = _root.Q<Button>("tab-equipment-btn");
@@ -169,18 +169,18 @@ namespace ProjectFirst.OutGame
             _tabEquipmentBtn?.RegisterCallback<ClickEvent>(_ => ShowDetailTab(DetailTab.Equipment));
             _tabCollectionBtn?.RegisterCallback<ClickEvent>(_ => ShowDetailTab(DetailTab.Collection));
 
-            // ??而⑦뀗痢?
+            // Note: cleaned comment.
             _infoTab = _root.Q<VisualElement>("info-tab");
             _levelUpTab = _root.Q<VisualElement>("levelup-tab");
             _equipmentTab = _root.Q<VisualElement>("equipment-tab");
             _collectionTab = _root.Q<VisualElement>("collection-tab");
         }
 
-        // ?????????????????????????????????????????????????????????
-        // 由ъ뒪???곸뿭
-        // ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
+        // Note: cleaned comment.
+        // Note: cleaned comment.
 
-        /// <summary>?꾪꽣쨌?뺣젹???곸슜?섏뿬 罹먮┃??紐⑸줉??媛깆떊?⑸땲??</summary>
+        /// Documentation cleaned.
         private void RefreshList()
         {
             IEnumerable<AgentInfo> agents = _agentTable.GetAll()
@@ -277,9 +277,9 @@ namespace ProjectFirst.OutGame
             }
         }
 
-        // ?????????????????????????????????????????????????????????
-        // ?꾪꽣 / ?뺣젹
-        // ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
+        // Note: cleaned comment.
+        // Note: cleaned comment.
 
         private void OnFilterChanged(ElementType element)
         {
@@ -313,9 +313,9 @@ namespace ProjectFirst.OutGame
             RefreshList();
         }
 
-        // ?????????????????????????????????????????????????????????
-        // 由ъ뒪???좏깮
-        // ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
+        // Note: cleaned comment.
+        // Note: cleaned comment.
 
         private void OnListSelectionChanged(IEnumerable<object> selection)
         {
@@ -325,7 +325,7 @@ namespace ProjectFirst.OutGame
             OnAgentSelected(agent);
         }
 
-        /// <summary>?먯씠?꾪듃 ?좏깮 ???곸꽭 ?⑤꼸??媛깆떊?섍퀬 3D 紐⑤뜽???ㅽ룿?⑸땲??</summary>
+        /// Documentation cleaned.
         private void OnAgentSelected(AgentInfo agent)
         {
             _selectedAgent = agent;
@@ -334,9 +334,9 @@ namespace ProjectFirst.OutGame
             Spawn3DModel(agent);
         }
 
-        // ?????????????????????????????????????????????????????????
-        // ?곸꽭 ??
-        // ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
+        // Note: cleaned comment.
+        // Note: cleaned comment.
 
         private void ShowDetailTab(DetailTab tab)
         {
@@ -374,7 +374,7 @@ namespace ProjectFirst.OutGame
             btn.EnableInClassList("tab-active", active);
         }
 
-        /// <summary>?덈꺼????쓣 珥덇린?뷀븯怨??⑤꼸???곗씠?곕? ?꾨떖?⑸땲??</summary>
+        /// Documentation cleaned.
         private void ShowLevelUpTab()
         {
             if (_selectedAgent == null || _levelUpPanel == null || _levelUpTab == null) return;
@@ -382,7 +382,7 @@ namespace ProjectFirst.OutGame
             _levelUpPanel.Setup(_selectedAgent, _selectedAgentLevel, _levelUpTab);
         }
 
-        /// <summary>?뺣낫 ???댁슜???꾩옱 ?좏깮??罹먮┃??湲곗??쇰줈 ?쒖떆?⑸땲??</summary>
+        /// Documentation cleaned.
         private void ShowInfoTab()
         {
             if (_selectedAgent == null) return;
@@ -394,7 +394,7 @@ namespace ProjectFirst.OutGame
             if (_levelLabel != null) _levelLabel.text = $"Lv.{lv}";
             if (_powerLabel != null) _powerLabel.text = $"CP {_selectedAgent.GetPower(lv)}";
 
-            // ?깃툒 蹂??쒖떆
+            // Note: cleaned comment.
             if (_gradeStarsRow != null)
             {
                 _gradeStarsRow.Clear();
@@ -406,14 +406,14 @@ namespace ProjectFirst.OutGame
                 }
             }
 
-            // ?ㅽ꺈 ?섏튂
+            // Note: cleaned comment.
             if (_hpLabel != null) _hpLabel.text = $"{_selectedAgent.GetHp(lv):F0}";
             if (_atkLabel != null) _atkLabel.text = $"{_selectedAgent.GetAtk(lv):F0}";
             if (_defLabel != null) _defLabel.text = $"{_selectedAgent.GetDef(lv):F0}";
             if (_critRateLabel != null) _critRateLabel.text = $"{_selectedAgent.critRate * 100f:F1}%";
             if (_critMultLabel != null) _critMultLabel.text = $"x{_selectedAgent.critMult:F2}";
 
-            // ?ㅽ궗 ?쒖떆
+            // Note: cleaned comment.
             BindSkillRow();
         }
 
@@ -451,11 +451,11 @@ namespace ProjectFirst.OutGame
             }
         }
 
-        // ?????????????????????????????????????????????????????????
-        // 3D 紐⑤뜽
-        // ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
+        // Note: cleaned comment.
+        // Note: cleaned comment.
 
-        /// <summary>湲곗〈 紐⑤뜽???쒓굅?섍퀬 ??罹먮┃??紐⑤뜽???ㅽ룿?⑸땲??</summary>
+        /// Documentation cleaned.
         private void Spawn3DModel(AgentInfo agent)
         {
             DestroyCurrentModel();
@@ -481,9 +481,9 @@ namespace ProjectFirst.OutGame
             }
         }
 
-        // ?????????????????????????????????????????????????????????
-        // ?덈꺼 ?좏떥
-        // ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
+        // Note: cleaned comment.
+        // Note: cleaned comment.
 
         private int GetLevel(int agentId)
             => _playerData != null ? _playerData.GetCharacterLevel(agentId) : 1;

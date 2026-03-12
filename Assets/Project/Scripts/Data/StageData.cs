@@ -5,8 +5,8 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 스테이지 정보를 보관하는 ScriptableObject 에셋.
-    /// 생성: Project 우클릭 → Create/Soul Ark/Data/StageData
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(fileName = "StageData", menuName = "MindArk/Data/StageData")]
     public class StageData : ScriptableObject
@@ -43,7 +43,7 @@ namespace ProjectFirst.Data
         public List<StageInfo> stages = new List<StageInfo>();
 
         /// <summary>
-        /// 특정 챕터에 속한 스테이지를 stageNumber 오름차순으로 반환합니다.
+        /// Documentation cleaned.
         /// </summary>
         public List<StageInfo> GetByChapter(int chapterId) =>
             stages.Where(s => s.chapterId == chapterId)

@@ -3,11 +3,11 @@
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 캐릭터 1명당 1개씩 만드는 데이터 에셋.
-    /// 공격 VFX, 히트 타이밍, 고유 액티브 스킬 등을 관리합니다.
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     ///
-    /// 생성: Project 우클릭 → Create → Soul Ark/Agent Data
-    /// 경로 권장: Assets/Project/Data/Agents/AgentData_캐릭터명.asset
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Agent Data", fileName = "AgentData_New")]
     public class AgentData : ScriptableObject

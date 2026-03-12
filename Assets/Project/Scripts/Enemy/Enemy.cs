@@ -891,8 +891,8 @@ public class Enemy : MonoBehaviour
         cachedAnimator.Rebind();
         cachedAnimator.Update(0f);
 
-        // hasMonsterRunState媛 true???뚮쭔 Play ?몄텧
-        // false?대㈃ Entry ??湲곕낯 State濡??먮룞 ?꾩씠?섎?濡?蹂꾨룄 Play 遺덊븘??
+        // Note: cleaned comment.
+        // Note: cleaned comment.
         if (hasMonsterRunState)
         {
             cachedAnimator.Play(resolvedRunStateName, 0, 0f);

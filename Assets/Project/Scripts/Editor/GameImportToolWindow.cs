@@ -9,10 +9,10 @@ public class GameImportToolWindow : EditorWindow
     private readonly List<ImportItem> items = new();
     private Vector2 scroll;
 
-    [MenuItem("Tools/Game/Import")]
+    [MenuItem("Tools/Game/테이블 임포트")]
     public static void Open()
     {
-        GameImportToolWindow window = GetWindow<GameImportToolWindow>("Game Import Tool");
+        GameImportToolWindow window = GetWindow<GameImportToolWindow>("게임 임포트 도구");
         window.minSize = new Vector2(420f, 340f);
         window.Show();
     }
@@ -34,15 +34,15 @@ public class GameImportToolWindow : EditorWindow
     private void OnGUI()
     {
         EditorGUILayout.Space(8f);
-        EditorGUILayout.LabelField("Import Tables", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("?꾪룷?명븷 ?뚯씠釉붿쓣 ?щ윭 媛??좏깮???? 'Import Selected'瑜??뚮윭 ?쇨큵 ?꾪룷?명븯?몄슂.", MessageType.Info);
+        EditorGUILayout.LabelField("테이블 임포트", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("임포트할 테이블을 여러 개 선택한 뒤, '선택 항목 임포트'를 눌러 일괄 임포트하세요.", MessageType.Info);
 
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("Select All", GUILayout.Height(24f)))
+            if (GUILayout.Button("전체 선택", GUILayout.Height(24f)))
                 SetAll(true);
 
-            if (GUILayout.Button("Clear", GUILayout.Height(24f)))
+            if (GUILayout.Button("선택 해제", GUILayout.Height(24f)))
                 SetAll(false);
         }
 
@@ -62,10 +62,10 @@ public class GameImportToolWindow : EditorWindow
         GUILayout.FlexibleSpace();
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("Import Selected", GUILayout.Height(30f)))
+            if (GUILayout.Button("선택 항목 임포트", GUILayout.Height(30f)))
                 ImportSelected();
 
-            if (GUILayout.Button("Close", GUILayout.Height(30f)))
+            if (GUILayout.Button("닫기", GUILayout.Height(30f)))
                 Close();
         }
     }
@@ -81,11 +81,11 @@ public class GameImportToolWindow : EditorWindow
         List<ImportItem> selected = items.FindAll(i => i.Selected);
         if (selected.Count == 0)
         {
-            EditorUtility.DisplayDialog("Game Import Tool", "?좏깮???뚯씠釉붿씠 ?놁뒿?덈떎.", "?뺤씤");
+            EditorUtility.DisplayDialog("게임 임포트 도구", "선택된 테이블이 없습니다.", "확인");
             return;
         }
 
-        if (!EditorUtility.DisplayDialog("Game Import Tool", $"?좏깮??{selected.Count}媛??뚯씠釉붿쓣 ?꾪룷?명븯?쒓쿋?듬땲源?", "Import", "Cancel"))
+        if (!EditorUtility.DisplayDialog("게임 임포트 도구", $"선택된 {selected.Count}개 테이블을 임포트하시겠습니까?", "임포트", "취소"))
             return;
 
         try
@@ -93,14 +93,14 @@ public class GameImportToolWindow : EditorWindow
             for (int i = 0; i < selected.Count; i++)
             {
                 ImportItem item = selected[i];
-                EditorUtility.DisplayProgressBar("Importing Tables", item.Label, (i + 1f) / selected.Count);
+                EditorUtility.DisplayProgressBar("테이블 임포트 중", item.Label, (i + 1f) / selected.Count);
                 item.ImportAction?.Invoke();
             }
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[GameImportToolWindow] Import 以??ㅻ쪟 諛쒖깮: {ex}");
-            EditorUtility.DisplayDialog("Game Import Tool", "Import 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎. Console???뺤씤?섏꽭??", "?뺤씤");
+            Debug.LogError($"[GameImportToolWindow] 임포트 중 오류 발생: {ex}");
+            EditorUtility.DisplayDialog("게임 임포트 도구", "임포트 중 오류가 발생했습니다. Console을 확인하세요.", "확인");
             throw;
         }
         finally
@@ -109,7 +109,7 @@ public class GameImportToolWindow : EditorWindow
         }
 
         AssetDatabase.Refresh();
-        EditorUtility.DisplayDialog("Game Import Tool", "?좏깮???뚯씠釉??꾪룷?멸? ?꾨즺?섏뿀?듬땲??", "?뺤씤");
+        EditorUtility.DisplayDialog("게임 임포트 도구", "선택된 테이블 임포트가 완료되었습니다.", "확인");
     }
 
     private sealed class ImportItem

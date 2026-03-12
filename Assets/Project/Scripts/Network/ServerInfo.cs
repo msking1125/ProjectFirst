@@ -3,37 +3,37 @@
 namespace ProjectFirst.Network
 {
     /// <summary>
-    /// ?쒕쾭 ?곹깭 enum
+    /// Documentation cleaned.
     /// </summary>
     public enum ServerStatus
     {
-        /// <summary>?먰솢 (?묒냽 媛??</summary>
+        /// Documentation cleaned.
         Smooth,
-        /// <summary>蹂댄넻 (?쎄컙 ?쇱옟)</summary>
+        /// Documentation cleaned.
         Busy,
-        /// <summary>?ы솕 (?묒냽 遺덇?)</summary>
+        /// Documentation cleaned.
         Full
     }
 
     /// <summary>
-    /// ?쒕쾭 ?곌껐???꾩슂???뺣낫
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public class ServerInfo
     {
-        /// <summary>?쒕쾭 怨좎쑀 ID</summary>
+        /// Documentation cleaned.
         public string serverId;
 
-        /// <summary>?쒕쾭 ?쒖떆 ?대쫫</summary>
+        /// Documentation cleaned.
         public string serverName;
 
-        /// <summary>?쒕쾭 IP 二쇱냼</summary>
+        /// Documentation cleaned.
         public string serverIP;
 
-        /// <summary>?쒕쾭 ?ы듃</summary>
+        /// Documentation cleaned.
         public int port;
 
-        /// <summary>?쒕쾭 ?곹깭</summary>
+        /// Documentation cleaned.
         public ServerStatus status;
 
         public override string ToString()

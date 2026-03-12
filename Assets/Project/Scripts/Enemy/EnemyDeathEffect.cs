@@ -7,68 +7,68 @@ namespace Project
 {
 
 /// <summary>
-/// 紐ъ뒪???щ쭩 ??臾쇰━?곸쑝濡??좎븘媛硫?+ 湲由ъ튂 ?댄럺?몃줈 ?뚮㈇?섎뒗 ?곗텧 ?대떦.
-/// Enemy ?꾨━?뱀뿉 遺李??좏깮).
+/// Documentation cleaned.
+/// Documentation cleaned.
 /// </summary>
 public class EnemyDeathEffect : MonoBehaviour
 {
-    // ??? ?좎븘媛???곗텧 ??????????????????????????????????????????????????????
-    [Header("?좎븘媛????(?섑룊)")]
-    [Tooltip("異⑷꺽?쇰줈 ?좎븘媛???섑룊 ?? ?댁닔濡?硫由??뺢?.")]
+    // Note: cleaned comment.
+    [Header("Settings")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private float flyPower = 12f;
 
-    [Header("?щ씪媛??怨꾩닔 (Y異?")]
-    [Tooltip("?꾩そ ?곸듅 ??怨꾩닔. ?묒쑝硫??섑룊??媛源앷쾶 ?좎븘媛?")]
+    [Header("Settings")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private float upwardRatio = 0.3f;
 
-    [Header("?곗텧 ??대컢")]
-    [Tooltip("?꾩껜 ?щ쭩 ?곗텧(臾쇰━+湲由ъ튂+異뺤냼) ?쒓컙(珥?")]
+    [Header("Settings")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private float totalDuration = 1.5f;
 
-    [Tooltip("異뺤냼 ?쒖옉 ??대컢 鍮꾩쑉 [0.1~0.9]")]
+    [Tooltip("Configured in inspector.")]
     [Range(0.1f, 0.9f)] [SerializeField] private float shrinkStartRatio = 0.4f;
 
-    // ??? 湲由ъ튂 ?곗텧 ??????????????????????????????????????????????????????
+    // Note: cleaned comment.
     [Header("Glitch Death")]
-    [Tooltip("GlitchDeath.shader瑜??ъ슜?섎뒗 癒명떚由ъ뼹. Inspector?먯꽌 ?좊떦.")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private Material glitchDeathMaterial;
 
-    [Tooltip("湲由ъ튂 UV ?붾뱾由?理쒕? 媛뺣룄 (0~1)")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private float glitchIntensityMax = 0.8f;
 
-    [Tooltip("?됱닔李?RGB 遺꾨━) 理쒕? 媛?(0~0.1)")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private float chromaShiftMax = 0.04f;
 
-    [Tooltip("湲由ъ튂 諛쒓킅 ?됱긽")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private Color glitchEmissionColor = new Color(0f, 1f, 0.8f, 1f);
 
-    [Tooltip("湲由ъ튂 ?쒖옉 吏???쒓컙(珥?. 0?대㈃ ?щ쭩 吏곹썑 利됱떆 ?쒖옉.")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField, Min(0f)] private float glitchStartDelay = 0.1f;
 
-    [Tooltip("湲由ъ튂 媛뺣룄媛 理쒕????꾨떖?섎뒗 ?쒓컙(珥?")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField, Min(0.05f)] private float glitchRampDuration = 0.35f;
 
-    [Tooltip("?붿「釉??뚮㈇???쒖옉?섎뒗 ??대컢 鍮꾩쑉 [0.2~0.8]")]
+    [Tooltip("Configured in inspector.")]
     [Range(0.2f, 0.8f)] [SerializeField] private float dissolveStartRatio = 0.45f;
 
-    // ??? ?좏깮?? 蹂댁“ ?뚰떚????????????????????????????????????????????????
-    [Header("蹂댁“ ?뚰떚??(?좏깮)")]
-    [Tooltip("Legacy Particle Pack??ElectricalSparksEffect ???좊떦.")]
+    // Note: cleaned comment.
+    [Header("Settings")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private GameObject deathSparksPrefab;
 
-    [Tooltip("?뚰떚???먮룞 ?뚮㈇ ?쒓컙(珥?")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private float sparksLifetime = 1.5f;
 
-    // ??? 罹먯떛 ?????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
     private Rigidbody     _rb;
     private Animator      _anim;
     private Collider      _col;
     private Renderer[]    _renderers;
-    private Material[]    _originalMaterials;   // ?먮낯 癒명떚由ъ뼹 蹂댁〈 (? 諛섑솚 ??蹂듭썝)
+    private Material[]    _originalMaterials;   // Original materials are cached so they can be restored later.
     private Transform     _attacker;
     private Coroutine     _glitchCoroutine;
 
-    // ??? Shader Property ID ???????????????????????????????????????????????
+    // Note: cleaned comment.
     private static readonly int GlitchIntensityId  = Shader.PropertyToID("_GlitchIntensity");
     private static readonly int ChromaShiftId      = Shader.PropertyToID("_ChromaShift");
     private static readonly int DissolveId         = Shader.PropertyToID("_Dissolve");
@@ -77,8 +77,8 @@ public class EnemyDeathEffect : MonoBehaviour
     private static readonly Vector3 VectorZero = Vector3.zero;
     private static readonly Vector3 VectorOne  = Vector3.one;
 
-    // ??? ?고????곹깭 ??????????????????????????????????????????????????????
-    // ?꾩옱 ?몄뒪?댁뒪?붾맂 湲由ъ튂 癒명떚由ъ뼹??(DOKill 諛?蹂듭썝???꾪빐)
+    // Note: cleaned comment.
+    // Note: cleaned comment.
     private Material[] _glitchMaterialInstances;
 
     private void Awake()
@@ -88,31 +88,31 @@ public class EnemyDeathEffect : MonoBehaviour
         _col        = GetComponent<Collider>();
         _renderers  = GetComponentsInChildren<Renderer>(true);
 
-        // ?먮낯 癒명떚由ъ뼹 ?ㅻ깄??(? 諛섑솚??
+        // Note: cleaned comment.
         CacheOriginalMaterials();
     }
 
-    // ????????????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
     // Public API
-    // ????????????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
-    /// <summary>怨듦꺽??諛⑺뼢??吏?뺥빀?덈떎.</summary>
+    /// Documentation cleaned.
     public void SetTarget(Transform attacker) => _attacker = attacker;
 
     /// <summary>
-    /// ?щ쭩 ?곗텧 ?ㅽ뻾. 臾쇰━ ?좎븘媛湲?+ 湲由ъ튂 ?뚮㈇???숈떆??吏꾪뻾?섎ŉ
-    /// ?꾩쟾???뚮㈇?섎㈃ onComplete瑜??몄텧?⑸땲??
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     public void Play(Action onComplete)
     {
-        // ?좊땲硫붿씠??/ 肄쒕씪?대뜑 鍮꾪솢?깊솕
+        // Note: cleaned comment.
         if (_anim) _anim.enabled = false;
         if (_col)  _col.enabled  = false;
 
-        // 1. 臾쇰━ ?좎븘媛湲?
+        // Note: cleaned comment.
         ApplyLaunchForce();
 
-        // 2. DOTween 異뺤냼 (湲곗〈 ?곗텧 ?좎?)
+        // Note: cleaned comment.
         float shrinkDelay    = totalDuration * (1f - shrinkStartRatio);
         float shrinkDuration = totalDuration * shrinkStartRatio;
 
@@ -122,36 +122,36 @@ public class EnemyDeathEffect : MonoBehaviour
             .SetEase(Ease.InBack)
             .OnComplete(() => onComplete?.Invoke());
 
-        // 3. 湲由ъ튂 肄붾（???숈떆 ?쒖옉
+        // Note: cleaned comment.
         if (_glitchCoroutine != null)
             StopCoroutine(_glitchCoroutine);
         _glitchCoroutine = StartCoroutine(GlitchSequence());
 
-        // 4. 蹂댁“ ?뚰떚???ㅽ룿 (?좏깮)
+        // Note: cleaned comment.
         SpawnSparks();
     }
 
     /// <summary>
-    /// ? 諛섑솚 ???곹깭 ?꾩쟾 珥덇린??
-    /// Enemy.ResetForPool()?먯꽌 ?몄텧 ?꾩슂.
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     public void ResetState()
     {
-        // 湲由ъ튂 肄붾（??以묐떒
+        // Note: cleaned comment.
         if (_glitchCoroutine != null)
         {
             StopCoroutine(_glitchCoroutine);
             _glitchCoroutine = null;
         }
 
-        // Tween ?뺣━ 諛??ㅼ???蹂듭썝
+        // Note: cleaned comment.
         transform.DOKill();
         transform.localScale = VectorOne;
 
-        // 湲由ъ튂 癒명떚由ъ뼹 ?몄뒪?댁뒪 ?댁젣 + ?먮낯 蹂듭썝
+        // Note: cleaned comment.
         RestoreOriginalMaterials();
 
-        // Rigidbody / Collider / Animator 蹂듭썝
+        // Note: cleaned comment.
         if (_rb)
         {
             _rb.isKinematic    = false;
@@ -167,9 +167,9 @@ public class EnemyDeathEffect : MonoBehaviour
         _attacker = null;
     }
 
-    // ????????????????????????????????????????????????????????????????????????
-    // Private ??臾쇰━
-    // ????????????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
+    // Note: cleaned comment.
+    // Note: cleaned comment.
 
     private void ApplyLaunchForce()
     {
@@ -200,29 +200,29 @@ public class EnemyDeathEffect : MonoBehaviour
         _rb.AddForce(force, ForceMode.Impulse);
     }
 
-    // ????????????????????????????????????????????????????????????????????????
-    // Private ??湲由ъ튂 肄붾（??
-    // ????????????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
+    // Note: cleaned comment.
+    // Note: cleaned comment.
 
     private IEnumerator GlitchSequence()
     {
-        // 湲由ъ튂 癒명떚由ъ뼹???놁쑝硫??ㅽ궢
+        // Note: cleaned comment.
         if (glitchDeathMaterial == null || _renderers == null || _renderers.Length == 0)
             yield break;
 
-        // ?쒖옉 吏??
+        // Note: cleaned comment.
         if (glitchStartDelay > 0f)
             yield return new WaitForSeconds(glitchStartDelay);
 
-        // 媛??뚮뜑?ъ뿉 湲由ъ튂 癒명떚由ъ뼹 ?몄뒪?댁뒪瑜??곸슜
+        // Note: cleaned comment.
         ApplyGlitchMaterials();
 
         float dissolveStartTime = totalDuration * dissolveStartRatio;
         float dissolveDuration  = totalDuration - dissolveStartTime - glitchStartDelay;
         dissolveDuration        = Mathf.Max(0.1f, dissolveDuration);
 
-        // ?? Phase 1: 湲由ъ튂 Ramp-up ??????????????????????????????????????
-        // _GlitchIntensity / _ChromaShift 瑜?rampDuration ?숈븞 0?뭢ax濡?利앷?
+        // Note: cleaned comment.
+        // Note: cleaned comment.
         float elapsed = 0f;
         while (elapsed < glitchRampDuration)
         {
@@ -239,17 +239,17 @@ public class EnemyDeathEffect : MonoBehaviour
             yield return null;
         }
 
-        // ?? Phase 2: 湲由ъ튂 ?좎? + ?붿「釉??쒖옉 ??????????????????????????
+        // Note: cleaned comment.
         float dissolveElapsed = 0f;
         while (dissolveElapsed < dissolveDuration)
         {
             dissolveElapsed += Time.deltaTime;
             float t       = Mathf.Clamp01(dissolveElapsed / dissolveDuration);
 
-            // ?붿「釉? Ease In Quad (泥쒖쿇???쒖옉?댁꽌 鍮좊Ⅴ寃??뚮㈇)
+            // Note: cleaned comment.
             float dissolve = t * t;
 
-            // 湲由ъ튂 媛뺣룄??理쒕?濡??좎??섎릺, 留덉?留?30%?먯꽌 ?쏀빐吏?
+            // Note: cleaned comment.
             float fadeOff  = Mathf.InverseLerp(0.7f, 1f, t);
             float intensity = Mathf.Lerp(glitchIntensityMax, 0f, fadeOff);
             float chroma    = Mathf.Lerp(chromaShiftMax,      0f, fadeOff);
@@ -258,20 +258,20 @@ public class EnemyDeathEffect : MonoBehaviour
             yield return null;
         }
 
-        // ?꾩쟾 ?뚮㈇
+        // Note: cleaned comment.
         SetGlitchParams(0f, 0f, 1f);
         _glitchCoroutine = null;
     }
 
-    // ????????????????????????????????????????????????????????????????????????
-    // Private ??癒명떚由ъ뼹 愿由?
-    // ????????????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
+    // Note: cleaned comment.
+    // Note: cleaned comment.
 
     private void CacheOriginalMaterials()
     {
         if (_renderers == null) return;
 
-        // ?뚮뜑???섎쭔??諛곗뿴 ?좊떦
+        // Note: cleaned comment.
         int total = 0;
         foreach (var rend in _renderers)
             if (rend != null) total += rend.sharedMaterials.Length;
@@ -294,10 +294,10 @@ public class EnemyDeathEffect : MonoBehaviour
         {
             if (_renderers[i] == null) continue;
 
-            // ?먮낯 ?띿뒪泥섎? 湲由ъ튂 癒명떚由ъ뼹 ?몄뒪?댁뒪???댁떇
+            // Note: cleaned comment.
             Material instance = new Material(glitchDeathMaterial);
 
-            // ?먮낯 癒명떚由ъ뼹??_BaseMap ?띿뒪泥섍? ?덉쑝硫??댁떇
+            // Note: cleaned comment.
             if (_originalMaterials != null && i < _originalMaterials.Length && _originalMaterials[i] != null)
             {
                 Material orig = _originalMaterials[i];
@@ -306,12 +306,12 @@ public class EnemyDeathEffect : MonoBehaviour
                 else if (orig.HasProperty("_MainTex"))
                     instance.SetTexture("_BaseMap", orig.GetTexture("_MainTex"));
 
-                // ?먮낯 Base Color ?댁떇
+                // Note: cleaned comment.
                 if (orig.HasProperty("_BaseColor"))
                     instance.SetColor("_BaseColor", orig.GetColor("_BaseColor"));
             }
 
-            // 湲由ъ튂 ?됱긽 ?ㅼ젙
+            // Note: cleaned comment.
             instance.SetColor(GlitchColorId, glitchEmissionColor);
             instance.SetFloat(GlitchIntensityId, 0f);
             instance.SetFloat(ChromaShiftId, 0f);
@@ -337,7 +337,7 @@ public class EnemyDeathEffect : MonoBehaviour
 
     private void RestoreOriginalMaterials()
     {
-        // 湲由ъ튂 ?몄뒪?댁뒪 ?뚭눼
+        // Note: cleaned comment.
         if (_glitchMaterialInstances != null)
         {
             foreach (var mat in _glitchMaterialInstances)
@@ -348,7 +348,7 @@ public class EnemyDeathEffect : MonoBehaviour
             _glitchMaterialInstances = null;
         }
 
-        // ?먮낯 癒명떚由ъ뼹 蹂듭썝
+        // Note: cleaned comment.
         if (_renderers == null || _originalMaterials == null) return;
 
         for (int i = 0; i < _renderers.Length && i < _originalMaterials.Length; i++)
@@ -358,9 +358,9 @@ public class EnemyDeathEffect : MonoBehaviour
         }
     }
 
-    // ????????????????????????????????????????????????????????????????????????
-    // Private ??蹂댁“ ?뚰떚??
-    // ????????????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
+    // Note: cleaned comment.
+    // Note: cleaned comment.
 
     private void SpawnSparks()
     {
@@ -370,7 +370,7 @@ public class EnemyDeathEffect : MonoBehaviour
         GameObject sparks = Instantiate(deathSparksPrefab, spawnPos, Quaternion.identity);
         if (sparks == null) return;
 
-        // ?뚰떚???먮룞 ?뺤? + 吏???뚭눼
+        // Note: cleaned comment.
         foreach (var ps in sparks.GetComponentsInChildren<ParticleSystem>(true))
             ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 

@@ -10,16 +10,16 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using ProjectFirst.Data;
 /// <summary>
-/// ?쒕쾭 ?좏깮 ?앹뾽??????ぉ UI.
-/// Prefab??諛곗튂?섍퀬 ServerListContent ?꾨옒??Instantiate?⑸땲??
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// [Inspector ?곌껐 媛?대뱶]
-///   serverNameText    : ?쒕쾭 ?대쫫 TMP_Text
-///   playerCountText   : ?묒냽????TMP_Text ("1,234 / 3,000")
-///   congestionText    : ?쇱옟??TMP_Text ("?먰솢"/"蹂댄넻"/"?쇱옟")
-///   congestionBar     : ?묒냽??鍮꾩쑉 gauge Image (Type: Filled)
-///   selectButton      : ?좏깮 Button
-///   selectedIndicator : ?좏깮?먯쓣 ???쒖떆?섎뒗 GameObject (?뚮몢由???
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 /// </summary>
 public class ServerListItem : MonoBehaviour
 {
@@ -33,9 +33,9 @@ public class ServerListItem : MonoBehaviour
     private ServerData _data;
     private Action<string> _onSelected;
 
-    // ?쇱옟?꾨퀎 ?됱긽
+    // Note: cleaned comment.
     private static readonly Color ColorSmooth  = new(0.2f, 0.85f, 0.4f);  // ?먰솢 ??珥덈줉
-    private static readonly Color ColorNormal  = new(1f,   0.75f, 0.1f);  // 蹂댄넻 ???몃옉
+    private static readonly Color ColorNormal  = new(1f,   0.75f, 0.1f);  // Normal load color
     private static readonly Color ColorCrowded = new(0.9f, 0.25f, 0.25f); // ?쇱옟 ??鍮④컯
 
     private void Awake()
@@ -45,7 +45,7 @@ public class ServerListItem : MonoBehaviour
     }
 
     /// <summary>
-    /// LoginManager?먯꽌 ??ぉ ?앹꽦 吏곹썑 ?몄텧?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     public void Setup(ServerData data, Action<string> onSelected)
     {

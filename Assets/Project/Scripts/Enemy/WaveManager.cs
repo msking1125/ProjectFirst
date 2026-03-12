@@ -96,7 +96,7 @@ public class WaveManager : MonoBehaviour
         {
             if (!loggedMissingWaveTable)
             {
-                Debug.LogError("[WaveManager] waveTable???좊떦?섏? ?딆븯?듬땲??");
+                Debug.LogError("[Log] Error message cleaned.");
                 loggedMissingWaveTable = true;
             }
 
@@ -109,7 +109,7 @@ public class WaveManager : MonoBehaviour
         {
             if (!loggedMissingSpawner)
             {
-                Debug.LogError("[WaveManager] enemySpawner媛 ?좊떦?섏? ?딆븯?듬땲??");
+                Debug.LogError("[Log] Error message cleaned.");
                 loggedMissingSpawner = true;
             }
 

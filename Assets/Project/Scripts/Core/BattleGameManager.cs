@@ -13,13 +13,13 @@ using ProjectFirst.Data;
 namespace Project
 {
     /// <summary>
-    /// BattleGameManager: 전투 흐름 총괄, 몬스터, UI를 관리하는 메인 클래스
+    /// Documentation cleaned.
     /// </summary>
     public class BattleGameManager : MonoBehaviour
     {
         public static BattleGameManager Instance { get; private set; }
 
-        // === Inspector 필드 ===
+        // Note: cleaned comment.
 
         [Header("Base")]
         [SerializeField] private BaseHealth baseHealth;
@@ -64,7 +64,7 @@ namespace Project
         [Header("Scene")]
         [SerializeField] private string titleSceneName = "Title";
 
-    // ==== 내부 상태 ====
+    // Note: cleaned comment.
 
     private TMP_Text resultText;
     private bool gameEnded;
@@ -75,7 +75,7 @@ namespace Project
     private bool hasLoggedZeroRewardWarning;
     private Animator cachedPlayerAnimator;
 
-    // 임시 시네마틱 관리 상태
+    // Note: cleaned comment.
     private bool isCinematicActive;
 
     private void Awake()
@@ -113,11 +113,11 @@ namespace Project
         if (Instance == this) Instance = null;
     }
 
-    // ====== 상호작용 주요 API ======
+    // Note: cleaned comment.
 
-    /// <summary>전투 승리시 호출</summary>
+    /// Documentation cleaned.
     public void HandleVictory() => EndGame("Victory");
-    /// <summary>전투 패배시 호출</summary>
+    /// Documentation cleaned.
     public void HandleDefeat()  => EndGame("Defeat");
 
     public static void EndVictoryFallback()
@@ -144,21 +144,21 @@ namespace Project
         Debug.LogError("[BattleGameManager] Base destruction was reported, but no BattleGameManager exists in the active scene.");
     }
 
-    /// <summary>현재 씬을 재시작</summary>
+    /// Documentation cleaned.
     public void Restart()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    /// <summary>타이틀로 이동</summary>
+    /// Documentation cleaned.
     public void BackToTitle()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(Application.CanStreamedLevelBeLoaded(titleSceneName) ? titleSceneName : "Battle_Test");
     }
 
-    // ====== 세션 및 에이전트 초기화 ======
+    // Note: cleaned comment.
 
     private void InitializeRunSession()
     {
@@ -192,7 +192,7 @@ namespace Project
         runSession.OnReachedSkillPickLevel += HandleReachedSkillPickLevel;
     }
 
-    // ====== 적 처치 리워드 처리 ======
+    // Note: cleaned comment.
 
     private void HandleEnemyKilled(Enemy enemy)
     {
@@ -205,7 +205,7 @@ namespace Project
 
         if (row.expReward == 0 && row.goldReward == 0 && !hasLoggedZeroRewardWarning)
         {
-            Debug.LogWarning($"[BGM] 몬스터 리워드가 0: id={enemy.MonsterId}");
+            Debug.LogWarning("[Log] Warning message cleaned.");
             hasLoggedZeroRewardWarning = true;
         }
 
@@ -225,7 +225,7 @@ namespace Project
     private void HandleLevelChanged(int level)      => RefreshStatusUI();
     private void HandleReachedSkillPickLevel(int _) => OpenSkillSelectPanel();
 
-    // ===== 스킬 선택 패널 처리 =====
+    // Note: cleaned comment.
 
     private void OpenSkillSelectPanel()
     {
@@ -269,14 +269,14 @@ namespace Project
 
     private string pendingResultMessage;
 
-    // ======= 전투 종료 및 결과 UI =======
+    // Note: cleaned comment.
 
     private void EndGame(string message)
     {
         if (gameEnded) return;
         gameEnded = true;
 
-        // 최종 몬스터 리워드를 PlayerData에 지급
+        // Note: cleaned comment.
         GrantBattleGold(message == "Victory");
 
         pendingResultMessage = message;
@@ -284,13 +284,13 @@ namespace Project
     }
 
     /// <summary>
-    /// 전투 결과에 따라 골드를 PlayerData에 지급한다.
+    /// Documentation cleaned.
     /// </summary>
     private void GrantBattleGold(bool isVictory)
     {
         if (playerData == null || runSession == null)
         {
-            Debug.LogWarning("[BattleGameManager] PlayerData 혹은 RunSession이 null 이어서 골드 지급 불가.");
+            Debug.LogWarning("[Log] Warning message cleaned.");
             return;
         }
 
@@ -304,7 +304,7 @@ namespace Project
         if (grantedGold <= 0) return;
 
         playerData.AddGold(grantedGold);
-        Debug.Log($"[BattleGameManager] 골드 지급: {grantedGold} ({(isVictory ? "승리" : "패배")}) -> PlayerData.gold={playerData.gold}");
+        Debug.Log("[Log] Message cleaned.");
     }
 
     private void ShowResultDelayed()
@@ -330,14 +330,14 @@ namespace Project
         pendingResultMessage = null;
     }
 
-    // ======= HUD 재생성 및 상태 업데이트 =======
+    // Note: cleaned comment.
 
     private void Update()
     {
         CheckCinematicVisibility();
     }
 
-    // ======= 시네마틱 UI 숨김 처리 =======
+    // Note: cleaned comment.
 
     private void CheckCinematicVisibility()
     {
@@ -375,7 +375,7 @@ namespace Project
 #endif
     }
 
-    /// <summary>UI Canvas 전체를 즉시 보이기/숨기기 처리한다.</summary>
+    /// Documentation cleaned.
     public void SetUIVisible(bool visible)
     {
         if (uiCanvasGroup == null && targetCanvas != null)
@@ -393,7 +393,7 @@ namespace Project
 
     private void EnsureHUD()
     {
-        // Canvas 탐색/생성
+        // Note: cleaned comment.
         if (targetCanvas == null)
         {
 #if UNITY_2022_2_OR_NEWER
@@ -409,15 +409,15 @@ namespace Project
             targetCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
         }
 
-        // StatusHudView 동적 탐색
+        // Note: cleaned comment.
         if (statusHudView == null)
             statusHudView = targetCanvas.GetComponentInChildren<StatusHudView>(true);
 
-        // CharUltimateController 동적 탐색
+        // Note: cleaned comment.
         if (charUltimateController == null)
             charUltimateController = targetCanvas.GetComponentInChildren<CharUltimateController>(true);
 
-        // SkillBarController: Inspector 및 Canvas 탐색 후 없으면 동적 생성
+        // Note: cleaned comment.
         if (skillBarController == null)
             skillBarController = targetCanvas.GetComponentInChildren<SkillBarController>(true);
         if (skillBarController == null && skillBarPrefab != null)
@@ -425,7 +425,7 @@ namespace Project
         if (skillBarController == null)
             skillBarController = CreateDefaultSkillBar();
 
-        // SkillSelectPanelController: Inspector 및 Canvas 탐색 후 없으면 전체 탐색
+        // Note: cleaned comment.
         if (skillSelectPanelController == null)
             skillSelectPanelController = targetCanvas.GetComponentInChildren<SkillSelectPanelController>(true);
         if (skillSelectPanelController == null && skillSelectPanelPrefab != null)
@@ -445,7 +445,7 @@ namespace Project
             skillBarController.Setup(skillSystem);
     }
 
-    // ======= 궁극기 UI 및 이벤트 =======
+    // Note: cleaned comment.
 
     private void SetupCharUltimate()
     {
@@ -473,23 +473,23 @@ namespace Project
         EnemyManager em = EnemyManager.Instance;
         if (em == null) return;
 
-        // AgentData.characterSkillVfxPrefab 우선적용, 없으면 SkillRow.castVfxPrefab 사용
+        // Note: cleaned comment.
         GameObject vfxOverride = playerAgent.AgentData?.characterSkillVfxPrefab;
 
-        // SkillSystem을 통한 궁극기 즉시 발동 (VFX + 대미지 + 쿨다운/UI 후처리)
+        // Note: cleaned comment.
         skillSystem.CastDirect(skill, vfxOverride);
 
         charUltimateController.StartCooldown();
-        Debug.Log($"[BGM] 궁극기 스킬 발동: {skill.name}");
+        Debug.Log("[Log] Message cleaned.");
     }
 
-    // ======= 상태 HUD UI =======
+    // Note: cleaned comment.
 
     private void RefreshStatusUI()
     {
         if (runSession == null) return;
 
-        // StatusHudView 동적 탐색
+        // Note: cleaned comment.
         if (statusHudView == null && targetCanvas != null)
             statusHudView = targetCanvas.GetComponentInChildren<StatusHudView>(true);
 
@@ -499,10 +499,10 @@ namespace Project
             return;
         }
 
-        Debug.LogWarning("[BGM] StatusHudView가 존재하지 않습니다. Canvas 아래 StatusHud View 컴포넌트를 배치해주세요.");
+        Debug.LogWarning("[Log] Warning message cleaned.");
     }
 
-    // ======= 결과 UI =======
+    // Note: cleaned comment.
 
     private void EnsureResultPanelManager()
     {
@@ -541,7 +541,7 @@ namespace Project
         if (resultText != null) resultText.text = message;
     }
 
-    // ======= 기반(베이스) 체력 컴포넌트 연결 =======
+    // Note: cleaned comment.
 
     private void EnsureBaseHealth()
     {
@@ -552,7 +552,7 @@ namespace Project
         baseHealth.BindGameManager(this);
     }
 
-    // ======= 임시 기본 UI 컴포넌트 동적생성 =======
+    // Note: cleaned comment.
 
     private SkillBarController CreateDefaultSkillBar()
     {

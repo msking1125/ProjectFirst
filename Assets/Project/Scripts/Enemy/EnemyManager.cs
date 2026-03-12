@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Project
 {
     /// <summary>
-    /// ??Enemy) 媛앹껜?ㅼ쓣 愿由ы븯???깃???留ㅻ땲?.
+    /// Documentation cleaned.
     /// </summary>
     public class EnemyManager : MonoBehaviour
     {
@@ -23,7 +23,7 @@ namespace Project
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogError("[EnemyManager] 以묐났 Instance媛 媛먯??섏뿀?듬땲??");
+                Debug.LogError("[Log] Error message cleaned.");
                 return;
             }
 
@@ -38,12 +38,12 @@ namespace Project
             }
         }
 
-        /// <summary>?곸쓣 ?깅줉?⑸땲??</summary>
+        /// Documentation cleaned.
         public void Register(Enemy enemy)
         {
             if (enemy == null)
             {
-                Debug.LogError("[EnemyManager] null Enemy瑜?Register?섎젮怨??덉뒿?덈떎.");
+                Debug.LogError("[Log] Error message cleaned.");
                 return;
             }
 
@@ -53,19 +53,19 @@ namespace Project
             }
         }
 
-        /// <summary>???깅줉???댁젣?⑸땲??</summary>
+        /// Documentation cleaned.
         public void Unregister(Enemy enemy)
         {
             if (enemy == null)
             {
-                Debug.LogError("[EnemyManager] null Enemy瑜?Unregister?섎젮怨??덉뒿?덈떎.");
+                Debug.LogError("[Log] Error message cleaned.");
                 return;
             }
 
             activeEnemies.Remove(enemy);
         }
 
-        /// <summary>?앹〈???곸쓽 ?섎? 諛섑솚?⑸땲??</summary>
+        /// Documentation cleaned.
         public int GetAliveCount()
         {
             RefreshAliveEnemies();
@@ -94,7 +94,7 @@ namespace Project
             }
         }
 
-        /// <summary>二쇱뼱吏??꾩튂?먯꽌 媛??媛源뚯슫 ?앹〈 ?곸쓣 諛섑솚?⑸땲??</summary>
+        /// Documentation cleaned.
         public Enemy GetClosest(Vector3 pos, float range)
         {
             float min = range;
@@ -120,14 +120,14 @@ namespace Project
             return closest;
         }
 
-        /// <summary>紐⑤뱺 ?앹〈 ?곸쓣 諛섑솚?⑸땲??</summary>
+        /// Documentation cleaned.
         public IReadOnlyList<Enemy> GetAliveEnemies()
         {
             RefreshAliveEnemies();
             return _aliveEnemies;
         }
 
-        /// <summary>?앹〈 ?곸쓣 鍮꾪븷??由ъ뒪?몄뿉 梨꾩썎?덈떎.</summary>
+        /// Documentation cleaned.
         public int FillAliveEnemiesNonAlloc(List<Enemy> buffer)
         {
             if (buffer == null)

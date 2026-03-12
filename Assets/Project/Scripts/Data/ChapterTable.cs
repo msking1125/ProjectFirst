@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 챕터 데이터 테이블. CSV 임포트를 통해 데이터가 채워집니다.
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Chapter Table")]
     public class ChapterTable : ScriptableObject
@@ -30,7 +30,7 @@ namespace ProjectFirst.Data
         }
 
         /// <summary>
-        /// ID로 챕터를 조회합니다.
+        /// Documentation cleaned.
         /// </summary>
         public ChapterRow GetById(int id)
         {
@@ -39,7 +39,7 @@ namespace ProjectFirst.Data
         }
 
         /// <summary>
-        /// 전체 챕터 목록을 ID 오름차순으로 반환합니다.
+        /// Documentation cleaned.
         /// </summary>
         public List<ChapterRow> GetAll() =>
             rows?.OrderBy(r => r.id).ToList() ?? new List<ChapterRow>();

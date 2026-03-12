@@ -11,22 +11,22 @@ namespace ProjectFirst.Network
         {
             if (serverInfo == null)
             {
-                Debug.LogError("[MockAPI] ServerInfo媛 null?낅땲??");
+                Debug.LogError("[Log] Error message cleaned.");
                 return false;
             }
 
-            Debug.Log($"[MockAPI] {serverInfo.serverName} ({serverInfo.serverIP}:{serverInfo.port}) ???묒냽 ?쒕룄 以?..");
+            Debug.Log("[Log] Message cleaned.");
             
-            // ?ㅽ듃?뚰겕 ?쒕젅???됰궡
+            // Note: cleaned comment.
             await UniTask.Delay(TimeSpan.FromSeconds(1.0f));
 
             if (serverInfo.status == ServerStatus.Full)
             {
-                Debug.LogWarning($"[MockAPI] ?묒냽 ?ㅽ뙣: {serverInfo.serverName} ?쒕쾭媛 ?ы솕 ?곹깭?낅땲??");
+                Debug.LogWarning("[Log] Warning message cleaned.");
                 return false;
             }
 
-            Debug.Log($"[MockAPI] {serverInfo.serverName} ?쒕쾭 ?묒냽 ?깃났!");
+            Debug.Log("[Log] Message cleaned.");
             return true;
         }
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// ?⑥씠釉??곗씠????
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public class WaveRow

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 에이전트(캐릭터) 스탯 데이터 테이블
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Agent Stats Table")]
     public class AgentStatsTable : ScriptableObject

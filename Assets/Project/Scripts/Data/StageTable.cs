@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 스테이지 데이터 테이블. CSV 임포트를 통해 데이터가 채워집니다.
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Stage Table")]
     public class StageTable : ScriptableObject
@@ -41,7 +41,7 @@ namespace ProjectFirst.Data
         }
 
         /// <summary>
-        /// ID로 스테이지를 조회합니다.
+        /// Documentation cleaned.
         /// </summary>
         public StageRow GetById(int id)
         {
@@ -50,7 +50,7 @@ namespace ProjectFirst.Data
         }
 
         /// <summary>
-        /// 특정 챕터에 속한 스테이지를 stageNumber 오름차순으로 반환합니다.
+        /// Documentation cleaned.
         /// </summary>
         public List<StageRow> GetByChapter(int chapterId)
         {

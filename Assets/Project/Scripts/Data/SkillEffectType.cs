@@ -1,4 +1,4 @@
-﻿/// <summary>스킬 효과 타입</summary>
+﻿/// Documentation cleaned.
 public enum SkillEffectType
 {
     AllEnemies   = 0,  // 범위 공격: 범위 내 모든 적
@@ -7,7 +7,7 @@ public enum SkillEffectType
     Debuff       = 3,  // 디버프: 적 스탯 약화 / 슬로우
 }
 
-/// <summary>버프 대상 스탯</summary>
+/// Documentation cleaned.
 public enum BuffStatType
 {
     AttackPower = 0,   // 공격력 %
@@ -15,7 +15,7 @@ public enum BuffStatType
     AttackSpeed = 2,   // 공격 속도 %
 }
 
-/// <summary>디버프 종류</summary>
+/// Documentation cleaned.
 public enum DebuffType
 {
     Slow        = 0,   // 이동/공격 슬로우

@@ -26,7 +26,7 @@ public class BattleHUD : MonoBehaviour
 
     private void Awake()
     {
-        // 媛?ν븳 ???먮룞?쇰줈 李몄“瑜?蹂댁셿?섎릺, SerializeField ?곌껐??理쒖슦?좎엯?덈떎.
+        // Note: cleaned comment.
         if (canvas == null)
         {
             canvas = GetComponentInChildren<Canvas>(true);

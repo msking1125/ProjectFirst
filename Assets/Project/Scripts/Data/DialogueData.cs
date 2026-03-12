@@ -6,7 +6,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// ?????以꾩쓽 ?곗씠?곕? ?섑??대뒗 吏곷젹??媛???대옒??
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public class DialogueLine
@@ -41,7 +41,7 @@ namespace ProjectFirst.Data
     }
 
     /// <summary>
-    /// ????곗씠???뚯씠釉?ScriptableObject
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(fileName = "DialogueTable", menuName = "MindArk/Data/DialogueTable")]
     public class DialogueTable : ScriptableObject
@@ -57,7 +57,7 @@ namespace ProjectFirst.Data
         private void OnValidate() => RebuildIndex();
 
         /// <summary>
-        /// dialogueId濡??????以꾩쓣 寃?됲빀?덈떎.
+        /// Documentation cleaned.
         /// </summary>
         public DialogueLine GetById(string id)
         {
@@ -67,7 +67,7 @@ namespace ProjectFirst.Data
         }
 
         /// <summary>
-        /// groupId???대떦?섎뒗 ???紐⑸줉??orderInGroup ?쒖꽌濡?諛섑솚?⑸땲??
+        /// Documentation cleaned.
         /// </summary>
         public List<DialogueLine> GetGroup(string groupId)
         {

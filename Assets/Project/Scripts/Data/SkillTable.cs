@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 스킬 데이터 테이블
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Skill Table")]
     public class SkillTable : ScriptableObject
@@ -20,7 +20,7 @@ namespace ProjectFirst.Data
         private void OnEnable() => RebuildIndex();
         private void OnValidate() => RebuildIndex();
 
-        /// <summary>ID로 스킬을 조회합니다.</summary>
+        /// Documentation cleaned.
         public SkillRow GetById(int id)
         {
             if (id <= 0) return null;

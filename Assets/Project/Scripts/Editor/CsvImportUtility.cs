@@ -55,7 +55,7 @@ internal static class CsvImportUtility
         {
             if (FindColumn(header, col) < 0)
             {
-                Debug.LogError($"[{importerName}] Missing required column: '{col}'");
+                Debug.LogError($"[{importerName}] 필수 컬럼이 없습니다: '{col}'");
                 return false;
             }
         }

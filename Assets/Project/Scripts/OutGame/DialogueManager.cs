@@ -9,7 +9,7 @@ using ProjectFirst.Data;
 namespace ProjectFirst.OutGame
 {
     /// <summary>
-    /// 대화 시스템의 핵심 매니저입니다. 게임에서 대화 그룹을 재생하고 관리하는 핵심 클래스입니다.
+    /// Documentation cleaned.
     /// </summary>
     public class DialogueManager : MonoBehaviour
     {
@@ -29,7 +29,7 @@ namespace ProjectFirst.OutGame
         private bool _isTyping;
         private Coroutine _typingCoroutine;
 
-        // UI 변수
+        // Note: cleaned comment.
         private VisualElement _root;
         private VisualElement _bgImage;
         private VisualElement _charLeft;
@@ -50,7 +50,7 @@ namespace ProjectFirst.OutGame
         private Button _confirmYesBtn;
         private Button _confirmNoBtn;
 
-        // 대화 상태
+        // Note: cleaned comment.
         private string _currentGroupId;
         private int _currentLineIndex;
         private List<DialogueLine> _currentGroup;
@@ -77,7 +77,7 @@ namespace ProjectFirst.OutGame
         }
 
         /// <summary>
-        /// 대화 그룹을 실행한다.
+        /// Documentation cleaned.
         /// </summary>
         public void PlayGroup(string groupId, Action onComplete = null)
         {
@@ -99,7 +99,7 @@ namespace ProjectFirst.OutGame
         }
 
         /// <summary>
-        /// 대화 UI를 숨기고 상태를 초기화한다.
+        /// Documentation cleaned.
         /// </summary>
         public void Hide()
         {
@@ -366,7 +366,7 @@ namespace ProjectFirst.OutGame
             }
         }
 
-        // --- 버튼 콜백 ---
+        // Note: cleaned comment.
 
         private void OnSkipClicked(ClickEvent evt)
         {

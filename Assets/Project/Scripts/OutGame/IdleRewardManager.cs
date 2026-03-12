@@ -9,43 +9,43 @@ using UnityEngine.UI;
 using ProjectFirst.Data;
 using Cysharp.Threading.Tasks;
 /// <summary>
-/// 諛⑹튂 蹂댁긽 愿由ъ옄.
+/// Documentation cleaned.
 ///
-/// ?먮쫫:
-///   1. Start() ???ㅽ봽?쇱씤 寃쎄낵 ?쒓컙 怨꾩궛
-///   2. 寃쎄낵 ?쒓컙 ??minElapsedSecondsForPopup ???앹뾽 ?먮룞 ?쒖떆
-///   3. 諛⑹튂 蹂댁긽 踰꾪듉 ?곗튂 ??LobbyManager.OnIdleRewardClicked() ??OpenPopup()
-///   4. 諛쏄린 踰꾪듉 ??ClaimRewardAsync() ???곗텧 ??MailBox 吏湲????쒓컙 珥덇린??
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// ????꾨왂:
-///   - PlayerPrefs ("IdleReward_LastTime") : 鍮뚮뱶 ?섍꼍?먯꽌 ?몄뀡 媛??ㅼ젣 ?곸냽
-///   - PlayerData.lastIdleRewardTime       : SO ?몄뒪?댁뒪 ??誘몃윭 (?먮뵒???몄쓽??
-///   ?묒そ 紐⑤몢 ISO 8601 UTC 臾몄옄?대줈 湲곕줉?⑸땲??
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// [Inspector ?곌껐 媛?대뱶]
+/// Documentation cleaned.
 ///   Data      : playerData, config, mailBox
 ///   Popup UI  : popupRoot, elapsedTimeText, rewardGoldText,
 ///               rewardTicketText, rewardDiamondText,
 ///               claimButton, closeButton
-///   Animation : rewardAnimRoot (Animator / ?뚰떚???ы븿 GameObject)
+/// Documentation cleaned.
 /// </summary>
 [DisallowMultipleComponent]
 public class IdleRewardManager : MonoBehaviour
 {
-    // PlayerPrefs ??
+    // Note: cleaned comment.
     private const string PrefKey = "IdleReward_LastTime";
 
-    // ?? Data ??????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     [Header("Data")]
     [SerializeField] private PlayerData playerData;
     [SerializeField] private IdleRewardConfig config;
     [SerializeField] private MailBox mailBox;
 
-    // ?? Popup UI ??????????????????????????????????????????????
+    // Note: cleaned comment.
 
     [Header("Popup UI")]
-    [Tooltip("?앹뾽 猷⑦듃 ?ㅻ툕?앺듃. 鍮꾪솢???곹깭濡??쒖옉?⑸땲??")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private GameObject popupRoot;
     [SerializeField] private TMP_Text elapsedTimeText;
     [SerializeField] private TMP_Text rewardGoldText;
@@ -54,14 +54,14 @@ public class IdleRewardManager : MonoBehaviour
     [SerializeField] private Button claimButton;
     [SerializeField] private Button closeButton;
 
-    // ?? 蹂댁긽 ?곗텧 ?????????????????????????????????????????????
+    // Note: cleaned comment.
 
     [Header("Animation")]
-    [Tooltip("諛쏄린 ?대┃ ???ъ깮???곗텧 GameObject (Animator / ParticleSystem ?깆쓣 ?ы븿). " +
-             "鍮꾪솢???곹깭濡??쒖옉?섎ŉ, ?곗텧 ?쒓컙 ???먮룞 鍮꾪솢?깊솕?⑸땲??")]
+    [Tooltip("Effect object played when the reward is claimed (Animator or ParticleSystem can be included). " +
+             "It should start inactive and will be disabled automatically after the effect duration.")]
     [SerializeField] private GameObject rewardAnimRoot;
 
-    // ?? ?대? ?곹깭 ?????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private struct RewardResult
     {
@@ -75,7 +75,7 @@ public class IdleRewardManager : MonoBehaviour
     private RewardResult _pending;
     private bool _isClaiming;
 
-    // ?????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void Awake()
     {
@@ -88,11 +88,11 @@ public class IdleRewardManager : MonoBehaviour
 
     private void Start()
     {
-        // 理쒖큹 ?ㅽ뻾?대㈃ ?꾩옱 ?쒓컖??湲곗??쇰줈 珥덇린??
+        // Note: cleaned comment.
         if (string.IsNullOrEmpty(LoadStoredTime()))
             SaveCurrentTime();
 
-        // 濡쒕퉬 吏꾩엯 ??蹂댁긽??異⑸텇???볦??쇰㈃ ?먮룞 ?앹뾽
+        // Note: cleaned comment.
         TimeSpan elapsed = CalcElapsed();
         float minSec = config != null ? config.minElapsedSecondsForPopup : 60f;
         if (elapsed.TotalSeconds >= minSec)
@@ -101,7 +101,7 @@ public class IdleRewardManager : MonoBehaviour
 
     private void OnApplicationPause(bool pausing)
     {
-        // ?깆씠 諛깃렇?쇱슫?쒕줈 ?꾪솚?????꾩옱 ?쒓컖 ???
+        // Note: cleaned comment.
         if (pausing) SaveCurrentTime();
     }
 
@@ -110,9 +110,9 @@ public class IdleRewardManager : MonoBehaviour
         SaveCurrentTime();
     }
 
-    // ?? Public API ????????????????????????????????????????????
+    // Note: cleaned comment.
 
-    /// <summary>LobbyManager ?먮뒗 ?몃??먯꽌 ?앹뾽???쎈땲??</summary>
+    /// Documentation cleaned.
     public void OpenPopup()
     {
         if (_isClaiming) return;
@@ -128,11 +128,11 @@ public class IdleRewardManager : MonoBehaviour
         popupRoot?.SetActive(false);
     }
 
-    // ?? 蹂댁긽 怨꾩궛 ?????????????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// 怨꾩궛?? elapsed(珥? 횞 (?⑥쐞蹂댁긽 / 3600) = 珥?蹂댁긽
-    /// 理쒕? maxOfflineHours ?쒓컙源뚯?留??몄젙?⑸땲??
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     private RewardResult CalculateReward()
     {
@@ -154,7 +154,7 @@ public class IdleRewardManager : MonoBehaviour
         };
     }
 
-    // ?? ?섎졊 ?????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private async UniTaskVoid ClaimRewardAsync()
     {
@@ -162,13 +162,13 @@ public class IdleRewardManager : MonoBehaviour
         _isClaiming = true;
         if (claimButton != null) claimButton.interactable = false;
 
-        // 蹂댁긽 ?곗텧 (rewardAnimRoot??Animator / Particle ?곌껐)
+        // Note: cleaned comment.
         await PlayAnimationAsync();
 
-        // ?고렪 吏湲?
+        // Note: cleaned comment.
         DeliverToMailBox(_pending);
 
-        // 湲곗? ?쒓컖 珥덇린??(?ㅼ쓬 ?ㅽ봽?쇱씤 移댁슫???쒖옉??
+        // Note: cleaned comment.
         SaveCurrentTime();
 
         _isClaiming = false;
@@ -179,28 +179,28 @@ public class IdleRewardManager : MonoBehaviour
     {
         if (mailBox != null)
         {
-            // ?고렪?⑥뿉 異붽? (?고렪 UI?먯꽌 ?섎졊 泥섎━)
+            // Note: cleaned comment.
             mailBox.AddMail(
-                title:   "諛⑹튂 蹂댁긽",
+                title:   "방치 보상",
                 body:    BuildMailBody(r),
                 gold:    r.gold,
                 ticket:  r.ticket,
                 diamond: r.diamond);
 
-            Debug.Log($"[IdleRewardManager] ?고렪 吏湲??꾨즺 ??" +
-                      $"怨⑤뱶 {r.gold:N0} / ?곗폆 {r.ticket:N0} / ?ㅼ씠??{r.diamond:N0}");
+            Debug.Log("[Log] Message cleaned.");
+            // Note: removed broken continuation.
         }
         else
         {
-            // MailBox 誘몄뿰寃???PlayerData??吏곸젒 吏湲?(?대갚)
+            // Note: cleaned comment.
             playerData?.AddGold(r.gold);
             playerData?.AddTicket(r.ticket);
             playerData?.AddDiamond(r.diamond);
-            Debug.LogWarning("[IdleRewardManager] MailBox媛 ?곌껐?섏? ?딆븘 PlayerData??吏곸젒 吏湲됲뻽?듬땲??");
+            Debug.LogWarning("[Log] Warning message cleaned.");
         }
     }
 
-    // ?? 蹂댁긽 ?곗텧 ?????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private async UniTask PlayAnimationAsync()
     {
@@ -222,7 +222,7 @@ public class IdleRewardManager : MonoBehaviour
         }
     }
 
-    // ?? UI 媛깆떊 ???????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void RefreshPopupUI()
     {
@@ -235,10 +235,10 @@ public class IdleRewardManager : MonoBehaviour
             claimButton.interactable = !_pending.IsEmpty;
     }
 
-    // ?? ?쒓컙 ???/ 濡쒕뱶 ??????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// ?꾩옱 UTC ?쒓컖??PlayerPrefs ? PlayerData ?묒そ??湲곕줉?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private void SaveCurrentTime()
     {
@@ -250,7 +250,7 @@ public class IdleRewardManager : MonoBehaviour
             playerData.lastIdleRewardTime = now;
     }
 
-    /// <summary>PlayerPrefs ??PlayerData ?쒖꽌濡???λ맂 ?쒓컖???쎌뒿?덈떎.</summary>
+    /// Documentation cleaned.
     private string LoadStoredTime()
     {
         string stored = PlayerPrefs.GetString(PrefKey, string.Empty);
@@ -259,7 +259,7 @@ public class IdleRewardManager : MonoBehaviour
         return stored;
     }
 
-    /// <summary>留덉?留?????쒓컖遺???꾩옱源뚯???寃쎄낵 ?쒓컙??諛섑솚?⑸땲??</summary>
+    /// Documentation cleaned.
     private TimeSpan CalcElapsed()
     {
         string stored = LoadStoredTime();
@@ -272,7 +272,7 @@ public class IdleRewardManager : MonoBehaviour
         return TimeSpan.Zero;
     }
 
-    // ?? ?좏떥 ?????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private static string FormatElapsed(TimeSpan t)
     {
@@ -283,7 +283,7 @@ public class IdleRewardManager : MonoBehaviour
 
     private static string BuildMailBody(RewardResult r)
     {
-        var sb = new StringBuilder($"{FormatElapsed(r.elapsed)} ?숈븞??諛⑹튂 蹂댁긽?낅땲??\n");
+        var sb = new StringBuilder($"Idle reward accumulated for {FormatElapsed(r.elapsed)}.\n");
         if (r.gold    > 0) sb.AppendLine($"怨⑤뱶   +{r.gold:N0}");
         if (r.ticket  > 0) sb.AppendLine($"?곗폆   +{r.ticket:N0}");
         if (r.diamond > 0) sb.AppendLine($"?ㅼ씠??+{r.diamond:N0}");

@@ -10,66 +10,66 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using ProjectFirst.Data;
 /// <summary>
-/// ?붾뱶留?梨뺥꽣 ?좏깮) 諛?梨뺥꽣留??ㅽ뀒?댁? ?좏깮) ?붾㈃??愿由ы빀?덈떎.
-/// CSV 湲곕컲 ChapterTable/StageTable?먯꽌 ?곗씠?곕? ?쎄퀬,
-/// ChapterData?먯꽌 ?쒓컖 ?먯뀑(?꾩씠肄? ?ㅽ봽?쇱씠????李몄“?⑸땲??
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// [Inspector ?곌껐 媛?대뱶]
-/// ??Data (Tables)
-/// ?? ??chapterTable : ChapterTable.asset (CSV ?꾪룷??
-/// ?? ??stageTable   : StageTable.asset   (CSV ?꾪룷??
-/// ?? ??playerData   : PlayerData.asset
-/// ??Visual Assets (Optional)
-/// ?? ??chapterData  : ChapterData.asset  (?꾩씠肄??ㅽ봽?쇱씠??
-/// ??UI
-/// ?? ??uiDocument   : Scene ??UIDocument 而댄룷?뚰듃
-/// ??Events (Optional)
-///    ??onStageSelected : ?ㅽ뀒?댁? ?좏깮 ??諛쒗뻾
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 /// </summary>
 public class MapChapterManager : MonoBehaviour
 {
-    // ?? Data (Tables) ??????????????????????????????????????????
+    // Note: cleaned comment.
 
     [Header("Data (Tables)")]
     [SerializeField] private ChapterTable _chapterTable;
     [SerializeField] private StageTable _stageTable;
     [SerializeField] private PlayerData _playerData;
 
-    // ?? Visual Assets (Optional) ???????????????????????????????
+    // Note: cleaned comment.
 
     [Header("Visual Assets")]
-    [Tooltip("梨뺥꽣 ?꾩씠肄??ㅽ봽?쇱씠?몄슜. ?놁쑝硫?湲곕낯 ?ㅽ????ъ슜.")]
+    [Tooltip("Configured in inspector.")]
     [SerializeField] private ChapterData _chapterData;
 
-    // ?? UI ??????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     [Header("UI")]
     [SerializeField] private UIDocument _uiDocument;
 
-    // ?? Events (Optional) ??????????????????????????????????????
+    // Note: cleaned comment.
 
     [Header("Events")]
     [SerializeField] private VoidEventChannelSO _onStageSelected;
 
-    // ?? ?곹깭 ????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private enum MapViewState { WorldMap, ChapterMap }
 
     private MapViewState _currentView = MapViewState.WorldMap;
 
-    /// <summary>?꾩옱 ?붾뱶留?酉??곹깭?몄? 諛섑솚?⑸땲??</summary>
+    /// Documentation cleaned.
     public bool IsWorldMapView => _currentView == MapViewState.WorldMap;
 
     private int _selectedChapterId;
     private StageRow _selectedStage;
 
-    // ?? ?ㅽ겕濡??쒕옒洹????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private Vector2 _dragStart;
     private Vector2 _mapOffset;
     private bool _isDragging;
 
-    // ?? UI ?붿냼 罹먯떆 ????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private VisualElement _root;
     private VisualElement _worldMapView;
@@ -77,7 +77,7 @@ public class MapChapterManager : MonoBehaviour
     private VisualElement _chapterNodesContainer;
     private VisualElement _mapBackground;
 
-    // 梨뺥꽣留?
+    // Note: cleaned comment.
     private Label _chapterHeaderLabel;
     private Button _chapterBackBtn;
     private VisualElement _stageList;
@@ -90,14 +90,14 @@ public class MapChapterManager : MonoBehaviour
     private Button _battleReadyBtn;
     private Label _staminaCostLabel;
 
-    // ?붾뱶留?
+    // Note: cleaned comment.
     private Button _worldBackBtn;
 
-    // ?? ?꾪솚 ?좊땲硫붿씠???????????????????????????????????????????
+    // Note: cleaned comment.
 
     private const float TransitionDuration = 0.3f;
 
-    // ?????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void OnEnable()
     {
@@ -105,25 +105,25 @@ public class MapChapterManager : MonoBehaviour
         BuildWorldMap();
     }
 
-    // ?? UI 諛붿씤?????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void BindUI()
     {
         if (_uiDocument == null)
         {
-            Debug.LogError("[MapChapterManager] UIDocument媛 ?좊떦?섏? ?딆븯?듬땲??");
+            Debug.LogError("[Log] Error message cleaned.");
             return;
         }
 
         _root = _uiDocument.rootVisualElement;
 
-        // ?붾뱶留?
+        // Note: cleaned comment.
         _worldMapView = _root.Q<VisualElement>("world-map-view");
         _mapBackground = _root.Q<VisualElement>("map-background");
         _chapterNodesContainer = _root.Q<VisualElement>("chapter-nodes-container");
         _worldBackBtn = _root.Q<Button>("world-back-btn");
 
-        // 梨뺥꽣留?
+        // Note: cleaned comment.
         _chapterMapView = _root.Q<VisualElement>("chapter-map-view");
         _chapterHeaderLabel = _root.Q<Label>("chapter-header-label");
         _chapterBackBtn = _root.Q<Button>("chapter-back-btn");
@@ -137,12 +137,12 @@ public class MapChapterManager : MonoBehaviour
         _battleReadyBtn = _root.Q<Button>("battle-ready-btn");
         _staminaCostLabel = _root.Q<Label>("stamina-cost-label");
 
-        // 踰꾪듉 ?대깽??
+        // Note: cleaned comment.
         _worldBackBtn?.RegisterCallback<ClickEvent>(_ => OnWorldBackClicked());
         _chapterBackBtn?.RegisterCallback<ClickEvent>(_ => OnChapterBackClicked());
         _battleReadyBtn?.RegisterCallback<ClickEvent>(_ => OnBattleReadyClicked());
 
-        // ?쒕옒洹??ㅽ겕濡?
+        // Note: cleaned comment.
         if (_mapBackground != null)
         {
             _mapBackground.RegisterCallback<PointerDownEvent>(OnMapPointerDown);
@@ -151,10 +151,10 @@ public class MapChapterManager : MonoBehaviour
         }
     }
 
-    // ?? ?붾뱶留?援ъ텞 ?????????????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// 梨뺥꽣 ?몃뱶瑜??붾뱶留듭뿉 諛곗튂?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private void BuildWorldMap()
     {
@@ -181,7 +181,7 @@ public class MapChapterManager : MonoBehaviour
         node.style.left = chapter.WorldMapPosition.x;
         node.style.top = chapter.WorldMapPosition.y;
 
-        // ???대?吏 (ChapterData ?먯뀑?먯꽌 ?쒓컖 由ъ냼??議고쉶)
+        // Note: cleaned comment.
         var islandImg = new VisualElement();
         islandImg.name = "chapter-island-img";
         islandImg.AddToClassList("chapter-island-img");
@@ -193,7 +193,7 @@ public class MapChapterManager : MonoBehaviour
         }
         node.Add(islandImg);
 
-        // ?좉툑 ??援щ쫫 ?ㅻ쾭?덉씠
+        // Note: cleaned comment.
         if (!chapter.isUnlocked)
         {
             var cloud = new VisualElement();
@@ -202,7 +202,7 @@ public class MapChapterManager : MonoBehaviour
             node.Add(cloud);
         }
 
-        // 蹂꾩젏 (ChapterData?먯꽌 ?대━??蹂꾩젏 李몄“)
+        // Note: cleaned comment.
         int clearStars = visualInfo?.clearStars ?? 0;
         var starRow = new VisualElement();
         starRow.name = "star-row";
@@ -215,7 +215,7 @@ public class MapChapterManager : MonoBehaviour
         }
         node.Add(starRow);
 
-        // ?꾩옱 吏꾪뻾 梨뺥꽣 ?쒖떆
+        // Note: cleaned comment.
         if (_playerData != null && _playerData.currentChapter == chapter.id)
         {
             var charSd = new VisualElement();
@@ -224,22 +224,22 @@ public class MapChapterManager : MonoBehaviour
             node.Add(charSd);
         }
 
-        // 梨뺥꽣 ?대쫫
+        // Note: cleaned comment.
         var nameLabel = new Label(chapter.name);
         nameLabel.AddToClassList("chapter-name-label");
         node.Add(nameLabel);
 
-        // ?대┃ ?대깽??
+        // Note: cleaned comment.
         int capturedId = chapter.id;
         node.RegisterCallback<ClickEvent>(_ => OnChapterNodeClicked(capturedId));
 
         return node;
     }
 
-    // ?? 梨뺥꽣 ?몃뱶 ?대┃ ??????????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// 梨뺥꽣 ?몃뱶 ?대┃ ???몄텧?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private void OnChapterNodeClicked(int chapterId)
     {
@@ -256,10 +256,10 @@ public class MapChapterManager : MonoBehaviour
         TransitionToChapterMap(chapterId);
     }
 
-    // ?? 梨뺥꽣留??꾪솚 ?????????????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// ?붾뱶留듭뿉??梨뺥꽣留듭쑝濡??꾪솚?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private void TransitionToChapterMap(int chapterId)
     {
@@ -277,7 +277,7 @@ public class MapChapterManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 梨뺥꽣留듭뿉???붾뱶留듭쑝濡?蹂듦??⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private void TransitionToWorldMap()
     {
@@ -321,10 +321,10 @@ public class MapChapterManager : MonoBehaviour
         showTarget.style.opacity = 1f;
     }
 
-    // ?? ?ㅽ뀒?댁? 紐⑸줉 援ъ텞 ??????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// 梨뺥꽣???랁븳 ?ㅽ뀒?댁? 踰꾪듉 紐⑸줉???앹꽦?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private void BuildStageList(List<StageRow> stages)
     {
@@ -340,12 +340,12 @@ public class MapChapterManager : MonoBehaviour
             btn.name = $"stage-btn-{stage.id}";
             btn.AddToClassList("stage-button");
 
-            // ?ㅽ뀒?댁? 踰덊샇
+            // Note: cleaned comment.
             var numberLabel = new Label($"{_selectedChapterId}-{stage.stageNumber}");
             numberLabel.AddToClassList("stage-number");
             btn.Add(numberLabel);
 
-            // 蹂꾩젏 (PlayerData 湲곕컲 ?대━???곹깭)
+            // Note: cleaned comment.
             int clearStars = GetStageClearStars(stage.id);
             var starRow = new VisualElement();
             starRow.AddToClassList("star-row");
@@ -357,7 +357,7 @@ public class MapChapterManager : MonoBehaviour
             }
             btn.Add(starRow);
 
-            // ?좉툑 ?꾩씠肄?
+            // Note: cleaned comment.
             if (!isUnlocked)
             {
                 var lockIcon = new VisualElement();
@@ -366,7 +366,7 @@ public class MapChapterManager : MonoBehaviour
                 btn.SetEnabled(false);
             }
 
-            // ?좏깮 ?대깽??
+            // Note: cleaned comment.
             var capturedStage = stage;
             bool capturedUnlocked = isUnlocked;
             btn.RegisterCallback<ClickEvent>(_ =>
@@ -377,32 +377,32 @@ public class MapChapterManager : MonoBehaviour
 
             _stageList.Add(btn);
 
-            // ?ㅼ쓬 ?ㅽ뀒?댁? ?좉툑 ?щ? 寃곗젙
+            // Note: cleaned comment.
             previousCleared = clearStars > 0;
         }
 
-        // 泥?踰덉㎏ ?닿툑 ?ㅽ뀒?댁? ?먮룞 ?좏깮
+        // Note: cleaned comment.
         if (stages.Count > 0)
             OnStageSelected(stages[0]);
     }
 
     /// <summary>
-    /// ?ㅽ뀒?댁? ?대━??蹂꾩젏??諛섑솚?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private int GetStageClearStars(int stageId)
     {
-        // TODO: PlayerData???ㅽ뀒?댁?蹂??대━???뺣낫 異붽? ???곕룞
-        // ?꾩옱??泥?梨뺥꽣 泥??ㅽ뀒?댁?留??닿툑
+        // Note: cleaned comment.
+        // Note: cleaned comment.
         if (_playerData != null && _playerData.currentChapter <= 1
             && _playerData.currentStage <= 1 && stageId <= 101)
             return 0;
         return 0;
     }
 
-    // ?? ?ㅽ뀒?댁? ?좏깮 ???????????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// ?ㅽ뀒?댁? ?좏깮 ???뺣낫 ?⑤꼸??媛깆떊?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private void OnStageSelected(StageRow stage)
     {
@@ -411,7 +411,7 @@ public class MapChapterManager : MonoBehaviour
         _onStageSelected?.RaiseEvent();
     }
 
-    // ?? ?뺣낫 ?⑤꼸 媛깆떊 ??????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void UpdateInfoPanel(StageRow stage)
     {
@@ -424,7 +424,7 @@ public class MapChapterManager : MonoBehaviour
         if (_recommendPowerLabel != null)
             _recommendPowerLabel.text = $"沅뚯옣 ?꾪닾?? {stage.recommendedPower:N0}";
 
-        // ???띿꽦 ?꾩씠肄?
+        // Note: cleaned comment.
         if (_enemyElementIcons != null)
         {
             _enemyElementIcons.Clear();
@@ -435,7 +435,7 @@ public class MapChapterManager : MonoBehaviour
             _enemyElementIcons.Add(elementLabel);
         }
 
-        // 蹂댁긽 誘몃━蹂닿린 (CSV 怨⑤뱶/寃쏀뿕移?
+        // Note: cleaned comment.
         if (_rewardPreview != null)
         {
             _rewardPreview.Clear();
@@ -469,39 +469,39 @@ public class MapChapterManager : MonoBehaviour
             }
         }
 
-        // ?ㅽ깭誘몃굹 鍮꾩슜
+        // Note: cleaned comment.
         if (_staminaCostLabel != null)
             _staminaCostLabel.text = $"?ㅽ깭誘몃굹 {stage.staminaCost}";
 
-        // ?꾪닾 以鍮?踰꾪듉
+        // Note: cleaned comment.
         if (_battleReadyBtn != null)
             _battleReadyBtn.SetEnabled(true);
     }
 
-    // ?? ?꾪닾 以鍮????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// ?꾪닾 以鍮?踰꾪듉 ?대┃ ???몄텧?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private void OnBattleReadyClicked()
     {
         if (_selectedStage == null) return;
 
-        // ?ㅽ깭誘몃굹 ?뺤씤
+        // Note: cleaned comment.
         if (_playerData != null && _playerData.stamina < _selectedStage.staminaCost)
         {
             ShowStaminaLackPopup(_selectedStage.staminaCost);
             return;
         }
 
-        // 吏꾪뻾 ?뺣낫 ???
+        // Note: cleaned comment.
         if (_playerData != null)
         {
             _playerData.currentChapter = _selectedChapterId;
             _playerData.currentStage = _selectedStage.stageNumber;
         }
 
-        // ???꾪솚
+        // Note: cleaned comment.
         if (AsyncSceneLoader.Instance != null)
         {
             AsyncSceneLoader.Instance.LoadSceneAsync(
@@ -513,7 +513,7 @@ public class MapChapterManager : MonoBehaviour
         }
     }
 
-    // ?? ?ㅻ줈媛湲?????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void OnWorldBackClicked()
     {
@@ -528,21 +528,21 @@ public class MapChapterManager : MonoBehaviour
         TransitionToWorldMap();
     }
 
-    // ?? ?앹뾽 ????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void ShowLockedPopup()
     {
-        Debug.Log("[MapChapterManager] ?댁쟾 梨뺥꽣瑜??대━?댄빐???⑸땲??");
+        Debug.Log("[Log] Message cleaned.");
     }
 
     private void ShowStaminaLackPopup(int required)
     {
         int current = _playerData != null ? _playerData.stamina : 0;
         Debug.Log(
-            $"[MapChapterManager] ?ㅽ깭誘몃굹 遺議?(?꾩슂: {required}, 蹂댁쑀: {current})");
+            $"[MapChapterManager] Not enough stamina. Required: {required}, Current: {current}");
     }
 
-    // ?? ?쒕옒洹??ㅽ겕濡????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void OnMapPointerDown(PointerDownEvent evt)
     {
@@ -570,7 +570,7 @@ public class MapChapterManager : MonoBehaviour
         _isDragging = false;
     }
 
-    // ?? 酉??꾪솚 ?좏떥 ???????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void ShowWorldMap()
     {
@@ -584,14 +584,14 @@ public class MapChapterManager : MonoBehaviour
             _chapterMapView.style.display = DisplayStyle.None;
     }
 
-    // ?? ?좏떥 ????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// ?뚰떚 ?꾪닾?μ쓣 怨꾩궛?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     private int CalcPartyPower()
     {
-        // TODO: ?뚰떚 ?몄꽦 ?쒖뒪???곕룞 ???ㅼ젣 ?꾪닾??怨꾩궛
+        // Note: cleaned comment.
         return 0;
     }
 }

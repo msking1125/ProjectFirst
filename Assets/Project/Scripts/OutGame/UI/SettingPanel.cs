@@ -5,27 +5,27 @@ using UnityEngine.UIElements;
 using ProjectFirst.Data;
 
 /// <summary>
-/// UIToolkit(UIDocument) 湲곕컲 ?ㅼ젙 ?⑤꼸.
+/// Documentation cleaned.
 ///
-/// [Inspector ?곌껐 媛?대뱶]
-/// ??uiDocument        : ??GameObject??UIDocument 而댄룷?뚰듃
-/// ??audioMixer        : ?꾨줈?앺듃 AudioMixer (BGMVolume / SFXVolume ?뚮씪誘명꽣 ?꾩슂)
-/// ??playerData        : PlayerData.asset (怨꾩젙 ??UID ?쒖떆?? ?좏깮)
-/// ??defaultLoginMethod: "Guest" ??濡쒓렇??諛⑹떇 湲곕낯媛?
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// [LobbyManager ?곕룞]
-/// LobbyManager.settingPanel ????而댄룷?뚰듃瑜??곌껐?섎㈃
-/// ?ㅼ젙 踰꾪듉 ?대┃ ??OpenPanel()???먮룞 ?몄텧?⑸땲??
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// [AudioMixer ?뚮씪誘명꽣]
-/// Exposed Parameter ?대쫫??諛섎뱶??"BGMVolume", "SFXVolume" ?쇰줈 吏?뺥븯?몄슂.
+/// Documentation cleaned.
+/// Documentation cleaned.
 /// </summary>
 [DisallowMultipleComponent]
 public class SettingPanel : MonoBehaviour
 {
     public static SettingPanel Instance { get; private set; }
 
-    // ?? Inspector ??????????????????????????????????????????
+    // Note: cleaned comment.
 
     [Header("UI")]
     [SerializeField] private UIDocument uiDocument;
@@ -33,12 +33,12 @@ public class SettingPanel : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioMixer audioMixer;
 
-    [Header("Account (?좏깮)")]
+    [Header("Settings")]
     [SerializeField] private PlayerData playerData;
     [SerializeField] private string defaultLoginMethod = "Guest";
     [SerializeField] private GameSettingsData settingsData;
 
-    // ?? PlayerPrefs ???????????????????????????????????????
+    // Note: cleaned comment.
 
     private const string KEY_BGM_VOL  = "bgmVol";
     private const string KEY_SFX_VOL  = "sfxVol";
@@ -49,35 +49,35 @@ public class SettingPanel : MonoBehaviour
     private const string KEY_BLOOM    = "bloomOn";
     private const string KEY_BLUR     = "blurOn";
 
-    // AudioMixer Exposed Parameter ?대쫫
+    // Note: cleaned comment.
     private const string MIXER_BGM = "BGMVolume";
     private const string MIXER_SFX = "SFXVolume";
 
-    // ?? UI 罹먯떆 ????????????????????????????????????????????
+    // Note: cleaned comment.
 
-    // 諛곌꼍/猷⑦듃
+    // Note: cleaned comment.
     private VisualElement _backdrop;
 
-    // ??踰꾪듉
+    // Note: cleaned comment.
     private Button _tabGraphicsBtn;
     private Button _tabSoundBtn;
     private Button _tabAccountBtn;
 
-    // ??肄섑뀗痢?
+    // Note: cleaned comment.
     private VisualElement _graphicsTab;
     private VisualElement _soundTab;
     private VisualElement _accountTab;
 
-    // 洹몃옒?? ?꾨젅???좏깮 (RadioButtonGroup ??value=0:??1:以?2:??
+    // Note: cleaned comment.
     private RadioButtonGroup _frameGroup;
     private Toggle           _shakeToggle;
     private Toggle           _bloomToggle;
     private Toggle           _blurToggle;
 
-    // AudioMixer ?뚮씪誘명꽣 ?ъ슜 媛???щ? (Exposed 誘몄꽕????false)
+    // Note: cleaned comment.
     private bool _audioReady;
 
-    // ?ъ슫??
+    // Note: cleaned comment.
     private Slider _bgmSlider;
     private Slider _sfxSlider;
     private Label  _bgmValueLabel;
@@ -85,22 +85,22 @@ public class SettingPanel : MonoBehaviour
     private Toggle _bgmMuteToggle;
     private Toggle _sfxMuteToggle;
 
-    // ?뚯냼嫄???蹂쇰ⅷ 罹먯떆 (?щ씪?대뜑 ?섏튂 ?좎?, 異쒕젰留?0)
+    // Note: cleaned comment.
     private float _bgmVolCache;
     private float _sfxVolCache;
 
-    // 怨꾩젙
+    // Note: cleaned comment.
     private Label  _uidLabel;
     private Label  _loginMethodLabel;
     private Button _logoutBtn;
     private Button _copyBtn;
 
-    // 濡쒓렇?꾩썐 ?뺤씤 ?앹뾽
+    // Note: cleaned comment.
     private VisualElement _confirmOverlay;
     private Button        _confirmYesBtn;
     private Button        _confirmNoBtn;
 
-    // ?????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void Awake()
     {
@@ -116,14 +116,14 @@ public class SettingPanel : MonoBehaviour
         Hide();
     }
 
-    // ?? 怨듦컻 API ?????????????????????????????????????????????
+    // Note: cleaned comment.
 
-    /// <summary>?ㅼ젙 ?⑤꼸???쒖떆?섍퀬 ??λ맂 媛믪쑝濡?珥덇린?뷀빀?덈떎.</summary>
+    /// Documentation cleaned.
     public void Show()
     {
         if (_backdrop == null) return;
 
-        // ?ㅻⅨ UIDocument蹂대떎 ?꾩뿉 ?뚮뜑留곷릺?꾨줉 Sort Order ?곗꽑 ?ㅼ젙
+        // Note: cleaned comment.
         if (uiDocument != null)
             uiDocument.sortingOrder = 100;
 
@@ -132,7 +132,7 @@ public class SettingPanel : MonoBehaviour
         SwitchTab(0);
     }
 
-    /// <summary>紐⑤뱺 ?ㅼ젙????ν븯怨??⑤꼸???④퉩?덈떎.</summary>
+    /// Documentation cleaned.
     public void Hide()
     {
         if (_backdrop == null) return;
@@ -141,19 +141,19 @@ public class SettingPanel : MonoBehaviour
         _backdrop.style.display = DisplayStyle.None;
     }
 
-    /// <summary>LobbyManager ?명솚 ??Show()? ?숈씪?⑸땲??</summary>
+    /// Documentation cleaned.
     public void OpenPanel() => Show();
 
-    /// <summary>LobbyManager ?명솚 ??Hide()? ?숈씪?⑸땲??</summary>
+    /// Documentation cleaned.
     public void ClosePanel() => Hide();
 
-    // ?? UI 諛붿씤???????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void BindUI()
     {
         if (uiDocument == null)
         {
-            Debug.LogError("[SettingPanel] UIDocument媛 ?좊떦?섏? ?딆븯?듬땲??");
+            Debug.LogError("[Log] Error message cleaned.");
             return;
         }
 
@@ -161,10 +161,10 @@ public class SettingPanel : MonoBehaviour
 
         _backdrop = root.Q<VisualElement>("setting-backdrop");
 
-        // ?ㅻ뜑 ?リ린
+        // Note: cleaned comment.
         root.Q<Button>("close-btn")?.RegisterCallback<ClickEvent>(_ => Hide());
 
-        // ??踰꾪듉
+        // Note: cleaned comment.
         _tabGraphicsBtn = root.Q<Button>("tab-graphics");
         _tabSoundBtn    = root.Q<Button>("tab-sound");
         _tabAccountBtn  = root.Q<Button>("tab-account");
@@ -173,12 +173,12 @@ public class SettingPanel : MonoBehaviour
         _tabSoundBtn?.RegisterCallback<ClickEvent>(_    => SwitchTab(1));
         _tabAccountBtn?.RegisterCallback<ClickEvent>(_  => SwitchTab(2));
 
-        // ??肄섑뀗痢?
+        // Note: cleaned comment.
         _graphicsTab = root.Q<VisualElement>("graphics-tab");
         _soundTab    = root.Q<VisualElement>("sound-tab");
         _accountTab  = root.Q<VisualElement>("account-tab");
 
-        // ?? 洹몃옒????????????????????????????????????????????
+        // Note: cleaned comment.
 
         _frameGroup = root.Q<RadioButtonGroup>("frame-group");
         _frameGroup?.RegisterValueChangedCallback(e => ApplyGraphicsSettings(e.newValue));
@@ -191,7 +191,7 @@ public class SettingPanel : MonoBehaviour
         _bloomToggle?.RegisterValueChangedCallback(e => PlayerPrefs.SetInt(KEY_BLOOM, e.newValue ? 1 : 0));
         _blurToggle?.RegisterValueChangedCallback(e  => PlayerPrefs.SetInt(KEY_BLUR,  e.newValue ? 1 : 0));
 
-        // ?? ?ъ슫????????????????????????????????????????????
+        // Note: cleaned comment.
 
         _bgmSlider     = root.Q<Slider>("bgm-slider");
         _sfxSlider     = root.Q<Slider>("sfx-slider");
@@ -205,7 +205,7 @@ public class SettingPanel : MonoBehaviour
         _bgmMuteToggle?.RegisterValueChangedCallback(OnBgmMuteToggled);
         _sfxMuteToggle?.RegisterValueChangedCallback(OnSfxMuteToggled);
 
-        // ?? 怨꾩젙 ????????????????????????????????????????????
+        // Note: cleaned comment.
 
         _uidLabel         = root.Q<Label>("uid-label");
         _loginMethodLabel = root.Q<Label>("login-method-label");
@@ -215,7 +215,7 @@ public class SettingPanel : MonoBehaviour
         _logoutBtn?.RegisterCallback<ClickEvent>(_ => ShowConfirmDialog());
         _copyBtn?.RegisterCallback<ClickEvent>(_   => CopyUid());
 
-        // ?? ?뺤씤 ?앹뾽 ????????????????????????????????????????
+        // Note: cleaned comment.
 
         _confirmOverlay = root.Q<VisualElement>("confirm-overlay");
         _confirmYesBtn  = root.Q<Button>("confirm-yes-btn");
@@ -225,9 +225,9 @@ public class SettingPanel : MonoBehaviour
         _confirmNoBtn?.RegisterCallback<ClickEvent>(_  => HideConfirmDialog());
     }
 
-    // ?? ???꾪솚 ??????????????????????????????????????????????
+    // Note: cleaned comment.
 
-    /// <param name="tabIndex">0=洹몃옒?? 1=?ъ슫?? 2=怨꾩젙</param>
+    /// Documentation cleaned.
     private void SwitchTab(int tabIndex)
     {
         SetTabVisible(_graphicsTab, tabIndex == 0);
@@ -255,7 +255,7 @@ public class SettingPanel : MonoBehaviour
         else        btn.RemoveFromClassList("tab-active");
     }
 
-    // ?? ?ㅼ젙 濡쒕뱶 ?????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void LoadSettings()
     {
@@ -288,7 +288,7 @@ public class SettingPanel : MonoBehaviour
         ApplyGraphicsSettingsSilent(frame);
     }
 
-    // ?? ?ㅼ젙 ????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void SaveAllSettings()
     {
@@ -317,7 +317,7 @@ public class SettingPanel : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // ?? ?ъ슫???몃뱾???????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void OnBgmSliderChanged(ChangeEvent<float> evt)
     {
@@ -360,8 +360,8 @@ public class SettingPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// AudioMixer Exposed Parameter 議댁옱 ?щ?瑜???踰덈쭔 寃利앺빀?덈떎.
-    /// AudioMixer媛 ?녾굅???뚮씪誘명꽣媛 ?몄텧?섏? ?딆븯?쇰㈃ 蹂쇰ⅷ ?쒖뼱瑜?嫄대꼫?곷땲??
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     private void ValidateAudio()
     {
@@ -372,9 +372,9 @@ public class SettingPanel : MonoBehaviour
         _audioReady = bgmOk && sfxOk;
 
         if (!_audioReady)
-            Debug.LogWarning("[SettingPanel] AudioMixer??'BGMVolume' / 'SFXVolume' " +
-                             "Exposed Parameter瑜??ㅼ젙?섏꽭?? 蹂쇰ⅷ ?쒖뼱媛 鍮꾪솢?깊솕?⑸땲??");
+            Debug.LogWarning("[Log] Warning message cleaned.");
     }
+
 
     private void ApplyBgmVolume(float vol)
     {
@@ -402,7 +402,7 @@ public class SettingPanel : MonoBehaviour
             _sfxValueLabel.text = Mathf.RoundToInt(val).ToString();
     }
 
-    // ?? 洹몃옒???몃뱾???????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void ApplyGraphicsSettings(int frameLevel)
     {
@@ -416,12 +416,12 @@ public class SettingPanel : MonoBehaviour
 
     private static void ApplyGraphicsSettingsSilent(int frameLevel)
     {
-        // 0=??60fps), 1=以?30fps), 2=??30fps + 理쒖? ?덉쭏)
+        // Note: cleaned comment.
         Application.targetFrameRate = frameLevel == 0 ? 60 : 30;
         QualitySettings.SetQualityLevel(frameLevel == 2 ? 0 : 2, true);
     }
 
-    // ?? 怨꾩젙 ?????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void RefreshAccountInfo()
     {
@@ -437,10 +437,10 @@ public class SettingPanel : MonoBehaviour
     {
         if (_uidLabel == null) return;
         GUIUtility.systemCopyBuffer = _uidLabel.text;
-        Debug.Log($"[SettingPanel] UID 蹂듭궗: {_uidLabel.text}");
+        Debug.Log("[Log] Message cleaned.");
     }
 
-    // ?? 濡쒓렇?꾩썐 ?뺤씤 ?앹뾽 ???????????????????????????????????
+    // Note: cleaned comment.
 
     private void ShowConfirmDialog()
     {

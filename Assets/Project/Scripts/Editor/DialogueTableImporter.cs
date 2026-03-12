@@ -6,8 +6,8 @@ using UnityEditor;
 using UnityEngine;
 using ProjectFirst.Data;
 /// <summary>
-/// Imports a CSV file into DialogueTable.
-/// Supports escaped newlines in the dialogue text.
+/// CSV를 DialogueTable ScriptableObject로 임포트합니다.
+/// 대사 text 컬럼의 이스케이프 줄바꿈(\\n)을 실제 줄바꿈으로 복원합니다.
 /// </summary>
 public static class DialogueTableImporter
 {
@@ -21,13 +21,13 @@ public static class DialogueTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[DialogueTableImporter] Could not find the CSV file: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[DialogueTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[DialogueTableImporter] CSV data is empty: {csvPath}");
+            Debug.LogError($"[DialogueTableImporter] 데이터 행이 없습니다: {csvPath}");
             return;
         }
 
@@ -38,7 +38,7 @@ public static class DialogueTableImporter
         SerializedProperty rowsProp = so.FindProperty("rows");
         if (rowsProp == null)
         {
-            Debug.LogError("[DialogueTableImporter] DialogueTable does not contain a 'rows' field.");
+            Debug.LogError("[DialogueTableImporter] DialogueTable에 'rows' 필드가 없습니다.");
             return;
         }
         rowsProp.ClearArray();
@@ -50,7 +50,7 @@ public static class DialogueTableImporter
         {
             if (ColIdx(col) < 0)
             {
-                Debug.LogError($"[DialogueTableImporter] Required column '{col}' is missing.");
+                Debug.LogError($"[DialogueTableImporter] 필수 컬럼 '{col}'이 없습니다.");
                 return;
             }
         }
@@ -71,14 +71,14 @@ public static class DialogueTableImporter
             string line = lines[i];
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            // ParseRow handles quoted values and escaped separators.
-            // If the format grows further, consider a dedicated CSV parser.
+            // ParseRow는 따옴표와 이스케이프 구분자를 포함한 행을 처리합니다.
+            // 포맷이 더 복잡해지면 전용 CSV 파서를 검토합니다.
             string[] cols = CsvImportUtility.ParseRow(line, header.Length);
             
-            // Skip malformed rows that do not contain the required columns.
+            // 필수 컬럼 수보다 짧은 비정상 행은 건너뜁니다.
             if (cols.Length <= groupIdIdx || cols.Length <= dialogueIdIdx || cols.Length <= speakerNameIdx || cols.Length <= textIdx)
             {
-                Debug.LogWarning($"[DialogueTableImporter] Skipping short row at line {i + 1}: {line}");
+                Debug.LogWarning($"[DialogueTableImporter] {i + 1}행 데이터가 짧아 건너뜁니다: {line}");
                 continue;
             }
 
@@ -88,7 +88,7 @@ public static class DialogueTableImporter
             row.FindPropertyRelative("groupId").stringValue     = CsvImportUtility.GetCell(cols, groupIdIdx);
             row.FindPropertyRelative("dialogueId").stringValue  = CsvImportUtility.GetCell(cols, dialogueIdIdx);
             row.FindPropertyRelative("speakerName").stringValue = CsvImportUtility.GetCell(cols, speakerNameIdx);
-            row.FindPropertyRelative("text").stringValue        = CsvImportUtility.GetCell(cols, textIdx).Replace("\\n", "\n"); // Restore escaped newlines.
+            row.FindPropertyRelative("text").stringValue        = CsvImportUtility.GetCell(cols, textIdx).Replace("\\n", "\n"); // 이스케이프 줄바꿈 복원
 
             if (backgroundIdx >= 0) row.FindPropertyRelative("background").stringValue = CsvImportUtility.GetCell(cols, backgroundIdx);
             if (characterLIdx >= 0) row.FindPropertyRelative("characterL").stringValue = CsvImportUtility.GetCell(cols, characterLIdx);
@@ -104,7 +104,7 @@ public static class DialogueTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[DialogueTableImporter] Imported {imported} dialogue rows into {AssetPath}");
+        Debug.Log($"[DialogueTableImporter] {imported}개 대사 임포트 완료 → {AssetPath}");
     }
 
     private static DialogueTable CreateAsset()

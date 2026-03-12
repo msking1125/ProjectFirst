@@ -12,13 +12,13 @@ public static class ChapterTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[ChapterTableImporter] CSV not found: {CsvPathLower}");
+            Debug.LogError($"[ChapterTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError("[ChapterTableImporter] CSV has no data rows.");
+            Debug.LogError($"[ChapterTableImporter] 데이터 행이 없습니다: {csvPath}");
             return;
         }
 
@@ -59,7 +59,7 @@ public static class ChapterTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[ChapterTableImporter] Imported {table.rows.Count} chapter(s) into {AssetPath}");
+        Debug.Log($"[ChapterTableImporter] {table.rows.Count}개 챕터 임포트 완료 → {AssetPath}");
     }
 }
 #endif

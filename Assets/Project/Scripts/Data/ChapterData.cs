@@ -5,8 +5,8 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 챕터(월드맵 섬) 정보를 보관하는 ScriptableObject 에셋.
-    /// 생성: Project 우클릭 → Create/Soul Ark/Data/ChapterData
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(fileName = "ChapterData", menuName = "MindArk/Data/ChapterData")]
     public class ChapterData : ScriptableObject
@@ -39,7 +39,7 @@ namespace ProjectFirst.Data
         public List<ChapterInfo> chapters = new List<ChapterInfo>();
 
         /// <summary>
-        /// chapterId에 해당하는 ChapterInfo를 반환합니다. 없으면 null.
+        /// Documentation cleaned.
         /// </summary>
         public ChapterInfo GetById(int id) =>
             chapters.FirstOrDefault(c => c.chapterId == id);

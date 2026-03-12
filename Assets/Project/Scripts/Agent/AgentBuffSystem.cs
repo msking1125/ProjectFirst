@@ -5,19 +5,19 @@ namespace Project
 {
 
 /// <summary>
-/// Agent??踰꾪봽/?붾쾭???④낵瑜??쇱떆?곸쑝濡??곸슜?섎뒗 而댄룷?뚰듃.
-/// Agent ?ㅻ툕?앺듃???먮룞?쇰줈 異붽??⑸땲??
+/// Documentation cleaned.
+/// Documentation cleaned.
 /// </summary>
     public class AgentBuffSystem : MonoBehaviour
     {
         private Project.Agent agent;
 
-        // ?꾩옱 ?쒖꽦 踰꾪봽 肄붾（??(媛숈? ????щ컻????湲곗〈 ??뼱?곌린)
+        // Note: cleaned comment.
         private Coroutine atkBuffCoroutine;
         private Coroutine defBuffCoroutine;
         private Coroutine spdBuffCoroutine;
 
-        // 踰꾪봽 ?섏튂 異붿쟻 (UI ?쒖떆??
+        // Note: cleaned comment.
         public float AtkBuffMultiplier { get; private set; } = 1f;
         public float DefBuffMultiplier { get; private set; } = 1f;
         public float SpdBuffMultiplier { get; private set; } = 1f;
@@ -29,7 +29,7 @@ namespace Project
             agent = GetComponent<Agent>();
         }
 
-        // ?? 踰꾪봽 ?곸슜 API ?????????????????????????????????????????????????????????
+        // Note: cleaned comment.
 
         public void ApplyBuff(BuffStatType stat, float multiplier, float duration)
         {
@@ -53,12 +53,12 @@ namespace Project
         private IEnumerator BuffRoutine(BuffStatType stat, float multiplier, float duration)
         {
             SetBuff(stat, 1f + multiplier);
-            Debug.Log($"[AgentBuff] {stat} +{multiplier*100:F0}% 踰꾪봽 ?쒖옉 ({duration}s)");
+            Debug.Log("[Log] Message cleaned.");
 
             yield return new WaitForSecondsRealtime(duration);
 
             SetBuff(stat, 1f);
-            Debug.Log($"[AgentBuff] {stat} 踰꾪봽 醫낅즺");
+            Debug.Log("[Log] Message cleaned.");
         }
 
         private void SetBuff(BuffStatType stat, float value)
@@ -72,7 +72,7 @@ namespace Project
             OnBuffChanged?.Invoke();
         }
 
-        /// <summary>踰꾪봽 諛곗쑉???곸슜???ㅼ젣 怨듦꺽??諛섑솚</summary>
+        /// Documentation cleaned.
         public float GetBuffedAttackPower()
         {
             if (agent == null) return 0f;

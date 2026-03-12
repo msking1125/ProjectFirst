@@ -18,13 +18,13 @@ public static class WaveTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"Wave CSV not found at: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[WaveTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError("Wave CSV has no data rows.");
+            Debug.LogError($"[WaveTableImporter] 데이터 행이 없습니다: {csvPath}");
             return;
         }
 
@@ -40,7 +40,7 @@ public static class WaveTableImporter
         var header = CsvImportUtility.ParseHeader(lines[0]);
         int colCount = header.Length;
 
-        // ?몃뜳??罹먯떛
+        // 주요 컬럼 인덱스 캐시
         int waveIdx = Array.IndexOf(header, "wave");
         int spawnCountIdx = Array.IndexOf(header, "spawnCount");
         int spawnIntervalIdx = Array.IndexOf(header, "spawnInterval");
@@ -53,13 +53,13 @@ public static class WaveTableImporter
         int enemyIdIdx = Array.IndexOf(header, "enemyId");
         int monsterIdIdx = Array.IndexOf(header, "monsterId");
 
-        // ?꾩닔 而щ읆 議댁옱 泥댄겕
+        // 주요 컬럼 인덱스 캐시
         string[] required = { "wave", "spawnCount", "spawnInterval", "enemyHpMul", "enemySpeedMul", "enemyDamageMul", "eliteEvery", "boss", "rewardGold" };
         foreach (var col in required)
         {
             if (Array.IndexOf(header, col) < 0)
             {
-                Debug.LogError($"Missing required column in CSV: '{col}'.");
+                Debug.LogError($"[WaveTableImporter] 필수 컬럼이 없습니다: '{col}'");
                 return;
             }
         }
@@ -91,7 +91,7 @@ public static class WaveTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"Imported {table.wave.Count} wave{(table.wave.Count == 1 ? "" : "s")} into {AssetPath}");
+        Debug.Log($"[WaveTableImporter] {table.wave.Count}개 웨이브 임포트 완료 → {AssetPath}");
     }
 
     private static string SafeGet(string[] cols, int index)

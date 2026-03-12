@@ -19,16 +19,16 @@ public static class MonsterTableImporter
 
     public static void Import()
     {
-        // Allow for either 'monsters.csv' or 'Monsters.csv' for case-insensitivity
+        // 파일명 대소문자 차이를 허용
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"Monster CSV not found at: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[MonsterTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError("Monster CSV has no data rows.");
+            Debug.LogError($"[MonsterTableImporter] 데이터 행이 없습니다: {csvPath}");
             return;
         }
 
@@ -48,7 +48,7 @@ public static class MonsterTableImporter
         {
             if (idx(col) < 0)
             {
-                Debug.LogError($"Missing column: '{col}'");
+                Debug.LogError($"[MonsterTableImporter] 필수 컬럼이 없습니다: '{col}'");
                 return;
             }
         }
@@ -80,7 +80,7 @@ public static class MonsterTableImporter
 
             string name = SafeGet(cols, nameIdx);
 
-            // Parse critMultiplier: Remove all non-numeric, non-dot, non-minus chars
+            // critMultiplier는 숫자, 소수점, 음수 기호만 남기고 파싱
             float critMultiplierValue = 1f;
             string critMultiplierStr = SafeGet(cols, critMultiplierIdx);
             if (!string.IsNullOrEmpty(critMultiplierStr))
@@ -115,7 +115,7 @@ public static class MonsterTableImporter
             }
             else
             {
-                Debug.LogWarning($"[MonsterTableImporter] Failed to parse grade for id '{id}'. raw='{gradeRaw ?? "(null)"}'. fallback=Normal");
+                Debug.LogWarning($"[MonsterTableImporter] id='{id}' grade='{gradeRaw}' 파싱 실패 → Normal로 대체");
                 row.grade = MonsterGrade.Normal;
             }
 
@@ -126,7 +126,7 @@ public static class MonsterTableImporter
             }
             else if (!string.IsNullOrWhiteSpace(moveSpeedRaw))
             {
-                Debug.LogWarning($"[MonsterTableImporter] Failed to parse moveSpeed for id '{id}'. raw='{moveSpeedRaw}'");
+                Debug.LogWarning($"[MonsterTableImporter] id='{id}' moveSpeed='{moveSpeedRaw}' 파싱 실패");
             }
 
             string elementRaw = SafeGet(cols, elementIdx);
@@ -136,7 +136,7 @@ public static class MonsterTableImporter
             }
             else
             {
-                Debug.LogWarning($"[MonsterTableImporter] Failed to parse element for id '{id}'. raw='{elementRaw ?? "(null)"}'. fallback=Reason");
+                Debug.LogWarning($"[MonsterTableImporter] id='{id}' grade='{gradeRaw}' 파싱 실패 → Normal로 대체");
                 row.element = ElementType.Reason;
             }
 
@@ -147,11 +147,11 @@ public static class MonsterTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"Imported {table.rows.Count} monster{(table.rows.Count == 1 ? "" : "s")} into {AssetPath}");
+        Debug.Log($"[MonsterTableImporter] {table.rows.Count}개 몬스터 임포트 완료 → {AssetPath}");
     }
 
     /// <summary>
-    /// Safe column getter, returns trimmed value or empty string on error.
+    /// 안전한 컬럼 접근 유틸입니다. 인덱스 오류 시 빈 문자열을 반환합니다.
     /// </summary>
     private static string SafeGet(string[] cols, int index)
     {
@@ -185,7 +185,7 @@ public static class MonsterTableImporter
             return Mathf.Max(0, Mathf.RoundToInt(value));
         }
 
-        Debug.LogWarning($"[MonsterTableImporter] Failed to parse {columnName} for id '{monsterId}'. raw='{raw}'. default=0");
+        Debug.LogWarning($"[MonsterTableImporter] id='{monsterId}' {columnName}='{raw}' 파싱 실패 → 0으로 대체");
         return 0;
     }
 
@@ -208,7 +208,7 @@ public static class MonsterTableImporter
     {
         if (string.IsNullOrWhiteSpace(prefabName))
         {
-            Debug.LogWarning($"[MonsterTableImporter] Missing prefab name for id '{id}' (empty prefab name).");
+            Debug.LogWarning($"[MonsterTableImporter] id='{id}' prefab 이름이 비어 있습니다.");
             return null;
         }
 
@@ -216,7 +216,7 @@ public static class MonsterTableImporter
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
         if (prefab == null)
         {
-            Debug.LogWarning($"[MonsterTableImporter] Missing prefab for id '{id}'. expected='{prefabPath}'");
+            Debug.LogWarning($"[MonsterTableImporter] id='{id}' 프리팹을 찾지 못했습니다: {prefabPath}");
         }
 
         return prefab;

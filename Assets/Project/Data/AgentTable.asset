@@ -12,35 +12,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d70d9070aacc41e5b494c311a479e356, type: 3}
   m_Name: AgentTable
   m_EditorClassIdentifier: 
-  defaultStats:
+  _defaultStats:
     hp: 100
     atk: 3
     def: 0
     critChance: 0
     critMultiplier: 1.5
-  defaultElement: 2
+  _defaultElement: 2
   rows:
   - id: 1
     name: agent01
-    hp: 100
-    atk: 10
-    def: 4
-    critChance: 0.3
-    critMultiplier: 1.5
+    stats:
+      hp: 0
+      atk: 0
+      def: 0
+      critChance: 0
+      critMultiplier: 0
     element: 0
+    portrait: {fileID: 0}
   - id: 2
     name: agent02
-    hp: 100
-    atk: 5
-    def: 5
-    critChance: 0.3
-    critMultiplier: 1.5
+    stats:
+      hp: 0
+      atk: 0
+      def: 0
+      critChance: 0
+      critMultiplier: 0
     element: 1
+    portrait: {fileID: 0}
   - id: 3
     name: agent03
-    hp: 100
-    atk: 5
-    def: 6
-    critChance: 0.3
-    critMultiplier: 1.5
+    stats:
+      hp: 0
+      atk: 0
+      def: 0
+      critChance: 0
+      critMultiplier: 0
     element: 2
+    portrait: {fileID: 0}
+  _agentInfos: []

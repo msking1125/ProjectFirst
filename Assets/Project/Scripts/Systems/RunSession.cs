@@ -8,16 +8,16 @@ public class RunSession
     public int Exp { get; private set; }
     public int Gold { get; private set; }
 
-    // ?? ?꾪닾 以鍮??뺣낫 ????????????????????????????????????????????
-    /// <summary>?몄꽦???먯씠?꾪듃 ID 紐⑸줉 (理쒕? 3媛?.</summary>
+    // Note: cleaned comment.
+    /// Documentation cleaned.
     public List<int> selectedAgentIds = new List<int>();
-    /// <summary>吏꾩엯???ㅽ뀒?댁? ID.</summary>
+    /// Documentation cleaned.
     public int currentStageId;
-    /// <summary>吏꾩엯??梨뺥꽣 ID.</summary>
+    /// Documentation cleaned.
     public int currentChapterId;
-    /// <summary>?꾪닾 寃쎄낵 ?쒓컙(珥?.</summary>
+    /// Documentation cleaned.
     public float battleElapsedTime;
-    /// <summary>?⑥씠釉?泥섏튂 ??</summary>
+    /// Documentation cleaned.
     public int waveKillCount;
 
     public int ExpToNextLevel => GetRequiredExpForLevel(Level);

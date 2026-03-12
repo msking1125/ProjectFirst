@@ -6,10 +6,10 @@ using Project;
 public class ArkBaseHpBarView : MonoBehaviour
 {
     [Header("Editor binding checklist")]
-    // 1) Canvas ?섏쐞 UI ?ㅻ툕?앺듃??ArkBaseHpBarView瑜?異붽??⑸땲??
-    // 2) fillImage?먮뒗 Image Type??Filled??寃뚯씠吏 ?대?吏瑜??곌껐?⑸땲??
-    // 3) hpText?먮뒗 TMP_Text瑜??곌껐?⑸땲??
-    // 4) 媛?ν븯硫?target??Ark_Base??BaseHealth瑜?吏곸젒 ?곌껐?⑸땲??誘몄뿰寃????먮룞 ?먯깋).
+    // Note: cleaned comment.
+    // Note: cleaned comment.
+    // Note: cleaned comment.
+    // Note: cleaned comment.
     [SerializeField] private BaseHealth target;
     [SerializeField] private Image fillImage;
     [SerializeField] private TMP_Text hpText;

@@ -20,14 +20,14 @@ internal static class GameTableImportRegistry
     {
         return new[]
         {
-            new Entry("Agent Table", AgentTableImporter.Import),
-            new Entry("Monster Table", MonsterTableImporter.Import),
-            new Entry("Skill Table", SkillTableImporter.Import),
-            new Entry("Wave Table", WaveTableImporter.Import),
-            new Entry("Chapter Table", ChapterTableImporter.Import),
-            new Entry("Stage Table", StageTableImporter.Import),
-            new Entry("Dialogue Table", DialogueTableImporter.Import),
-            new Entry("Badword Table", BadwordTableImporter.Import),
+            new Entry("에이전트 테이블", AgentTableImporter.Import),
+            new Entry("몬스터 테이블", MonsterTableImporter.Import),
+            new Entry("스킬 테이블", SkillTableImporter.Import),
+            new Entry("웨이브 테이블", WaveTableImporter.Import),
+            new Entry("챕터 테이블", ChapterTableImporter.Import),
+            new Entry("스테이지 테이블", StageTableImporter.Import),
+            new Entry("대사 테이블", DialogueTableImporter.Import),
+            new Entry("금칙어 테이블", BadwordTableImporter.Import),
         };
     }
 }

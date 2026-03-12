@@ -6,66 +6,66 @@ namespace Project
 {
 
 /// <summary>
-/// ?덈꺼 쨌 寃쏀뿕移?쨌 怨⑤뱶瑜?媛곴컖 遺꾨━???곸뿭?쇰줈 ?쒖떆?섎뒗 HUD 而댄룷?뚰듃.
+/// Documentation cleaned.
 ///
-/// ?? Inspector ?곌껐 媛?대뱶 ?????????????????????????????????????????????????
-/// 吏곸젒 ?곌껐?섍굅?? 鍮꾩썙?먮㈃ Awake?먯꽌 ?먯떇 ?ㅻ툕?앺듃瑜??먮룞 ?먯깋?⑸땲??
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// [?덈꺼]
-///   Level Frame   : Image  - ?덈꺼 ?レ옄 ?ㅼ뿉 源붾━???꾨젅???대?吏
-///   Level Text    : TMP_Text - "1" "2" ?뺥깭濡??쒖떆
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// [寃쏀뿕移?
-///   Exp Icon      : Image  - 寃쏀뿕移??꾩씠肄?(EXP 留덊겕)
-///   Exp Gauge     : Image  - fillAmount 諛⑹떇 (Image Type = Filled)
-///   Exp Text      : TMP_Text - "0 / 10" (?좏깮)
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// [怨⑤뱶]
-///   Gold Icon     : Image  - 怨⑤뱶 肄붿씤 ?꾩씠肄?
-///   Gold Text     : TMP_Text - "1,250" ?뺥깭濡??쒖떆
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 /// </summary>
 public class StatusHudView : MonoBehaviour
 {
-    // ?? ?덈꺼 ?????????????????????????????????????????????????????????????????
-    [Header("?덈꺼")]
-    [Tooltip("?덈꺼 ?レ옄 ?ㅼ뿉 ?쒖떆?섎뒗 ?꾨젅???대?吏 (?좏깮)")]
+    // Note: cleaned comment.
+    [Header("Level")]
+    [Tooltip("Optional frame image shown behind the level text.")]
     [SerializeField] private Image     levelFrame;
     [Tooltip("Level text")]
     [SerializeField] private TMP_Text  levelText;
 
-    // ?? 寃쏀뿕移????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
     [Header("EXP")]
-    [Tooltip("EXP ?꾩씠肄??대?吏 (?좏깮)")]
+    [Tooltip("Optional EXP icon image.")]
     [SerializeField] private Image     expIcon;
-    [Tooltip("寃쏀뿕移?寃뚯씠吏 (Image Type: Filled, Fill Method: Horizontal)")]
+    [Tooltip("EXP gauge image. Set Image Type to Filled and Fill Method to Horizontal.")]
     [SerializeField] private Image     expGauge;
-    [Tooltip("寃쏀뿕移??レ옄 ?띿뒪??(0/10 ?뺥깭, ?좏깮)")]
+    [Tooltip("Optional EXP text such as 0 / 10.")]
     [SerializeField] private TMP_Text  expText;
 
-    // ?? 怨⑤뱶 ?????????????????????????????????????????????????????????????????
-    [Header("怨⑤뱶")]
-    [Tooltip("怨⑤뱶 肄붿씤 ?꾩씠肄??대?吏 (?좏깮)")]
+    // Note: cleaned comment.
+    [Header("Gold")]
+    [Tooltip("Optional gold coin icon image.")]
     [SerializeField] private Image     goldIcon;
     [Tooltip("Gold text")]
     [SerializeField] private TMP_Text  goldText;
 
-    // ?? ?먮룞 ?앹꽦 ?ㅼ젙 ????????????????????????????????????????????????????????
-    [Header("?먮룞 ?앹꽦 ?ㅼ젙 (Inspector ?곌껐 ?놁쓣 ??")]
+    // Note: cleaned comment.
+    [Header("Auto Build Settings")]
     [SerializeField] private float levelFontSize  = 36f;
     [SerializeField] private float expFontSize    = 22f;
     [SerializeField] private float goldFontSize   = 28f;
-    [SerializeField] private Color gaugeColor     = new Color(0.2f, 0.8f, 1f, 1f);   // ?쒖븞 怨꾩뿴
+    [SerializeField] private Color gaugeColor     = new Color(0.2f, 0.8f, 1f, 1f);
     [SerializeField] private Color gaugeBgColor   = new Color(0.1f, 0.1f, 0.1f, 0.7f);
-    [SerializeField] private Color goldTextColor  = new Color(1f, 0.85f, 0.2f, 1f);  // 怨⑤뱶 ?됱긽
+    [SerializeField] private Color goldTextColor  = new Color(1f, 0.85f, 0.2f, 1f);
     [SerializeField] private Color levelTextColor = Color.white;
 
-    // ?? 怨듦컻 ?꾨줈?쇳떚 (?몃? 李몄“?? ??????????????????????????????????????????
+    // Note: cleaned comment.
     public TMP_Text LevelText => levelText;
     public TMP_Text GoldText  => goldText;
     public TMP_Text ExpText   => expText;
     public Image    ExpGauge  => expGauge;
 
-    // ????????????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void Awake()
     {
@@ -74,7 +74,7 @@ public class StatusHudView : MonoBehaviour
 
     private void AutoBind()
     {
-        // ?대쫫?쇰줈 ?먯떇 ?먯깋 (怨듯넻 ?ы띁)
+        // Note: cleaned comment.
         TMP_Text  FindText(string n)  => transform.Find(n)?.GetComponent<TMP_Text>();
         Image     FindImage(string n) => transform.Find(n)?.GetComponent<Image>();
 
@@ -86,16 +86,16 @@ public class StatusHudView : MonoBehaviour
         goldIcon   ??= FindImage("GoldIcon");
         goldText   ??= FindText("GoldText")    ?? FindText("Gold");
 
-        // 紐⑤몢 ?놁쑝硫?肄붾뱶濡??먮룞 ?앹꽦
+        // Note: cleaned comment.
         if (levelText == null) BuildLevelUI();
         if (expGauge  == null) BuildExpUI();
         if (goldText  == null) BuildGoldUI();
     }
 
-    // ?? ?곗씠??媛깆떊 (BattleGameManager?먯꽌 ?몄텧) ?????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// ?덈꺼, 寃쏀뿕移? 怨⑤뱶瑜???踰덉뿉 媛깆떊?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     public void Refresh(int level, int exp, int expMax, int gold)
     {
@@ -127,15 +127,15 @@ public class StatusHudView : MonoBehaviour
             goldText.text = gold.ToString("N0"); // 1,250 ?뺥깭
     }
 
-    // ?? ?먮룞 UI ?앹꽦 ??????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// ?덈꺼 ?꾨젅??+ ?띿뒪???먮룞 ?앹꽦.
-    /// 醫뚯긽?? ?꾨젅??諛곌꼍 Image ?꾩뿉 ?덈꺼 ?띿뒪??
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     private void BuildLevelUI()
     {
-        // ?꾨젅??諛곌꼍 (80횞80)
+        // Note: cleaned comment.
         GameObject frameGo = new GameObject("LevelFrame", typeof(RectTransform), typeof(Image));
         frameGo.transform.SetParent(transform, false);
         RectTransform frameRt = frameGo.GetComponent<RectTransform>();
@@ -149,7 +149,7 @@ public class StatusHudView : MonoBehaviour
         levelFrame.color = new Color(0.1f, 0.1f, 0.2f, 0.85f);
         levelFrame.raycastTarget = false;
 
-        // ?덈꺼 ?띿뒪??(?꾨젅???먯떇)
+        // Note: cleaned comment.
         GameObject textGo = new GameObject("LevelText", typeof(RectTransform), typeof(TextMeshProUGUI));
         textGo.transform.SetParent(frameGo.transform, false);
         RectTransform textRt = textGo.GetComponent<RectTransform>();
@@ -166,7 +166,7 @@ public class StatusHudView : MonoBehaviour
         levelText.alignment = TextAlignmentOptions.Center;
         levelText.raycastTarget = false;
 
-        // "Lv" ?덉씠釉?(?꾨젅???곷떒)
+        // Note: cleaned comment.
         GameObject lbGo = new GameObject("LvLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
         lbGo.transform.SetParent(frameGo.transform, false);
         RectTransform lbRt = lbGo.GetComponent<RectTransform>();
@@ -183,18 +183,18 @@ public class StatusHudView : MonoBehaviour
         lbTmp.alignment = TextAlignmentOptions.Center;
         lbTmp.raycastTarget = false;
 
-        // ?덈꺼 ?レ옄瑜??섎떒?쇰줈
+        // Note: cleaned comment.
         textRt.anchorMin = new Vector2(0f, 0f);
         textRt.anchorMax = new Vector2(1f, 0.65f);
     }
 
     /// <summary>
-    /// 寃쏀뿕移?寃뚯씠吏 + ?꾩씠肄?+ ?띿뒪???먮룞 ?앹꽦.
-    /// ?덈꺼 ?꾨젅???꾨옒??諛곗튂.
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     private void BuildExpUI()
     {
-        // 而⑦뀒?대꼫 (寃쏀뿕移?寃뚯씠吏 ?곸뿭)
+        // Note: cleaned comment.
         GameObject container = new GameObject("ExpContainer", typeof(RectTransform));
         container.transform.SetParent(transform, false);
         RectTransform cRt = container.GetComponent<RectTransform>();
@@ -204,7 +204,7 @@ public class StatusHudView : MonoBehaviour
         cRt.anchoredPosition = new Vector2(10f, -100f); // ?덈꺼 ?꾨젅??80) + ?щ갚(10)
         cRt.sizeDelta = new Vector2(220f, 22f);
 
-        // 寃뚯씠吏 諛곌꼍
+        // Note: cleaned comment.
         GameObject bgGo = new GameObject("ExpGaugeBG", typeof(RectTransform), typeof(Image));
         bgGo.transform.SetParent(container.transform, false);
         RectTransform bgRt = bgGo.GetComponent<RectTransform>();
@@ -216,7 +216,7 @@ public class StatusHudView : MonoBehaviour
         bgImg.color = gaugeBgColor;
         bgImg.raycastTarget = false;
 
-        // 寃뚯씠吏 Fill
+        // Note: cleaned comment.
         GameObject fillGo = new GameObject("ExpGauge", typeof(RectTransform), typeof(Image));
         fillGo.transform.SetParent(container.transform, false);
         RectTransform fillRt = fillGo.GetComponent<RectTransform>();
@@ -232,7 +232,7 @@ public class StatusHudView : MonoBehaviour
         expGauge.fillAmount = 0f;
         expGauge.raycastTarget = false;
 
-        // EXP ?띿뒪??(寃뚯씠吏 ???ㅻ쾭?덉씠)
+        // Note: cleaned comment.
         GameObject txtGo = new GameObject("ExpText", typeof(RectTransform), typeof(TextMeshProUGUI));
         txtGo.transform.SetParent(container.transform, false);
         RectTransform txtRt = txtGo.GetComponent<RectTransform>();
@@ -249,7 +249,7 @@ public class StatusHudView : MonoBehaviour
         expText.alignment = TextAlignmentOptions.Center;
         expText.raycastTarget = false;
 
-        // EXP ?쇰꺼 (寃뚯씠吏 ?쇱そ ?곷떒)
+        // Note: cleaned comment.
         GameObject expLabelGo = new GameObject("ExpLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
         expLabelGo.transform.SetParent(transform, false);
         RectTransform expLabelRt = expLabelGo.GetComponent<RectTransform>();
@@ -269,12 +269,12 @@ public class StatusHudView : MonoBehaviour
     }
 
     /// <summary>
-    /// 怨⑤뱶 ?꾩씠肄?+ ?띿뒪???먮룞 ?앹꽦.
-    /// 寃쏀뿕移?寃뚯씠吏 ?꾨옒??諛곗튂.
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     private void BuildGoldUI()
     {
-        // 而⑦뀒?대꼫
+        // Note: cleaned comment.
         GameObject container = new GameObject("GoldContainer", typeof(RectTransform));
         container.transform.SetParent(transform, false);
         RectTransform cRt = container.GetComponent<RectTransform>();
@@ -284,7 +284,7 @@ public class StatusHudView : MonoBehaviour
         cRt.anchoredPosition = new Vector2(10f, -132f); // EXP 而⑦뀒?대꼫 ?꾨옒
         cRt.sizeDelta = new Vector2(160f, 36f);
 
-        // 怨⑤뱶 ?꾩씠肄?(?먰삎 ?몃? 諛곌꼍?쇰줈 ?泥?
+        // Note: cleaned comment.
         GameObject iconGo = new GameObject("GoldIcon", typeof(RectTransform), typeof(Image));
         iconGo.transform.SetParent(container.transform, false);
         RectTransform iconRt = iconGo.GetComponent<RectTransform>();
@@ -298,7 +298,7 @@ public class StatusHudView : MonoBehaviour
         goldIcon.color = new Color(1f, 0.8f, 0.1f, 1f);
         goldIcon.raycastTarget = false;
 
-        // "G" ?덉씠釉?(?꾩씠肄???
+        // Note: cleaned comment.
         GameObject gLabelGo = new GameObject("GLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
         gLabelGo.transform.SetParent(iconGo.transform, false);
         RectTransform gLabelRt = gLabelGo.GetComponent<RectTransform>();
@@ -315,7 +315,7 @@ public class StatusHudView : MonoBehaviour
         gTmp.alignment = TextAlignmentOptions.Center;
         gTmp.raycastTarget = false;
 
-        // 怨⑤뱶 ?띿뒪??
+        // Note: cleaned comment.
         GameObject txtGo = new GameObject("GoldText", typeof(RectTransform), typeof(TextMeshProUGUI));
         txtGo.transform.SetParent(container.transform, false);
         RectTransform txtRt = txtGo.GetComponent<RectTransform>();

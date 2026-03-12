@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using ProjectFirst.Data;
 /// <summary>
-/// Agent CSV瑜?AgentTable / AgentData / Agent ?꾨━?뱀뿉 ?숆린?뷀빀?덈떎.
+/// 에이전트 CSV를 AgentTable과 관련 에셋에 반영합니다.
 /// </summary>
 public static class AgentTableImporter
 {
@@ -23,13 +23,13 @@ public static class AgentTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[AgentTableImporter] CSV瑜?李얠쓣 ???놁뒿?덈떎: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[AgentTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[AgentTableImporter] ?곗씠???됱씠 ?놁뒿?덈떎: {csvPath}");
+            Debug.LogError($"[AgentTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
@@ -100,7 +100,7 @@ public static class AgentTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[AgentTableImporter] Imported {imported} agents into {AssetPath}");
+        Debug.Log($"[AgentTableImporter] {imported}개 에이전트 임포트 완료 → {AssetPath}");
     }
 
     private static ElementType ParseElement(string raw, int id)
@@ -108,7 +108,7 @@ public static class AgentTableImporter
         if (CsvImportUtility.TryParseEnumInsensitive(raw, out ElementType element))
             return element;
 
-        Debug.LogWarning($"[AgentTableImporter] Failed to parse element for id '{id}'. raw='{raw}'. fallback=Reason");
+        Debug.LogWarning($"[AgentTableImporter] id='{id}' element='{raw}' 파싱 실패 → Reason으로 대체");
         return ElementType.Reason;
     }
 
@@ -155,14 +155,14 @@ public static class AgentTableImporter
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
         if (prefab == null)
         {
-            Debug.LogWarning($"[AgentTableImporter] Prefab not found for '{prefabName}' (agentId='{agentId}').");
+            Debug.LogWarning($"[AgentTableImporter] prefab='{prefabName}' 을 찾지 못했습니다. agentId='{agentId}'");
             return;
         }
 
         Component agentComp = prefab.GetComponentInChildren(typeof(Project.Agent), true);
         if (agentComp == null)
         {
-            Debug.LogWarning($"[AgentTableImporter] Agent component not found in prefab '{prefabPath}'.");
+            Debug.LogWarning($"[AgentTableImporter] 프리팹에서 Agent 컴포넌트를 찾지 못했습니다: {prefabPath}");
             return;
         }
 

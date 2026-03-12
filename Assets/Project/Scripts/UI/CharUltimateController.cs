@@ -14,33 +14,33 @@ namespace Project
 {
 
 /// <summary>
-/// 罹먮┃??怨좎쑀 ?≫떚釉??ㅽ궗 踰꾪듉 而⑦듃濡ㅻ윭.
+/// Documentation cleaned.
 ///
-/// ?? Hierarchy 援ъ“ ????????????????????????????????????????????????????????
-/// SkillChar  [CharUltimateController 遺李?
-///   ?쒋?? CharActive_1 (Button)     ??Ult Button
-///   ??    ?쒋?? SkillIcon  (Image)  ???ㅽ궗 ?꾩씠肄?
-///   ??    ?쒋?? CoolTimeDim(Image, Filled) ??荑⑦???寃뚯씠吏 ?ㅻ쾭?덉씠
-///   ??    ?붴?? CoolTime   (TMP_Text) ???⑥? ?쒓컙 ?띿뒪??
-///   ?붴?? CharIcon (Image)          ??罹먮┃??珥덉긽??
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
+/// Documentation cleaned.
 ///
-/// ?? Inspector 媛?대뱶 ?????????????????????????????????????????????????????
-/// 鍮꾩썙?먮㈃ ?먯떇 ?ㅻ툕?앺듃 ?대쫫?쇰줈 ?먮룞 ?먯깋?⑸땲??
+/// Documentation cleaned.
+/// Documentation cleaned.
 /// </summary>
     public class CharUltimateController : MonoBehaviour
     {
-        // ?? Inspector ?곌껐 ????????????????????????????????????????????????????????
-        [Header("UI ?곌껐 (鍮꾩슦硫??먮룞 ?먯깋)")]
+        // Note: cleaned comment.
+        [Header("UI References")]
         [SerializeField] private Button   ultButton;       // CharActive_1
         [SerializeField] private Image    skillIcon;       // SkillIcon
         [SerializeField] private Image    cooldownGauge;   // CoolTimeDim
         [SerializeField] private TMP_Text cooldownText;    // CoolTime
         [SerializeField] private Image    charIcon;        // CharIcon
-        [Header("遺덇? ?곹깭 ?쒖떆")]
+        [Header("Visual State")]
         [SerializeField] private Color readyColor    = Color.white;
         [SerializeField] private Color cooldownColor = new Color(0f, 0f, 0f, 0.6f);
 
-    // ?? ?고??????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
     private SkillRow boundSkill;
     private float    cooldownDuration;
     private float    cooldownEndTime;  // Time.unscaledTime 湲곗?
@@ -48,10 +48,10 @@ namespace Project
     public bool  IsReady   => Time.unscaledTime >= cooldownEndTime;
     public float Remaining => Mathf.Max(0f, cooldownEndTime - Time.unscaledTime);
 
-    /// <summary>踰꾪듉 ????BattleGameManager媛 援щ룆?⑸땲??</summary>
+    /// Documentation cleaned.
     public event System.Action<SkillRow> OnUltimateRequested;
 
-    // ????????????????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void Awake()
     {
@@ -69,32 +69,32 @@ namespace Project
         UpdateCooldownUI();
     }
 
-    // ?? ?몃? API ??????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     /// <summary>
-    /// BattleGameManager 珥덇린?????몄텧.
-    /// AgentData?먯꽌 ?ㅽ궗???먯깋?섍퀬 ?꾩씠肄??깆쓣 ?ㅼ젙?⑸땲??
+    /// Documentation cleaned.
+    /// Documentation cleaned.
     /// </summary>
     public void Setup(AgentData agentData, SkillTable skillTable)
     {
         if (agentData == null)
         {
-            Debug.LogWarning("[CharUltimate] AgentData媛 null?낅땲?? Agent Inspector?먯꽌 AgentData瑜??곌껐?섏꽭??", this);
+            Debug.LogWarning("[CharUltimate] AgentData is null. Assign AgentData in the inspector.", this);
             SetInteractable(false);
             return;
         }
 
-        // 罹먮┃??珥덉긽??
+        // Note: cleaned comment.
         if (charIcon != null && agentData.characterSkillIcon != null)
         {
             charIcon.sprite  = agentData.characterSkillIcon;
             charIcon.enabled = true;
         }
 
-        // ?ㅽ궗 ?먯깋
+        // Note: cleaned comment.
         if (agentData.characterSkillId <= 0 || skillTable == null)
         {
-            Debug.LogWarning($"[CharUltimate] characterSkillId媛 0?댄븯?닿굅??SkillTable???놁뒿?덈떎. ({agentData.name})", this);
+            Debug.LogWarning($"[CharUltimate] characterSkillId is invalid or SkillTable is missing. ({agentData.name})", this);
             SetInteractable(false);
             return;
         }
@@ -102,14 +102,14 @@ namespace Project
         boundSkill = skillTable.GetById(agentData.characterSkillId);
         if (boundSkill == null)
         {
-            Debug.LogWarning($"[CharUltimate] SkillTable?먯꽌 '{agentData.characterSkillId}'瑜?李얠? 紐삵뻽?듬땲??", this);
+            Debug.LogWarning($"[CharUltimate] Could not find skill id '{agentData.characterSkillId}' in SkillTable.", this);
             SetInteractable(false);
             return;
         }
 
         cooldownDuration = boundSkill.cooldown;
 
-        // ?ㅽ궗 ?꾩씠肄?(SkillRow.icon ?곗꽑, ?놁쑝硫?AgentData.characterSkillIcon)
+        // Note: cleaned comment.
         if (skillIcon != null)
         {
             Sprite icon = boundSkill.icon != null ? boundSkill.icon : agentData.characterSkillIcon;
@@ -118,7 +118,7 @@ namespace Project
             skillIcon.enabled = (icon != null);
         }
 
-        // 荑⑦??????ㅻ쾭?덉씠 珥덇린??(Simple ???- ?꾩씠肄??꾩껜瑜?洹좎씪?섍쾶 ??쓬)
+        // Note: cleaned comment.
         if (cooldownGauge != null)
         {
             cooldownGauge.type  = Image.Type.Simple;
@@ -129,11 +129,11 @@ namespace Project
         SetInteractable(true);
         UpdateCooldownUI();
 
-        Debug.Log($"[CharUltimate] ?ㅼ젙 ?꾨즺: {agentData.displayName} ??'{boundSkill.name}' (荑⑦???{cooldownDuration}s)");
+        Debug.Log($"[CharUltimate] Setup complete: {agentData.displayName} -> '{boundSkill.name}' (Cooldown {cooldownDuration}s)");
     }
 
     /// <summary>
-    /// ?ㅽ궗 諛쒕룞 ??BattleGameManager媛 ?몄텧?섏뿬 荑⑦??꾩쓣 ?쒖옉?⑸땲??
+    /// Documentation cleaned.
     /// </summary>
     public void StartCooldown()
     {
@@ -142,7 +142,7 @@ namespace Project
         UpdateCooldownUI();
     }
 
-    // ?? ?대? 泥섎━ ?????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void OnButtonClicked()
     {
@@ -155,14 +155,14 @@ namespace Project
         bool  ready     = IsReady;
         float remaining = Remaining;
 
-        // ???ㅻ쾭?덉씠: 荑⑦???以??꾩씠肄??꾩껜瑜?諛섑닾紐?寃?뺤쑝濡???쓬
+        // Note: cleaned comment.
         if (cooldownGauge != null)
         {
             cooldownGauge.type  = Image.Type.Simple;
             cooldownGauge.color = ready ? Color.clear : cooldownColor;
         }
 
-        // 荑⑦????띿뒪??
+        // Note: cleaned comment.
         if (cooldownText != null)
         {
             if (ready)
@@ -188,11 +188,11 @@ namespace Project
             ultButton.interactable = value;
     }
 
-    // ?? ?먮룞 ?먯깋 ?????????????????????????????????????????????????????????????
+    // Note: cleaned comment.
 
     private void AutoBind()
     {
-        // Button: ?먯떇 以?泥?踰덉㎏ Button (CharActive_1 ??
+        // Note: cleaned comment.
         if (ultButton == null)
         {
             foreach (Button btn in GetComponentsInChildren<Button>(true))
@@ -210,7 +210,7 @@ namespace Project
         if (cooldownGauge == null)
             cooldownGauge = GetComponent<Image>();
 
-        // Simple ??낆쑝濡??ㅼ젙 (?꾩씠肄??꾩껜瑜?洹좎씪?섍쾶 ??쓬)
+        // Note: cleaned comment.
         if (cooldownGauge != null)
             cooldownGauge.type = Image.Type.Simple;
     }

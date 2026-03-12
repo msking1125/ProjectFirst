@@ -11,8 +11,8 @@ using ProjectFirst.Data;
 namespace ProjectFirst.Editor
 {
     /// <summary>
-    /// Soul Ark 데이터 테이블 관리 및 밸런싱 툴
-    /// 오딘 인스펙터 기반 에디터 윈도우
+    /// Soul Ark 데이터 에셋을 한 곳에서 불러오고 저장하는 관리 창입니다.
+    /// Soul Ark 데이터 에셋을 한 곳에서 불러오고 저장하는 관리 창입니다.
     /// </summary>
 #if ODIN_INSPECTOR
     public class SoulArkDataManagerWindow : OdinEditorWindow
@@ -120,7 +120,7 @@ namespace ProjectFirst.Editor
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 method?.Invoke(SkillTableAsset, null);
             }
-            EditorUtility.DisplayDialog("완료", "모든 테이블 인덱스가 재구축되었습니다.", "확인");
+            EditorUtility.DisplayDialog("알림", "인덱스 재구축이 완료되었습니다.", "확인");
         }
 
         [HorizontalGroup("작업/Buttons")]
@@ -134,7 +134,7 @@ namespace ProjectFirst.Editor
             if (SkillTableAsset != null) EditorUtility.SetDirty(SkillTableAsset);
             if (StageTableAsset != null) EditorUtility.SetDirty(StageTableAsset);
             AssetDatabase.SaveAssets();
-            EditorUtility.DisplayDialog("저장 완료", "모든 변경사항이 저장되었습니다.", "확인");
+            EditorUtility.DisplayDialog("알림", "변경사항 저장이 완료되었습니다.", "확인");
         }
 
         #endregion
@@ -167,7 +167,7 @@ namespace ProjectFirst.Editor
 
         private void OnTabChanged()
         {
-            // 탭 변경 시 필요한 초기화
+            // 탭 변경 시 필요하면 추가 동작을 연결
         }
 
         protected override void OnEnable()

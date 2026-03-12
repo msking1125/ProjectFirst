@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 웨이브 데이터 테이블
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Wave Table")]
     public class WaveTable : ScriptableObject

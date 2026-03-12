@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// CSV에서 임포트되는 챕터 1행 데이터.
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public class ChapterRow
@@ -24,7 +24,7 @@ namespace ProjectFirst.Data
         public bool isUnlocked;
 
         /// <summary>
-        /// worldMapX/Y를 Vector2로 변환합니다.
+        /// Documentation cleaned.
         /// </summary>
         public Vector2 WorldMapPosition => new Vector2(worldMapX, worldMapY);
     }

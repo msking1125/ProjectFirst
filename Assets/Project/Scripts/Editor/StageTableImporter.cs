@@ -12,13 +12,13 @@ public static class StageTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[StageTableImporter] CSV not found: {CsvPathLower}");
+            Debug.LogError($"[StageTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError("[StageTableImporter] CSV has no data rows.");
+            Debug.LogError($"[StageTableImporter] 데이터 행이 없습니다: {csvPath}");
             return;
         }
 
@@ -72,7 +72,7 @@ public static class StageTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[StageTableImporter] Imported {table.rows.Count} stage(s) into {AssetPath}");
+        Debug.Log($"[StageTableImporter] {table.rows.Count}개 스테이지 임포트 완료 → {AssetPath}");
     }
 }
 #endif

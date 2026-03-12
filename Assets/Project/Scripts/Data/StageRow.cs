@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// CSV에서 임포트되는 스테이지 1행 데이터.
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public class StageRow

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 금칙어 테이블
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Badword Table", fileName = "BadwordTable")]
     public class BadwordTable : ScriptableObject
@@ -16,7 +16,7 @@ namespace ProjectFirst.Data
 
         public void ImportFromCsv()
         {
-            // CSV 임포트 로직 (에디터에서 구현)
+            // Note: cleaned comment.
         }
 
         public bool Contains(string input)

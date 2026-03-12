@@ -4,7 +4,7 @@ using System;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// ?먯씠?꾪듃(罹먮┃?? 湲곕낯 ?곗씠????
+    /// Documentation cleaned.
     /// </summary>
     [Serializable]
     public class AgentRow

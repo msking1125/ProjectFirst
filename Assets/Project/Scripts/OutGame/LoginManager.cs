@@ -262,21 +262,21 @@ namespace ProjectFirst.OutGame
                 // 1. Validate nickname length (1 to 8 characters).
                 if (string.IsNullOrEmpty(nickname) || nickname.Length > 8)
                 {
-                    ShowNicknameError("???? 1? ?? 8? ???? ???.");
+                    ShowNicknameError("닉네임은 1자 이상 8자 이하로 입력해주세요.");
                     return;
                 }
 
                 // 2. Reject whitespace and special characters.
                 if (!Regex.IsMatch(nickname, @"^[?-?a-zA-Z0-9]+$"))
                 {
-                    ShowNicknameError("?? ? ????? ??? ? ????.");
+                    ShowNicknameError("닉네임은 한글, 영문, 숫자만 사용할 수 있습니다.");
                     return;
                 }
 
                 // 3. Check the local profanity list.
                 if (badWordData != null && badWordData.ContainsBadWord(nickname))
                 {
-                    ShowNicknameError("??? ? ?? ??? ???? ????.");
+                    ShowNicknameError("사용할 수 없는 단어가 포함되어 있습니다.");
                     return;
                 }
 
@@ -284,7 +284,7 @@ namespace ProjectFirst.OutGame
                 bool isAvailable = await nicknameAPI.CheckDuplicateAsync(nickname);
                 if (!isAvailable)
                 {
-                    ShowNicknameError("?? ?? ?? ??????.");
+                    ShowNicknameError("이미 사용 중인 닉네임입니다.");
                     return;
                 }
 
@@ -326,14 +326,14 @@ namespace ProjectFirst.OutGame
         {
             if (dropdownServer == null || serverListSO == null || serverListSO.servers.Count == 0)
             {
-                ShowServerError("?? ??? ???? ?????.");
+                ShowServerError("서버 목록을 불러오지 못했습니다.");
                 return;
             }
 
             int selectedIndex = dropdownServer.index;
             if (selectedIndex < 0 || selectedIndex >= serverListSO.servers.Count)
             {
-                ShowServerError("??? ??? ??? ???.");
+                ShowServerError("서버 연결에 실패했습니다.");
                 return;
             }
 
@@ -419,7 +419,7 @@ namespace ProjectFirst.OutGame
                 {
                     if (lblServerError != null)
                     {
-                        lblServerError.text = "?? ??? ???? ????. ?? ? ?? ??? ???.";
+                        lblServerError.text = "서버 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
                         lblServerError.style.display = DisplayStyle.Flex;
                     }
                 }

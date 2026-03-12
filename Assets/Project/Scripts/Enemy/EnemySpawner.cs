@@ -15,31 +15,31 @@ namespace Project
 
 /// <summary>
 /// EnemySpawner
-/// - 湲곕낯?곸쑝濡?spawnInterval(珥?留덈떎 spawnPoints 以??꾩쓽 ?꾩튂?먯꽌 EnemyPool.Get?쇰줈 ???앹꽦
-/// - WaveManager媛 ?ㅼ젙?섎㈃ ?대떦 ?⑥씠釉?spawnCount / spawnInterval / ?ㅽ꺈 諛곗닔瑜??ъ슜
+/// Documentation cleaned.
+/// Documentation cleaned.
 /// </summary>
 [AddComponentMenu("Enemy/Enemy Spawner")]
 public class EnemySpawner : MonoBehaviour
 {
     private const int DefaultMonsterId = 1;
 
-    [Header("Enemy Pool (?꾩닔)")]
-    [Tooltip("EnemyPool 而댄룷?뚰듃瑜??곌껐?섏꽭??")]
+    [Header("Settings")]
+    [Tooltip("Configured in inspector.")]
     public EnemyPool enemyPool;
 
-    [Header("?寃?(Ark) (?꾩닔)")]
-    [Tooltip("?곸씠 異붽꺽???寃?Ark)??Transform??吏?뺥븯?몄슂.")]
+    [Header("Settings")]
+    [Tooltip("Configured in inspector.")]
     public Transform arkTarget;
 
-    [Header("Spawn Points (?꾩닔)")]
-    [Tooltip("?곸씠 ?앹꽦???꾩튂?ㅼ쓽 Transform 諛곗뿴???깅줉?섏꽭??")]
+    [Header("Settings")]
+    [Tooltip("Configured in inspector.")]
     public Transform[] spawnPoints;
 
     [Header("Monster Data")]
     [SerializeField] private MonsterTable monsterTable;
 
     [Header("Spawn Option")]
-    [Tooltip("?ㅽ룿 二쇨린(珥?瑜??ㅼ젙?섏꽭??")]
+    [Tooltip("Configured in inspector.")]
     [Min(0.01f)]
     public float spawnInterval = 2f;
 
@@ -172,7 +172,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingPool)
             {
-                Debug.LogError("[EnemySpawner] enemyPool???좊떦?섏? ?딆븯?듬땲??");
+                Debug.LogError("[Log] Error message cleaned.");
                 loggedMissingPool = true;
             }
 
@@ -185,7 +185,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingTarget)
             {
-                Debug.LogError("[EnemySpawner] arkTarget???좊떦?섏? ?딆븯?듬땲??");
+                Debug.LogError("[Log] Error message cleaned.");
                 loggedMissingTarget = true;
             }
 
@@ -198,7 +198,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingMonsterTable)
             {
-                Debug.LogError("[EnemySpawner] monsterTable???좊떦?섏? ?딆븯?듬땲?? 'Monster Data' ?뱀뀡??MonsterTable ?먯뀑???곌껐?섏꽭??");
+                Debug.LogError("[Log] Error message cleaned.");
                 loggedMissingMonsterTable = true;
             }
 
@@ -211,7 +211,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingSpawnPoints)
             {
-                Debug.LogError("[EnemySpawner] spawnPoints媛 鍮꾩뼱?덉뒿?덈떎. SpawnPoints瑜??곌껐?섏꽭??");
+                Debug.LogError("[Log] Error message cleaned.");
                 loggedMissingSpawnPoints = true;
             }
 
@@ -229,7 +229,7 @@ public class EnemySpawner : MonoBehaviour
 
         if (!loggedMissingSpawnPoints)
         {
-            Debug.LogError("[EnemySpawner] spawnPoints???좏슚??Transform???놁뒿?덈떎.");
+            Debug.LogError("[Log] Error message cleaned.");
             loggedMissingSpawnPoints = true;
         }
 
@@ -245,12 +245,12 @@ public class EnemySpawner : MonoBehaviour
         WaveMultipliers multipliers = new WaveMultipliers { hp = session.enemyHpMul, speed = session.enemySpeedMul, damage = session.enemyDamageMul };
 
         string enemyIdSource = session.lastConfiguredEnemyId <= 0 ? "fallback(defaultMonsterId)" : "waveRow(enemyId/monsterId)";
-        Debug.Log($"[EnemySpawner] ?대쾲 ?ㅽ룿 enemyId='{session.currentEnemyId}' (source={enemyIdSource}, waveValue='{session.lastConfiguredEnemyId}', fallback='{defaultMonsterId}')");
+        Debug.Log("[Log] Message cleaned.");
 
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, session.currentEnemyId, grade, multipliers);
         if (enemy == null)
         {
-            Debug.LogError("[EnemySpawner] EnemyPool.Get ?ㅽ뙣濡????ㅽ룿???ㅽ뙣?덉뒿?덈떎.");
+            Debug.LogError("[Log] Error message cleaned.");
             return;
         }
 
@@ -270,7 +270,7 @@ public class EnemySpawner : MonoBehaviour
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, grade, multipliers);
         if (enemy == null)
         {
-            Debug.LogError("[EnemySpawner] EnemyPool.Get ?ㅽ뙣濡????ㅽ룿???ㅽ뙣?덉뒿?덈떎.");
+            Debug.LogError("[Log] Error message cleaned.");
             return;
         }
     }
@@ -288,7 +288,7 @@ public class EnemySpawner : MonoBehaviour
 
         if (validSpawnPoints.Count == 0)
         {
-            Debug.LogError("[EnemySpawner] spawnPoints???좏슚??Transform???놁뒿?덈떎.");
+            Debug.LogError("[Log] Error message cleaned.");
             return null;
         }
 

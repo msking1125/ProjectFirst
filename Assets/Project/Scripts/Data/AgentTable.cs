@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// 에이전트(캐릭터) 데이터 테이블
+    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Agent Table")]
     public class AgentTable : ScriptableObject
@@ -15,7 +15,7 @@ namespace ProjectFirst.Data
 
         public List<AgentRow> rows = new();
 
-        [Header("캐릭터 상세 정보")]
+        [Header("Settings")]
         [SerializeField] private List<AgentInfo> _agentInfos = new();
 
         private readonly Dictionary<int, AgentRow> _index = new();
@@ -23,7 +23,7 @@ namespace ProjectFirst.Data
         private void OnEnable() => RebuildIndex();
         private void OnValidate() => RebuildIndex();
 
-        /// <summary>ID로 AgentRow를 조회합니다.</summary>
+        /// Documentation cleaned.
         public AgentRow GetById(int id)
         {
             if (id <= 0) return null;
@@ -31,24 +31,24 @@ namespace ProjectFirst.Data
             return _index.TryGetValue(id, out AgentRow row) ? row : null;
         }
 
-        /// <summary>ID로 스탯을 조회합니다.</summary>
+        /// Documentation cleaned.
         public CombatStats GetStats(int id)
         {
             AgentRow row = GetById(id);
             return row != null ? row.ToCombatStats() : _defaultStats.Sanitized();
         }
 
-        /// <summary>ID로 속성을 조회합니다.</summary>
+        /// Documentation cleaned.
         public ElementType GetElement(int id)
         {
             AgentRow row = GetById(id);
             return row != null ? row.element : _defaultElement;
         }
 
-        /// <summary>모든 AgentInfo 목록을 반환합니다.</summary>
+        /// Documentation cleaned.
         public IReadOnlyList<AgentInfo> GetAll() => _agentInfos;
 
-        /// <summary>ID로 AgentInfo를 검색합니다.</summary>
+        /// Documentation cleaned.
         public AgentInfo GetAgentInfo(int id)
         {
             for (int i = 0; i < _agentInfos.Count; i++)
