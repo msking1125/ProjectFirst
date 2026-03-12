@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2faf56972c8ddea429a41d6856e9d6c7
+guid: bc399eb6d16c0394a95ae3a059f95c5c
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -33,18 +33,18 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: idle
-      takeName: aria_idle
-      internalID: 7907537074074679427
+      name: activeskill
+      takeName: aria_activeskill
+      internalID: -7670046875584852510
       firstFrame: 0
-      lastFrame: 44
+      lastFrame: 36
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 1
+      loopTime: 0
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0
