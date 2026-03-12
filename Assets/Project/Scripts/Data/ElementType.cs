@@ -1,5 +1,6 @@
 public enum ElementType
 {
+    All = -1,
     Passion,
     Intuition,
     Reason

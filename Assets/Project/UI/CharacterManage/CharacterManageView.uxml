@@ -1,0 +1,114 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+         xsi="http://www.w3.org/2001/XMLSchema-instance"
+         engine="UnityEngine.UIElements"
+         editor="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+
+    <ui:VisualElement name="split-layout" class="split-layout">
+
+        <!-- ═══════════ LEFT PANEL (40%) ═══════════ -->
+        <ui:VisualElement name="left-panel" class="left-panel">
+
+            <!-- 필터 버튼 행 -->
+            <ui:VisualElement name="filter-row" class="filter-row">
+                <ui:Button name="filter-all-btn"       text="ALL"       class="filter-btn filter-active" />
+                <ui:Button name="filter-passion-btn"    text="Passion"   class="filter-btn" />
+                <ui:Button name="filter-intuition-btn"  text="Intuition" class="filter-btn" />
+                <ui:Button name="filter-reason-btn"     text="Reason"    class="filter-btn" />
+            </ui:VisualElement>
+
+            <!-- 정렬 드롭다운 -->
+            <ui:DropdownField name="sort-dropdown" class="sort-dropdown" />
+
+            <!-- 에이전트 리스트 -->
+            <ui:ListView name="agent-list" class="agent-list" />
+
+        </ui:VisualElement>
+
+        <!-- ═══════════ RIGHT PANEL (60%) ═══════════ -->
+        <ui:VisualElement name="right-panel" class="right-panel">
+
+            <!-- 3D 모델 뷰포트 -->
+            <ui:VisualElement name="model-viewport" class="model-viewport" />
+
+            <!-- 탭 행 -->
+            <ui:VisualElement name="tab-row" class="tab-row">
+                <ui:Button name="tab-info-btn"       text="정보"   class="tab-btn tab-active" />
+                <ui:Button name="tab-levelup-btn"    text="레벨업"  class="tab-btn" />
+                <ui:Button name="tab-equipment-btn"  text="장비"   class="tab-btn" />
+                <ui:Button name="tab-collection-btn" text="수집"   class="tab-btn" />
+            </ui:VisualElement>
+
+            <!-- 탭 컨텐츠 영역 -->
+            <ui:VisualElement name="tab-content-area" class="tab-content-area">
+
+                <!-- ── 정보 탭 ── -->
+                <ui:VisualElement name="info-tab" class="info-tab">
+
+                    <!-- 이름 / 서브네임 -->
+                    <ui:VisualElement name="name-row" class="name-row">
+                        <ui:Label name="agent-detail-name" text="Agent Name" class="detail-name" />
+                        <ui:Label name="agent-detail-subname" text="Sub Name" class="detail-subname" />
+                    </ui:VisualElement>
+
+                    <!-- 등급 별 -->
+                    <ui:VisualElement name="grade-stars-row" class="grade-stars-row" />
+
+                    <!-- 레벨 / 전투력 -->
+                    <ui:VisualElement name="level-power-row" class="level-power-row">
+                        <ui:Label name="level-label" text="Lv.1" class="level-label" />
+                        <ui:Label name="power-detail-label" text="CP 0" class="power-detail-label" />
+                    </ui:VisualElement>
+
+                    <!-- 스탯 그리드 (2열) -->
+                    <ui:VisualElement name="stat-grid" class="stat-grid">
+                        <ui:VisualElement class="stat-item">
+                            <ui:Label text="HP" class="stat-title" />
+                            <ui:Label name="stat-hp" text="0" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-item">
+                            <ui:Label text="ATK" class="stat-title" />
+                            <ui:Label name="stat-atk" text="0" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-item">
+                            <ui:Label text="DEF" class="stat-title" />
+                            <ui:Label name="stat-def" text="0" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-item">
+                            <ui:Label text="크리확률" class="stat-title" />
+                            <ui:Label name="stat-crit-rate" text="0%" class="stat-value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-item">
+                            <ui:Label text="크리배율" class="stat-title" />
+                            <ui:Label name="stat-crit-mult" text="x1.50" class="stat-value" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- 스킬 행 (3종) -->
+                    <ui:VisualElement name="skill-row" class="skill-row" />
+
+                </ui:VisualElement>
+
+                <!-- ── 레벨업 탭 (P4-S2) ── -->
+                <ui:VisualElement name="levelup-tab" class="tab-page" style="display: none;">
+                    <ui:Label text="레벨업 기능은 추후 구현됩니다." class="placeholder-text" />
+                </ui:VisualElement>
+
+                <!-- ── 장비 탭 (P4-S3) ── -->
+                <ui:VisualElement name="equipment-tab" class="tab-page" style="display: none;">
+                    <ui:Label text="장비 기능은 추후 구현됩니다." class="placeholder-text" />
+                </ui:VisualElement>
+
+                <!-- ── 수집 탭 ── -->
+                <ui:VisualElement name="collection-tab" class="tab-page" style="display: none;">
+                    <ui:Label text="수집 정보가 여기에 표시됩니다." class="placeholder-text" />
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+
+</ui:UXML>
