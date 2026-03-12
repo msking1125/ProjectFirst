@@ -239,11 +239,13 @@ public class Agent : MonoBehaviour
         float hitDelay = attackAnimDuration * (agentData != null ? agentData.hitTiming : 0.3f);
 
         bool isCrit;
-        int finalDmg = DamageCalculator.ComputeCharacterDamage(
-            Mathf.RoundToInt(stats.atk),
-            Mathf.RoundToInt(target.Defense),
+        int finalDmg = DamageCalculator.ComputeDamage(
+            stats.atk,
+            target.Defense,
             stats.critChance,
             stats.critMultiplier,
+            element,
+            target.Element,
             out isCrit);
 
         if (hasPendingHit && pendingHitTarget != null && pendingHitTarget.IsAlive)

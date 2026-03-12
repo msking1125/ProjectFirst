@@ -143,10 +143,11 @@ public class SkillSystem
             // 각 적 위치에 VFX 스폰
             SpawnVfxAt(skill, enemy.transform.position);
 
-            int dmg = DamageCalculator.ComputeCharacterDamage(
-                Mathf.RoundToInt(atk * skill.coefficient),
-                Mathf.RoundToInt(enemy.Defense),
-                playerAgent.CritChance, playerAgent.CritMultiplier, out bool isCrit);
+            int dmg = DamageCalculator.ComputeDamage(
+                atk * skill.coefficient,
+                enemy.Defense,
+                playerAgent.CritChance, playerAgent.CritMultiplier,
+                skill.element, enemy.Element, out bool isCrit);
             enemy.TakeDamage(dmg, isCrit, skill.element);
             hitCount++;
         }
@@ -164,10 +165,11 @@ public class SkillSystem
 
         int atk = Mathf.RoundToInt(GetEffectiveAtk());
         float totalCoeff = skill.coefficient * skill.singleTargetBonus;
-        int dmg = DamageCalculator.ComputeCharacterDamage(
-            Mathf.RoundToInt(atk * totalCoeff),
-            Mathf.RoundToInt(target.Defense),
-            playerAgent.CritChance, playerAgent.CritMultiplier, out bool isCrit);
+        int dmg = DamageCalculator.ComputeDamage(
+            atk * totalCoeff,
+            target.Defense,
+            playerAgent.CritChance, playerAgent.CritMultiplier,
+            skill.element, target.Element, out bool isCrit);
         target.TakeDamage(dmg, isCrit, skill.element);
         return 1;
     }

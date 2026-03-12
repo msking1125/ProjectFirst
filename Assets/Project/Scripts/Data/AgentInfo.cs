@@ -27,9 +27,9 @@ public class AgentInfo
     [SerializeField] private float _critMult = 1.5f;
 
     [Header("성장 배율")]
-    [SerializeField] private float _hpGrowth;
-    [SerializeField] private float _atkGrowth;
-    [SerializeField] private float _defGrowth;
+    [SerializeField] private float _hpGrowth = 0.08f;
+    [SerializeField] private float _atkGrowth = 0.06f;
+    [SerializeField] private float _defGrowth = 0.04f;
 
     public int id => _id;
     public string agentName => _agentName;

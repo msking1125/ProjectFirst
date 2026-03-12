@@ -756,7 +756,16 @@ public class Enemy : MonoBehaviour
         }
 
         hasHitBarrier = true;
-        barrierHealth.TakeDamage(Mathf.Max(0f, currentCombatStats.atk));
+        // 데미지 계산식 적용 (방어력 0, 속성 중립(Reason) 가정)
+        int dmg = DamageCalculator.ComputeDamage(
+            currentCombatStats.atk,
+            0f, 
+            currentCombatStats.critChance,
+            currentCombatStats.critMultiplier,
+            currentElement,
+            ElementType.Reason, 
+            out _);
+        barrierHealth.TakeDamage(dmg);
 
         if (!useDeathReturnDelay || deathReturnDelay <= 0f)
         {

@@ -30,8 +30,8 @@ MonoBehaviour:
     background: bg_village
     characterL: char_aria
     characterR: char_guard
-    choiceA: "\uC788\uB2E4"
-    choiceB: "\uC5C6\uB2E4"
+    choiceA: 
+    choiceB: 
   - groupId: test_group
     dialogueId: scene1_03
     speakerName: "\uC544\uB9AC\uC544"
