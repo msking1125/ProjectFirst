@@ -1,6 +1,9 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace Project
 {
@@ -19,19 +22,76 @@ namespace Project
 /// ── Inspector 가이드 ─────────────────────────────────────────────────────
 /// 비워두면 자식 오브젝트 이름으로 자동 탐색합니다.
 /// </summary>
-public class CharUltimateController : MonoBehaviour
-{
-    // ── Inspector 연결 ────────────────────────────────────────────────────────
-    [Header("UI 연결 (비우면 자동 탐색)")]
-    [SerializeField] private Button   ultButton;       // CharActive_1
-    [SerializeField] private Image    skillIcon;       // SkillIcon
-    [SerializeField] private Image    cooldownGauge;   // CoolTimeDim (Image.Type.Filled)
-    [SerializeField] private TMP_Text cooldownText;    // CoolTime
-    [SerializeField] private Image    charIcon;        // CharIcon
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class CharUltimateController : MonoBehaviour
+    {
+        // ── Inspector 연결 ────────────────────────────────────────────────────────
+#if ODIN_INSPECTOR
+        [Title("UI 연결 (비우면 자동 탐색)", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("UI", 0.33f)]
+        [BoxGroup("UI/버튼")]
+        [LabelText("Ult 버튼")]
+        [Tooltip("CharActive_1")]
+        [SceneObjectsOnly]
+#endif
+        [Header("UI 연결 (비우면 자동 탐색)")]
+        [SerializeField] private Button   ultButton;       // CharActive_1
 
-    [Header("불가 상태 표시")]
-    [SerializeField] private Color readyColor    = Color.white;
-    [SerializeField] private Color cooldownColor = new Color(0f, 0f, 0f, 0.6f);
+#if ODIN_INSPECTOR
+        [HorizontalGroup("UI", 0.33f)]
+        [BoxGroup("UI/아이콘")]
+        [LabelText("스킬 아이콘")]
+        [Tooltip("SkillIcon")]
+        [PreviewField(50, ObjectFieldAlignment.Left)]
+#endif
+        [SerializeField] private Image    skillIcon;       // SkillIcon
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("UI", 0.34f)]
+        [BoxGroup("UI/게이지")]
+        [LabelText("쿨타임 게이지")]
+        [Tooltip("CoolTimeDim (Image.Type.Filled)")]
+        [PreviewField(50, ObjectFieldAlignment.Left)]
+#endif
+        [SerializeField] private Image    cooldownGauge;   // CoolTimeDim
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("UI2", 0.5f)]
+        [BoxGroup("UI2/텍스트")]
+        [LabelText("쿨타임 텍스트")]
+        [Tooltip("CoolTime")]
+#endif
+        [SerializeField] private TMP_Text cooldownText;    // CoolTime
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("UI2", 0.5f)]
+        [BoxGroup("UI2/캐릭터")]
+        [LabelText("캐릭터 아이콘")]
+        [Tooltip("CharIcon")]
+        [PreviewField(50, ObjectFieldAlignment.Left)]
+#endif
+        [SerializeField] private Image    charIcon;        // CharIcon
+
+#if ODIN_INSPECTOR
+        [Title("불가 상태 표시", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("상태", 0.5f)]
+        [BoxGroup("상태/준비")]
+        [LabelText("준비 색상")]
+        [Tooltip("쿨타임 완료 시 버튼 색상")]
+#endif
+        [Header("불가 상태 표시")]
+        [SerializeField] private Color readyColor    = Color.white;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("상태", 0.5f)]
+        [BoxGroup("상태/쿨타임")]
+        [LabelText("쿨타임 색상")]
+        [GUIColor(0.2f, 0.2f, 0.2f)]
+        [Tooltip("쿨타임 중 버튼 색상")]
+#endif
+        [SerializeField] private Color cooldownColor = new Color(0f, 0f, 0f, 0.6f);
 
     // ── 런타임 ───────────────────────────────────────────────────────────────
     private SkillRow boundSkill;

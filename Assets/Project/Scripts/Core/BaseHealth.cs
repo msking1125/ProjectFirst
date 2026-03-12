@@ -1,66 +1,85 @@
-using System;
-using TMPro;
 using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace Project
 {
 
-public class BaseHealth : MonoBehaviour
-{
-    [SerializeField] private int maxHealth = 100;
-    [SerializeField] private TMP_Text hpText;
-
-    private int currentHealth;
-    private BattleGameManager gameManager;
-
-    public event Action<int, int> OnHealthChanged;
-
-    public int CurrentHealth => currentHealth;
-    public int MaxHealth => Mathf.Max(1, maxHealth);
-
-    private void Awake()
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class BaseHealth : MonoBehaviour
     {
-        currentHealth = MaxHealth;
-        NotifyHealthChanged();
-    }
+#if ODIN_INSPECTOR
+        [Title("체력 설정", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("체력", 0.5f)]
+        [BoxGroup("체력/최대")]
+        [LabelText("최대 체력")]
+        [PropertyRange(10, 1000)]
+#endif
+        [SerializeField] private int maxHealth = 100;
 
-    public void BindGameManager(BattleGameManager manager)
-    {
-        gameManager = manager;
-    }
+#if ODIN_INSPECTOR
+        [HorizontalGroup("체력", 0.5f)]
+        [BoxGroup("체력/텍스트")]
+        [LabelText("HP 텍스트")]
+        [Tooltip("체력 표시 텍스트 컴포넌트")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private TMP_Text hpText;
 
-    public void TakeDamage(float damage)
-    {
-        if (currentHealth <= 0)
+        private int currentHealth;
+        private BattleGameManager gameManager;
+
+        public event Action<int, int> OnHealthChanged;
+
+        public int CurrentHealth => currentHealth;
+        public int MaxHealth => Mathf.Max(1, maxHealth);
+
+        private void Awake()
         {
-            return;
+            currentHealth = MaxHealth;
+            NotifyHealthChanged();
         }
 
-        int appliedDamage = Mathf.CeilToInt(Mathf.Max(0f, damage));
-        currentHealth = Mathf.Max(0, currentHealth - appliedDamage);
-        NotifyHealthChanged();
-
-        if (currentHealth <= 0)
+        public void BindGameManager(BattleGameManager manager)
         {
-            if (gameManager != null)
+            gameManager = manager;
+        }
+
+        public void TakeDamage(float damage)
+        {
+            if (currentHealth <= 0)
             {
-                gameManager.HandleDefeat();
+                return;
             }
-            else
+
+            int appliedDamage = Mathf.CeilToInt(Mathf.Max(0f, damage));
+            currentHealth = Mathf.Max(0, currentHealth - appliedDamage);
+            NotifyHealthChanged();
+
+            if (currentHealth <= 0)
             {
-                BattleGameManager.ReportBaseDestroyed();
+                if (gameManager != null)
+                {
+                    gameManager.HandleDefeat();
+                }
+                else
+                {
+                    BattleGameManager.ReportBaseDestroyed();
+                }
             }
         }
-    }
 
-    private void NotifyHealthChanged()
-    {
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
-
-        if (hpText != null)
+        private void NotifyHealthChanged()
         {
-            hpText.text = $"HP: {CurrentHealth}/{MaxHealth}";
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+
+            if (hpText != null)
+            {
+                hpText.text = $"HP: {CurrentHealth}/{MaxHealth}";
+            }
         }
     }
 }
-} // namespace Project

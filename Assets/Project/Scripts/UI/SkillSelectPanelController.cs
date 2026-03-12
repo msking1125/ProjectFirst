@@ -3,33 +3,174 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
-public class SkillSelectPanelController : MonoBehaviour
+namespace Project
 {
-    [SerializeField] private GameObject panelRoot;
-    [SerializeField] private Button optionBtn1;
-    [SerializeField] private Button optionBtn2;
-    [SerializeField] private Button optionBtn3;
-    [SerializeField] private TMP_Text optionTxt1;
-    [SerializeField] private TMP_Text optionTxt2;
-    [SerializeField] private TMP_Text optionTxt3;
-    [SerializeField] private TMP_Text optionDesc1;
-    [SerializeField] private TMP_Text optionDesc2;
-    [SerializeField] private TMP_Text optionDesc3;
-    [Header("아이콘 Image (없으면 자동 탐지/생성)")]
-    [SerializeField] private Image optionIcon1;
-    [SerializeField] private Image optionIcon2;
-    [SerializeField] private Image optionIcon3;
-    [SerializeField] private Image dimImage;
-    [SerializeField] private CanvasGroup dimCanvasGroup;
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class SkillSelectPanelController : MonoBehaviour
+    {
+#if ODIN_INSPECTOR
+        [Title("슬롯 버튼", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("슬롯", 0.33f)]
+        [BoxGroup("슬롯/버튼1")]
+        [LabelText("버튼 1")]
+        [SceneObjectsOnly]
+#endif
+        [Header("슬롯 버튼")]
+        [SerializeField] private Button optionBtn1;
 
-    [Header("아이콘 레이아웃 (Inspector에서 수정 가능)")]
-    [Tooltip("아이콘 크기 (픽셀). 버튼 높이보다 작게 설정하세요.")]
-    [SerializeField] private float iconSize = 80f;
-    [Tooltip("아이콘 좌측/상하 패딩 (픽셀)")]
-    [SerializeField] private float iconPadding = 8f;
-    [Tooltip("텍스트 시작 X 위치 (아이콘 오른쪽 여백 포함, 픽셀)")]
-    [SerializeField] private float textLeftOffset = 96f;
+#if ODIN_INSPECTOR
+        [HorizontalGroup("슬롯", 0.33f)]
+        [BoxGroup("슬롯/버튼2")]
+        [LabelText("버튼 2")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private Button optionBtn2;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("슬롯", 0.34f)]
+        [BoxGroup("슬롯/버튼3")]
+        [LabelText("버튼 3")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private Button optionBtn3;
+
+#if ODIN_INSPECTOR
+        [Title("슬롯 텍스트", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("텍스트", 0.33f)]
+        [BoxGroup("텍스트/이름")]
+        [LabelText("스킬 이름 1")]
+        [SceneObjectsOnly]
+#endif
+        [Header("슬롯 텍스트 (스킬 이름)")]
+        [SerializeField] private TMP_Text optionTxt1;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("텍스트", 0.33f)]
+        [BoxGroup("텍스트/이름")]
+        [LabelText("스킬 이름 2")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private TMP_Text optionTxt2;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("텍스트", 0.34f)]
+        [BoxGroup("텍스트/이름")]
+        [LabelText("스킬 이름 3")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private TMP_Text optionTxt3;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("텍스트2", 0.33f)]
+        [BoxGroup("텍스트2/설명")]
+        [LabelText("스킬 설명 1")]
+        [SceneObjectsOnly]
+#endif
+        [Header("슬롯 설명")]
+        [SerializeField] private TMP_Text optionDesc1;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("텍스트2", 0.33f)]
+        [BoxGroup("텍스트2/설명")]
+        [LabelText("스킬 설명 2")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private TMP_Text optionDesc2;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("텍스트2", 0.34f)]
+        [BoxGroup("텍스트2/설명")]
+        [LabelText("스킬 설명 3")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private TMP_Text optionDesc3;
+
+#if ODIN_INSPECTOR
+        [Title("슬롯 아이콘", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("아이콘", 0.33f)]
+        [BoxGroup("아이콘/1")]
+        [LabelText("아이콘 1")]
+        [SceneObjectsOnly]
+        [PreviewField(50, ObjectFieldAlignment.Left)]
+#endif
+        [Header("슬롯 아이콘 Image (없으면 자동 탐지/생성)")]
+        [SerializeField] private Image optionIcon1;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("아이콘", 0.33f)]
+        [BoxGroup("아이콘/2")]
+        [LabelText("아이콘 2")]
+        [SceneObjectsOnly]
+        [PreviewField(50, ObjectFieldAlignment.Left)]
+#endif
+        [SerializeField] private Image optionIcon2;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("아이콘", 0.34f)]
+        [BoxGroup("아이콘/3")]
+        [LabelText("아이콘 3")]
+        [SceneObjectsOnly]
+        [PreviewField(50, ObjectFieldAlignment.Left)]
+#endif
+        [SerializeField] private Image optionIcon3;
+
+#if ODIN_INSPECTOR
+        [Title("디밍", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("디밍", 0.5f)]
+        [BoxGroup("디밍/이미지")]
+        [LabelText("디밍 이미지")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private Image dimImage;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("디밍", 0.5f)]
+        [BoxGroup("디밍/캔버스")]
+        [LabelText("디밍 CanvasGroup")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private CanvasGroup dimCanvasGroup;
+
+#if ODIN_INSPECTOR
+        [Title("레이아웃", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("레이아웃", 0.33f)]
+        [BoxGroup("레이아웃/크기")]
+        [LabelText("아이콘 크기")]
+        [Tooltip("아이콘 크기 (픽셀). 버튼 높이보다 작게 설정하세요.")]
+        [PropertyRange(40f, 120f)]
+        [SuffixLabel("px", true)]
+#endif
+        [Header("아이콘 레이아웃 (Inspector에서 수정 가능)")]
+        [Tooltip("아이콘 크기 (픽셀). 버튼 높이보다 작게 설정하세요.")]
+        [SerializeField] private float iconSize = 80f;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("레이아웃", 0.33f)]
+        [BoxGroup("레이아웃/패딩")]
+        [LabelText("패딩")]
+        [Tooltip("아이콘 좌측/상하 패딩 (픽셀)")]
+        [PropertyRange(0f, 30f)]
+        [SuffixLabel("px", true)]
+#endif
+        [Tooltip("아이콘 좌측/상하 패딩 (픽셀)")]
+        [SerializeField] private float iconPadding = 8f;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("레이아웃", 0.34f)]
+        [BoxGroup("레이아웃/오프셋")]
+        [LabelText("텍스트 오프셋")]
+        [Tooltip("텍스트 시작 X 위치 (아이콘 오른쪽 여백 포함, 픽셀)")]
+        [PropertyRange(60f, 140f)]
+        [SuffixLabel("px", true)]
+#endif
+        [Tooltip("텍스트 시작 X 위치 (아이콘 오른쪽 여백 포함, 픽셀)")]
+        [SerializeField] private float textLeftOffset = 96f;
 
     private readonly List<SkillRow> currentOptions = new List<SkillRow>(3);
     private Action<SkillRow> onPicked;

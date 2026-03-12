@@ -1,41 +1,81 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace Project
 {
+    /// <summary>
+    /// ResultUI 오브젝트에 부착.
+    /// UIDocument에서 root VisualElement를 찾아 승/패 결과를 표시합니다.
+    /// </summary>
+    [RequireComponent(typeof(UIDocument))]
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class ResultPanelManager : MonoBehaviour
+    {
+#if ODIN_INSPECTOR
+        [Title("텍스트 설정", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("텍스트", 0.5f)]
+        [BoxGroup("텍스트/승리")]
+        [LabelText("승리 타이틀")]
+        [Tooltip("승리 시 표시할 타이틀")]
+#endif
+        [Header("Texts (Optional Override)")]
+        [SerializeField] private string winTitleText     = "승리";
 
-/// <summary>
-/// ResultUI 오브젝트에 부착.
-/// UIDocument에서 root VisualElement를 찾아 승/패 결과를 표시합니다.
-/// </summary>
-[RequireComponent(typeof(UIDocument))]
-public class ResultPanelManager : MonoBehaviour
-{
-    [Header("Texts (Optional Override)")]
-    [SerializeField] private string winTitleText     = "승리";
-    [SerializeField] private string winSubtitleText  = "기지를 지켜냈습니다!";
-    [SerializeField] private string loseTitleText    = "패배";
-    [SerializeField] private string loseSubtitleText = "기지가 파괴되었습니다...";
+#if ODIN_INSPECTOR
+        [BoxGroup("텍스트/승리")]
+        [LabelText("승리 설명")]
+        [Tooltip("승리 시 표시할 설명")]
+#endif
+        [SerializeField] private string winSubtitleText  = "기지를 지켜냈습니다!";
 
-    [Header("Sort Order (다른 UI 위에 표시)")]
-    [Tooltip("Canvas 등 다른 UI보다 높게 설정하세요. (기본 100)")]
-    [SerializeField] private int sortOrder = 100;
+#if ODIN_INSPECTOR
+        [HorizontalGroup("텍스트", 0.5f)]
+        [BoxGroup("텍스트/패배")]
+        [LabelText("패배 타이틀")]
+        [GUIColor(1f, 0.4f, 0.4f)]
+        [Tooltip("패배 시 표시할 타이틀")]
+#endif
+        [SerializeField] private string loseTitleText    = "패배";
 
-    // ── 내부 상태 ────────────────────────────────────────────────────────────
-    private UIDocument    uiDoc;
-    private VisualElement root;
-    private Label         titleLabel;
-    private Label         descLabel;
-    private bool          isInitialized;
+#if ODIN_INSPECTOR
+        [BoxGroup("텍스트/패배")]
+        [LabelText("패배 설명")]
+        [GUIColor(1f, 0.4f, 0.4f)]
+        [Tooltip("패배 시 표시할 설명")]
+#endif
+        [SerializeField] private string loseSubtitleText = "기지가 파괴되었습니다...";
 
-    // Show 요청이 init 전에 왔을 때 대기
-    private bool   pendingShow;
-    private string pendingTitle;
-    private string pendingSubtitle;
-    
-    // 초기화 재시도 관리
-    private int initRetryCount;
-    private const int MaxInitRetries = 20;
+#if ODIN_INSPECTOR
+        [Title("캔버스 설정", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("캔버스")]
+        [LabelText("Sort Order")]
+        [Tooltip("Canvas 등 다른 UI보다 높게 설정하세요. (기본 100)")]
+        [PropertyRange(0, 999)]
+#endif
+        [Header("Sort Order (다른 UI 위에 표시)")]
+        [Tooltip("Canvas 등 다른 UI보다 높게 설정하세요. (기본 100)")]
+        [SerializeField] private int sortOrder = 100;
+
+        // ── 내부 상태 ────────────────────────────────────────────────────────────
+        private UIDocument    uiDoc;
+        private VisualElement root;
+        private Label         titleLabel;
+        private Label         descLabel;
+        private bool          isInitialized;
+
+        // Show 요청이 init 전에 왔을 때 대기
+        private bool   pendingShow;
+        private string pendingTitle;
+        private string pendingSubtitle;
+        
+        // 초기화 재시도 관리
+        private int initRetryCount;
+        private const int MaxInitRetries = 20;
 
     // ── 요소 이름 후보 목록 ──────────────────────────────────────────────────
     private static readonly string[] RootCandidates     = { "result-popup-root", "result-root", "root", "ResultRoot", "panel", "container" };

@@ -1,28 +1,124 @@
 using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace Project
 {
 
-public class Firerailgun : MonoBehaviour
-{
-    [Header("공통 설정")]
-    public Transform firePoint;
-    public float searchRange = 10f;
-    public float forwardOffset = 0.5f;
+/// <summary>
+/// 레일건 발사 컨트롤러
+/// </summary>
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class Firerailgun : MonoBehaviour
+    {
+#if ODIN_INSPECTOR
+        [Title("공통 설정", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("공통", 0.5f)]
+        [BoxGroup("공통/발사")]
+        [LabelText("발사 지점")]
+        [Tooltip("투사체가 생성될 위치")]
+        [SceneObjectsOnly]
+#endif
+        [Header("공통 설정")]
+        public Transform firePoint;
 
-    [Header("평타 (기본 공격)")]
-    public GameObject railgunPrefab;
-    public float launchSpeed = 30f;
-    public Vector3 normalRotationOffset = new Vector3(0, 90, 0);
-    [Tooltip("평타 이펙트가 하이라키에서 지워지는 시간(초)입니다.")]
-    public float normalDestroyTime = 2f;
+#if ODIN_INSPECTOR
+        [HorizontalGroup("공통", 0.5f)]
+        [BoxGroup("공통/범위")]
+        [LabelText("탐색 범위")]
+        [PropertyRange(1f, 50f)]
+        [SuffixLabel("m", true)]
+        [Tooltip("적 탐색 범위")]
+#endif
+        public float searchRange = 10f;
 
-    [Header("스킬 (궁극기)")]
-    public GameObject skillPrefab;
-    public float skillLaunchSpeed = 30f;
-    public Vector3 skillRotationOffset = new Vector3(90, 0, 0);
-    [Tooltip("스킬 이펙트가 하이라키에서 지워지는 시간(초)입니다.")]
-    public float skillDestroyTime = 3f; // 👉 스킬 전용 삭제 시간!
+#if ODIN_INSPECTOR
+        [BoxGroup("공통")]
+        [LabelText("전진 오프셋")]
+        [Tooltip("발사 위치 전진 오프셋")]
+        [PropertyRange(0f, 2f)]
+#endif
+        public float forwardOffset = 0.5f;
+
+        // ── 평타 ────────────────────────────────────────────────────────────────
+#if ODIN_INSPECTOR
+        [Title("평타 (기본 공격)", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("평타")]
+        [LabelText("평타 프리팹")]
+        [AssetsOnly]
+        [PreviewField(60, ObjectFieldAlignment.Left)]
+#endif
+        [Header("평타 (기본 공격)")]
+        public GameObject railgunPrefab;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("평타설정", 0.5f)]
+        [BoxGroup("평타설정/속도")]
+        [LabelText("발사 속도")]
+        [PropertyRange(1f, 100f)]
+        [SuffixLabel("m/s", true)]
+#endif
+        public float launchSpeed = 30f;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("평타설정", 0.5f)]
+        [BoxGroup("평타설정/회전")]
+        [LabelText("회전 오프셋")]
+        [Tooltip("평타 이펙트 회전 오프셋")]
+#endif
+        public Vector3 normalRotationOffset = new Vector3(0, 90, 0);
+
+#if ODIN_INSPECTOR
+        [BoxGroup("평타")]
+        [LabelText("지속 시간")]
+        [Tooltip("평타 이펙트가 하이라키에서 지워지는 시간(초)")]
+        [SuffixLabel("초", true)]
+        [PropertyRange(0.1f, 10f)]
+#endif
+        [Tooltip("평타 이펙트가 하이라키에서 지워지는 시간(초)입니다.")]
+        public float normalDestroyTime = 2f;
+
+        // ── 스킬 ────────────────────────────────────────────────────────────────
+#if ODIN_INSPECTOR
+        [Title("스킬 (궁극기)", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("스킬")]
+        [LabelText("스킬 프리팹")]
+        [AssetsOnly]
+        [PreviewField(60, ObjectFieldAlignment.Left)]
+#endif
+        [Header("스킬 (궁극기)")]
+        public GameObject skillPrefab;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("스킬설정", 0.5f)]
+        [BoxGroup("스킬설정/속도")]
+        [LabelText("발사 속도")]
+        [PropertyRange(1f, 100f)]
+        [SuffixLabel("m/s", true)]
+#endif
+        public float skillLaunchSpeed = 30f;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("스킬설정", 0.5f)]
+        [BoxGroup("스킬설정/회전")]
+        [LabelText("회전 오프셋")]
+        [Tooltip("스킬 이펙트 회전 오프셋")]
+#endif
+        public Vector3 skillRotationOffset = new Vector3(90, 0, 0);
+
+#if ODIN_INSPECTOR
+        [BoxGroup("스킬")]
+        [LabelText("지속 시간")]
+        [Tooltip("스킬 이펙트가 하이라키에서 지워지는 시간(초)")]
+        [SuffixLabel("초", true)]
+        [PropertyRange(0.1f, 10f)]
+        [GUIColor(1f, 0.6f, 0.2f)]
+#endif
+        [Tooltip("스킬 이펙트가 하이라키에서 지워지는 시간(초)입니다.")]
+        public float skillDestroyTime = 3f;
 
     // ── 평타 발사 ──
     public void FireRailgun()

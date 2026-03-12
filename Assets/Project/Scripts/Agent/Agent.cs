@@ -1,52 +1,18 @@
 using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace Project
 {
 
-public class Agent : MonoBehaviour
-{
-    [Header("Data")]
-    [SerializeField] private int agentId = 1;
-    [SerializeField] private AgentTable agentTable;
-    [SerializeField] private AgentStatsTable agentStatsTable;
-
-    [Tooltip("캐릭터 고유 데이터 (공격 VFX, 액티브 스킬 등). 비워두면 기본값 사용.")]
-    [SerializeField] private AgentData agentData;
-
-    public AgentData AgentData => agentData;
-
-    public float range = 5f;
-    public float attackRate = 1f;
-
-    [Header("Combat Stats")]
-    [SerializeField] private CombatStats stats = new CombatStats(100f, 3f, 0f, 0f, 1.5f);
-    [SerializeField] private ElementType element = ElementType.Reason;
-
-    public float AttackPower => stats.atk;
-    public float CritChance => stats.critChance;
-    public float CritMultiplier => stats.critMultiplier;
-    public ElementType Element => element;
-
-    [Header("Animation")]
-    [Tooltip("비워두면 '_idle'이 포함된 State를 자동 탐지합니다.")]
-    [SerializeField] private string idleStateOverride = string.Empty;
-    [Tooltip("비워두면 '_attack'이 포함된 State를 자동 탐지합니다.")]
-    [SerializeField] private string attackStateOverride = string.Empty;
-
-    [Header("Model Rotation Offset")]
-    [Tooltip("캐릭터 모델이 정면을 보지 않고 옆을 볼 때 각도를 보정합니다. (예: Y축 -90 또는 90)")]
-    public Vector3 modelRotationOffset = new Vector3(0f, -90f, 0f);
-
-    private Animator cachedAnimator;
-    private Firerailgun cachedRailgun;
-    private string resolvedIdleState = string.Empty;
-    private string resolvedAttackState = string.Empty;
-    private bool animatorResolved;
-
-    private float attackTimer;
-    private float animReturnTimer;
-    private float attackAnimDuration = 0.5f;
-
+/// <summary>
+/// 플레이어 캐릭터(Agent)의 전투 및 데이터 관리 컴포넌트.
+/// </summary>
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class Agent : MonoBehaviour
     private bool hasPendingHit;
     private float pendingHitTimer;
     private Enemy pendingHitTarget;

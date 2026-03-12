@@ -3,36 +3,32 @@ using UnityEngine.UIElements;
 using Cysharp.Threading.Tasks;
 using UnityEngine.AddressableAssets;
 using ProjectFirst.OutGame;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
+
+namespace Project
+{
 
 /// <summary>
 /// 타이틀 씬 메인 관리자
 /// UI 생성, 설정 관리, 씬 로딩 등의 책임을 분리된 클래스들에게 위임
 /// </summary>
-public class TitleManager : MonoBehaviour
-{
-    public static TitleManager Instance { get; private set; }
-
-    [Header("Scene Settings")]
-    [SerializeField] private string gameSceneName = "Battle_Test";
-
-    [Header("Managers")]
-    [SerializeField] private TitleUIManager uiManager;
-    [SerializeField] private TitleSettingsManager settingsManager;
-
-    [Header("Setting Panel (UIToolkit)")]
-    [Tooltip("SettingPanel 컴포넌트가 붙은 GameObject를 연결하세요.\n비워두면 TitleSettingsManager 폴백으로 동작합니다.")]
-    [SerializeField] private SettingPanel settingPanel;
-
-    [Header("Events (Optional)")]
-    [SerializeField] private VoidEventChannelSO startButtonEvent;
-    [SerializeField] private VoidEventChannelSO settingsButtonEvent;
-    [SerializeField] private VoidEventChannelSO quitButtonEvent;
-
-    private void Awake()
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class TitleManager : MonoBehaviour
     {
-        Instance = this;
+        public static TitleManager Instance { get; private set; }
 
-        // 매니저들 초기화 (런타임 UI 생성용)
+#if ODIN_INSPECTOR
+        [Title("씬 설정", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("씬")]
+        [LabelText("게임 씬 이름")]
+        [Tooltip("게임 시작 시 로드할 씬 이름")]
+#endif
+        [Header("Scene Settings")]
+        [SerializeField] private string gameSceneName = "Battle_Test";
         if (uiManager == null)
         {
             uiManager = gameObject.AddComponent<TitleUIManager>();

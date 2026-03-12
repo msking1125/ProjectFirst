@@ -2,46 +2,16 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace Project
 {
-
-public class SkillBarController : MonoBehaviour
-{
-    [Header("슬롯 버튼")]
-    [SerializeField] private Button slotBtn1;
-    [SerializeField] private Button slotBtn2;
-    [SerializeField] private Button slotBtn3;
-
-    [Header("슬롯 텍스트 (스킬 이름)")]
-    [SerializeField] private TMP_Text slotTxt1;
-    [SerializeField] private TMP_Text slotTxt2;
-    [SerializeField] private TMP_Text slotTxt3;
-
-    [Header("슬롯 아이콘 Image (없으면 자동 생성)")]
-    [SerializeField] private Image slotIcon1;
-    [SerializeField] private Image slotIcon2;
-    [SerializeField] private Image slotIcon3;
-
-    [Header("쿨타임 오버레이 텍스트 (없으면 자동 생성)")]
-    [SerializeField] private TMP_Text cooldownTxt1;
-    [SerializeField] private TMP_Text cooldownTxt2;
-    [SerializeField] private TMP_Text cooldownTxt3;
-
-    [Header("쿨타임 딤 오버레이 (없으면 자동 생성)")]
-    [SerializeField] private Image dimOverlay1;
-    [SerializeField] private Image dimOverlay2;
-    [SerializeField] private Image dimOverlay3;
-
-    [Header("테스트")]
-    [SerializeField] private bool enableSlotsOnStartForTest;
-
-    [SerializeField] private Color noIconColor = new Color(0.3f, 0.3f, 0.3f, 0.6f);
-
-    private readonly SkillRow[] slotSkills = new SkillRow[3];
-    private SkillSystem skillSystem;
-
-    private void Awake()
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class SkillBarController : MonoBehaviour
     {
         AutoBind();
         EnsureIconComponents();

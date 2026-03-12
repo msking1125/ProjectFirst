@@ -1,5 +1,11 @@
 using System.IO;
 using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
+
+namespace Project
+{
 
 /// <summary>
 /// Battle_Test 씬 진입 시 Assets/Project/Sound/Bgm 폴더에서
@@ -11,21 +17,48 @@ using UnityEngine;
 /// 3. Inspector에서 Bgm Clip에 음악 파일을 드래그 연결 (권장)
 ///    또는 비워두면 Resources/Sound/Bgm/ 에서 자동 로드 시도
 /// </summary>
-[RequireComponent(typeof(AudioSource))]
-public class BattleSceneBGM : MonoBehaviour
-{
-    [Header("BGM 설정")]
-    [Tooltip("재생할 BGM 클립을 직접 연결하세요. (비워두면 Resources에서 자동 탐색)")]
-    [SerializeField] private AudioClip bgmClip;
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    [RequireComponent(typeof(AudioSource))]
+    public class BattleSceneBGM : MonoBehaviour
+    {
+#if ODIN_INSPECTOR
+        [Title("BGM 설정", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("BGM")]
+        [LabelText("BGM 클립")]
+        [Tooltip("재생할 BGM 클립을 직접 연결하세요. (비워두면 Resources에서 자동 탐색)")]
+        [AssetsOnly]
+        [PreviewField(60, ObjectFieldAlignment.Left)]
+#endif
+        [Header("BGM 설정")]
+        [Tooltip("재생할 BGM 클립을 직접 연결하세요. (비워두면 Resources에서 자동 탐색)")]
+        [SerializeField] private AudioClip bgmClip;
 
-    [Tooltip("볼륨 (0~1)")]
-    [Range(0f, 1f)]
-    [SerializeField] private float volume = 0.7f;
+#if ODIN_INSPECTOR
+        [HorizontalGroup("설정", 0.5f)]
+        [BoxGroup("설정/볼륨")]
+        [LabelText("볼륨")]
+        [Tooltip("볼륨 (0~1)")]
+        [ProgressBar(0f, 1f)]
+        [PropertyRange(0f, 1f)]
+#endif
+        [Tooltip("볼륨 (0~1)")]
+        [Range(0f, 1f)]
+        [SerializeField] private float volume = 0.7f;
 
-    [Tooltip("페이드 인 시간 (초). 0이면 즉시 재생.")]
-    [SerializeField] private float fadeInDuration = 1.5f;
+#if ODIN_INSPECTOR
+        [HorizontalGroup("설정", 0.5f)]
+        [BoxGroup("설정/페이드")]
+        [LabelText("페이드 인 시간")]
+        [Tooltip("페이드 인 시간 (초). 0이면 즉시 재생.")]
+        [SuffixLabel("초", true)]
+        [PropertyRange(0f, 5f)]
+#endif
+        [Tooltip("페이드 인 시간 (초). 0이면 즉시 재생.")]
+        [SerializeField] private float fadeInDuration = 1.5f;
 
-    private AudioSource audioSource;
+        private AudioSource audioSource;
 
     private void Awake()
     {

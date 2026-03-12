@@ -1,26 +1,46 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using ProjectFirst.Data;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
+using TMPro;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace ProjectFirst.OutGame
 {
-    /// <summary>
-    /// 튜토리얼 오버레이를 제어하는 싱글턴 매니저.
-    /// TryTrigger(triggerKey)를 호출하면 해당 키의 튜토리얼이 시작됩니다.
-    /// 완료된 튜토리얼은 PlayerPrefs에 JSON으로 저장하여 재출력을 방지합니다.
-    /// </summary>
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
     public class TutorialManager : MonoBehaviour
     {
         // ── 싱글턴 ──────────────────────────────────────────────
         public static TutorialManager Instance { get; private set; }
 
         // ── Inspector ───────────────────────────────────────────
+#if ODIN_INSPECTOR
+        [Title("UI 연결", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("UI")]
+        [LabelText("Tutorial UI")]
+        [Tooltip("튜토리얼 UI UIDocument")]
+        [SceneObjectsOnly]
+#endif
         [SerializeField] private UIDocument _tutorialUI;
+
+#if ODIN_INSPECTOR
+        [BoxGroup("UI")]
+        [LabelText("PlayerData")]
+        [Tooltip("플레이어 데이터 (튜토리얼 완료 상태 저장)")]
+        [AssetsOnly]
+        [PreviewField(50, ObjectFieldAlignment.Left)]
+#endif
         [SerializeField] private PlayerData _playerData;
+
+#if ODIN_INSPECTOR
+        [Title("단계", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("단계")]
+        [LabelText("튜토리얼 단계들")]
+        [Tooltip("모든 튜토리얼 단계 정의")]
+        [TableList(ShowIndexLabels = true, AlwaysExpanded = false)]
+#endif
         [SerializeField] private List<TutorialStep> _allSteps;
 
         // ── 런타임 ─────────────────────────────────────────────

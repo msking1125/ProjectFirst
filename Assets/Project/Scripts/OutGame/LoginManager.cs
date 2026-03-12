@@ -5,22 +5,60 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Cysharp.Threading.Tasks;
-
 using ProjectFirst.OutGame.Data;
 using ProjectFirst.Network;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace ProjectFirst.OutGame
 {
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
     public class LoginManager : MonoBehaviour
     {
         public static LoginManager Instance { get; private set; }
 
+#if ODIN_INSPECTOR
+        [Title("UI", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("UI")]
+        [LabelText("UI Document")]
+        [Tooltip("로그인 UI를 위한 UIDocument")]
+        [SceneObjectsOnly]
+#endif
         [Header("UI Document")]
         [SerializeField] private UIDocument uiDocument;
 
+#if ODIN_INSPECTOR
+        [Title("데이터", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("데이터", 0.33f)]
+        [BoxGroup("데이터/서버")]
+        [LabelText("서버 목록")]
+        [Tooltip("서버 목록 ScriptableObject")]
+        [AssetsOnly]
+        [PreviewField(50, ObjectFieldAlignment.Left)]
+#endif
         [Header("Data References")]
         [SerializeField] private global::ServerListSO serverListSO;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("데이터", 0.33f)]
+        [BoxGroup("데이터/금칙어")]
+        [LabelText("금칙어 CSV")]
+        [Tooltip("금칙어 CSV 파일")]
+        [AssetsOnly]
+#endif
         [SerializeField] private TextAsset badWordsCSV;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("데이터", 0.34f)]
+        [BoxGroup("데이터/플레이어")]
+        [LabelText("PlayerData")]
+        [Tooltip("플레이어 데이터")]
+        [AssetsOnly]
+        [PreviewField(50, ObjectFieldAlignment.Left)]
+#endif
         [SerializeField] private PlayerData playerData;
 
         // UI Elements

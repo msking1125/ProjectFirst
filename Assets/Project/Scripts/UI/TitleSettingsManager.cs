@@ -2,17 +2,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using ProjectFirst.Data;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
-public class TitleSettingsManager : MonoBehaviour
+namespace Project
 {
-    [Header("Settings Panel")]
-    [SerializeField] private TMP_FontAsset customFont;
-    [SerializeField] private GameSettingsData settingsData;
-
-    private GameObject settingsPanel;
-    private Slider bgmSlider;
-    private Slider sfxSlider;
-    private Toggle muteToggle;
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class TitleSettingsManager : MonoBehaviour
     private TMP_Text bgmValueText;
     private TMP_Text sfxValueText;
     private Canvas targetCanvas;

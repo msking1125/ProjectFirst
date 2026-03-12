@@ -3,52 +3,196 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace Project
 {
+    /// <summary>
+    /// BattleGameManager: 전투 씬의 게임 흐름, 보상, UI를 관리하는 싱글턴.
+    /// </summary>
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+#endif
+    public class BattleGameManager : MonoBehaviour
+    {
+        public static BattleGameManager Instance { get; private set; }
 
-/// <summary>
-/// BattleGameManager: 전투 씬의 게임 흐름, 보상, UI를 관리하는 싱글턴.
-/// </summary>
-public class BattleGameManager : MonoBehaviour
-{
-    public static BattleGameManager Instance { get; private set; }
+        // ── Inspector 필드 ────────────────────────────────────────────────────────
 
-    // ── Inspector 필드 ────────────────────────────────────────────────────────
+#if ODIN_INSPECTOR
+        [Title("기지 및 데이터", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("Base", 0.5f)]
+        [BoxGroup("Base/기지")]
+        [LabelText("기지 체력")]
+        [Required]
+        [Tooltip("기지(Ark)의 체력 컴포넌트")]
+#endif
+        [Header("Base")]
+        [SerializeField] private BaseHealth baseHealth;
 
-    [Header("Base")]
-    [SerializeField] private BaseHealth baseHealth;
-    [SerializeField] private string baseObjectName = "Ark_Base";
+#if ODIN_INSPECTOR
+        [BoxGroup("Base/이름")]
+        [LabelText("기지 오브젝트명")]
+        [Tooltip("Scene에서 기지 오브젝트 이름")]
+#endif
+        [SerializeField] private string baseObjectName = "Ark_Base";
 
-    [Header("Data")]
-    [SerializeField] private MonsterTable monsterTable;
-    [SerializeField] private SkillTable skillTable;
-    [SerializeField] private Agent playerAgent;
+#if ODIN_INSPECTOR
+        [Title("테이블 데이터", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("Data", 0.5f)]
+        [BoxGroup("Data/몬스터")]
+        [LabelText("몬스터 테이블")]
+        [Required]
+        [AssetsOnly]
+        [Tooltip("몬스터 데이터 테이블 SO")]
+#endif
+        [Header("Data")]
+        [SerializeField] private MonsterTable monsterTable;
 
-    [Header("Player Data")]
-    [Tooltip("승리 보상 골드를 귀속시킬 PlayerData 에셋을 연결하세요.")]
-    [SerializeField] private PlayerData playerData;
-    [Tooltip("패배 시에도 획득 골드의 이 비율만큼 지급합니다. (0 = 미지급, 0.5 = 50%)")]
-    [Range(0f, 1f)]
-    [SerializeField] private float defeatGoldRatio = 0f;
+#if ODIN_INSPECTOR
+        [HorizontalGroup("Data", 0.5f)]
+        [BoxGroup("Data/스킬")]
+        [LabelText("스킬 테이블")]
+        [Required]
+        [AssetsOnly]
+        [Tooltip("스킬 데이터 테이블 SO")]
+#endif
+        [SerializeField] private SkillTable skillTable;
 
-    [Header("HUD")]
-    [SerializeField] private Canvas targetCanvas;
-    [Tooltip("시네마틱 중 숨길 UI CanvasGroup (비우면 targetCanvas에 자동 추가)")]
-    [SerializeField] private CanvasGroup uiCanvasGroup;
-    [SerializeField] private StatusHudView statusHudView;
-    [SerializeField] private CharUltimateController charUltimateController;
-    [SerializeField] private SkillBarController skillBarController;
-    [SerializeField] private SkillSelectPanelController skillSelectPanelController;
-    [SerializeField] private SkillBarController skillBarPrefab;
-    [SerializeField] private SkillSelectPanelController skillSelectPanelPrefab;
+#if ODIN_INSPECTOR
+        [BoxGroup("Data/플레이어")]
+        [LabelText("플레이어 에이전트")]
+        [Required]
+        [SceneObjectsOnly]
+        [Tooltip("플레이어 캐릭터 Agent 컴포넌트")]
+#endif
+        [SerializeField] private Agent playerAgent;
 
-    [Header("Result UI")]
-    [SerializeField] private GameObject resultPanel;
-    [SerializeField] private ResultPanelManager resultPanelManager;
+#if ODIN_INSPECTOR
+        [Title("플레이어 데이터", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("Player", 0.5f)]
+        [BoxGroup("Player/SO")]
+        [LabelText("PlayerData")]
+        [Required]
+        [AssetsOnly]
+        [Tooltip("승리 보상 골드를 귀속시킬 PlayerData 에셋")]
+#endif
+        [Header("Player Data")]
+        [Tooltip("승리 보상 골드를 귀속시킬 PlayerData 에셋을 연결하세요.")]
+        [SerializeField] private PlayerData playerData;
 
-    [Header("Scene")]
-    [SerializeField] private string titleSceneName = "Title";
+#if ODIN_INSPECTOR
+        [HorizontalGroup("Player", 0.5f)]
+        [BoxGroup("Player/비율")]
+        [LabelText("패배 보상 비율")]
+        [PropertyRange(0f, 1f)]
+        [SuffixLabel("%", true)]
+        [Tooltip("패배 시에도 획득 골드의 이 비율만큼 지급 (0 = 미지급, 0.5 = 50%)")]
+#endif
+        [Tooltip("패배 시에도 획득 골드의 이 비율만큼 지급합니다. (0 = 미지급, 0.5 = 50%)")]
+        [Range(0f, 1f)]
+        [SerializeField] private float defeatGoldRatio = 0f;
+
+#if ODIN_INSPECTOR
+        [Title("HUD 연결", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("HUD", 0.5f)]
+        [BoxGroup("HUD/캔버스")]
+        [LabelText("타겟 캔버스")]
+        [SceneObjectsOnly]
+#endif
+        [Header("HUD")]
+        [SerializeField] private Canvas targetCanvas;
+
+#if ODIN_INSPECTOR
+        [BoxGroup("HUD/캔버스")]
+        [LabelText("UI CanvasGroup")]
+        [Tooltip("시네마틱 중 숨길 UI CanvasGroup (비우면 targetCanvas에 자동 추가)")]
+        [SceneObjectsOnly]
+#endif
+        [Tooltip("시네마틱 중 숨길 UI CanvasGroup (비우면 targetCanvas에 자동 추가)")]
+        [SerializeField] private CanvasGroup uiCanvasGroup;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("HUD", 0.5f)]
+        [BoxGroup("HUD/뷰")]
+        [LabelText("Status HUD")]
+        [Tooltip("레벨/경험치/골드 표시 HUD")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private StatusHudView statusHudView;
+
+#if ODIN_INSPECTOR
+        [BoxGroup("HUD/뷰")]
+        [LabelText("궁극기 컨트롤러")]
+        [Tooltip("캐릭터 고유 스킬 버튼 컨트롤러")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private CharUltimateController charUltimateController;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("HUD/스킬", 0.5f)]
+        [BoxGroup("HUD/스킬/바")]
+        [LabelText("스킬 바")]
+        [Tooltip("장착된 스킬 표시 바")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private SkillBarController skillBarController;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("HUD/스킬", 0.5f)]
+        [BoxGroup("HUD/스킬/선택")]
+        [LabelText("스킬 선택 패널")]
+        [Tooltip("레벨업 시 스킬 선택 패널")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private SkillSelectPanelController skillSelectPanelController;
+
+#if ODIN_INSPECTOR
+        [BoxGroup("HUD/프리팹")]
+        [LabelText("스킬 바 프리팹")]
+        [AssetsOnly]
+        [Tooltip("동적 생성용 스킬 바 프리팹")]
+#endif
+        [SerializeField] private SkillBarController skillBarPrefab;
+
+#if ODIN_INSPECTOR
+        [BoxGroup("HUD/프리팹")]
+        [LabelText("스킬 선택 프리팹")]
+        [AssetsOnly]
+        [Tooltip("동적 생성용 스킬 선택 패널 프리팹")]
+#endif
+        [SerializeField] private SkillSelectPanelController skillSelectPanelPrefab;
+
+#if ODIN_INSPECTOR
+        [Title("결과 UI", TitleAlignment = TitleAlignments.Left)]
+        [HorizontalGroup("Result", 0.5f)]
+        [BoxGroup("Result/패널")]
+        [LabelText("결과 패널")]
+        [Tooltip("승리/패배 결과 표시 패널 GameObject")]
+        [SceneObjectsOnly]
+#endif
+        [Header("Result UI")]
+        [SerializeField] private GameObject resultPanel;
+
+#if ODIN_INSPECTOR
+        [HorizontalGroup("Result", 0.5f)]
+        [BoxGroup("Result/매니저")]
+        [LabelText("결과 매니저")]
+        [Tooltip("ResultPanelManager 컴포넌트")]
+        [SceneObjectsOnly]
+#endif
+        [SerializeField] private ResultPanelManager resultPanelManager;
+
+#if ODIN_INSPECTOR
+        [Title("씬 설정", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("씬")]
+        [LabelText("타이틀 씬 이름")]
+        [Tooltip("BackToTitle()로 이동할 씬 이름")]
+#endif
+        [Header("Scene")]
+        [SerializeField] private string titleSceneName = "Title";
 
     // ── 런타임 ───────────────────────────────────────────────────────────────
 
