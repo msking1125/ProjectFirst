@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace ProjectFirst.InGame
 {
     /// <summary>
-    /// Battle Ready 화면의 UI 애니메이션과 사운드 피드백을 관리합니다.
+    /// Battle Ready ?遺얇늺??UI ?醫딅빍筌롫뗄???띾궢 ???????곕굡獄쏄퉮???온?귐뗫???덈뼄.
     /// </summary>
     public class BattleReadyUIAnimator : MonoBehaviour
     {
@@ -13,7 +13,6 @@ namespace ProjectFirst.InGame
         [SerializeField] private float slotHoverScale = 1.1f;
         [SerializeField] private float slotAnimationDuration = 0.2f;
         [SerializeField] private float popupFadeDuration = 0.3f;
-        [SerializeField] private float cardHoverOffset = 5f;
 
         [Header("Audio")]
         [SerializeField] private AudioClip hoverSound;
