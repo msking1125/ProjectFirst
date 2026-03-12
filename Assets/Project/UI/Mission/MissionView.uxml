@@ -1,0 +1,58 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+         xsi="http://www.w3.org/2001/XMLSchema-instance"
+         engine="UnityEngine.UIElements"
+         editor="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+
+    <ui:VisualElement name="mission-panel" class="mission-panel">
+
+        <!-- ═══════════ HEADER ═══════════ -->
+        <ui:VisualElement name="header" class="mission-header">
+            <ui:Label text="미션" class="header-title" />
+            <ui:Button name="close-btn" text="✕" class="close-btn" />
+        </ui:VisualElement>
+
+        <!-- ═══════════ TAB ROW ═══════════ -->
+        <ui:VisualElement name="tab-row" class="mission-tab-row">
+            <ui:VisualElement class="tab-wrapper">
+                <ui:Button name="tab-daily-btn" text="일일" class="mission-tab-btn tab-active" />
+                <ui:Label name="daily-badge" text="" class="tab-badge" style="display: none;" />
+            </ui:VisualElement>
+            <ui:VisualElement class="tab-wrapper">
+                <ui:Button name="tab-weekly-btn" text="주간" class="mission-tab-btn" />
+                <ui:Label name="weekly-badge" text="" class="tab-badge" style="display: none;" />
+            </ui:VisualElement>
+            <ui:VisualElement class="tab-wrapper">
+                <ui:Button name="tab-repeat-btn" text="반복" class="mission-tab-btn" />
+                <ui:Label name="repeat-badge" text="" class="tab-badge" style="display: none;" />
+            </ui:VisualElement>
+            <ui:VisualElement class="tab-wrapper">
+                <ui:Button name="tab-achievement-btn" text="업적" class="mission-tab-btn" />
+                <ui:Label name="achievement-badge" text="" class="tab-badge" style="display: none;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- ═══════════ POINT REWARD BAR ═══════════ -->
+        <ui:VisualElement name="point-reward-bar" class="point-reward-bar">
+            <ui:VisualElement name="point-bar-track" class="point-bar-track">
+                <ui:VisualElement name="point-bar-fill" class="point-bar-fill" />
+            </ui:VisualElement>
+            <ui:Label name="point-label" text="0 / 100" class="point-label" />
+            <ui:VisualElement name="tier-marker-container" class="tier-marker-container" />
+        </ui:VisualElement>
+
+        <!-- ═══════════ RESET TIMER ═══════════ -->
+        <ui:VisualElement name="reset-timer-row" class="reset-timer-row">
+            <ui:Label name="reset-timer-label" text="초기화까지 00:00:00" class="reset-timer-label" />
+        </ui:VisualElement>
+
+        <!-- ═══════════ MISSION LIST ═══════════ -->
+        <ui:ListView name="mission-list" class="mission-list" />
+
+        <!-- ═══════════ CLAIM ALL BUTTON ═══════════ -->
+        <ui:Button name="claim-all-btn" text="모두 받기" class="claim-all-btn" />
+
+    </ui:VisualElement>
+
+</ui:UXML>
