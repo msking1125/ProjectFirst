@@ -1,5 +1,8 @@
 # Soul Ark 프로젝트 컨텍스트 (필수 읽기)
 
+> Codex Cloud 작업 시에도 이 문서 기준을 우선 적용하고, Odin Inspector 관련 작업은 `ODIN_INSPECTOR_GUIDE.md`를 함께 준수합니다.
+
+
 나는 Unity 모바일 RPG "Soul Ark"를 개발 중입니다. 아래 규칙을 모든 코드 생성에 적용하세요.
 
 ## 필수 코딩 규칙

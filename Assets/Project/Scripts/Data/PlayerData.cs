@@ -537,4 +537,5 @@ namespace ProjectFirst.Data
         onCurrencyChanged?.RaiseEvent();
         OnCurrencyChanged?.Invoke(type);
     }
-}
+    }   // class PlayerData
+}       // namespace ProjectFirst.Data
