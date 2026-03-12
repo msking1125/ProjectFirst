@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace ProjectFirst.OutGame.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     public class BadWordData
     {
         private HashSet<string> badWordsSet;
@@ -20,11 +16,7 @@ namespace ProjectFirst.OutGame.Data
         private void ParseCSV(TextAsset csvFile)
         {
             if (csvFile == null) return;
-
-            // Note: cleaned comment.
             string[] lines = csvFile.text.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-            
-            // Note: cleaned comment.
             for (int i = 0; i < lines.Length; i++)
             {
                 string word = lines[i].Trim();
@@ -34,18 +26,9 @@ namespace ProjectFirst.OutGame.Data
                 }
             }
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// Documentation cleaned.
-        /// </summary>
         public bool ContainsBadWord(string text)
         {
             if (string.IsNullOrEmpty(text)) return false;
-            
-            // Note: cleaned comment.
-            // Note: cleaned comment.
-            // Note: cleaned comment.
             foreach (var badWord in badWordsSet)
             {
                 if (text.Contains(badWord))
@@ -57,3 +40,4 @@ namespace ProjectFirst.OutGame.Data
         }
     }
 }
+

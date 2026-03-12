@@ -4,334 +4,246 @@ using UnityEngine.UI;
 
 namespace Project
 {
-
-/// <summary>
-/// Documentation cleaned.
-///
-/// Documentation cleaned.
-/// Documentation cleaned.
-///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// </summary>
-public class StatusHudView : MonoBehaviour
-{
-    // Note: cleaned comment.
-    [Header("Level")]
-    [Tooltip("Optional frame image shown behind the level text.")]
-    [SerializeField] private Image     levelFrame;
-    [Tooltip("Level text")]
-    [SerializeField] private TMP_Text  levelText;
-
-    // Note: cleaned comment.
-    [Header("EXP")]
-    [Tooltip("Optional EXP icon image.")]
-    [SerializeField] private Image     expIcon;
-    [Tooltip("EXP gauge image. Set Image Type to Filled and Fill Method to Horizontal.")]
-    [SerializeField] private Image     expGauge;
-    [Tooltip("Optional EXP text such as 0 / 10.")]
-    [SerializeField] private TMP_Text  expText;
-
-    // Note: cleaned comment.
-    [Header("Gold")]
-    [Tooltip("Optional gold coin icon image.")]
-    [SerializeField] private Image     goldIcon;
-    [Tooltip("Gold text")]
-    [SerializeField] private TMP_Text  goldText;
-
-    // Note: cleaned comment.
-    [Header("Auto Build Settings")]
-    [SerializeField] private float levelFontSize  = 36f;
-    [SerializeField] private float expFontSize    = 22f;
-    [SerializeField] private float goldFontSize   = 28f;
-    [SerializeField] private Color gaugeColor     = new Color(0.2f, 0.8f, 1f, 1f);
-    [SerializeField] private Color gaugeBgColor   = new Color(0.1f, 0.1f, 0.1f, 0.7f);
-    [SerializeField] private Color goldTextColor  = new Color(1f, 0.85f, 0.2f, 1f);
-    [SerializeField] private Color levelTextColor = Color.white;
-
-    // Note: cleaned comment.
-    public TMP_Text LevelText => levelText;
-    public TMP_Text GoldText  => goldText;
-    public TMP_Text ExpText   => expText;
-    public Image    ExpGauge  => expGauge;
-
-    // Note: cleaned comment.
-
-    private void Awake()
-    {
-        AutoBind();
-    }
-
-    private void AutoBind()
-    {
-        // Note: cleaned comment.
-        TMP_Text  FindText(string n)  => transform.Find(n)?.GetComponent<TMP_Text>();
-        Image     FindImage(string n) => transform.Find(n)?.GetComponent<Image>();
-
-        levelText  ??= FindText("LevelText")   ?? FindText("Level");
-        levelFrame ??= FindImage("LevelFrame") ?? FindImage("LevelBG");
-        expIcon    ??= FindImage("ExpIcon")    ?? FindImage("EXPIcon");
-        expGauge   ??= FindImage("ExpGauge")   ?? FindImage("EXPGauge") ?? FindImage("ExpFill");
-        expText    ??= FindText("ExpText")     ?? FindText("EXPText");
-        goldIcon   ??= FindImage("GoldIcon");
-        goldText   ??= FindText("GoldText")    ?? FindText("Gold");
-
-        // Note: cleaned comment.
-        if (levelText == null) BuildLevelUI();
-        if (expGauge  == null) BuildExpUI();
-        if (goldText  == null) BuildGoldUI();
-    }
-
-    // Note: cleaned comment.
-
     /// <summary>
-    /// Documentation cleaned.
+    /// 레벨, 경험치, 골드를 각각 분리된 영역으로 표시하는 HUD 컴포넌트입니다.
+    /// 인스펙터 연결이 비어 있으면 Awake에서 자식 오브젝트를 자동 탐색합니다.
     /// </summary>
-    public void Refresh(int level, int exp, int expMax, int gold)
+    public class StatusHudView : MonoBehaviour
     {
-        SetLevel(level);
-        SetExp(exp, expMax);
-        SetGold(gold);
-    }
+        [Header("레벨")]
+        [Tooltip("레벨 숫자 뒤에 표시되는 프레임 이미지입니다. 선택 항목입니다.")]
+        [SerializeField] private Image levelFrame;
+        [Tooltip("레벨 숫자 텍스트입니다.")]
+        [SerializeField] private TMP_Text levelText;
 
-    public void SetLevel(int level)
-    {
-        if (levelText != null)
-            levelText.text = level.ToString();
-    }
+        [Header("경험치")]
+        [Tooltip("EXP 아이콘 이미지입니다. 선택 항목입니다.")]
+        [SerializeField] private Image expIcon;
+        [Tooltip("경험치 게이지 이미지입니다. Image Type은 Filled를 사용합니다.")]
+        [SerializeField] private Image expGauge;
+        [Tooltip("경험치 숫자 텍스트입니다. 예: 0 / 10")]
+        [SerializeField] private TMP_Text expText;
 
-    public void SetExp(int exp, int expMax)
-    {
-        float ratio = expMax > 0 ? Mathf.Clamp01((float)exp / expMax) : 0f;
+        [Header("골드")]
+        [Tooltip("골드 아이콘 이미지입니다. 선택 항목입니다.")]
+        [SerializeField] private Image goldIcon;
+        [Tooltip("골드 숫자 텍스트입니다.")]
+        [SerializeField] private TMP_Text goldText;
 
-        if (expGauge != null)
-            expGauge.fillAmount = ratio;
+        [Header("자동 생성 설정")]
+        [SerializeField] private float levelFontSize = 36f;
+        [SerializeField] private float expFontSize = 22f;
+        [SerializeField] private float goldFontSize = 28f;
+        [SerializeField] private Color gaugeColor = new Color(0.2f, 0.8f, 1f, 1f);
+        [SerializeField] private Color gaugeBgColor = new Color(0.1f, 0.1f, 0.1f, 0.7f);
+        [SerializeField] private Color goldTextColor = new Color(1f, 0.85f, 0.2f, 1f);
+        [SerializeField] private Color levelTextColor = Color.white;
 
-        if (expText != null)
-            expText.text = $"{exp} / {expMax}";
-    }
+        public TMP_Text LevelText => levelText;
+        public TMP_Text GoldText => goldText;
+        public TMP_Text ExpText => expText;
+        public Image ExpGauge => expGauge;
 
-    public void SetGold(int gold)
-    {
-        if (goldText != null)
-            goldText.text = gold.ToString("N0"); // 1,250 ?뺥깭
-    }
+        private void Awake()
+        {
+            AutoBind();
+        }
 
-    // Note: cleaned comment.
+        private void AutoBind()
+        {
+            TMP_Text FindText(string name) => transform.Find(name)?.GetComponent<TMP_Text>();
+            Image FindImage(string name) => transform.Find(name)?.GetComponent<Image>();
 
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
-    private void BuildLevelUI()
-    {
-        // Note: cleaned comment.
-        GameObject frameGo = new GameObject("LevelFrame", typeof(RectTransform), typeof(Image));
-        frameGo.transform.SetParent(transform, false);
-        RectTransform frameRt = frameGo.GetComponent<RectTransform>();
-        frameRt.anchorMin = new Vector2(0f, 1f);
-        frameRt.anchorMax = new Vector2(0f, 1f);
-        frameRt.pivot     = new Vector2(0f, 1f);
-        frameRt.anchoredPosition = new Vector2(10f, -10f);
-        frameRt.sizeDelta = new Vector2(80f, 80f);
+            levelText ??= FindText("LevelText") ?? FindText("Level");
+            levelFrame ??= FindImage("LevelFrame") ?? FindImage("LevelBG");
+            expIcon ??= FindImage("ExpIcon") ?? FindImage("EXPIcon");
+            expGauge ??= FindImage("ExpGauge") ?? FindImage("EXPGauge") ?? FindImage("ExpFill");
+            expText ??= FindText("ExpText") ?? FindText("EXPText");
+            goldIcon ??= FindImage("GoldIcon");
+            goldText ??= FindText("GoldText") ?? FindText("Gold");
 
-        levelFrame = frameGo.GetComponent<Image>();
-        levelFrame.color = new Color(0.1f, 0.1f, 0.2f, 0.85f);
-        levelFrame.raycastTarget = false;
+            if (levelText == null) BuildLevelUI();
+            if (expGauge == null) BuildExpUI();
+            if (goldText == null) BuildGoldUI();
+        }
 
-        // Note: cleaned comment.
-        GameObject textGo = new GameObject("LevelText", typeof(RectTransform), typeof(TextMeshProUGUI));
-        textGo.transform.SetParent(frameGo.transform, false);
-        RectTransform textRt = textGo.GetComponent<RectTransform>();
-        textRt.anchorMin = Vector2.zero;
-        textRt.anchorMax = Vector2.one;
-        textRt.offsetMin = new Vector2(4f, 4f);
-        textRt.offsetMax = new Vector2(-4f, -4f);
+        /// <summary>
+        /// 레벨, 경험치, 골드를 한 번에 갱신합니다.
+        /// </summary>
+        public void Refresh(int level, int exp, int expMax, int gold)
+        {
+            SetLevel(level);
+            SetExp(exp, expMax);
+            SetGold(gold);
+        }
 
-        levelText = textGo.GetComponent<TextMeshProUGUI>();
-        levelText.text      = "1";
-        levelText.fontSize  = levelFontSize;
-        levelText.fontStyle = FontStyles.Bold;
-        levelText.color     = levelTextColor;
-        levelText.alignment = TextAlignmentOptions.Center;
-        levelText.raycastTarget = false;
+        public void SetLevel(int level)
+        {
+            if (levelText != null)
+                levelText.text = level.ToString();
+        }
 
-        // Note: cleaned comment.
-        GameObject lbGo = new GameObject("LvLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
-        lbGo.transform.SetParent(frameGo.transform, false);
-        RectTransform lbRt = lbGo.GetComponent<RectTransform>();
-        lbRt.anchorMin = new Vector2(0f, 0.65f);
-        lbRt.anchorMax = new Vector2(1f, 1f);
-        lbRt.offsetMin = Vector2.zero;
-        lbRt.offsetMax = Vector2.zero;
+        public void SetExp(int exp, int expMax)
+        {
+            float ratio = expMax > 0 ? Mathf.Clamp01((float)exp / expMax) : 0f;
 
-        TextMeshProUGUI lbTmp = lbGo.GetComponent<TextMeshProUGUI>();
-        lbTmp.text      = "Lv";
-        lbTmp.fontSize  = 16f;
-        lbTmp.fontStyle = FontStyles.Bold;
-        lbTmp.color     = new Color(0.7f, 0.9f, 1f, 1f);
-        lbTmp.alignment = TextAlignmentOptions.Center;
-        lbTmp.raycastTarget = false;
+            if (expGauge != null)
+                expGauge.fillAmount = ratio;
 
-        // Note: cleaned comment.
-        textRt.anchorMin = new Vector2(0f, 0f);
-        textRt.anchorMax = new Vector2(1f, 0.65f);
-    }
+            if (expText != null)
+                expText.text = $"{exp} / {expMax}";
+        }
 
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
-    private void BuildExpUI()
-    {
-        // Note: cleaned comment.
-        GameObject container = new GameObject("ExpContainer", typeof(RectTransform));
-        container.transform.SetParent(transform, false);
-        RectTransform cRt = container.GetComponent<RectTransform>();
-        cRt.anchorMin = new Vector2(0f, 1f);
-        cRt.anchorMax = new Vector2(0f, 1f);
-        cRt.pivot     = new Vector2(0f, 1f);
-        cRt.anchoredPosition = new Vector2(10f, -100f); // ?덈꺼 ?꾨젅??80) + ?щ갚(10)
-        cRt.sizeDelta = new Vector2(220f, 22f);
+        public void SetGold(int gold)
+        {
+            if (goldText != null)
+                goldText.text = gold.ToString("N0");
+        }
 
-        // Note: cleaned comment.
-        GameObject bgGo = new GameObject("ExpGaugeBG", typeof(RectTransform), typeof(Image));
-        bgGo.transform.SetParent(container.transform, false);
-        RectTransform bgRt = bgGo.GetComponent<RectTransform>();
-        bgRt.anchorMin = Vector2.zero;
-        bgRt.anchorMax = Vector2.one;
-        bgRt.offsetMin = Vector2.zero;
-        bgRt.offsetMax = Vector2.zero;
-        Image bgImg = bgGo.GetComponent<Image>();
-        bgImg.color = gaugeBgColor;
-        bgImg.raycastTarget = false;
+        private void BuildLevelUI()
+        {
+            GameObject frameGo = new GameObject("LevelFrame", typeof(RectTransform), typeof(Image));
+            frameGo.transform.SetParent(transform, false);
+            RectTransform frameRt = frameGo.GetComponent<RectTransform>();
+            frameRt.anchorMin = new Vector2(0f, 1f);
+            frameRt.anchorMax = new Vector2(0f, 1f);
+            frameRt.pivot = new Vector2(0f, 1f);
+            frameRt.anchoredPosition = new Vector2(10f, -10f);
+            frameRt.sizeDelta = new Vector2(80f, 80f);
 
-        // Note: cleaned comment.
-        GameObject fillGo = new GameObject("ExpGauge", typeof(RectTransform), typeof(Image));
-        fillGo.transform.SetParent(container.transform, false);
-        RectTransform fillRt = fillGo.GetComponent<RectTransform>();
-        fillRt.anchorMin = Vector2.zero;
-        fillRt.anchorMax = Vector2.one;
-        fillRt.offsetMin = new Vector2(2f, 2f);
-        fillRt.offsetMax = new Vector2(-2f, -2f);
+            levelFrame = frameGo.GetComponent<Image>();
+            levelFrame.color = new Color(0.1f, 0.1f, 0.2f, 0.85f);
+            levelFrame.raycastTarget = false;
 
-        expGauge = fillGo.GetComponent<Image>();
-        expGauge.color      = gaugeColor;
-        expGauge.type       = Image.Type.Filled;
-        expGauge.fillMethod = Image.FillMethod.Horizontal;
-        expGauge.fillAmount = 0f;
-        expGauge.raycastTarget = false;
+            GameObject textGo = new GameObject("LevelText", typeof(RectTransform), typeof(TextMeshProUGUI));
+            textGo.transform.SetParent(frameGo.transform, false);
+            RectTransform textRt = textGo.GetComponent<RectTransform>();
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.offsetMin = new Vector2(4f, 4f);
+            textRt.offsetMax = new Vector2(-4f, -4f);
 
-        // Note: cleaned comment.
-        GameObject txtGo = new GameObject("ExpText", typeof(RectTransform), typeof(TextMeshProUGUI));
-        txtGo.transform.SetParent(container.transform, false);
-        RectTransform txtRt = txtGo.GetComponent<RectTransform>();
-        txtRt.anchorMin = Vector2.zero;
-        txtRt.anchorMax = Vector2.one;
-        txtRt.offsetMin = new Vector2(4f, 0f);
-        txtRt.offsetMax = new Vector2(-4f, 0f);
+            levelText = textGo.GetComponent<TextMeshProUGUI>();
+            levelText.text = "1";
+            levelText.fontSize = levelFontSize;
+            levelText.fontStyle = FontStyles.Bold;
+            levelText.color = levelTextColor;
+            levelText.alignment = TextAlignmentOptions.Center;
+            levelText.raycastTarget = false;
 
-        expText = txtGo.GetComponent<TextMeshProUGUI>();
-        expText.text      = "0 / 10";
-        expText.fontSize  = expFontSize;
-        expText.fontStyle = FontStyles.Bold;
-        expText.color     = Color.white;
-        expText.alignment = TextAlignmentOptions.Center;
-        expText.raycastTarget = false;
+            GameObject labelGo = new GameObject("LvLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+            labelGo.transform.SetParent(frameGo.transform, false);
+            RectTransform labelRt = labelGo.GetComponent<RectTransform>();
+            labelRt.anchorMin = new Vector2(0f, 0.65f);
+            labelRt.anchorMax = new Vector2(1f, 1f);
+            labelRt.offsetMin = Vector2.zero;
+            labelRt.offsetMax = Vector2.zero;
 
-        // Note: cleaned comment.
-        GameObject expLabelGo = new GameObject("ExpLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
-        expLabelGo.transform.SetParent(transform, false);
-        RectTransform expLabelRt = expLabelGo.GetComponent<RectTransform>();
-        expLabelRt.anchorMin = new Vector2(0f, 1f);
-        expLabelRt.anchorMax = new Vector2(0f, 1f);
-        expLabelRt.pivot     = new Vector2(0f, 1f);
-        expLabelRt.anchoredPosition = new Vector2(10f, -92f);
-        expLabelRt.sizeDelta = new Vector2(40f, 16f);
+            TextMeshProUGUI label = labelGo.GetComponent<TextMeshProUGUI>();
+            label.text = "Lv";
+            label.fontSize = 16f;
+            label.fontStyle = FontStyles.Bold;
+            label.color = new Color(0.7f, 0.9f, 1f, 1f);
+            label.alignment = TextAlignmentOptions.Center;
+            label.raycastTarget = false;
 
-        TextMeshProUGUI expLabelTmp = expLabelGo.GetComponent<TextMeshProUGUI>();
-        expLabelTmp.text      = "EXP";
-        expLabelTmp.fontSize  = 14f;
-        expLabelTmp.fontStyle = FontStyles.Bold;
-        expLabelTmp.color     = new Color(0.6f, 0.9f, 1f, 1f);
-        expLabelTmp.alignment = TextAlignmentOptions.Left;
-        expLabelTmp.raycastTarget = false;
-    }
+            textRt.anchorMin = new Vector2(0f, 0f);
+            textRt.anchorMax = new Vector2(1f, 0.65f);
+        }
 
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
-    private void BuildGoldUI()
-    {
-        // Note: cleaned comment.
-        GameObject container = new GameObject("GoldContainer", typeof(RectTransform));
-        container.transform.SetParent(transform, false);
-        RectTransform cRt = container.GetComponent<RectTransform>();
-        cRt.anchorMin = new Vector2(0f, 1f);
-        cRt.anchorMax = new Vector2(0f, 1f);
-        cRt.pivot     = new Vector2(0f, 1f);
-        cRt.anchoredPosition = new Vector2(10f, -132f); // EXP 而⑦뀒?대꼫 ?꾨옒
-        cRt.sizeDelta = new Vector2(160f, 36f);
+        private void BuildExpUI()
+        {
+            GameObject container = new GameObject("ExpContainer", typeof(RectTransform));
+            container.transform.SetParent(transform, false);
+            RectTransform cRt = container.GetComponent<RectTransform>();
+            cRt.anchorMin = new Vector2(0f, 1f);
+            cRt.anchorMax = new Vector2(0f, 1f);
+            cRt.pivot = new Vector2(0f, 1f);
+            cRt.anchoredPosition = new Vector2(10f, -100f);
+            cRt.sizeDelta = new Vector2(220f, 22f);
 
-        // Note: cleaned comment.
-        GameObject iconGo = new GameObject("GoldIcon", typeof(RectTransform), typeof(Image));
-        iconGo.transform.SetParent(container.transform, false);
-        RectTransform iconRt = iconGo.GetComponent<RectTransform>();
-        iconRt.anchorMin = new Vector2(0f, 0f);
-        iconRt.anchorMax = new Vector2(0f, 1f);
-        iconRt.pivot     = new Vector2(0f, 0.5f);
-        iconRt.offsetMin = Vector2.zero;
-        iconRt.offsetMax = new Vector2(36f, 0f);
+            GameObject bgGo = new GameObject("ExpGaugeBG", typeof(RectTransform), typeof(Image));
+            bgGo.transform.SetParent(container.transform, false);
+            RectTransform bgRt = bgGo.GetComponent<RectTransform>();
+            bgRt.anchorMin = Vector2.zero;
+            bgRt.anchorMax = Vector2.one;
+            bgRt.offsetMin = Vector2.zero;
+            bgRt.offsetMax = Vector2.zero;
+            Image bgImg = bgGo.GetComponent<Image>();
+            bgImg.color = gaugeBgColor;
+            bgImg.raycastTarget = false;
 
-        goldIcon = iconGo.GetComponent<Image>();
-        goldIcon.color = new Color(1f, 0.8f, 0.1f, 1f);
-        goldIcon.raycastTarget = false;
+            GameObject fillGo = new GameObject("ExpGauge", typeof(RectTransform), typeof(Image));
+            fillGo.transform.SetParent(container.transform, false);
+            RectTransform fillRt = fillGo.GetComponent<RectTransform>();
+            fillRt.anchorMin = Vector2.zero;
+            fillRt.anchorMax = Vector2.one;
+            fillRt.offsetMin = new Vector2(2f, 2f);
+            fillRt.offsetMax = new Vector2(-2f, -2f);
 
-        // Note: cleaned comment.
-        GameObject gLabelGo = new GameObject("GLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
-        gLabelGo.transform.SetParent(iconGo.transform, false);
-        RectTransform gLabelRt = gLabelGo.GetComponent<RectTransform>();
-        gLabelRt.anchorMin = Vector2.zero;
-        gLabelRt.anchorMax = Vector2.one;
-        gLabelRt.offsetMin = Vector2.zero;
-        gLabelRt.offsetMax = Vector2.zero;
+            expGauge = fillGo.GetComponent<Image>();
+            expGauge.color = gaugeColor;
+            expGauge.type = Image.Type.Filled;
+            expGauge.fillMethod = Image.FillMethod.Horizontal;
+            expGauge.fillAmount = 0f;
+            expGauge.raycastTarget = false;
 
-        TextMeshProUGUI gTmp = gLabelGo.GetComponent<TextMeshProUGUI>();
-        gTmp.text      = "G";
-        gTmp.fontSize  = 20f;
-        gTmp.fontStyle = FontStyles.Bold;
-        gTmp.color     = new Color(0.3f, 0.15f, 0f, 1f);
-        gTmp.alignment = TextAlignmentOptions.Center;
-        gTmp.raycastTarget = false;
+            GameObject textGo = new GameObject("ExpText", typeof(RectTransform), typeof(TextMeshProUGUI));
+            textGo.transform.SetParent(container.transform, false);
+            RectTransform textRt = textGo.GetComponent<RectTransform>();
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.offsetMin = new Vector2(4f, 0f);
+            textRt.offsetMax = new Vector2(-4f, 0f);
 
-        // Note: cleaned comment.
-        GameObject txtGo = new GameObject("GoldText", typeof(RectTransform), typeof(TextMeshProUGUI));
-        txtGo.transform.SetParent(container.transform, false);
-        RectTransform txtRt = txtGo.GetComponent<RectTransform>();
-        txtRt.anchorMin = new Vector2(0f, 0f);
-        txtRt.anchorMax = new Vector2(1f, 1f);
-        txtRt.offsetMin = new Vector2(42f, 0f);
-        txtRt.offsetMax = Vector2.zero;
+            expText = textGo.GetComponent<TextMeshProUGUI>();
+            expText.text = "0 / 10";
+            expText.fontSize = expFontSize;
+            expText.fontStyle = FontStyles.Bold;
+            expText.color = Color.white;
+            expText.alignment = TextAlignmentOptions.Center;
+            expText.raycastTarget = false;
+        }
 
-        goldText = txtGo.GetComponent<TextMeshProUGUI>();
-        goldText.text      = "0";
-        goldText.fontSize  = goldFontSize;
-        goldText.fontStyle = FontStyles.Bold;
-        goldText.color     = goldTextColor;
-        goldText.alignment = TextAlignmentOptions.Left;
-        goldText.raycastTarget = false;
+        private void BuildGoldUI()
+        {
+            GameObject container = new GameObject("GoldContainer", typeof(RectTransform));
+            container.transform.SetParent(transform, false);
+            RectTransform cRt = container.GetComponent<RectTransform>();
+            cRt.anchorMin = new Vector2(0f, 1f);
+            cRt.anchorMax = new Vector2(0f, 1f);
+            cRt.pivot = new Vector2(0f, 1f);
+            cRt.anchoredPosition = new Vector2(10f, -132f);
+            cRt.sizeDelta = new Vector2(160f, 36f);
+
+            GameObject iconGo = new GameObject("GoldIcon", typeof(RectTransform), typeof(Image));
+            iconGo.transform.SetParent(container.transform, false);
+            RectTransform iconRt = iconGo.GetComponent<RectTransform>();
+            iconRt.anchorMin = new Vector2(0f, 0f);
+            iconRt.anchorMax = new Vector2(0f, 1f);
+            iconRt.pivot = new Vector2(0f, 0.5f);
+            iconRt.offsetMin = Vector2.zero;
+            iconRt.offsetMax = new Vector2(36f, 0f);
+
+            goldIcon = iconGo.GetComponent<Image>();
+            goldIcon.color = new Color(1f, 0.8f, 0.1f, 1f);
+            goldIcon.raycastTarget = false;
+
+            GameObject textGo = new GameObject("GoldText", typeof(RectTransform), typeof(TextMeshProUGUI));
+            textGo.transform.SetParent(container.transform, false);
+            RectTransform textRt = textGo.GetComponent<RectTransform>();
+            textRt.anchorMin = new Vector2(0f, 0f);
+            textRt.anchorMax = new Vector2(1f, 1f);
+            textRt.offsetMin = new Vector2(42f, 0f);
+            textRt.offsetMax = Vector2.zero;
+
+            goldText = textGo.GetComponent<TextMeshProUGUI>();
+            goldText.text = "0";
+            goldText.fontSize = goldFontSize;
+            goldText.fontStyle = FontStyles.Bold;
+            goldText.color = goldTextColor;
+            goldText.alignment = TextAlignmentOptions.Left;
+            goldText.raycastTarget = false;
+        }
     }
 }
-} // namespace Project
-

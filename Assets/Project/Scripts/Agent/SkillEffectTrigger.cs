@@ -50,3 +50,4 @@ public class SkillEffectTrigger : StateMachineBehaviour
         hasFired = true;
     }
 }
+

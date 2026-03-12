@@ -890,9 +890,6 @@ public class Enemy : MonoBehaviour
 
         cachedAnimator.Rebind();
         cachedAnimator.Update(0f);
-
-        // Note: cleaned comment.
-        // Note: cleaned comment.
         if (hasMonsterRunState)
         {
             cachedAnimator.Play(resolvedRunStateName, 0, 0f);
@@ -950,6 +947,7 @@ public class Enemy : MonoBehaviour
     }
 }
 } // namespace Project
+
 
 
 

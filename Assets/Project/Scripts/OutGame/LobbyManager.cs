@@ -9,6 +9,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using ProjectFirst.Data;
+using ProjectFirst.OutGame.UI;
 /// <summary>
 /// Main lobby controller built on UI Toolkit.
 /// Wire the PlayerData, UIDocument, optional character preview, and side systems in the inspector.
@@ -374,6 +375,8 @@ public class LobbyManager : MonoBehaviour
         return n.ToString();
     }
 }
+
+
 
 
 

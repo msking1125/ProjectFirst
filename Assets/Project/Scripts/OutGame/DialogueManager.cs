@@ -8,9 +8,6 @@ using ProjectFirst.Data;
 
 namespace ProjectFirst.OutGame
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     public class DialogueManager : MonoBehaviour
     {
         public static DialogueManager Instance { get; private set; }
@@ -28,8 +25,6 @@ namespace ProjectFirst.OutGame
         private bool _isSkipRequested;
         private bool _isTyping;
         private Coroutine _typingCoroutine;
-
-        // Note: cleaned comment.
         private VisualElement _root;
         private VisualElement _bgImage;
         private VisualElement _charLeft;
@@ -49,8 +44,6 @@ namespace ProjectFirst.OutGame
         private VisualElement _confirmPopup;
         private Button _confirmYesBtn;
         private Button _confirmNoBtn;
-
-        // Note: cleaned comment.
         private string _currentGroupId;
         private int _currentLineIndex;
         private List<DialogueLine> _currentGroup;
@@ -75,10 +68,6 @@ namespace ProjectFirst.OutGame
             if (Instance == this) Instance = null;
             UnregisterCallbacks();
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public void PlayGroup(string groupId, Action onComplete = null)
         {
             _currentGroup = _dialogueTable.GetGroup(groupId);
@@ -97,10 +86,6 @@ namespace ProjectFirst.OutGame
             gameObject.SetActive(true);
             ShowLine(_currentGroup[0]);
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public void Hide()
         {
             if (_typingCoroutine != null)
@@ -366,8 +351,6 @@ namespace ProjectFirst.OutGame
             }
         }
 
-        // Note: cleaned comment.
-
         private void OnSkipClicked(ClickEvent evt)
         {
             if (_isTyping)
@@ -441,3 +424,4 @@ namespace ProjectFirst.OutGame
         }
     }
 }
+

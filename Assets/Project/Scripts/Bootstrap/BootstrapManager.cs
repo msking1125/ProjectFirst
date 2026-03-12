@@ -76,3 +76,4 @@ public class BootstrapManager : MonoBehaviour
         Debug.Log("[BootstrapManager] Created a new AsyncSceneLoader GameObject and initialized it.");
     }
 }
+

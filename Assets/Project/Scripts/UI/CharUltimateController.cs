@@ -1,253 +1,233 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using ProjectFirst.Data;
 
 namespace Project
 {
-
-/// <summary>
-/// Documentation cleaned.
-///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// </summary>
+    /// <summary>
+    /// 캐릭터 고유 액티브 스킬 버튼 컨트롤러입니다.
+    /// 버튼, 아이콘, 쿨타임 게이지와 텍스트를 함께 관리합니다.
+    /// </summary>
     public class CharUltimateController : MonoBehaviour
     {
-        // Note: cleaned comment.
-        [Header("UI References")]
-        [SerializeField] private Button   ultButton;       // CharActive_1
-        [SerializeField] private Image    skillIcon;       // SkillIcon
-        [SerializeField] private Image    cooldownGauge;   // CoolTimeDim
-        [SerializeField] private TMP_Text cooldownText;    // CoolTime
-        [SerializeField] private Image    charIcon;        // CharIcon
-        [Header("Visual State")]
-        [SerializeField] private Color readyColor    = Color.white;
+        [Header("UI 연결 (비우면 자동 탐색)")]
+        [SerializeField] private Button ultButton;
+        [SerializeField] private Image skillIcon;
+        [SerializeField] private Image cooldownGauge;
+        [SerializeField] private TMP_Text cooldownText;
+        [SerializeField] private Image charIcon;
+
+        [Header("불가 상태 표시")]
+        [SerializeField] private Color readyColor = Color.white;
         [SerializeField] private Color cooldownColor = new Color(0f, 0f, 0f, 0.6f);
 
-    // Note: cleaned comment.
-    private SkillRow boundSkill;
-    private float    cooldownDuration;
-    private float    cooldownEndTime;  // Time.unscaledTime 湲곗?
+        private SkillRow boundSkill;
+        private float cooldownDuration;
+        private float cooldownEndTime;
 
-    public bool  IsReady   => Time.unscaledTime >= cooldownEndTime;
-    public float Remaining => Mathf.Max(0f, cooldownEndTime - Time.unscaledTime);
+        public bool IsReady => Time.unscaledTime >= cooldownEndTime;
+        public float Remaining => Mathf.Max(0f, cooldownEndTime - Time.unscaledTime);
 
-    /// Documentation cleaned.
-    public event System.Action<SkillRow> OnUltimateRequested;
+        /// <summary>
+        /// 버튼을 눌러 궁극기 사용을 요청할 때 발생합니다.
+        /// </summary>
+        public event System.Action<SkillRow> OnUltimateRequested;
 
-    // Note: cleaned comment.
-
-    private void Awake()
-    {
-        AutoBind();
-
-        if (ultButton != null)
-            ultButton.onClick.AddListener(OnButtonClicked);
-
-        SetInteractable(false);
-    }
-
-    private void Update()
-    {
-        if (boundSkill == null) return;
-        UpdateCooldownUI();
-    }
-
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
-    public void Setup(AgentData agentData, SkillTable skillTable)
-    {
-        if (agentData == null)
+        private void Awake()
         {
-            Debug.LogWarning("[CharUltimate] AgentData is null. Assign AgentData in the inspector.", this);
+            AutoBind();
+
+            if (ultButton != null)
+                ultButton.onClick.AddListener(OnButtonClicked);
+
             SetInteractable(false);
-            return;
         }
 
-        // Note: cleaned comment.
-        if (charIcon != null && agentData.characterSkillIcon != null)
+        private void Update()
         {
-            charIcon.sprite  = agentData.characterSkillIcon;
-            charIcon.enabled = true;
+            if (boundSkill == null)
+                return;
+
+            UpdateCooldownUI();
         }
 
-        // Note: cleaned comment.
-        if (agentData.characterSkillId <= 0 || skillTable == null)
+        /// <summary>
+        /// AgentData와 SkillTable을 바인딩하고 버튼 상태를 초기화합니다.
+        /// </summary>
+        public void Setup(AgentData agentData, SkillTable skillTable)
         {
-            Debug.LogWarning($"[CharUltimate] characterSkillId is invalid or SkillTable is missing. ({agentData.name})", this);
-            SetInteractable(false);
-            return;
-        }
-
-        boundSkill = skillTable.GetById(agentData.characterSkillId);
-        if (boundSkill == null)
-        {
-            Debug.LogWarning($"[CharUltimate] Could not find skill id '{agentData.characterSkillId}' in SkillTable.", this);
-            SetInteractable(false);
-            return;
-        }
-
-        cooldownDuration = boundSkill.cooldown;
-
-        // Note: cleaned comment.
-        if (skillIcon != null)
-        {
-            Sprite icon = boundSkill.icon != null ? boundSkill.icon : agentData.characterSkillIcon;
-            skillIcon.sprite  = icon;
-            skillIcon.color   = Color.white;
-            skillIcon.enabled = (icon != null);
-        }
-
-        // Note: cleaned comment.
-        if (cooldownGauge != null)
-        {
-            cooldownGauge.type  = Image.Type.Simple;
-            cooldownGauge.color = Color.clear;
-        }
-
-        cooldownEndTime = 0f;
-        SetInteractable(true);
-        UpdateCooldownUI();
-
-        Debug.Log($"[CharUltimate] Setup complete: {agentData.displayName} -> '{boundSkill.name}' (Cooldown {cooldownDuration}s)");
-    }
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
-    public void StartCooldown()
-    {
-        if (cooldownDuration <= 0f) return;
-        cooldownEndTime = Time.unscaledTime + cooldownDuration;
-        UpdateCooldownUI();
-    }
-
-    // Note: cleaned comment.
-
-    private void OnButtonClicked()
-    {
-        if (boundSkill == null || !IsReady) return;
-        OnUltimateRequested?.Invoke(boundSkill);
-    }
-
-    private void UpdateCooldownUI()
-    {
-        bool  ready     = IsReady;
-        float remaining = Remaining;
-
-        // Note: cleaned comment.
-        if (cooldownGauge != null)
-        {
-            cooldownGauge.type  = Image.Type.Simple;
-            cooldownGauge.color = ready ? Color.clear : cooldownColor;
-        }
-
-        // Note: cleaned comment.
-        if (cooldownText != null)
-        {
-            if (ready)
+            if (agentData == null)
             {
-                cooldownText.text    = string.Empty;
-                cooldownText.enabled = false;
+                Debug.LogWarning("[CharUltimate] AgentData가 null입니다. Agent Inspector에서 AgentData를 연결하세요.", this);
+                SetInteractable(false);
+                return;
             }
-            else
+
+            if (charIcon != null && agentData.characterSkillIcon != null)
             {
-                cooldownText.text    = remaining >= 10f
-                    ? $"{Mathf.CeilToInt(remaining)}"
-                    : $"{remaining:F1}";
-                cooldownText.enabled = true;
+                charIcon.sprite = agentData.characterSkillIcon;
+                charIcon.enabled = true;
             }
-        }
 
-        SetInteractable(ready);
-    }
-
-    private void SetInteractable(bool value)
-    {
-        if (ultButton != null)
-            ultButton.interactable = value;
-    }
-
-    // Note: cleaned comment.
-
-    private void AutoBind()
-    {
-        // Note: cleaned comment.
-        if (ultButton == null)
-        {
-            foreach (Button btn in GetComponentsInChildren<Button>(true))
+            if (agentData.characterSkillId <= 0 || skillTable == null)
             {
-                ultButton = btn;
-                break;
+                Debug.LogWarning($"[CharUltimate] characterSkillId가 0 이하이거나 SkillTable이 없습니다. ({agentData.name})", this);
+                SetInteractable(false);
+                return;
             }
+
+            boundSkill = skillTable.GetById(agentData.characterSkillId);
+            if (boundSkill == null)
+            {
+                Debug.LogWarning($"[CharUltimate] SkillTable에서 '{agentData.characterSkillId}'를 찾지 못했습니다.", this);
+                SetInteractable(false);
+                return;
+            }
+
+            cooldownDuration = boundSkill.cooldown;
+
+            if (skillIcon != null)
+            {
+                Sprite icon = boundSkill.icon != null ? boundSkill.icon : agentData.characterSkillIcon;
+                skillIcon.sprite = icon;
+                skillIcon.color = Color.white;
+                skillIcon.enabled = icon != null;
+            }
+
+            if (cooldownGauge != null)
+            {
+                cooldownGauge.type = Image.Type.Simple;
+                cooldownGauge.color = Color.clear;
+            }
+
+            cooldownEndTime = 0f;
+            SetInteractable(true);
+            UpdateCooldownUI();
+
+            Debug.Log($"[CharUltimate] 설정 완료: {agentData.displayName} -> '{boundSkill.name}' (쿨타임 {cooldownDuration}s)");
         }
 
-        skillIcon     ??= FindImage("SkillIcon",   "Skill_Icon",   "Icon");
-        cooldownGauge ??= FindImage("CoolTimeDim", "CooldownGauge","CooldownFill", "GaugeFill");
-        cooldownText  ??= FindText ("CoolTime",    "CooldownText", "Cooldown");
-        charIcon      ??= FindImage("CharIcon",    "CharacterIcon","Portrait");
-
-        if (cooldownGauge == null)
-            cooldownGauge = GetComponent<Image>();
-
-        // Note: cleaned comment.
-        if (cooldownGauge != null)
-            cooldownGauge.type = Image.Type.Simple;
-    }
-
-    private Image FindImage(params string[] names)
-    {
-        foreach (string n in names)
+        /// <summary>
+        /// 궁극기 사용 후 쿨타임을 시작합니다.
+        /// </summary>
+        public void StartCooldown()
         {
-            Transform t = FindDeep(n);
-            if (t != null) { Image c = t.GetComponent<Image>(); if (c != null) return c; }
-        }
-        return null;
-    }
+            if (cooldownDuration <= 0f)
+                return;
 
-    private TMP_Text FindText(params string[] names)
-    {
-        foreach (string n in names)
-        {
-            Transform t = FindDeep(n);
-            if (t != null) { TMP_Text c = t.GetComponent<TMP_Text>(); if (c != null) return c; }
+            cooldownEndTime = Time.unscaledTime + cooldownDuration;
+            UpdateCooldownUI();
         }
-        return null;
-    }
 
-    private Transform FindDeep(string targetName)
-    {
-        foreach (Transform t in GetComponentsInChildren<Transform>(true))
+        private void OnButtonClicked()
         {
-            if (string.Equals(t.name, targetName, System.StringComparison.OrdinalIgnoreCase))
-                return t;
+            if (boundSkill == null || !IsReady)
+                return;
+
+            OnUltimateRequested?.Invoke(boundSkill);
         }
-        return null;
+
+        private void UpdateCooldownUI()
+        {
+            bool ready = IsReady;
+            float remaining = Remaining;
+
+            if (cooldownGauge != null)
+            {
+                cooldownGauge.type = Image.Type.Simple;
+                cooldownGauge.color = ready ? Color.clear : cooldownColor;
+            }
+
+            if (cooldownText != null)
+            {
+                if (ready)
+                {
+                    cooldownText.text = string.Empty;
+                    cooldownText.enabled = false;
+                }
+                else
+                {
+                    cooldownText.text = remaining >= 10f
+                        ? $"{Mathf.CeilToInt(remaining)}"
+                        : $"{remaining:F1}";
+                    cooldownText.enabled = true;
+                }
+            }
+
+            SetInteractable(ready);
+        }
+
+        private void SetInteractable(bool value)
+        {
+            if (ultButton != null)
+                ultButton.interactable = value;
+        }
+
+        private void AutoBind()
+        {
+            if (ultButton == null)
+            {
+                foreach (Button button in GetComponentsInChildren<Button>(true))
+                {
+                    ultButton = button;
+                    break;
+                }
+            }
+
+            skillIcon ??= FindImage("SkillIcon", "Skill_Icon", "Icon");
+            cooldownGauge ??= FindImage("CoolTimeDim", "CooldownGauge", "CooldownFill", "GaugeFill");
+            cooldownText ??= FindText("CoolTime", "CooldownText", "Cooldown");
+            charIcon ??= FindImage("CharIcon", "CharacterIcon", "Portrait");
+
+            if (cooldownGauge == null)
+                cooldownGauge = GetComponent<Image>();
+
+            if (cooldownGauge != null)
+                cooldownGauge.type = Image.Type.Simple;
+        }
+
+        private Image FindImage(params string[] names)
+        {
+            foreach (string name in names)
+            {
+                Transform target = FindDeep(name);
+                if (target != null)
+                {
+                    Image image = target.GetComponent<Image>();
+                    if (image != null)
+                        return image;
+                }
+            }
+
+            return null;
+        }
+
+        private TMP_Text FindText(params string[] names)
+        {
+            foreach (string name in names)
+            {
+                Transform target = FindDeep(name);
+                if (target != null)
+                {
+                    TMP_Text text = target.GetComponent<TMP_Text>();
+                    if (text != null)
+                        return text;
+                }
+            }
+
+            return null;
+        }
+
+        private Transform FindDeep(string targetName)
+        {
+            foreach (Transform child in GetComponentsInChildren<Transform>(true))
+            {
+                if (string.Equals(child.name, targetName, System.StringComparison.OrdinalIgnoreCase))
+                    return child;
+            }
+
+            return null;
+        }
     }
 }
-} // namespace Project
-
-
-
-
-

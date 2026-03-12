@@ -6,12 +6,10 @@ namespace ProjectFirst.Network
 {
     public class MockNicknameCheckAPI : INicknameCheckAPI
     {
-        // Note: cleaned comment.
         private readonly string[] duplicateNicknames = { "tester", "admin", "player1" };
 
         public async UniTask<bool> CheckDuplicateAsync(string nickname)
         {
-            // Note: cleaned comment.
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
 
             if (nickname == null) return false;
@@ -21,7 +19,7 @@ namespace ProjectFirst.Network
             {
                 if (lowerNick == duplicate)
                 {
-                    Debug.Log("[Log] Message cleaned.");
+                    Debug.Log("[Log] 상태가 갱신되었습니다.");
                     return false;
                 }
             }
@@ -30,3 +28,4 @@ namespace ProjectFirst.Network
         }
     }
 }
+

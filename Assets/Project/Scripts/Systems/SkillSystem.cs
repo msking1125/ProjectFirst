@@ -19,14 +19,9 @@ public class SkillSystem
     private readonly Agent      playerAgent;
     private readonly SkillRow[] equippedSkills  = new SkillRow[3];
     private readonly List<Enemy> aliveEnemiesBuffer = new List<Enemy>();
-
-    // Note: cleaned comment.
-    // Note: cleaned comment.
     private readonly float[] cooldownEndTimes = new float[3];
 
     public IReadOnlyList<SkillRow> EquippedSkills => equippedSkills;
-
-    // Note: cleaned comment.
 
     public SkillSystem(SkillTable skillTable, Agent playerAgent)
     {
@@ -36,25 +31,17 @@ public class SkillSystem
         for (int i = 0; i < cooldownEndTimes.Length; i++)
             cooldownEndTimes[i] = 0f;
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public bool IsOnCooldown(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= cooldownEndTimes.Length) return false;
         return Time.unscaledTime < cooldownEndTimes[slotIndex];
     }
-
-    /// Documentation cleaned.
     public float GetRemainingCooldown(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= cooldownEndTimes.Length) return 0f;
         float remaining = cooldownEndTimes[slotIndex] - Time.unscaledTime;
         return remaining > 0f ? remaining : 0f;
     }
-
-    // Note: cleaned comment.
 
     public bool Equip(SkillRow skill, int slotIndex)
     {
@@ -82,8 +69,6 @@ public class SkillSystem
         return -1;
     }
 
-    // Note: cleaned comment.
-
     public int Cast(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= equippedSkills.Length || playerAgent == null)
@@ -91,8 +76,6 @@ public class SkillSystem
 
         SkillRow skill = equippedSkills[slotIndex];
         if (skill == null) return 0;
-
-        // Note: cleaned comment.
         if (IsOnCooldown(slotIndex))
         {
             Debug.Log($"[SkillSystem] Slot {slotIndex} is on cooldown for {GetRemainingCooldown(slotIndex):F1}s.");
@@ -113,7 +96,6 @@ public class SkillSystem
                 hitCount = CastSingleTarget(skill, enemyManager);
                 break;
             case SkillEffectType.Buff:
-                // Note: cleaned comment.
                 SpawnVfxAt(skill, playerAgent.transform.position);
                 hitCount = CastBuff(skill);
                 break;
@@ -121,18 +103,12 @@ public class SkillSystem
                 hitCount = CastDebuff(skill, enemyManager);
                 break;
         }
-
-        // Note: cleaned comment.
         if (skill.cooldown > 0f)
             cooldownEndTimes[slotIndex] = Time.unscaledTime + skill.cooldown;
 
-        Debug.Log("[Log] Message cleaned.");
+        Debug.Log("[Log] 상태가 갱신되었습니다.");
         return hitCount;
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     private int CastAllEnemies(SkillRow skill, EnemyManager enemyManager)
     {
         enemyManager.FillAliveEnemiesNonAlloc(aliveEnemiesBuffer);
@@ -148,8 +124,6 @@ public class SkillSystem
                 float dist = Vector3.Distance(playerAgent.transform.position, enemy.transform.position);
                 if (dist > skill.range) continue;
             }
-
-            // Note: cleaned comment.
             SpawnVfxAt(skill, enemy.transform.position);
 
             int dmg = DamageCalculator.ComputeDamage(
@@ -162,14 +136,10 @@ public class SkillSystem
         }
         return hitCount;
     }
-
-    /// Documentation cleaned.
     private int CastSingleTarget(SkillRow skill, EnemyManager enemyManager)
     {
         Enemy target = enemyManager.GetClosest(playerAgent.transform.position, skill.range);
         if (target == null || !target.IsAlive) return 0;
-
-        // Note: cleaned comment.
         SpawnVfxAt(skill, target.transform.position);
 
         int atk = Mathf.RoundToInt(GetEffectiveAtk());
@@ -182,8 +152,6 @@ public class SkillSystem
         target.TakeDamage(dmg, isCrit, skill.element);
         return 1;
     }
-
-    /// Documentation cleaned.
     private int CastBuff(SkillRow skill)
     {
         AgentBuffSystem buffSystem = playerAgent.GetComponent<AgentBuffSystem>();
@@ -193,8 +161,6 @@ public class SkillSystem
         buffSystem.ApplyBuff(skill.buffStat, skill.buffMultiplier, skill.buffDuration);
         return 1;
     }
-
-    /// Documentation cleaned.
     private int CastDebuff(SkillRow skill, EnemyManager enemyManager)
     {
         enemyManager.FillAliveEnemiesNonAlloc(aliveEnemiesBuffer);
@@ -208,34 +174,21 @@ public class SkillSystem
                 float dist = Vector3.Distance(playerAgent.transform.position, enemy.transform.position);
                 if (dist > skill.range) continue;
             }
-            // Note: cleaned comment.
             SpawnVfxAt(skill, enemy.transform.position);
             enemy.ApplyDebuff(skill.debuffType, skill.debuffValue, skill.debuffDuration);
             count++;
         }
         return count;
     }
-
-    /// Documentation cleaned.
     private float GetEffectiveAtk()
     {
         AgentBuffSystem buff = playerAgent.GetComponent<AgentBuffSystem>();
         return buff != null ? buff.GetBuffedAttackPower() : playerAgent.AttackPower;
     }
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     private void SpawnVfxAt(SkillRow skill, Vector3 worldPos)
     {
         if (skill.castVfxPrefab == null) return;
-
-        // Note: cleaned comment.
         Vector3 spawnPos = new Vector3(worldPos.x, worldPos.y + 0.5f, worldPos.z);
-
-        // Note: cleaned comment.
         Vector3 dir = spawnPos - playerAgent.transform.position;
         dir.y = 0;
         Quaternion rot = dir != Vector3.zero
@@ -244,13 +197,9 @@ public class SkillSystem
 
         GameObject vfx = UnityEngine.Object.Instantiate(skill.castVfxPrefab, spawnPos, rot);
         if (vfx == null) return;
-
-        // Note: cleaned comment.
         float lifetime = GetVfxLifetime(vfx);
         AutoDestroyVfx(vfx, lifetime);
     }
-
-    /// Documentation cleaned.
     private static float GetVfxLifetime(GameObject vfx)
     {
         float maxDuration = 2f; // Fallback duration when no particle system is available.
@@ -262,11 +211,8 @@ public class SkillSystem
         }
         return maxDuration;
     }
-
-    /// Documentation cleaned.
     private static void AutoDestroyVfx(GameObject vfx, float delay)
     {
-        // Note: cleaned comment.
         foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
         {
             if (ps.main.loop)
@@ -274,24 +220,12 @@ public class SkillSystem
         }
         UnityEngine.Object.Destroy(vfx, Mathf.Max(0.1f, delay));
     }
-
-    // Note: cleaned comment.
-
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     public int CastDirect(SkillRow skill, GameObject vfxOverride = null)
     {
         if (skill == null || playerAgent == null) return 0;
 
         EnemyManager enemyManager = EnemyManager.Instance;
         if (enemyManager == null) return 0;
-
-        // Note: cleaned comment.
         GameObject originalVfx = skill.castVfxPrefab;
         if (vfxOverride != null)
             skill.castVfxPrefab = vfxOverride;
@@ -313,15 +247,11 @@ public class SkillSystem
                 hitCount = CastDebuff(skill, enemyManager);
                 break;
         }
-
-        // Note: cleaned comment.
         if (vfxOverride != null)
             skill.castVfxPrefab = originalVfx;
 
         return hitCount;
     }
-
-    // Note: cleaned comment.
 
     public List<SkillRow> GetRandomCandidates(int count)
     {
@@ -355,6 +285,7 @@ public class SkillSystem
     }
 }
 } // namespace Project
+
 
 
 

@@ -15,8 +15,6 @@ namespace Project
 
 /// <summary>
 /// EnemySpawner
-/// Documentation cleaned.
-/// Documentation cleaned.
 /// </summary>
 [AddComponentMenu("Enemy/Enemy Spawner")]
 public class EnemySpawner : MonoBehaviour
@@ -24,22 +22,22 @@ public class EnemySpawner : MonoBehaviour
     private const int DefaultMonsterId = 1;
 
     [Header("Settings")]
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("인스펙터에서 설정합니다.")]
     public EnemyPool enemyPool;
 
     [Header("Settings")]
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("인스펙터에서 설정합니다.")]
     public Transform arkTarget;
 
     [Header("Settings")]
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("인스펙터에서 설정합니다.")]
     public Transform[] spawnPoints;
 
     [Header("Monster Data")]
     [SerializeField] private MonsterTable monsterTable;
 
     [Header("Spawn Option")]
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("인스펙터에서 설정합니다.")]
     [Min(0.01f)]
     public float spawnInterval = 2f;
 
@@ -172,7 +170,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingPool)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 loggedMissingPool = true;
             }
 
@@ -185,7 +183,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingTarget)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 loggedMissingTarget = true;
             }
 
@@ -198,7 +196,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingMonsterTable)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 loggedMissingMonsterTable = true;
             }
 
@@ -211,7 +209,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (!loggedMissingSpawnPoints)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 loggedMissingSpawnPoints = true;
             }
 
@@ -229,7 +227,7 @@ public class EnemySpawner : MonoBehaviour
 
         if (!loggedMissingSpawnPoints)
         {
-            Debug.LogError("[Log] Error message cleaned.");
+            Debug.LogError("[Log] 오류가 발생했습니다.");
             loggedMissingSpawnPoints = true;
         }
 
@@ -245,12 +243,12 @@ public class EnemySpawner : MonoBehaviour
         WaveMultipliers multipliers = new WaveMultipliers { hp = session.enemyHpMul, speed = session.enemySpeedMul, damage = session.enemyDamageMul };
 
         string enemyIdSource = session.lastConfiguredEnemyId <= 0 ? "fallback(defaultMonsterId)" : "waveRow(enemyId/monsterId)";
-        Debug.Log("[Log] Message cleaned.");
+        Debug.Log("[Log] 상태가 갱신되었습니다.");
 
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, session.currentEnemyId, grade, multipliers);
         if (enemy == null)
         {
-            Debug.LogError("[Log] Error message cleaned.");
+            Debug.LogError("[Log] 오류가 발생했습니다.");
             return;
         }
 
@@ -270,7 +268,7 @@ public class EnemySpawner : MonoBehaviour
         Enemy enemy = enemyPool.Get(spawnPoint.position, Quaternion.identity, arkTarget, monsterTable, currentEnemyId, grade, multipliers);
         if (enemy == null)
         {
-            Debug.LogError("[Log] Error message cleaned.");
+            Debug.LogError("[Log] 오류가 발생했습니다.");
             return;
         }
     }
@@ -288,7 +286,7 @@ public class EnemySpawner : MonoBehaviour
 
         if (validSpawnPoints.Count == 0)
         {
-            Debug.LogError("[Log] Error message cleaned.");
+            Debug.LogError("[Log] 오류가 발생했습니다.");
             return null;
         }
 
@@ -325,6 +323,7 @@ public class EnemySpawner : MonoBehaviour
     }
 }
 } // namespace Project
+
 
 
 

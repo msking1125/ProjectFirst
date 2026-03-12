@@ -3,38 +3,41 @@ using UnityEngine.UIElements;
 
 namespace Project
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
-    [RequireComponent(typeof(UIDocument))]
-    public class ResultPanelManager : MonoBehaviour
-    {
-        [Header("Texts (Optional Override)")]
-        [SerializeField] private string winTitleText     = "승리";
-        [SerializeField] private string winSubtitleText  = "기지를 지켜냈습니다!";
-        [SerializeField] private string loseTitleText    = "패배";
-        [SerializeField] private string loseSubtitleText = "기지가 파괴되었습니다...";
-        [Header("Settings")]
-        [SerializeField] private int sortOrder = 100;
 
-        // Note: cleaned comment.
-        private UIDocument    uiDoc;
-        private VisualElement root;
-        private Label         titleLabel;
-        private Label         descLabel;
-        private bool          isInitialized;
+/// <summary>
+/// ResultUI 오브젝트에 부착.
+/// UIDocument에서 root VisualElement를 찾아 승/패 결과를 표시합니다.
+/// </summary>
+[RequireComponent(typeof(UIDocument))]
+public class ResultPanelManager : MonoBehaviour
+{
+    [Header("Texts (Optional Override)")]
+    [SerializeField] private string winTitleText     = "승리";
+    [SerializeField] private string winSubtitleText  = "기지를 지켜냈습니다!";
+    [SerializeField] private string loseTitleText    = "패배";
+    [SerializeField] private string loseSubtitleText = "기지가 파괴되었습니다...";
 
-        // Note: cleaned comment.
-        private bool   pendingShow;
-        private string pendingTitle;
-        private string pendingSubtitle;
-        
-        // Note: cleaned comment.
-        private int initRetryCount;
-        private const int MaxInitRetries = 20;
+    [Header("Sort Order (다른 UI 위에 표시)")]
+    [Tooltip("Canvas 등 다른 UI보다 높게 설정하세요. (기본 100)")]
+    [SerializeField] private int sortOrder = 100;
 
-    // Note: cleaned comment.
+    // ── 내부 상태 ────────────────────────────────────────────────────────────
+    private UIDocument    uiDoc;
+    private VisualElement root;
+    private Label         titleLabel;
+    private Label         descLabel;
+    private bool          isInitialized;
+
+    // Show 요청이 init 전에 왔을 때 대기
+    private bool   pendingShow;
+    private string pendingTitle;
+    private string pendingSubtitle;
+    
+    // 초기화 재시도 관리
+    private int initRetryCount;
+    private const int MaxInitRetries = 20;
+
+    // ── 요소 이름 후보 목록 ──────────────────────────────────────────────────
     private static readonly string[] RootCandidates     = { "result-popup-root", "result-root", "root", "ResultRoot", "panel", "container" };
     private static readonly string[] TitleCandidates    = { "result-title",   "title",   "Title",   "resultTitle"   };
     private static readonly string[] DescCandidates     = { "result-description", "result-subtitle", "subtitle", "description", "Subtitle" };
@@ -42,7 +45,7 @@ namespace Project
     private static readonly string[] TitleBtnCandidates = { "title-button",   "back-button",   "TitleButton" };
     private static readonly string[] CloseCandidates    = { "close-button",   "CloseButton" };
 
-    // Note: cleaned comment.
+    // ────────────────────────────────────────────────────────────────────────
 
     private void OnEnable()
     {
@@ -92,7 +95,7 @@ namespace Project
         if (uiDoc.visualTreeAsset == null)
             return;
 
-        // Note: cleaned comment.
+        // UI Toolkit이 자동으로 UXML을 붙여 주지 못하는 경우 대비
         VisualElement docRoot = uiDoc.rootVisualElement;
         
         if (docRoot == null && initRetryCount < MaxInitRetries)
@@ -113,7 +116,7 @@ namespace Project
             docRoot = cloned;
         }
 
-        // Note: cleaned comment.
+        // ── root 탐색 ─────────────────────────────────────────────────────
         foreach (string n in RootCandidates)
         {
             root = docRoot.Q<VisualElement>(n);
@@ -126,7 +129,7 @@ namespace Project
                 ?? docRoot.Q<VisualElement>(className: "result-popup");
         }
 
-        // Note: cleaned comment.
+        // 이름 매칭 실패 → TemplateContainer 하위 첫 번째 요소 사용
         if (root == null)
         {
             VisualElement container = docRoot.childCount > 0 ? docRoot[0] : null;
@@ -139,13 +142,13 @@ namespace Project
             if (initRetryCount >= MaxInitRetries)
             {
                 CancelInvoke(nameof(TryInit));
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[ResultPanelManager] 초기화 미완으로 결과창 표시를 재시도했으나 실패했습니다 (최대 횟수 도달). UXML 구조를 확인하세요.", this);
                 pendingShow = false;
             }
             return;
         }
 
-        // Note: cleaned comment.
+        // ── 자식 요소 탐색 ────────────────────────────────────────────────
         titleLabel = QueryFirst<Label>(root, TitleCandidates);
         descLabel  = QueryFirst<Label>(root, DescCandidates);
 
@@ -159,15 +162,15 @@ namespace Project
         CancelInvoke(nameof(TryInit));
         ApplySortOrder();
         
-        Debug.Log("[Log] Message cleaned.");
+        Debug.Log($"[ResultPanelManager] 초기화 완료. root='{root.name}' title={titleLabel?.name} desc={descLabel?.name}", this);
     }
 
-    // Note: cleaned comment.
+    // ── 공개 API ─────────────────────────────────────────────────────────────
 
     public bool ShowWin()  => Show(winTitleText,  winSubtitleText);
     public bool ShowLose() => Show(loseTitleText, loseSubtitleText);
 
-    // Note: cleaned comment.
+    // ── 내부 ─────────────────────────────────────────────────────────────────
 
     private bool Show(string title, string subtitle)
     {
@@ -175,7 +178,7 @@ namespace Project
 
         if (uiDoc == null || uiDoc.visualTreeAsset == null)
         {
-            Debug.Log("[Log] Message cleaned.");
+            Debug.Log("[ResultPanelManager] UXML 미할당. 대체(fallback) UI를 사용합니다.");
             return false;
         }
 
@@ -222,7 +225,7 @@ namespace Project
 
     private void OnClose() => SetVisible(false);
 
-    // Note: cleaned comment.
+    // ── 유틸 ─────────────────────────────────────────────────────────────────
 
     private static T QueryFirst<T>(VisualElement parent, string[] names) where T : VisualElement
     {
@@ -248,5 +251,3 @@ namespace Project
     }
 }
 } // namespace Project
-
-

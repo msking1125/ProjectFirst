@@ -7,28 +7,17 @@ using UnityEngine.UIElements;
 
 namespace ProjectFirst.OutGame.UI
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     public class CharacterLevelUpPanel : MonoBehaviour
     {
-        // Note: cleaned comment.
         private const int MaxLevel = 100;
-
-        // Note: cleaned comment.
         [SerializeField] private PlayerData _playerData;
         [SerializeField] private VoidEventChannelSO _onCharacterChanged;
         [SerializeField] private CharacterGrowthCatalogSO _growthCatalog;
-
-        // Note: cleaned comment.
         private AgentInfo _agent;
         private int _currentLevel;
         private int _currentExp;
         private List<ExpItem> _expItems = new();
         private Dictionary<ExpItemType, int> _selectedCounts = new();
-
-        // Note: cleaned comment.
         private VisualElement _root;
         private Label _currentLevelLabel;
         private Label _expBarLabel;
@@ -37,8 +26,6 @@ namespace ProjectFirst.OutGame.UI
         private Label _previewLevelLabel;
         private VisualElement _statComparePanel;
         private Button _levelUpBtn;
-
-        // Note: cleaned comment.
         private Label _hpBeforeLabel;
         private Label _hpAfterLabel;
         private Label _hpDiffLabel;
@@ -48,15 +35,8 @@ namespace ProjectFirst.OutGame.UI
         private Label _defBeforeLabel;
         private Label _defAfterLabel;
         private Label _defDiffLabel;
-
-        // Note: cleaned comment.
         [SerializeField] private CanvasGroup _effectCanvasGroup;
-
-        // Note: cleaned comment.
         // Public API
-        // Note: cleaned comment.
-
-        /// Documentation cleaned.
         public void Setup(AgentInfo agent, int level, VisualElement levelUpTabRoot)
         {
             _agent = agent;
@@ -69,10 +49,6 @@ namespace ProjectFirst.OutGame.UI
             RefreshUI();
         }
 
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-
         private void BindUI(VisualElement root)
         {
             _root = root;
@@ -84,8 +60,6 @@ namespace ProjectFirst.OutGame.UI
             _previewLevelLabel = root.Q<Label>("preview-level-label");
             _statComparePanel = root.Q<VisualElement>("stat-compare-grid");
             _levelUpBtn = root.Q<Button>("levelup-confirm-btn");
-
-            // Note: cleaned comment.
             _hpBeforeLabel = root.Q<Label>("hp-before");
             _hpAfterLabel = root.Q<Label>("hp-after");
             _hpDiffLabel = root.Q<Label>("hp-diff");
@@ -102,10 +76,6 @@ namespace ProjectFirst.OutGame.UI
                 _levelUpBtn.SetEnabled(false);
             }
         }
-
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
 
         private void LoadExpItems()
         {
@@ -133,21 +103,13 @@ namespace ProjectFirst.OutGame.UI
             return new ExpItem(type, fallbackName, null, count);
         }
 
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-
         private void RefreshUI()
         {
             if (_agent == null) return;
-
-            // Note: cleaned comment.
             if (_currentLevelLabel != null)
             {
                 _currentLevelLabel.text = $"Lv.{_currentLevel}";
             }
-
-            // Note: cleaned comment.
             int requiredExp = ExpForLevel(_currentLevel);
             if (_expBarLabel != null)
             {
@@ -159,11 +121,7 @@ namespace ProjectFirst.OutGame.UI
                 float ratio = requiredExp > 0 ? Mathf.Clamp01((float)_currentExp / requiredExp) : 0f;
                 _expBarFill.style.width = Length.Percent(ratio * 100f);
             }
-
-            // Note: cleaned comment.
             BuildExpItemList();
-
-            // Note: cleaned comment.
             UpdatePreview(0);
         }
 
@@ -184,24 +142,16 @@ namespace ProjectFirst.OutGame.UI
         {
             var row = new VisualElement();
             row.AddToClassList("exp-item-row");
-
-            // Note: cleaned comment.
             var iconEl = new VisualElement();
             iconEl.AddToClassList("exp-item-icon");
             if (item.icon != null)
             {
                 iconEl.style.backgroundImage = new StyleBackground(item.icon);
             }
-
-            // Note: cleaned comment.
             var nameLabel = new Label(item.itemName);
             nameLabel.AddToClassList("exp-item-name");
-
-            // Note: cleaned comment.
             var ownedLabel = new Label($"Owned: {item.count}");
             ownedLabel.AddToClassList("exp-item-owned");
-
-            // Note: cleaned comment.
             var stepperRow = new VisualElement();
             stepperRow.AddToClassList("count-stepper");
 
@@ -250,12 +200,6 @@ namespace ProjectFirst.OutGame.UI
 
             return row;
         }
-
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-
-        /// Documentation cleaned.
         private static int ExpForLevel(int lv)
         {
             return 100 + (lv - 1) * 120;
@@ -292,10 +236,6 @@ namespace ProjectFirst.OutGame.UI
                 _levelUpBtn.SetEnabled(newLevel > _currentLevel);
             }
         }
-
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
 
         private void ShowStatCompare(int before, int after)
         {
@@ -337,18 +277,12 @@ namespace ProjectFirst.OutGame.UI
             }
         }
 
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-
         private void OnLevelUpConfirmed()
         {
             if (_agent == null) return;
 
             int totalExp = _selectedCounts.Sum(kv => (int)kv.Key * kv.Value);
             if (totalExp <= 0) return;
-
-            // Note: cleaned comment.
             foreach (var kv in _selectedCounts)
             {
                 if (kv.Value <= 0) continue;
@@ -360,8 +294,6 @@ namespace ProjectFirst.OutGame.UI
                     _playerData?.SetExpItemCount(kv.Key, item.count);
                 }
             }
-
-            // Note: cleaned comment.
             int newLevel = _currentLevel;
             int remainExp = _currentExp + totalExp;
 
@@ -370,31 +302,18 @@ namespace ProjectFirst.OutGame.UI
                 remainExp -= ExpForLevel(newLevel);
                 newLevel++;
             }
-
-            // Note: cleaned comment.
             _playerData?.SetCharacterProgress(_agent.id, newLevel, remainExp);
 
             int previousLevel = _currentLevel;
             _currentLevel = newLevel;
             _currentExp = remainExp;
-
-            // Note: cleaned comment.
             _onCharacterChanged?.RaiseEvent();
-
-            // Note: cleaned comment.
             StartCoroutine(PlayLevelUpEffect(previousLevel, newLevel));
         }
 
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-
         private IEnumerator PlayLevelUpEffect(int fromLevel, int toLevel)
         {
-            // Note: cleaned comment.
             if (_levelUpBtn != null) _levelUpBtn.SetEnabled(false);
-
-            // Note: cleaned comment.
             if (_effectCanvasGroup != null)
             {
                 _effectCanvasGroup.alpha = 0f;
@@ -413,8 +332,6 @@ namespace ProjectFirst.OutGame.UI
             }
 
             yield return new WaitForSeconds(0.2f);
-
-            // Note: cleaned comment.
             Label levelUpText = null;
             if (_root != null)
             {
@@ -424,8 +341,6 @@ namespace ProjectFirst.OutGame.UI
             }
 
             yield return new WaitForSeconds(1f);
-
-            // Note: cleaned comment.
             if (_effectCanvasGroup != null)
             {
                 float elapsed = 0f;
@@ -440,17 +355,14 @@ namespace ProjectFirst.OutGame.UI
                 _effectCanvasGroup.alpha = 0f;
                 _effectCanvasGroup.gameObject.SetActive(false);
             }
-
-            // Note: cleaned comment.
             if (levelUpText != null)
             {
                 levelUpText.RemoveFromHierarchy();
             }
-
-            // Note: cleaned comment.
             _selectedCounts.Clear();
             RefreshUI();
         }
     }
 }
+
 

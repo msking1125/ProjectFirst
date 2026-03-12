@@ -5,9 +5,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [Serializable]
     public class DialogueLine
     {
@@ -39,10 +36,6 @@ namespace ProjectFirst.Data
 
         public string nextId;
     }
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [CreateAssetMenu(fileName = "DialogueTable", menuName = "MindArk/Data/DialogueTable")]
     public class DialogueTable : ScriptableObject
     {
@@ -55,20 +48,12 @@ namespace ProjectFirst.Data
 
         private void OnEnable() => RebuildIndex();
         private void OnValidate() => RebuildIndex();
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public DialogueLine GetById(string id)
         {
             if (string.IsNullOrEmpty(id)) return null;
             if (_idIndex.Count == 0) RebuildIndex();
             return _idIndex.TryGetValue(id, out DialogueLine line) ? line : null;
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public List<DialogueLine> GetGroup(string groupId)
         {
             if (string.IsNullOrEmpty(groupId)) return new List<DialogueLine>();
@@ -111,4 +96,5 @@ namespace ProjectFirst.Data
         }
     }
 }
+
 

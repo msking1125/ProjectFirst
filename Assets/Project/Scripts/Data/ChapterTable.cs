@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [CreateAssetMenu(menuName = "Game/Chapter Table")]
     public class ChapterTable : ScriptableObject
     {
@@ -28,20 +25,13 @@ namespace ProjectFirst.Data
                     _index[row.id] = row;
             }
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public ChapterRow GetById(int id)
         {
             BuildIndex();
             return _index.TryGetValue(id, out var row) ? row : null;
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public List<ChapterRow> GetAll() =>
             rows?.OrderBy(r => r.id).ToList() ?? new List<ChapterRow>();
     }
 }
+

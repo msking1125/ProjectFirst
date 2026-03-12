@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     [CreateAssetMenu(fileName = "StageData", menuName = "MindArk/Data/StageData")]
     public class StageData : ScriptableObject
     {
@@ -41,13 +37,10 @@ namespace ProjectFirst.Data
         }
 
         public List<StageInfo> stages = new List<StageInfo>();
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public List<StageInfo> GetByChapter(int chapterId) =>
             stages.Where(s => s.chapterId == chapterId)
                   .OrderBy(s => s.stageNumber)
                   .ToList();
     }
 }
+

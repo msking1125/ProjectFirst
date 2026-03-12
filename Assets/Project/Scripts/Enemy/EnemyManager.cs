@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Project
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     public class EnemyManager : MonoBehaviour
     {
         public static EnemyManager Instance;
@@ -23,7 +20,7 @@ namespace Project
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 return;
             }
 
@@ -37,13 +34,11 @@ namespace Project
                 Instance = null;
             }
         }
-
-        /// Documentation cleaned.
         public void Register(Enemy enemy)
         {
             if (enemy == null)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 return;
             }
 
@@ -52,20 +47,16 @@ namespace Project
                 activeEnemies.Add(enemy);
             }
         }
-
-        /// Documentation cleaned.
         public void Unregister(Enemy enemy)
         {
             if (enemy == null)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 return;
             }
 
             activeEnemies.Remove(enemy);
         }
-
-        /// Documentation cleaned.
         public int GetAliveCount()
         {
             RefreshAliveEnemies();
@@ -93,8 +84,6 @@ namespace Project
                 _aliveEnemies.Add(e);
             }
         }
-
-        /// Documentation cleaned.
         public Enemy GetClosest(Vector3 pos, float range)
         {
             float min = range;
@@ -119,15 +108,11 @@ namespace Project
 
             return closest;
         }
-
-        /// Documentation cleaned.
         public IReadOnlyList<Enemy> GetAliveEnemies()
         {
             RefreshAliveEnemies();
             return _aliveEnemies;
         }
-
-        /// Documentation cleaned.
         public int FillAliveEnemiesNonAlloc(List<Enemy> buffer)
         {
             if (buffer == null)
@@ -142,4 +127,5 @@ namespace Project
         }
     }
 }
+
 

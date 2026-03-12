@@ -26,7 +26,6 @@ public class BattleHUD : MonoBehaviour
 
     private void Awake()
     {
-        // Note: cleaned comment.
         if (canvas == null)
         {
             canvas = GetComponentInChildren<Canvas>(true);
@@ -43,4 +42,5 @@ public class BattleHUD : MonoBehaviour
         }
     }
 }
+
 

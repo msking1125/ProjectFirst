@@ -6,10 +6,6 @@ using Project;
 public class ArkBaseHpBarView : MonoBehaviour
 {
     [Header("Editor binding checklist")]
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-    // Note: cleaned comment.
     [SerializeField] private BaseHealth target;
     [SerializeField] private Image fillImage;
     [SerializeField] private TMP_Text hpText;
@@ -125,4 +121,5 @@ public class ArkBaseHpBarView : MonoBehaviour
         }
     }
 }
+
 

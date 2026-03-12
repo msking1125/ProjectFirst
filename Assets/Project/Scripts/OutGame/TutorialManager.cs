@@ -8,22 +8,12 @@ using UnityEngine.UIElements;
 
 namespace ProjectFirst.OutGame
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     public class TutorialManager : MonoBehaviour
     {
-        // Note: cleaned comment.
         public static TutorialManager Instance { get; private set; }
-
-        // Note: cleaned comment.
         [SerializeField] private UIDocument _tutorialUI;
         [SerializeField] private PlayerData _playerData;
         [SerializeField] private List<TutorialStep> _allSteps;
-
-        // Note: cleaned comment.
         private TutorialStep _currentStep;
         private VisualElement _overlayRoot;
         private VisualElement _topPanel;
@@ -41,10 +31,7 @@ namespace ProjectFirst.OutGame
 
         private const string OverlayColor = "rgba(0,0,0,0.7)";
         private const string PlayerPrefsKey = "tutorialFlags";
-
-        // Note: cleaned comment.
         // Lifecycle
-        // Note: cleaned comment.
 
         private void Awake()
         {
@@ -65,15 +52,7 @@ namespace ProjectFirst.OutGame
             if (Instance == this)
                 Instance = null;
         }
-
-        // Note: cleaned comment.
         // Public API
-        // Note: cleaned comment.
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// Documentation cleaned.
-        /// </summary>
         public void TryTrigger(string triggerKey)
         {
             if (string.IsNullOrEmpty(triggerKey)) return;
@@ -87,10 +66,6 @@ namespace ProjectFirst.OutGame
 
             StartStep(step);
         }
-
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
 
         private void StartStep(TutorialStep step)
         {
@@ -150,17 +125,11 @@ namespace ProjectFirst.OutGame
             _currentStep = null;
         }
 
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-
         private void BuildOverlay()
         {
             if (_tutorialUI == null) return;
 
             _overlayRoot = _tutorialUI.rootVisualElement;
-
-            // Note: cleaned comment.
             _overlayRoot.Clear();
             _overlayRoot.style.position = Position.Absolute;
             _overlayRoot.style.left = 0;
@@ -168,8 +137,6 @@ namespace ProjectFirst.OutGame
             _overlayRoot.style.right = 0;
             _overlayRoot.style.bottom = 0;
             _overlayRoot.pickingMode = PickingMode.Position;
-
-            // Note: cleaned comment.
             _topPanel = CreateDarkPanel("tutorial-top-panel");
             _bottomPanel = CreateDarkPanel("tutorial-bottom-panel");
             _leftPanel = CreateDarkPanel("tutorial-left-panel");
@@ -179,8 +146,6 @@ namespace ProjectFirst.OutGame
             _overlayRoot.Add(_bottomPanel);
             _overlayRoot.Add(_leftPanel);
             _overlayRoot.Add(_rightPanel);
-
-            // Note: cleaned comment.
             _guideTextPanel = new VisualElement();
             _guideTextPanel.name = "tutorial-guide-panel";
             _guideTextPanel.style.position = Position.Absolute;
@@ -201,8 +166,6 @@ namespace ProjectFirst.OutGame
             _guideLabel.style.whiteSpace = WhiteSpace.Normal;
             _guideTextPanel.Add(_guideLabel);
             _overlayRoot.Add(_guideTextPanel);
-
-            // Note: cleaned comment.
             _popupPanel = new VisualElement();
             _popupPanel.name = "tutorial-popup-panel";
             _popupPanel.style.position = Position.Absolute;
@@ -273,15 +236,6 @@ namespace ProjectFirst.OutGame
             panel.style.backgroundColor = new Color(0f, 0f, 0f, 0.7f);
             return panel;
         }
-
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// Documentation cleaned.
-        /// </summary>
         private void ApplyHighlight(string elementName)
         {
             if (string.IsNullOrEmpty(elementName))
@@ -293,7 +247,7 @@ namespace ProjectFirst.OutGame
             VisualElement target = FindUIElement(elementName);
             if (target == null)
             {
-                Debug.LogWarning("[Log] Warning message cleaned.");
+                Debug.LogWarning("[Log] 경고가 발생했습니다.");
                 SetFullOverlay();
                 return;
             }
@@ -318,26 +272,18 @@ namespace ProjectFirst.OutGame
         {
             float screenWidth = Screen.width;
             float screenHeight = Screen.height;
-
-            // Note: cleaned comment.
             _topPanel.style.left = 0;
             _topPanel.style.top = 0;
             _topPanel.style.width = screenWidth;
             _topPanel.style.height = rect.y;
-
-            // Note: cleaned comment.
             _bottomPanel.style.left = 0;
             _bottomPanel.style.top = rect.yMax;
             _bottomPanel.style.width = screenWidth;
             _bottomPanel.style.height = screenHeight - rect.yMax;
-
-            // Note: cleaned comment.
             _leftPanel.style.left = 0;
             _leftPanel.style.top = rect.y;
             _leftPanel.style.width = rect.x;
             _leftPanel.style.height = rect.height;
-
-            // Note: cleaned comment.
             _rightPanel.style.left = rect.xMax;
             _rightPanel.style.top = rect.y;
             _rightPanel.style.width = screenWidth - rect.xMax;
@@ -358,10 +304,6 @@ namespace ProjectFirst.OutGame
             _leftPanel.style.width = 0;
             _rightPanel.style.width = 0;
         }
-
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
 
         private void ShowGuideText(string text, TextAnchor position)
         {
@@ -396,10 +338,6 @@ namespace ProjectFirst.OutGame
             _guideTextPanel.style.right = Length.Percent(10);
         }
 
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-
         private void ShowPopup(TutorialStep step)
         {
             if (_popupPanel == null) return;
@@ -417,8 +355,6 @@ namespace ProjectFirst.OutGame
             _popupTitleLabel.text = step.PopupTitle ?? string.Empty;
             _popupDescLabel.text = step.PopupDesc ?? string.Empty;
             _popupPanel.style.display = DisplayStyle.Flex;
-
-            // Note: cleaned comment.
             _overlayRoot.UnregisterCallback<ClickEvent>(OnOverlayClicked);
         }
 
@@ -427,10 +363,6 @@ namespace ProjectFirst.OutGame
             if (_popupPanel != null)
                 _popupPanel.style.display = DisplayStyle.None;
         }
-
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
 
         private void ShowOverlay()
         {
@@ -459,12 +391,6 @@ namespace ProjectFirst.OutGame
                 _autoAdvanceCoroutine = null;
             }
         }
-
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-        // Note: cleaned comment.
-
-        /// Documentation cleaned.
         private void SaveTutorialFlags()
         {
             if (_playerData == null) return;
@@ -477,8 +403,6 @@ namespace ProjectFirst.OutGame
             PlayerPrefs.SetString(PlayerPrefsKey, json);
             PlayerPrefs.Save();
         }
-
-        /// Documentation cleaned.
         public void LoadTutorialFlags()
         {
             if (_playerData == null) return;
@@ -506,8 +430,6 @@ namespace ProjectFirst.OutGame
                 _playerData.RebuildTutorialFlags();
             }
         }
-
-        /// Documentation cleaned.
         [Serializable]
         private class TutorialFlagListWrapper
         {
@@ -515,5 +437,6 @@ namespace ProjectFirst.OutGame
         }
     }
 }
+
 
 

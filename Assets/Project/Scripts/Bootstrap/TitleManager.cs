@@ -1,19 +1,13 @@
 ﻿using Cysharp.Threading.Tasks;
 using ProjectFirst.OutGame;
+using ProjectFirst.OutGame.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ProjectFirst.Bootstrap
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     public class TitleManager : MonoBehaviour
     {
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public static TitleManager Instance { get; private set; }
 
         [Header("Scene Settings")]
@@ -58,8 +52,6 @@ namespace ProjectFirst.Bootstrap
 
             VisualElement root = _uiDocument.rootVisualElement;
             if (root == null) return;
-
-            // Note: cleaned comment.
             Button startButton = root.Q<Button>("start-button");
             if (startButton != null)
             {
@@ -84,16 +76,10 @@ namespace ProjectFirst.Bootstrap
                 quitButton.clicked += QuitGame;
             }
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public void OnStartClicked()
         {
             Debug.Log("[TitleManager] Game start clicked.");
             _startButtonEvent?.RaiseEvent();
-
-            // Note: cleaned comment.
             TitleLoadingManager loadingManager = FindObjectOfType<TitleLoadingManager>();
             if (loadingManager != null)
             {
@@ -129,18 +115,12 @@ namespace ProjectFirst.Bootstrap
         {
             Debug.Log("[TitleManager] Settings clicked.");
             _settingsButtonEvent?.RaiseEvent();
-
-            // Note: cleaned comment.
             SettingPanel settingPanel = FindObjectOfType<SettingPanel>(true);
             if (settingPanel != null)
             {
                 settingPanel.OpenPanel();
             }
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public void QuitGame()
         {
 #if UNITY_EDITOR
@@ -151,3 +131,5 @@ namespace ProjectFirst.Bootstrap
         }
     }
 }
+
+

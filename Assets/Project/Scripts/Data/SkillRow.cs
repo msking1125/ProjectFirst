@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [Serializable]
     public class SkillRow
     {
@@ -21,43 +18,38 @@ namespace ProjectFirst.Data
 
         public float range = 9999f;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("인스펙터에서 설정합니다.")]
         public string description;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("인스펙터에서 설정합니다.")]
         public Sprite icon;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("인스펙터에서 설정합니다.")]
         public GameObject castVfxPrefab;
 
         [Header("Settings")]
         public SkillEffectType effectType = SkillEffectType.AllEnemies;
-
-        // Note: cleaned comment.
         [Header("Settings")]
         public float singleTargetBonus = 2f;
-
-        // Note: cleaned comment.
         [Header("Settings")]
         public BuffStatType buffStat = BuffStatType.AttackPower;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("인스펙터에서 설정합니다.")]
         [Range(0f, 5f)]
         public float buffMultiplier = 0.3f;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("인스펙터에서 설정합니다.")]
         public float buffDuration = 10f;
-
-        // Note: cleaned comment.
         [Header("Settings")]
         public DebuffType debuffType = DebuffType.Slow;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("인스펙터에서 설정합니다.")]
         [Range(0f, 1f)]
         public float debuffValue = 0.5f;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("인스펙터에서 설정합니다.")]
         public float debuffDuration = 5f;
 
     }
 }
+
