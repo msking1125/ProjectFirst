@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 using Project;
 
-// Animation state event bridge that fires the railgun skill once at a configured normalized time.
+/// <summary>
+/// 상태 진입 후 지정된 normalized time에 한 번만 스킬 발사.
+/// </summary>
 public class SkillEffectTrigger : StateMachineBehaviour
 {
-    [Tooltip("Normalized animation time that triggers the skill effect. 0 fires immediately on state enter.")]
-    [Range(0f, 1f)] public float triggerTime = 0f;
+    [Tooltip("0이면 상태 진입 직후 발사, 0~1이면 해당 normalized time에서 발사")]
+    [Range(0f, 1f)]
+    public float triggerTime = 0f;
 
     private bool hasFired;
 
@@ -21,7 +24,9 @@ public class SkillEffectTrigger : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (!hasFired && triggerTime > 0f && stateInfo.normalizedTime >= triggerTime)
+        if (hasFired) return;
+
+        if (triggerTime > 0f && stateInfo.normalizedTime >= triggerTime)
         {
             Fire(animator);
         }
@@ -29,10 +34,17 @@ public class SkillEffectTrigger : StateMachineBehaviour
 
     private void Fire(Animator animator)
     {
-        Firerailgun railgun = animator.GetComponent<Firerailgun>();
-        if (railgun != null)
+        ProjectileShooter shooter = animator.GetComponent<ProjectileShooter>();
+        if (shooter == null)
+            shooter = animator.GetComponentInChildren<ProjectileShooter>(true);
+
+        if (shooter != null)
         {
-            railgun.FireSkillRailgun();
+            shooter.FireSkillAttack();
+        }
+        else
+        {
+            Debug.LogWarning($"[SkillEffectTrigger] ProjectileShooter not found on {animator.name}");
         }
 
         hasFired = true;

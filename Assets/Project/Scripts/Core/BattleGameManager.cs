@@ -337,26 +337,22 @@ namespace Project
         CheckCinematicVisibility();
     }
 
-    // Note: cleaned comment.
+        // Note: cleaned comment.
 
-    private void CheckCinematicVisibility()
-    {
-        if (playerAgent == null) return;
-        if (cachedPlayerAnimator == null) CachePlayerAnimator();
-
-        bool inCinematic = false;
-        if (cachedPlayerAnimator != null)
+        private void CheckCinematicVisibility()
         {
-            AnimatorStateInfo si = cachedPlayerAnimator.GetCurrentAnimatorStateInfo(0);
-            inCinematic = si.IsName("Tabi_skill_action") || si.IsName("Tabi_skill");
+            if (playerAgent == null) return;
+
+            AgentAnimatorBridge bridge = playerAgent.GetComponentInChildren<AgentAnimatorBridge>(true);
+            bool inCinematic = bridge != null && bridge.IsInSkillState();
+
+            if (inCinematic == isCinematicActive) return;
+
+            isCinematicActive = inCinematic;
+            SetUIVisible(!inCinematic);
         }
 
-        if (inCinematic == isCinematicActive) return;
-        isCinematicActive = inCinematic;
-        SetUIVisible(!inCinematic);
-    }
-
-    private void CachePlayerAnimator()
+        private void CachePlayerAnimator()
     {
         cachedPlayerAnimator = playerAgent != null
             ? playerAgent.GetComponentInChildren<Animator>(true)

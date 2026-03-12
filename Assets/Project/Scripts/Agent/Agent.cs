@@ -1,176 +1,121 @@
-﻿using ProjectFirst.Data;
+﻿using System;
+using System.Reflection;
 using UnityEngine;
+using ProjectFirst.Data;
+
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace Project
 {
+
+#if ODIN_INSPECTOR
+    [HideMonoScript]
+    [BoxGroup("data")]
+    [BoxGroup("combat")]
+#endif
     public class Agent : MonoBehaviour
     {
-        [Header("Data")]
-        [SerializeField] private int agentId = 1;
+#if ODIN_INSPECTOR
+        [Title("data", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("data/id")]
+        [LabelText("agent id")]
+#endif
+        [Header("data")]
+        [SerializeField] private int agentId;
+
+#if ODIN_INSPECTOR
+        [BoxGroup("data/agent data")]
+        [LabelText("agent data")]
+        [AssetsOnly]
+#endif
         [SerializeField] private AgentData agentData;
-        [SerializeField] private AgentTable agentTable;
-        [SerializeField] private AgentStatsTable agentStatsTable;
 
-        [Header("Combat")]
-        [SerializeField] private CombatStats stats = new CombatStats(100f, 10f, 0f, 0.05f, 1.5f);
+#if ODIN_INSPECTOR
+        [BoxGroup("data/table")]
+        [LabelText("agent table")]
+#endif
+        [SerializeField] private UnityEngine.Object agentTable;
+
+#if ODIN_INSPECTOR
+        [BoxGroup("data/table")]
+        [LabelText("agent stats table")]
+#endif
+        [SerializeField] private UnityEngine.Object agentStatsTable;
+
+#if ODIN_INSPECTOR
+        [Title("combat", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("combat/range")]
+        [LabelText("attack range")]
+#endif
+        [Header("combat")]
+        [SerializeField] private float range = 10f;
+
+#if ODIN_INSPECTOR
+        [BoxGroup("combat/rate")]
+        [LabelText("attack interval")]
+#endif
+        [SerializeField] private float attackRate = 1f;
+
+#if ODIN_INSPECTOR
+        [BoxGroup("combat/rotation")]
+        [LabelText("model rotation offset")]
+#endif
+        [SerializeField] private Vector3 modelRotationOffset = Vector3.zero;
+
+        [SerializeField] private CombatStats stats;
         [SerializeField] private ElementType element = ElementType.Reason;
-        [SerializeField] private float attackRate = 1.2f;
-        [SerializeField] private float range = 15f;
-        [SerializeField] private Vector3 modelRotationOffset;
 
-        [Header("Animation")]
-        [SerializeField] private Animator cachedAnimator;
-        [SerializeField] private string idleStateOverride = string.Empty;
-        [SerializeField] private string attackStateOverride = string.Empty;
-        [SerializeField] private float attackAnimDuration = 0.6f;
+        private AgentAnimatorBridge cachedAnimatorBridge;
+        private Animator cachedAnimator;
+        private ProjectileShooter cachedProjectileShooter;
 
-        private Firerailgun cachedRailgun;
-        private string resolvedIdleState = string.Empty;
-        private string resolvedAttackState = string.Empty;
-        private bool animatorResolved;
-        private float attackTimer;
-        private float animReturnTimer;
-        private bool hasPendingHit;
-        private float pendingHitTimer;
-        private Enemy pendingHitTarget;
-        private bool pendingHitIsCrit;
-        private int pendingHitDamage;
         private bool isCombatStarted;
+        private float attackTimer;
 
-        public int AgentId => agentId;
+        // 현재 진행 중인 평타 1세트(2타) 대상
+        private Enemy currentAttackTarget;
+        private bool comboAttackActive;
+
         public AgentData AgentData => agentData;
-        public CombatStats Stats => stats;
-        public ElementType Element => element;
         public float AttackPower => stats.atk;
         public float CritChance => stats.critChance;
         public float CritMultiplier => stats.critMultiplier;
-        public float Range => range;
+        public CombatStats Stats => stats;
+        public ElementType Element => element;
 
         private void Awake()
         {
             ApplyStatsFromTables();
-            ResolveAnimator();
-            cachedRailgun = GetComponentInChildren<Firerailgun>(true);
+            CacheComponents();
         }
 
-        private void ApplyStatsFromTables()
+        private void CacheComponents()
         {
-            bool statsFromTable = false;
-
-            if (agentTable != null)
-            {
-                stats = agentTable.GetStats(agentId);
-                element = agentTable.GetElement(agentId);
-                statsFromTable = true;
-            }
-            else if (agentStatsTable != null)
-            {
-                stats = agentStatsTable.GetStats(agentId);
-                element = agentStatsTable.GetElement(agentId);
-                statsFromTable = true;
-            }
-
-            if (!statsFromTable && stats.atk <= 0f)
-            {
-                stats.atk = 1f;
-            }
-
-            stats = stats.Sanitized();
-        }
-
-        private void ResolveAnimator()
-        {
-            if (animatorResolved)
-            {
-                return;
-            }
+            if (cachedAnimatorBridge == null)
+                cachedAnimatorBridge = GetComponentInChildren<AgentAnimatorBridge>(true);
 
             if (cachedAnimator == null)
-            {
                 cachedAnimator = GetComponentInChildren<Animator>(true);
-            }
 
-            if (cachedAnimator == null)
-            {
-                return;
-            }
-
-            resolvedIdleState = ResolveStateName(cachedAnimator, idleStateOverride, "_idle");
-            resolvedAttackState = ResolveStateName(cachedAnimator, attackStateOverride, "_attack");
-
-            if (!string.IsNullOrEmpty(resolvedIdleState))
-            {
-                PlayState(resolvedIdleState);
-            }
-
-            animatorResolved = true;
-        }
-
-        private static string ResolveStateName(Animator animator, string overrideName, string keyword)
-        {
-            if (!string.IsNullOrWhiteSpace(overrideName) && animator.HasState(0, Animator.StringToHash(overrideName)))
-            {
-                return overrideName;
-            }
-
-            RuntimeAnimatorController controller = animator.runtimeAnimatorController;
-            if (controller == null)
-            {
-                return string.Empty;
-            }
-
-            foreach (AnimationClip clip in controller.animationClips)
-            {
-                if (clip == null)
-                {
-                    continue;
-                }
-
-                if (clip.name.IndexOf(keyword, System.StringComparison.OrdinalIgnoreCase) < 0)
-                {
-                    continue;
-                }
-
-                if (animator.HasState(0, Animator.StringToHash(clip.name)))
-                {
-                    return clip.name;
-                }
-            }
-
-            return string.Empty;
-        }
-
-        private void PlayState(string stateName)
-        {
-            if (cachedAnimator == null || string.IsNullOrEmpty(stateName))
-            {
-                return;
-            }
-
-            cachedAnimator.CrossFadeInFixedTime(stateName, 0.15f);
+            if (cachedProjectileShooter == null)
+                cachedProjectileShooter = GetComponentInChildren<ProjectileShooter>(true);
         }
 
         public void StartCombat()
         {
+            CacheComponents();
+
             isCombatStarted = true;
             attackTimer = 0f;
-            animReturnTimer = 0f;
-            hasPendingHit = false;
-            ResolveAnimator();
-
-            if (!string.IsNullOrEmpty(resolvedIdleState))
-            {
-                PlayState(resolvedIdleState);
-            }
+            comboAttackActive = false;
+            currentAttackTarget = null;
         }
 
         public void PauseCombat()
         {
             isCombatStarted = false;
-            if (cachedAnimator != null && !string.IsNullOrEmpty(resolvedIdleState))
-            {
-                PlayState(resolvedIdleState);
-            }
         }
 
         public void ResumeCombat()
@@ -180,163 +125,179 @@ namespace Project
 
         private void Update()
         {
-            if (cachedAnimator != null)
-            {
-                AnimatorStateInfo stateInfo = cachedAnimator.GetCurrentAnimatorStateInfo(0);
-                if (stateInfo.IsName("Tabi_skill_action") || stateInfo.IsName("Tabi_skill"))
-                {
-                    return;
-                }
-            }
-
-            float dt = Time.deltaTime;
-
-            if (animReturnTimer > 0f)
-            {
-                animReturnTimer -= dt;
-                if (animReturnTimer <= 0f)
-                {
-                    Enemy target = FindClosestEnemy();
-                    bool nextAttackImminent = target != null && isCombatStarted && attackTimer <= attackAnimDuration * 0.15f;
-                    if (!nextAttackImminent && !string.IsNullOrEmpty(resolvedIdleState))
-                    {
-                        PlayState(resolvedIdleState);
-                    }
-                }
-            }
-
-            if (hasPendingHit)
-            {
-                pendingHitTimer -= dt;
-                if (pendingHitTimer <= 0f)
-                {
-                    hasPendingHit = false;
-                    ApplyPendingHit();
-                }
-            }
-
             if (!isCombatStarted)
-            {
                 return;
-            }
 
-            attackTimer -= dt;
-            if (attackTimer <= 0f)
+            CacheComponents();
+
+            // 스킬/궁극기 중에는 자동 평타 정지
+            if (cachedAnimatorBridge != null && cachedAnimatorBridge.IsInSkillState())
+                return;
+
+            // 현재 평타 2타 세트 진행 중이면 다음 평타 시작 금지
+            if (comboAttackActive)
+                return;
+
+            attackTimer -= Time.deltaTime;
+            if (attackTimer > 0f)
+                return;
+
+            Enemy target = FindClosestEnemy();
+            if (target == null)
+                return;
+
+            BeginAttackCombo(target);
+            attackTimer = Mathf.Max(0.01f, attackRate);
+        }
+
+        private void BeginAttackCombo(Enemy target)
+        {
+            if (target == null)
+                return;
+
+            currentAttackTarget = target;
+            comboAttackActive = true;
+
+            RotateTowardTarget(target);
+
+            if (cachedAnimatorBridge != null)
             {
-                attackTimer = Mathf.Max(0.05f, attackRate);
-                Attack();
+                cachedAnimatorBridge.TriggerAttack();
+            }
+            else if (cachedAnimator != null)
+            {
+                cachedAnimator.SetTrigger("attack");
             }
         }
 
-        private void Attack()
+        private void RotateTowardTarget(Enemy target)
         {
-            Enemy target = FindClosestEnemy();
-            if (target == null)
-            {
-                return;
-            }
+            if (target == null) return;
 
-            Vector3 directionToTarget = (target.transform.position - transform.position).normalized;
+            Vector3 directionToTarget = target.transform.position - transform.position;
             directionToTarget.y = 0f;
-            if (directionToTarget != Vector3.zero)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
-                Quaternion modelOffset = Quaternion.Euler(modelRotationOffset);
-                transform.rotation = targetRotation * modelOffset;
-            }
 
-            PlayAttackAnimation();
-            SpawnNormalAttackVfx();
+            if (directionToTarget.sqrMagnitude <= 0.0001f)
+                return;
 
-            float hitDelay = attackAnimDuration * (agentData != null ? agentData.hitTiming : 0.3f);
-            int finalDamage = DamageCalculator.ComputeDamage(
+            Quaternion targetRotation = Quaternion.LookRotation(directionToTarget.normalized);
+            Quaternion modelOffset = Quaternion.Euler(modelRotationOffset);
+            transform.rotation = targetRotation * modelOffset;
+        }
+
+        private Enemy ResolveAttackTarget()
+        {
+            if (currentAttackTarget != null && currentAttackTarget.IsAlive)
+                return currentAttackTarget;
+
+            Enemy fallback = FindClosestEnemy();
+            currentAttackTarget = fallback;
+            return fallback;
+        }
+
+        private void ApplySingleAttackHit()
+        {
+            Enemy target = ResolveAttackTarget();
+            if (target == null)
+                return;
+
+            bool isCrit;
+            int finalDmg = DamageCalculator.ComputeDamage(
                 stats.atk,
                 target.Defense,
                 stats.critChance,
                 stats.critMultiplier,
                 element,
                 target.Element,
-                out bool isCrit);
+                out isCrit
+            );
 
-            if (hasPendingHit && pendingHitTarget != null && pendingHitTarget.IsAlive)
-            {
-                ApplyPendingHit();
-            }
-
-            hasPendingHit = true;
-            pendingHitTimer = hitDelay;
-            pendingHitTarget = target;
-            pendingHitDamage = finalDamage;
-            pendingHitIsCrit = isCrit;
+            target.TakeDamage(finalDmg, isCrit);
         }
 
-        private void ApplyPendingHit()
+        /// <summary>
+        /// attack_01 animation event
+        /// </summary>
+        public void ApplyAttackHit_01()
         {
-            if (pendingHitTarget != null && pendingHitTarget.IsAlive)
-            {
-                pendingHitTarget.TakeDamage(pendingHitDamage, pendingHitIsCrit);
-            }
-
-            pendingHitTarget = null;
+            ApplySingleAttackHit();
         }
 
-        private void PlayAttackAnimation()
+        /// <summary>
+        /// attack_02 animation event
+        /// </summary>
+        public void ApplyAttackHit_02()
         {
-            if (string.IsNullOrEmpty(resolvedAttackState))
+            ApplySingleAttackHit();
+        }
+
+        /// <summary>
+        /// attack_01 / attack_02 둘 다에서 호출 가능
+        /// </summary>
+        public void FireNormalAttack()
+        {
+            CacheComponents();
+
+            if (cachedProjectileShooter != null)
             {
+                cachedProjectileShooter.FireNormalAttack();
                 return;
             }
 
-            if (cachedAnimator != null)
-            {
-                RuntimeAnimatorController controller = cachedAnimator.runtimeAnimatorController;
-                if (controller != null)
-                {
-                    foreach (AnimationClip clip in controller.animationClips)
-                    {
-                        if (clip != null && clip.name == resolvedAttackState)
-                        {
-                            attackAnimDuration = Mathf.Max(0.1f, clip.length);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            PlayState(resolvedAttackState);
-            animReturnTimer = attackAnimDuration;
+            SpawnNormalAttackVfxFallback();
         }
 
-        private void SpawnNormalAttackVfx()
+        private void SpawnNormalAttackVfxFallback()
         {
-            if (cachedRailgun != null)
-            {
-                cachedRailgun.FireRailgun();
-                return;
-            }
-
             if (agentData == null || agentData.normalAttackVfxPrefab == null)
-            {
                 return;
-            }
 
             Vector3 spawnPos = transform.position + transform.TransformDirection(agentData.normalAttackVfxOffset);
             GameObject vfx = Instantiate(agentData.normalAttackVfxPrefab, spawnPos, transform.rotation);
             if (vfx == null)
-            {
                 return;
-            }
 
-            float lifetime = agentData.normalAttackVfxLifetime > 0f ? agentData.normalAttackVfxLifetime : attackAnimDuration;
+            float lifetime = agentData.normalAttackVfxLifetime > 0f
+                ? agentData.normalAttackVfxLifetime
+                : 1f;
+
             StopAndDestroyVfx(vfx, lifetime);
+        }
+
+        /// <summary>
+        /// attack_02 끝 프레임에 넣는 이벤트
+        /// 평타 1세트 종료 처리
+        /// </summary>
+        public void EndAttackCombo()
+        {
+            comboAttackActive = false;
+            currentAttackTarget = null;
+        }
+
+        public void TriggerActiveSkillAnimation()
+        {
+            CacheComponents();
+
+            if (cachedAnimatorBridge != null)
+                cachedAnimatorBridge.TriggerActiveSkill();
+            else if (cachedAnimator != null)
+                cachedAnimator.SetTrigger("activeskill");
+        }
+
+        public void TriggerUltimateAnimation()
+        {
+            CacheComponents();
+
+            if (cachedAnimatorBridge != null)
+                cachedAnimatorBridge.TriggerUltimate();
+            else if (cachedAnimator != null)
+                cachedAnimator.SetTrigger("ultimate");
         }
 
         private static void StopAndDestroyVfx(GameObject vfx, float delay)
         {
-            foreach (ParticleSystem particleSystem in vfx.GetComponentsInChildren<ParticleSystem>(true))
-            {
-                particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            }
+            foreach (ParticleSystem ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
             Destroy(vfx, Mathf.Max(0.05f, delay));
         }
@@ -344,7 +305,97 @@ namespace Project
         private Enemy FindClosestEnemy()
         {
             EnemyManager manager = EnemyManager.Instance;
-            return manager != null ? manager.GetClosest(transform.position, range) : null;
+            if (manager == null) return null;
+            return manager.GetClosest(transform.position, range);
+        }
+
+        private void ApplyStatsFromTables()
+        {
+            bool statsApplied = false;
+
+            if (TryGetStatsFromTableObject(agentTable, agentId, out CombatStats tableStats))
+            {
+                stats = tableStats;
+                statsApplied = true;
+            }
+            else if (TryGetStatsFromTableObject(agentStatsTable, agentId, out CombatStats fallbackStats))
+            {
+                stats = fallbackStats;
+                statsApplied = true;
+            }
+
+            if (TryGetElementFromTableObject(agentTable, agentId, out ElementType tableElement))
+            {
+                element = tableElement;
+            }
+            else if (TryGetElementFromTableObject(agentStatsTable, agentId, out ElementType fallbackElement))
+            {
+                element = fallbackElement;
+            }
+
+            if (!statsApplied && stats.atk <= 0f)
+                stats.atk = 1f;
+
+            if (stats.atk <= 0f)
+                stats.atk = 1f;
+        }
+
+        private static bool TryGetStatsFromTableObject(UnityEngine.Object tableObject, int id, out CombatStats result)
+        {
+            result = default;
+            if (tableObject == null) return false;
+
+            MethodInfo method = tableObject.GetType().GetMethod("GetStats", BindingFlags.Public | BindingFlags.Instance);
+            if (method == null) return false;
+
+            try
+            {
+                object value = method.Invoke(tableObject, new object[] { id });
+
+                if (value is CombatStats directStats)
+                {
+                    result = directStats;
+                    return true;
+                }
+
+                Type nullableType = Nullable.GetUnderlyingType(method.ReturnType);
+                if (nullableType == typeof(CombatStats) && value != null)
+                {
+                    result = (CombatStats)value;
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Agent] Failed to invoke GetStats on {tableObject.name}: {e.Message}");
+            }
+
+            return false;
+        }
+
+        private static bool TryGetElementFromTableObject(UnityEngine.Object tableObject, int id, out ElementType result)
+        {
+            result = default;
+            if (tableObject == null) return false;
+
+            MethodInfo method = tableObject.GetType().GetMethod("GetElement", BindingFlags.Public | BindingFlags.Instance);
+            if (method == null) return false;
+
+            try
+            {
+                object value = method.Invoke(tableObject, new object[] { id });
+                if (value is ElementType directElement)
+                {
+                    result = directElement;
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Agent] Failed to invoke GetElement on {tableObject.name}: {e.Message}");
+            }
+
+            return false;
         }
     }
 }
