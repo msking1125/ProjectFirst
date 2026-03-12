@@ -3,11 +3,7 @@
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
     ///
-    /// Documentation cleaned.
-    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Agent Data", fileName = "AgentData_New")]
     public class AgentData : ScriptableObject
@@ -35,3 +31,4 @@ namespace ProjectFirst.Data
 
     }
 }
+

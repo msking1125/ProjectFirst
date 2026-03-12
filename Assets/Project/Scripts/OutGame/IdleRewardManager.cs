@@ -1,51 +1,38 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using ProjectFirst.Data;
-using Cysharp.Threading.Tasks;
+
 /// <summary>
-/// Documentation cleaned.
+/// 방치 보상 관리자.
 ///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
+/// 흐름:
+///   1. Start()에서 오프라인 경과 시간을 계산합니다.
+///   2. 경과 시간이 minElapsedSecondsForPopup 이상이면 팝업을 자동 표시합니다.
+///   3. 받기 버튼을 누르면 연출 후 우편함 또는 PlayerData에 보상을 지급합니다.
+///   4. 지급이 끝나면 기준 시간을 현재 시각으로 초기화합니다.
 ///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-///
-/// Documentation cleaned.
-///   Data      : playerData, config, mailBox
-///   Popup UI  : popupRoot, elapsedTimeText, rewardGoldText,
-///               rewardTicketText, rewardDiamondText,
-///               claimButton, closeButton
-/// Documentation cleaned.
+/// 저장 전략:
+///   - PlayerPrefs("IdleReward_LastTime") : 실제 영속 저장
+///   - PlayerData.lastIdleRewardTime      : 에디터 편의용 미러 데이터
+///   두 값 모두 ISO 8601 UTC 문자열로 기록합니다.
 /// </summary>
 [DisallowMultipleComponent]
 public class IdleRewardManager : MonoBehaviour
 {
-    // Note: cleaned comment.
     private const string PrefKey = "IdleReward_LastTime";
 
-    // Note: cleaned comment.
-
-    [Header("Data")]
+    [Header("데이터")]
     [SerializeField] private PlayerData playerData;
     [SerializeField] private IdleRewardConfig config;
     [SerializeField] private MailBox mailBox;
 
-    // Note: cleaned comment.
-
-    [Header("Popup UI")]
-    [Tooltip("Configured in inspector.")]
+    [Header("팝업 UI")]
+    [Tooltip("팝업 루트 오브젝트입니다. 비활성 상태로 시작합니다.")]
     [SerializeField] private GameObject popupRoot;
     [SerializeField] private TMP_Text elapsedTimeText;
     [SerializeField] private TMP_Text rewardGoldText;
@@ -54,14 +41,9 @@ public class IdleRewardManager : MonoBehaviour
     [SerializeField] private Button claimButton;
     [SerializeField] private Button closeButton;
 
-    // Note: cleaned comment.
-
-    [Header("Animation")]
-    [Tooltip("Effect object played when the reward is claimed (Animator or ParticleSystem can be included). " +
-             "It should start inactive and will be disabled automatically after the effect duration.")]
+    [Header("연출")]
+    [Tooltip("받기 버튼 클릭 후 재생할 연출 오브젝트입니다. Animator나 ParticleSystem을 포함할 수 있습니다.")]
     [SerializeField] private GameObject rewardAnimRoot;
-
-    // Note: cleaned comment.
 
     private struct RewardResult
     {
@@ -72,15 +54,16 @@ public class IdleRewardManager : MonoBehaviour
         public bool IsEmpty => gold == 0 && ticket == 0 && diamond == 0;
     }
 
-    private RewardResult _pending;
-    private bool _isClaiming;
-
-    // Note: cleaned comment.
+    private RewardResult pending;
+    private bool isClaiming;
 
     private void Awake()
     {
-        if (popupRoot      != null) popupRoot.SetActive(false);
-        if (rewardAnimRoot != null) rewardAnimRoot.SetActive(false);
+        if (popupRoot != null)
+            popupRoot.SetActive(false);
+
+        if (rewardAnimRoot != null)
+            rewardAnimRoot.SetActive(false);
 
         claimButton?.onClick.AddListener(() => ClaimRewardAsync().Forget());
         closeButton?.onClick.AddListener(ClosePopup);
@@ -88,21 +71,19 @@ public class IdleRewardManager : MonoBehaviour
 
     private void Start()
     {
-        // Note: cleaned comment.
         if (string.IsNullOrEmpty(LoadStoredTime()))
             SaveCurrentTime();
 
-        // Note: cleaned comment.
         TimeSpan elapsed = CalcElapsed();
-        float minSec = config != null ? config.minElapsedSecondsForPopup : 60f;
-        if (elapsed.TotalSeconds >= minSec)
+        float minSeconds = config != null ? config.minElapsedSecondsForPopup : 60f;
+        if (elapsed.TotalSeconds >= minSeconds)
             OpenPopup();
     }
 
     private void OnApplicationPause(bool pausing)
     {
-        // Note: cleaned comment.
-        if (pausing) SaveCurrentTime();
+        if (pausing)
+            SaveCurrentTime();
     }
 
     private void OnApplicationQuit()
@@ -110,97 +91,88 @@ public class IdleRewardManager : MonoBehaviour
         SaveCurrentTime();
     }
 
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
+    /// <summary>
+    /// 방치 보상 팝업을 엽니다.
+    /// </summary>
     public void OpenPopup()
     {
-        if (_isClaiming) return;
+        if (isClaiming)
+            return;
 
-        _pending = CalculateReward();
+        pending = CalculateReward();
         RefreshPopupUI();
         popupRoot?.SetActive(true);
     }
 
     public void ClosePopup()
     {
-        if (_isClaiming) return;
+        if (isClaiming)
+            return;
+
         popupRoot?.SetActive(false);
     }
 
-    // Note: cleaned comment.
-
     /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
+    /// 오프라인 누적 시간에 비례한 보상을 계산합니다.
+    /// 최대 maxOfflineHours까지만 인정합니다.
     /// </summary>
     private RewardResult CalculateReward()
     {
-        TimeSpan elapsed   = CalcElapsed();
-        float maxHours     = config != null ? config.maxOfflineHours : 12f;
-        float cappedSec    = Mathf.Min((float)elapsed.TotalSeconds, maxHours * 3600f);
-        float hours        = cappedSec / 3600f;
+        TimeSpan elapsed = CalcElapsed();
+        float maxHours = config != null ? config.maxOfflineHours : 12f;
+        float cappedSeconds = Mathf.Min((float)elapsed.TotalSeconds, maxHours * 3600f);
+        float hours = cappedSeconds / 3600f;
 
-        int gph = config != null ? config.goldPerHour    : 100;
-        int tph = config != null ? config.ticketPerHour  : 0;
-        int dph = config != null ? config.diamondPerHour : 0;
+        int goldPerHour = config != null ? config.goldPerHour : 100;
+        int ticketPerHour = config != null ? config.ticketPerHour : 0;
+        int diamondPerHour = config != null ? config.diamondPerHour : 0;
 
         return new RewardResult
         {
-            gold    = Mathf.FloorToInt(gph * hours),
-            ticket  = Mathf.FloorToInt(tph * hours),
-            diamond = Mathf.FloorToInt(dph * hours),
+            gold = Mathf.FloorToInt(goldPerHour * hours),
+            ticket = Mathf.FloorToInt(ticketPerHour * hours),
+            diamond = Mathf.FloorToInt(diamondPerHour * hours),
             elapsed = elapsed,
         };
     }
 
-    // Note: cleaned comment.
-
     private async UniTaskVoid ClaimRewardAsync()
     {
-        if (_isClaiming) return;
-        _isClaiming = true;
-        if (claimButton != null) claimButton.interactable = false;
+        if (isClaiming)
+            return;
 
-        // Note: cleaned comment.
+        isClaiming = true;
+        if (claimButton != null)
+            claimButton.interactable = false;
+
         await PlayAnimationAsync();
-
-        // Note: cleaned comment.
-        DeliverToMailBox(_pending);
-
-        // Note: cleaned comment.
+        DeliverToMailBox(pending);
         SaveCurrentTime();
 
-        _isClaiming = false;
+        isClaiming = false;
         ClosePopup();
     }
 
-    private void DeliverToMailBox(RewardResult r)
+    private void DeliverToMailBox(RewardResult reward)
     {
         if (mailBox != null)
         {
-            // Note: cleaned comment.
             mailBox.AddMail(
-                title:   "방치 보상",
-                body:    BuildMailBody(r),
-                gold:    r.gold,
-                ticket:  r.ticket,
-                diamond: r.diamond);
+                title: "방치 보상",
+                body: BuildMailBody(reward),
+                gold: reward.gold,
+                ticket: reward.ticket,
+                diamond: reward.diamond);
 
-            Debug.Log("[Log] Message cleaned.");
-            // Note: removed broken continuation.
+            Debug.Log($"[IdleRewardManager] 우편 지급 완료 - 골드 {reward.gold:N0} / 티켓 {reward.ticket:N0} / 다이아 {reward.diamond:N0}");
+            return;
         }
-        else
-        {
-            // Note: cleaned comment.
-            playerData?.AddGold(r.gold);
-            playerData?.AddTicket(r.ticket);
-            playerData?.AddDiamond(r.diamond);
-            Debug.LogWarning("[Log] Warning message cleaned.");
-        }
+
+        playerData?.AddGold(reward.gold);
+        playerData?.AddTicket(reward.ticket);
+        playerData?.AddDiamond(reward.diamond);
+        Debug.LogWarning("[IdleRewardManager] MailBox가 연결되지 않아 PlayerData에 직접 지급했습니다.");
     }
-
-    // Note: cleaned comment.
 
     private async UniTask PlayAnimationAsync()
     {
@@ -209,36 +181,31 @@ public class IdleRewardManager : MonoBehaviour
         if (rewardAnimRoot != null)
         {
             rewardAnimRoot.SetActive(true);
-            await UniTask.Delay(
-                TimeSpan.FromSeconds(duration),
-                cancellationToken: destroyCancellationToken);
+            await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: destroyCancellationToken);
             rewardAnimRoot.SetActive(false);
+            return;
         }
-        else
-        {
-            await UniTask.Delay(
-                TimeSpan.FromSeconds(duration),
-                cancellationToken: destroyCancellationToken);
-        }
-    }
 
-    // Note: cleaned comment.
+        await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: destroyCancellationToken);
+    }
 
     private void RefreshPopupUI()
     {
-        if (elapsedTimeText   != null) elapsedTimeText.text   = FormatElapsed(_pending.elapsed);
-        if (rewardGoldText    != null) rewardGoldText.text    = $"+{_pending.gold:N0}";
-        if (rewardTicketText  != null) rewardTicketText.text  = $"+{_pending.ticket:N0}";
-        if (rewardDiamondText != null) rewardDiamondText.text = $"+{_pending.diamond:N0}";
+        if (elapsedTimeText != null)
+            elapsedTimeText.text = FormatElapsed(pending.elapsed);
+        if (rewardGoldText != null)
+            rewardGoldText.text = $"+{pending.gold:N0}";
+        if (rewardTicketText != null)
+            rewardTicketText.text = $"+{pending.ticket:N0}";
+        if (rewardDiamondText != null)
+            rewardDiamondText.text = $"+{pending.diamond:N0}";
 
         if (claimButton != null)
-            claimButton.interactable = !_pending.IsEmpty;
+            claimButton.interactable = !pending.IsEmpty;
     }
 
-    // Note: cleaned comment.
-
     /// <summary>
-    /// Documentation cleaned.
+    /// 현재 UTC 시각을 PlayerPrefs와 PlayerData에 함께 저장합니다.
     /// </summary>
     private void SaveCurrentTime()
     {
@@ -250,7 +217,9 @@ public class IdleRewardManager : MonoBehaviour
             playerData.lastIdleRewardTime = now;
     }
 
-    /// Documentation cleaned.
+    /// <summary>
+    /// 저장된 마지막 방치 보상 기준 시각을 읽어옵니다.
+    /// </summary>
     private string LoadStoredTime()
     {
         string stored = PlayerPrefs.GetString(PrefKey, string.Empty);
@@ -259,40 +228,39 @@ public class IdleRewardManager : MonoBehaviour
         return stored;
     }
 
-    /// Documentation cleaned.
+    /// <summary>
+    /// 마지막 저장 시각부터 현재까지의 경과 시간을 계산합니다.
+    /// </summary>
     private TimeSpan CalcElapsed()
     {
         string stored = LoadStoredTime();
         if (string.IsNullOrEmpty(stored))
             return TimeSpan.Zero;
 
-        if (DateTime.TryParse(stored, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime last))
+        if (DateTime.TryParse(stored, null, DateTimeStyles.RoundtripKind, out DateTime last))
             return DateTime.UtcNow - last;
 
         return TimeSpan.Zero;
     }
 
-    // Note: cleaned comment.
-
-    private static string FormatElapsed(TimeSpan t)
+    private static string FormatElapsed(TimeSpan time)
     {
-        if (t.TotalHours >= 1) return $"{(int)t.TotalHours}h {t.Minutes}m";
-        if (t.TotalMinutes >= 1) return $"{(int)t.TotalMinutes}m";
-        return "Just now";
+        if (time.TotalHours >= 1)
+            return $"{(int)time.TotalHours}시간 {time.Minutes}분";
+        if (time.TotalMinutes >= 1)
+            return $"{(int)time.TotalMinutes}분";
+        return "방금";
     }
 
-    private static string BuildMailBody(RewardResult r)
+    private static string BuildMailBody(RewardResult reward)
     {
-        var sb = new StringBuilder($"Idle reward accumulated for {FormatElapsed(r.elapsed)}.\n");
-        if (r.gold    > 0) sb.AppendLine($"怨⑤뱶   +{r.gold:N0}");
-        if (r.ticket  > 0) sb.AppendLine($"?곗폆   +{r.ticket:N0}");
-        if (r.diamond > 0) sb.AppendLine($"?ㅼ씠??+{r.diamond:N0}");
+        var sb = new StringBuilder($"{FormatElapsed(reward.elapsed)} 동안의 방치 보상입니다.\n");
+        if (reward.gold > 0)
+            sb.AppendLine($"골드   +{reward.gold:N0}");
+        if (reward.ticket > 0)
+            sb.AppendLine($"티켓   +{reward.ticket:N0}");
+        if (reward.diamond > 0)
+            sb.AppendLine($"다이아 +{reward.diamond:N0}");
         return sb.ToString().TrimEnd();
     }
 }
-
-
-
-
-
-

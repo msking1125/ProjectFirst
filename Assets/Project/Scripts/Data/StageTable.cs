@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [CreateAssetMenu(menuName = "Game/Stage Table")]
     public class StageTable : ScriptableObject
     {
@@ -39,19 +36,11 @@ namespace ProjectFirst.Data
                 list.Add(row);
             }
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public StageRow GetById(int id)
         {
             BuildIndex();
             return _idIndex.TryGetValue(id, out var row) ? row : null;
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public List<StageRow> GetByChapter(int chapterId)
         {
             BuildIndex();
@@ -61,3 +50,4 @@ namespace ProjectFirst.Data
         }
     }
 }
+

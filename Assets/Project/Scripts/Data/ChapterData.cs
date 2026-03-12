@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     [CreateAssetMenu(fileName = "ChapterData", menuName = "MindArk/Data/ChapterData")]
     public class ChapterData : ScriptableObject
     {
@@ -37,11 +33,8 @@ namespace ProjectFirst.Data
         }
 
         public List<ChapterInfo> chapters = new List<ChapterInfo>();
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public ChapterInfo GetById(int id) =>
             chapters.FirstOrDefault(c => c.chapterId == id);
     }
 }
+

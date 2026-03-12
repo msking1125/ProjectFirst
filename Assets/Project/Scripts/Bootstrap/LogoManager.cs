@@ -148,3 +148,4 @@ public class LogoManager : MonoBehaviour
         Debug.Log("[LogoManager] Created a new AsyncSceneLoader GameObject and initialized it.");
     }
 }
+

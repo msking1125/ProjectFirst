@@ -38,3 +38,4 @@ namespace ProjectFirst.Data
         public int expValue => (int)_type;
     }
 }
+

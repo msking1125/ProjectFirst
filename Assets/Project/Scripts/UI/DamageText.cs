@@ -29,8 +29,6 @@ public class DamageText : MonoBehaviour
         {
             canvasGroup = GetComponent<CanvasGroup>();
         }
-
-        // Note: cleaned comment.
         if (valueText != null && valueText.rectTransform != null)
         {
             valueText.rectTransform.anchoredPosition = Vector2.zero;
@@ -38,7 +36,6 @@ public class DamageText : MonoBehaviour
 
         if (valueText != null)
         {
-            // Note: cleaned comment.
             if (TMP_Settings.defaultFontAsset != null)
             {
                 valueText.font = TMP_Settings.defaultFontAsset;
@@ -58,8 +55,6 @@ public class DamageText : MonoBehaviour
             canvasGroup.alpha = 1f;
             canvasGroup.DOFade(0f, duration);
         }
-
-        // Note: cleaned comment.
         if (cam != null)
         {
             transform.forward = cam.transform.forward;
@@ -71,10 +66,10 @@ public class DamageText : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Note: cleaned comment.
         if (cam != null)
         {
             transform.forward = cam.transform.forward;
         }
     }
 }
+

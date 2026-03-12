@@ -7,17 +7,10 @@ public class RunSession
     public int Level { get; private set; } = 1;
     public int Exp { get; private set; }
     public int Gold { get; private set; }
-
-    // Note: cleaned comment.
-    /// Documentation cleaned.
     public List<int> selectedAgentIds = new List<int>();
-    /// Documentation cleaned.
     public int currentStageId;
-    /// Documentation cleaned.
     public int currentChapterId;
-    /// Documentation cleaned.
     public float battleElapsedTime;
-    /// Documentation cleaned.
     public int waveKillCount;
 
     public int ExpToNextLevel => GetRequiredExpForLevel(Level);
@@ -77,3 +70,4 @@ public class RunSession
         return levelUps;
     }
 }
+

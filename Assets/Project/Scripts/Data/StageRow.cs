@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [Serializable]
     public class StageRow
     {
@@ -33,3 +30,4 @@ namespace ProjectFirst.Data
         public string waveDataId;
     }
 }
+

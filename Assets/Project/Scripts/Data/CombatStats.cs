@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [Serializable]
     public struct CombatStats
     {
@@ -41,4 +38,5 @@ namespace ProjectFirst.Data
         }
     }
 }
+
 

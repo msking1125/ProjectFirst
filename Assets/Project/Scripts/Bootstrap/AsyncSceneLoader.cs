@@ -1,9 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-
-/// <summary>
-/// Documentation cleaned.
-/// </summary>
 public sealed class AsyncSceneLoader : MonoBehaviour
 {
     public static AsyncSceneLoader Instance { get; private set; }
@@ -27,28 +23,24 @@ public sealed class AsyncSceneLoader : MonoBehaviour
             Instance = null;
         }
     }
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     public void LoadSceneAsync(string sceneName, LoadSceneMode mode = LoadSceneMode.Additive)
     {
         if (string.IsNullOrWhiteSpace(sceneName))
         {
-            Debug.LogError("[Log] Error message cleaned.");
+            Debug.LogError("[Log] 오류가 발생했습니다.");
             return;
         }
 
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName, mode);
         if (asyncOperation == null)
         {
-            Debug.LogError("[Log] Error message cleaned.");
+            Debug.LogError("[Log] 오류가 발생했습니다.");
             return;
         }
 
         asyncOperation.completed += _ =>
         {
-            Debug.Log("[Log] Message cleaned.");
+            Debug.Log("[Log] 상태가 갱신되었습니다.");
         };
     }
 
@@ -57,3 +49,4 @@ public sealed class AsyncSceneLoader : MonoBehaviour
         LoadSceneAsync(sceneName, mode);
     }
 }
+

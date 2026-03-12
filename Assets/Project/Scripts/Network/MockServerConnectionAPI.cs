@@ -11,23 +11,22 @@ namespace ProjectFirst.Network
         {
             if (serverInfo == null)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 return false;
             }
 
-            Debug.Log("[Log] Message cleaned.");
-            
-            // Note: cleaned comment.
+            Debug.Log("[Log] 상태가 갱신되었습니다.");
             await UniTask.Delay(TimeSpan.FromSeconds(1.0f));
 
             if (serverInfo.status == ServerStatus.Full)
             {
-                Debug.LogWarning("[Log] Warning message cleaned.");
+                Debug.LogWarning("[Log] 경고가 발생했습니다.");
                 return false;
             }
 
-            Debug.Log("[Log] Message cleaned.");
+            Debug.Log("[Log] 상태가 갱신되었습니다.");
             return true;
         }
     }
 }
+

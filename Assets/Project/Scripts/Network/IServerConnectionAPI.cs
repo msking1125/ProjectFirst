@@ -5,10 +5,7 @@ namespace ProjectFirst.Network
 {
     public interface IServerConnectionAPI
     {
-        /// <summary>
-        /// Documentation cleaned.
-        /// Documentation cleaned.
-        /// </summary>
         UniTask<bool> ConnectToAsync(ServerInfo serverInfo);
     }
 }
+

@@ -3,11 +3,7 @@
 namespace ProjectFirst.Data
 {
     /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
     ///
-    /// Documentation cleaned.
-    /// Documentation cleaned.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Hit Effect Table", fileName = "HitEffectTable")]
     public class HitEffectTable : ScriptableObject
@@ -21,19 +17,10 @@ namespace ProjectFirst.Data
         public GameObject intuitionHitVfx;
 
         public GameObject reasonHitVfx;
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// Documentation cleaned.
-        /// Documentation cleaned.
-        /// </summary>
         public GameObject Resolve(bool isCrit, ElementType element, bool isSkillHit)
         {
-            // Note: cleaned comment.
             if (isCrit && critHitVfx != null)
                 return critHitVfx;
-
-            // Note: cleaned comment.
             if (isSkillHit)
             {
                 GameObject elementVfx = element switch
@@ -51,3 +38,4 @@ namespace ProjectFirst.Data
         }
     }
 }
+

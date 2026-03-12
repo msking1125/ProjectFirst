@@ -5,19 +5,13 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    ///
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// Documentation cleaned.
+        /// <summary>
+    /// 플레이어 계정, 재화, 진행도, 캐릭터 성장 상태를 저장하는 ScriptableObject입니다.
+    /// 로비와 각종 UI 시스템이 공통으로 참조하는 런타임 플레이어 데이터입니다.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Player Data", fileName = "PlayerData")]
     public class PlayerData : ScriptableObject
     {
-        // Note: cleaned comment.
         public string uid;
 
         public string nickname;
@@ -29,55 +23,39 @@ namespace ProjectFirst.Data
         public int accountExpMax = 100;
 
         public string selectedServerId;
-
-        // Note: cleaned comment.
         public int mainCharacterId;
-
-        // Note: cleaned comment.
         public int currentChapter;
 
         public int currentStage;
 
         public int stageProgress;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("인스펙터에서 설정합니다.")]
         public int currentStageIndex;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("인스펙터에서 설정합니다.")]
         public int currentAgentIndex;
-
-        // Note: cleaned comment.
         public int stamina;
 
         public int staminaMax;
-
-        // Note: cleaned comment.
         public long gold;
 
         public long gem;
-
-        // Note: cleaned comment.
-        [Header("Settings")]
+        [Header("재화 (레거시)")]
         public int ticket;
 
         public int diamond;
-
-        // Note: cleaned comment.
-        [Header("Settings")]
+        [Header("보유 목록")]
         public List<int> ownedCharacterIds = new List<int>();
 
         public List<int> ownedPetIds = new List<int>();
 
         public List<int> ownedEquipmentIds = new List<int>();
-
-        // Note: cleaned comment.
-        [Header("Settings")]
+        [Header("캐릭터 성장")]
         public List<CharacterProgressRecord> characterProgressRecords = new List<CharacterProgressRecord>();
 
         public List<ExpItemInventoryRecord> expItemInventoryRecords = new List<ExpItemInventoryRecord>();
-
-        // Note: cleaned comment.
-        [Header("Settings")]
+        [Header("미션 상태")]
         public List<MissionProgressRecord> missionProgressRecords = new List<MissionProgressRecord>();
 
         public List<MissionTierClaimRecord> missionTierClaimRecords = new List<MissionTierClaimRecord>();
@@ -85,17 +63,11 @@ namespace ProjectFirst.Data
         public string lastDailyMissionResetUtc;
 
         public string lastWeeklyMissionResetUtc;
-
-        // Note: cleaned comment.
-        [Header("Settings")]
+        [Header("튜토리얼")]
         [HideInInspector]
         public List<TutorialFlagEntry> tutorialFlagEntries = new List<TutorialFlagEntry>();
-
-        /// Documentation cleaned.
         [NonSerialized]
         public Dictionary<string, bool> TutorialFlags = new Dictionary<string, bool>();
-
-        /// Documentation cleaned.
         public void RebuildTutorialFlags()
         {
             TutorialFlags.Clear();
@@ -105,48 +77,29 @@ namespace ProjectFirst.Data
                     TutorialFlags[entry.key] = entry.done;
             }
         }
-
-        /// Documentation cleaned.
         public void SyncTutorialFlagEntries()
         {
             tutorialFlagEntries.Clear();
             foreach (var kvp in TutorialFlags)
                 tutorialFlagEntries.Add(new TutorialFlagEntry { key = kvp.Key, done = kvp.Value });
         }
-
-        // Note: cleaned comment.
-        [Header("Settings")]
+        [Header("방치 보상")]
         public string lastIdleRewardTime;
-
-        // Note: cleaned comment.
-        [Header("Settings")]
+        [Header("이벤트")]
         public VoidEventChannelSO onCurrencyChanged;
 
         public VoidEventChannelSO onCharacterChanged;
-
-
-        // Note: cleaned comment.
-
-        /// Documentation cleaned.
         public event Action<CurrencyType> OnCurrencyChanged;
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public void AddGold(long amount)
     {
         gold = Math.Max(0L, gold + amount);
         RaiseCurrencyEvents(CurrencyType.Gold);
     }
-
-    /// Documentation cleaned.
     public void AddGem(long amount)
     {
         gem = Math.Max(0L, gem + amount);
         RaiseCurrencyEvents(CurrencyType.Diamond);
     }
-
-    /// Documentation cleaned.
     public bool SpendGold(long amount)
     {
         if (gold < amount) return false;
@@ -154,10 +107,6 @@ namespace ProjectFirst.Data
         RaiseCurrencyEvents(CurrencyType.Gold);
         return true;
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public void AddCurrency(CurrencyType type, int amount)
     {
         switch (type)
@@ -174,8 +123,6 @@ namespace ProjectFirst.Data
         }
         RaiseCurrencyEvents(type);
     }
-
-    /// Documentation cleaned.
     public int GetCurrency(CurrencyType type) => type switch
     {
         CurrencyType.Gold    => (int)Math.Min(gold, int.MaxValue),
@@ -184,38 +131,24 @@ namespace ProjectFirst.Data
         _                    => 0,
     };
 
-    // Note: cleaned comment.
-
     public void AddTicket(int amount)  => AddCurrency(CurrencyType.Ticket,  amount);
     public void AddDiamond(int amount) => AddCurrency(CurrencyType.Diamond, amount);
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public bool SpendStamina(int amount)
     {
         if (stamina < amount) return false;
         stamina -= amount;
         return true;
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public int GetCharacterLevel(int agentId)
     {
         CharacterProgressRecord rec = characterProgressRecords?.FirstOrDefault(r => r.agentId == agentId);
         return rec?.level ?? 1;
     }
-
-    /// Documentation cleaned.
     public int GetCharacterExp(int agentId)
     {
         CharacterProgressRecord rec = characterProgressRecords?.FirstOrDefault(r => r.agentId == agentId);
         return rec?.exp ?? 0;
     }
-
-    /// Documentation cleaned.
     public void SetCharacterProgress(int agentId, int level, int exp)
     {
         if (characterProgressRecords == null)
@@ -230,17 +163,11 @@ namespace ProjectFirst.Data
         rec.level = level;
         rec.exp   = exp;
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public int GetExpItemCount(ExpItemType type)
     {
         ExpItemInventoryRecord rec = expItemInventoryRecords?.FirstOrDefault(r => r.type == type);
         return rec?.count ?? 0;
     }
-
-    /// Documentation cleaned.
     public void SetExpItemCount(ExpItemType type, int count)
     {
         if (expItemInventoryRecords == null)
@@ -254,65 +181,37 @@ namespace ProjectFirst.Data
         }
         rec.count = Mathf.Max(0, count);
     }
-
-    /// Documentation cleaned.
     public int GetTotalExpItemCount()
     {
         if (expItemInventoryRecords == null) return 0;
         return expItemInventoryRecords.Sum(r => r.count);
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
-    public string GetNicknameOrDefault(string defaultValue = "Player")
+    public string GetNicknameOrDefault(string defaultValue = "플레이어")
         => string.IsNullOrEmpty(nickname) ? defaultValue : nickname;
-
-    /// Documentation cleaned.
     public int GetAccountLevel(int defaultValue = 1)
         => accountLevel > 0 ? accountLevel : defaultValue;
-
-    /// Documentation cleaned.
     public int GetAccountExp() => accountExp;
-
-    /// Documentation cleaned.
     public int GetAccountExpMax(int defaultValue = 100)
         => accountExpMax > 0 ? accountExpMax : defaultValue;
-
-    /// Documentation cleaned.
     public void SetAccountStats(int level, int exp, int expMax)
     {
         accountLevel  = Mathf.Max(1, level);
         accountExp    = Mathf.Max(0, exp);
         accountExpMax = Mathf.Max(1, expMax);
     }
-
-    /// Documentation cleaned.
     public void SetNicknameValue(string value)
         => nickname = value ?? string.Empty;
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public string GetUidOrCreate()
     {
         if (string.IsNullOrEmpty(uid))
             uid = Guid.NewGuid().ToString();
         return uid;
     }
-
-    /// Documentation cleaned.
     public void SetUidValue(string value)
         => uid = value ?? string.Empty;
-
-    /// Documentation cleaned.
     public string GetSelectedServerId() => selectedServerId ?? string.Empty;
-
-    /// Documentation cleaned.
     public void SetSelectedServerId(string value)
         => selectedServerId = value ?? string.Empty;
-
-    /// Documentation cleaned.
     public void ClearLoginState()
     {
         uid              = string.Empty;
@@ -320,11 +219,9 @@ namespace ProjectFirst.Data
         selectedServerId = string.Empty;
     }
 
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
+        /// <summary>
+    /// 플레이어 계정, 재화, 진행도, 캐릭터 성장 상태를 저장하는 ScriptableObject입니다.
+    /// 로비와 각종 UI 시스템이 공통으로 참조하는 런타임 플레이어 데이터입니다.
     /// </summary>
     public bool TryGrantReward(RewardItem reward)
     {
@@ -337,17 +234,17 @@ namespace ProjectFirst.Data
             AddGem(reward.amount);
             return true;
         }
-        if (reward.itemId == 2001 || name.Contains("gold") || name.Contains("怨⑤뱶"))
+        if (reward.itemId == 2001 || name.Contains("gold") || name.Contains("골드"))
         {
             AddGold(reward.amount);
             return true;
         }
-        if (name.Contains("ticket") || name.Contains("?곗폆"))
+        if (name.Contains("ticket") || name.Contains("티켓"))
         {
             AddTicket(reward.amount);
             return true;
         }
-        if (name.Contains("stamina") || name.Contains("?ㅽ깭誘몃굹"))
+        if (name.Contains("stamina") || name.Contains("스태미나"))
         {
             stamina = Mathf.Min(stamina + reward.amount, staminaMax > 0 ? staminaMax : 999);
             return true;
@@ -355,10 +252,6 @@ namespace ProjectFirst.Data
 
         return false;
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public TimeSpan GetIdleElapsed()
     {
         if (string.IsNullOrEmpty(lastIdleRewardTime))
@@ -370,24 +263,16 @@ namespace ProjectFirst.Data
 
         return TimeSpan.Zero;
     }
-
-    /// Documentation cleaned.
     public void MarkIdleRewardClaimed()
     {
         lastIdleRewardTime = DateTime.UtcNow.ToString("o");
     }
-
-    // Note: cleaned comment.
 
     private void RaiseCurrencyEvents(CurrencyType type)
     {
         onCurrencyChanged?.RaiseEvent();
         OnCurrencyChanged?.Invoke(type);
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     [Serializable]
     public class TutorialFlagEntry
     {
@@ -396,4 +281,9 @@ namespace ProjectFirst.Data
     }
 }
 }
+
+
+
+
+
 

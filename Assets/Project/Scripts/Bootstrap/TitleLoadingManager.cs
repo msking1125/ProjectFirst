@@ -5,10 +5,6 @@ using UnityEngine.AddressableAssets;
 
 namespace ProjectFirst.Bootstrap
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     [RequireComponent(typeof(UIDocument))]
     public class TitleLoadingManager : MonoBehaviour
     {
@@ -28,18 +24,12 @@ namespace ProjectFirst.Bootstrap
             _loadingContainer = root.Q<VisualElement>("loading-container");
             _progressBar = root.Q<VisualElement>("progress-bar");
             _loadingLog = root.Q<Label>("loading-log");
-
-            // Note: cleaned comment.
             if (_loadingContainer != null) 
                 _loadingContainer.style.display = DisplayStyle.None;
             
             if (_progressBar != null) 
                 _progressBar.style.width = new Length(0, LengthUnit.Percent);
         }
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public void TriggerLoad()
         {
             if (_isLoading) return;
@@ -55,8 +45,6 @@ namespace ProjectFirst.Bootstrap
         {
             if (_loadingLog != null) _loadingLog.text = "자산 로딩 중...";
             if (_progressBar != null) _progressBar.style.width = new Length(0, LengthUnit.Percent);
-
-            // Note: cleaned comment.
             var handle = Addressables.LoadSceneAsync(_targetSceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
             
             while (!handle.IsDone)
@@ -71,7 +59,8 @@ namespace ProjectFirst.Bootstrap
             if (_progressBar != null) _progressBar.style.width = new Length(100, LengthUnit.Percent);
             
             await UniTask.Delay(300);
-            Debug.Log("[Log] Message cleaned.");
+            Debug.Log("[Log] 상태가 갱신되었습니다.");
         }
     }
 }
+

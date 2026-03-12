@@ -25,6 +25,11 @@ namespace ProjectFirst.InGame
         [SerializeField] private AgentTable _agentTable;
         [SerializeField] private StageData _stageData;
         [SerializeField] private RunSession _runSession;
+        
+        [Header("Enhanced Systems")]
+        [SerializeField] private BattleReadyUIAnimator _uiAnimator;
+        [SerializeField] private CharacterTooltipManager _tooltipManager;
+        [SerializeField] private PartyValidationSystem _validationSystem;
 
         // Runtime state
         private readonly int[] _partySlots = new int[MaxPartySize];
@@ -49,16 +54,14 @@ namespace ProjectFirst.InGame
         private VisualElement _charSelectPopup;
         private VisualElement _charGrid;
         private Button _charSelectCloseBtn;
-
-        // Note: cleaned comment.
         // Lifecycle
-        // Note: cleaned comment.
 
         private void OnEnable()
         {
             _targetStage = GetTargetStage();
             for (int i = 0; i < MaxPartySize; i++) _partySlots[i] = -1;
 
+            InitializeEnhancedSystems();
             BindUI();
             RefreshStageInfo();
             RefreshAllSlots();
@@ -67,10 +70,51 @@ namespace ProjectFirst.InGame
 
             ProjectFirst.OutGame.TutorialManager.Instance?.TryTrigger("first_battle_ready");
         }
-
-        // Note: cleaned comment.
+        
+        /// <summary>
+        /// 개선된 시스템들 초기화
+        /// </summary>
+        private void InitializeEnhancedSystems()
+        {
+            // UI 애니메이터 초기화
+            if (_uiAnimator == null)
+                _uiAnimator = GetComponent<BattleReadyUIAnimator>();
+            
+            // 툴팁 매니저 초기화
+            if (_tooltipManager == null)
+                _tooltipManager = GetComponent<CharacterTooltipManager>();
+            
+            // 파티 유효성 검증 시스템 초기화
+            if (_validationSystem == null)
+                _validationSystem = GetComponent<PartyValidationSystem>();
+            
+            // 필요한 데이터 참조 설정
+            if (_tooltipManager != null)
+            {
+                var tooltipAgentTable = _tooltipManager.GetType().GetField("agentTable", 
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var tooltipPlayerData = _tooltipManager.GetType().GetField("playerData", 
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                
+                if (tooltipAgentTable != null) tooltipAgentTable.SetValue(_tooltipManager, _agentTable);
+                if (tooltipPlayerData != null) tooltipPlayerData.SetValue(_tooltipManager, _playerData);
+            }
+            
+            if (_validationSystem != null)
+            {
+                var validationAgentTable = _validationSystem.GetType().GetField("agentTable", 
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                var validationStageData = _validationSystem.GetType().GetField("stageData", 
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                var validationPlayerData = _validationSystem.GetType().GetField("playerData", 
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                
+                if (validationAgentTable != null) validationAgentTable.SetValue(_validationSystem, _agentTable);
+                if (validationStageData != null) validationStageData.SetValue(_validationSystem, _stageData);
+                if (validationPlayerData != null) validationPlayerData.SetValue(_validationSystem, _playerData);
+            }
+        }
         // Stage lookup
-        // Note: cleaned comment.
 
         private StageData.StageInfo GetTargetStage()
         {
@@ -84,10 +128,7 @@ namespace ProjectFirst.InGame
             return _stageData.GetByChapter(_playerData.currentChapter)
                              .FirstOrDefault(s => s.stageNumber == _playerData.currentStage);
         }
-
-        // Note: cleaned comment.
         // UI binding
-        // Note: cleaned comment.
 
         private void BindUI()
         {
@@ -126,10 +167,7 @@ namespace ProjectFirst.InGame
 
             if (_charSelectPopup != null) _charSelectPopup.style.display = DisplayStyle.None;
         }
-
-        // Note: cleaned comment.
         // Stage info
-        // Note: cleaned comment.
 
         private void RefreshStageInfo()
         {
@@ -180,10 +218,7 @@ namespace ProjectFirst.InGame
                 _rewardPreviewContainer.Add(slot);
             }
         }
-
-        // Note: cleaned comment.
         // Party control
-        // Note: cleaned comment.
 
         private void OnSlotClicked(int slotIndex)
         {
@@ -260,10 +295,7 @@ namespace ProjectFirst.InGame
                 slot.Add(removeBtn);
             }
         }
-
-        // Note: cleaned comment.
         // Character selection popup
-        // Note: cleaned comment.
 
         private void ShowCharSelectPopup()
         {
@@ -301,6 +333,12 @@ namespace ProjectFirst.InGame
                 card.Add(nameLabel);
                 card.Add(powerLabel);
 
+                // 툴팁 등록
+                if (_tooltipManager != null)
+                {
+                    _tooltipManager.RegisterCharacterCard(card, ownedId);
+                }
+
                 if (assigned.Contains(ownedId))
                 {
                     card.SetEnabled(false);
@@ -309,7 +347,12 @@ namespace ProjectFirst.InGame
                 else
                 {
                     int capturedId = ownedId;
-                    card.RegisterCallback<ClickEvent>(_ => OnCharSelected(capturedId));
+                    card.RegisterCallback<ClickEvent>(_ => 
+                    {
+                        OnCharSelected(capturedId);
+                        if (_uiAnimator != null)
+                            _uiAnimator.PlayCharacterSelectAnimation(card);
+                    });
                 }
 
                 _charGrid.Add(card);
@@ -332,43 +375,48 @@ namespace ProjectFirst.InGame
             if (_charSelectPopup != null) _charSelectPopup.style.display = DisplayStyle.None;
             _pendingSlotIndex = -1;
         }
-
-        // Note: cleaned comment.
         // Auto party
-        // Note: cleaned comment.
 
         /// <summary>
-        /// Automatically selects up to three owned agents, prioritizing elemental advantage and then combat power.
+        /// Automatically selects up to three owned agents using the enhanced validation system.
         /// </summary>
         private void OnAutoPartyClicked()
         {
-            ElementType enemy = _targetStage?.enemyElement ?? ElementType.Reason;
-
-            List<AgentInfo> owned = _playerData.ownedCharacterIds
-                .Select(id => _agentTable.GetAgentInfo(id))
-                .Where(a => a != null)
-                .ToList();
-
-            // Prefer elemental advantage, then sort by descending combat power.
-            owned.Sort((a, b) =>
+            if (_validationSystem != null && _targetStage != null)
             {
-                bool aAdv = ElementTypeHelper.HasAdvantage(a.element, enemy);
-                bool bAdv = ElementTypeHelper.HasAdvantage(b.element, enemy);
-                if (aAdv != bAdv) return bAdv.CompareTo(aAdv);
-                return b.GetPower(GetAgentLevel(b.id)).CompareTo(a.GetPower(GetAgentLevel(a.id)));
-            });
+                // 개선된 자동 파티 구성 시스템 사용
+                int[] autoParty = _validationSystem.GetAutoPartyComposition(_targetStage);
+                for (int i = 0; i < MaxPartySize; i++)
+                    _partySlots[i] = i < autoParty.Length ? autoParty[i] : -1;
+            }
+            else
+            {
+                // 기존 방식으로 fallback
+                ElementType enemy = _targetStage?.enemyElement ?? ElementType.Reason;
 
-            for (int i = 0; i < MaxPartySize; i++)
-                _partySlots[i] = i < owned.Count ? owned[i].id : -1;
+                List<AgentInfo> owned = _playerData.ownedCharacterIds
+                    .Select(id => _agentTable.GetAgentInfo(id))
+                    .Where(a => a != null)
+                    .ToList();
+
+                // Prefer elemental advantage, then sort by descending combat power.
+                owned.Sort((a, b) =>
+                {
+                    bool aAdv = ElementTypeHelper.HasAdvantage(a.element, enemy);
+                    bool bAdv = ElementTypeHelper.HasAdvantage(b.element, enemy);
+                    if (aAdv != bAdv) return bAdv.CompareTo(aAdv);
+                    return b.GetPower(GetAgentLevel(b.id)).CompareTo(a.GetPower(GetAgentLevel(a.id)));
+                });
+
+                for (int i = 0; i < MaxPartySize; i++)
+                    _partySlots[i] = i < owned.Count ? owned[i].id : -1;
+            }
 
             RefreshAllSlots();
             RefreshPartyPower();
             RefreshBattleStartBtn();
         }
-
-        // Note: cleaned comment.
         // Party power
-        // Note: cleaned comment.
 
         /// <summary>Calculates total party power and updates the comparison UI.</summary>
         private void RefreshPartyPower()
@@ -392,10 +440,7 @@ namespace ProjectFirst.InGame
                 _powerCompareLabel.EnableInClassList("power-lacking",   !sufficient);
             }
         }
-
-        // Note: cleaned comment.
         // Battle start
-        // Note: cleaned comment.
 
         private void RefreshBattleStartBtn()
         {
@@ -407,6 +452,25 @@ namespace ProjectFirst.InGame
         private void OnBattleStartClicked()
         {
             if (_partySlots.All(id => id < 0)) return;
+
+            // 파티 유효성 검증
+            if (_validationSystem != null && _targetStage != null)
+            {
+                PartyValidationResult validationResult = _validationSystem.ValidateParty(_partySlots, _targetStage);
+                
+                if (!validationResult.IsValid)
+                {
+                    Debug.LogError($"[BattleReadyManager] 파티 유효성 검증 실패: {validationResult.ErrorMessage}");
+                    // TODO: UI에 에러 메시지 표시
+                    return;
+                }
+                
+                if (validationResult.HasWarning)
+                {
+                    Debug.LogWarning($"[BattleReadyManager] 파티 경고: {validationResult.WarningMessage}");
+                    // TODO: UI에 경고 메시지 표시 및 확인 절차
+                }
+            }
 
             int cost = _targetStage?.staminaCost ?? 1;
             if (!_playerData.SpendStamina(cost))
@@ -424,15 +488,28 @@ namespace ProjectFirst.InGame
                 _runSession.waveKillCount    = 0;
             }
 
+            // 전투 시작 애니메이션
+            if (_uiAnimator != null && _battleStartBtn != null)
+                _uiAnimator.PlayBattleStartAnimation(_battleStartBtn);
+
+            // 씬 전환
+            StartCoroutine(LoadBattleSceneWithDelay());
+        }
+        
+        /// <summary>
+        /// 애니메이션 후 배틀 씬 로딩
+        /// </summary>
+        private IEnumerator LoadBattleSceneWithDelay()
+        {
+            // 애니메이션 대기
+            yield return new WaitForSeconds(0.3f);
+            
             if (AsyncSceneLoader.Instance != null)
                 AsyncSceneLoader.Instance.LoadSceneAsync("InGame", LoadSceneMode.Single);
             else
                 SceneManager.LoadScene("InGame");
         }
-
-        // Note: cleaned comment.
         // Sweep
-        // Note: cleaned comment.
 
         /// <summary>Runs a sweep when the stage has been cleared with three stars.</summary>
         private void OnSweepClicked()
@@ -461,10 +538,7 @@ namespace ProjectFirst.InGame
 
             Debug.Log("[BattleReadyManager] Sweep completed. Rewards have been granted.");
         }
-
-        // Note: cleaned comment.
         // Back
-        // Note: cleaned comment.
 
         private void OnBackClicked()
         {
@@ -473,15 +547,13 @@ namespace ProjectFirst.InGame
             else
                 SceneManager.LoadScene("MapChapterScene");
         }
-
-        // Note: cleaned comment.
         // Helpers
-        // Note: cleaned comment.
 
         private static int GetAgentLevel(int agentId)
             => PlayerPrefs.GetInt($"agent_lv_{agentId}", 1);
     }
 }
+
 
 
 

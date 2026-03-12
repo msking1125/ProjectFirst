@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
     [Serializable]
     public class AgentInfo
     {
@@ -45,18 +41,11 @@ namespace ProjectFirst.Data
         public float baseDef => _baseDef;
         public float critRate => _critRate;
         public float critMult => _critMult;
-
-        /// Documentation cleaned.
         public float GetHp(int level) => _baseHp * (1 + _hpGrowth * (level - 1));
-
-        /// Documentation cleaned.
         public float GetAtk(int level) => _baseAtk * (1 + _atkGrowth * (level - 1));
-
-        /// Documentation cleaned.
         public float GetDef(int level) => _baseDef * (1 + _defGrowth * (level - 1));
-
-        /// Documentation cleaned.
         public int GetPower(int level) => (int)(GetHp(level) * 0.5f + GetAtk(level) * 3f + GetDef(level) * 2f);
     }
 }
+
 

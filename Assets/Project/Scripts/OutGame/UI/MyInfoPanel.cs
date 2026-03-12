@@ -10,72 +10,40 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using ProjectFirst.Data;
 /// <summary>
-/// Documentation cleaned.
+/// 내 정보 패널입니다.
 ///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
+/// 기능:
+/// - 대표 캐릭터 이미지 표시
+/// - 닉네임 / 계정 레벨 / 경험치 바 갱신
+/// - 보유 캐릭터 목록 선택 시 대표 캐릭터 변경
+/// - 스킬 아이콘 3종 표시 및 툴팁 토글
 /// </summary>
 [DisallowMultipleComponent]
 public class MyInfoPanel : MonoBehaviour
 {
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
+    /// <summary>보유 캐릭터 1명에 대응하는 인스펙터 설정 묶음.</summary>
     [Serializable]
     private class CharacterEntry
     {
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("AgentData.asset (agentId, displayName, characterSkillId 등)")]
         public AgentData agentData;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("캐릭터 초상화 스프라이트")]
         public Sprite portrait;
 
-        [Tooltip("Configured in inspector.")]
+        [Tooltip("이 캐릭터의 스킬 ID 3개 (SkillTable에서 조회)")]
         public int[] skillIds = new int[3];
     }
-
-    // Note: cleaned comment.
 
     private const string PrefKeyNickname = "player.nickname";
     private const string PrefKeyLevel    = "player.level";
     private const string PrefKeyExp      = "player.exp";
     private const string PrefKeyExpMax   = "player.expmax";
 
-    // Note: cleaned comment.
-
     [Header("Data")]
     [SerializeField] private PlayerData playerData;
     [SerializeField] private SkillTable skillTable;
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("보유 캐릭터 목록. 인덱스는 PlayerData.currentAgentIndex와 일치해야 합니다.")]
     [SerializeField] private CharacterEntry[] characters;
 
     [Header("Profile")]
@@ -86,19 +54,19 @@ public class MyInfoPanel : MonoBehaviour
     [SerializeField] private TMP_Text    expText;
 
     [Header("Character List")]
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("ScrollRect의 Content Transform. 슬롯이 이 하위에 생성됩니다.")]
     [SerializeField] private Transform   characterListContent;
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("슬롯 프리팹. 루트에 Button, 하위에 Image가 있어야 합니다.")]
     [SerializeField] private GameObject  characterSlotPrefab;
 
-    [Header("Settings")]
-    [Tooltip("Configured in inspector.")]
+    [Header("Skill Icons (3 슬롯)")]
+    [Tooltip("스킬 아이콘을 표시할 Image 3개")]
     [SerializeField] private Image[]  skillIconImages  = new Image[3];
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("아이콘 터치 감지용 Button 3개")]
     [SerializeField] private Button[] skillIconButtons = new Button[3];
 
     [Header("Tooltip")]
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("툴팁 루트 오브젝트. 비활성 상태로 시작합니다.")]
     [SerializeField] private GameObject tooltipRoot;
     [SerializeField] private TMP_Text   tooltipTitleText;
     [SerializeField] private TMP_Text   tooltipDescText;
@@ -106,17 +74,13 @@ public class MyInfoPanel : MonoBehaviour
     [Header("Close")]
     [SerializeField] private Button closeButton;
 
-    [Header("Events (Optional)")]
+    [Header("Events (선택)")]
     [SerializeField] private VoidEventChannelSO onRepresentativeAgentChanged;
-
-    // Note: cleaned comment.
 
     private int                _selectedIndex;
     private readonly List<Button> _slotButtons = new();
     private readonly SkillRow[]   _skillRows   = new SkillRow[3];
     private int                _tooltipOpenSlot = -1;
-
-    // Note: cleaned comment.
 
     private void Awake()
     {
@@ -135,16 +99,11 @@ public class MyInfoPanel : MonoBehaviour
         RefreshSkillIcons();
         BindSkillButtons();
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
+    /// <summary>패널을 엽니다.</summary>
     public void Open() => gameObject.SetActive(true);
-
-    /// Documentation cleaned.
+    /// <summary>패널을 닫습니다.</summary>
     public void Close() => gameObject.SetActive(false);
-
-    /// Documentation cleaned.
+    /// <summary>계정 레벨과 경험치를 갱신합니다.</summary>
     public void SetAccountStats(int level, int exp, int expMax)
     {
         if (playerData != null)
@@ -152,8 +111,7 @@ public class MyInfoPanel : MonoBehaviour
 
         ApplyLevelExp(level, exp, expMax);
     }
-
-    /// Documentation cleaned.
+    /// <summary>닉네임을 갱신합니다.</summary>
     public void SetNickname(string nickname)
     {
         if (playerData != null)
@@ -162,11 +120,9 @@ public class MyInfoPanel : MonoBehaviour
         if (nicknameText != null) nicknameText.text = nickname;
     }
 
-    // Note: cleaned comment.
-
     private void RefreshProfile()
     {
-        string nick = playerData != null ? playerData.GetNicknameOrDefault("Player") : PlayerPrefs.GetString(PrefKeyNickname, "Player");
+        string nick = playerData != null ? playerData.GetNicknameOrDefault("모험가") : PlayerPrefs.GetString(PrefKeyNickname, "모험가");
         int level = playerData != null ? playerData.GetAccountLevel(1) : PlayerPrefs.GetInt(PrefKeyLevel, 1);
         int exp = playerData != null ? playerData.GetAccountExp() : PlayerPrefs.GetInt(PrefKeyExp, 0);
         int expMax = playerData != null ? playerData.GetAccountExpMax(100) : PlayerPrefs.GetInt(PrefKeyExpMax, 100);
@@ -199,13 +155,9 @@ public class MyInfoPanel : MonoBehaviour
         representativePortrait.sprite = portrait;
     }
 
-    // Note: cleaned comment.
-
     private void BuildCharacterList()
     {
         if (characterListContent == null || characterSlotPrefab == null || characters == null) return;
-
-        // Note: cleaned comment.
         foreach (Button btn in _slotButtons)
             if (btn != null) Destroy(btn.gameObject);
         _slotButtons.Clear();
@@ -218,16 +170,12 @@ public class MyInfoPanel : MonoBehaviour
             GameObject go  = Instantiate(characterSlotPrefab, characterListContent);
             Button     btn = go.GetComponent<Button>();
             Image      img = go.GetComponentInChildren<Image>();
-
-            // Note: cleaned comment.
             if (img != null)
             {
                 Sprite portrait = entry.portrait != null ? entry.portrait : entry.agentData?.portrait;
                 if (portrait != null)
                     img.sprite = portrait;
             }
-
-            // Note: cleaned comment.
             TMP_Text label = go.GetComponentInChildren<TMP_Text>();
             if (label != null && entry.agentData != null)
                 label.text = entry.agentData.displayName;
@@ -259,11 +207,8 @@ public class MyInfoPanel : MonoBehaviour
 
         onRepresentativeAgentChanged?.RaiseEvent();
 
-        Debug.Log("[Log] Message cleaned.");
+        Debug.Log("[MyInfoPanel] 대표 캐릭터가 변경되었습니다.");
     }
-
-
-    /// Documentation cleaned.
     private void UpdateSlotHighlights()
     {
         for (int i = 0; i < _slotButtons.Count; i++)
@@ -272,8 +217,6 @@ public class MyInfoPanel : MonoBehaviour
             _slotButtons[i].interactable = (i != _selectedIndex);
         }
     }
-
-    // Note: cleaned comment.
 
     private void RefreshSkillIcons()
     {
@@ -293,8 +236,6 @@ public class MyInfoPanel : MonoBehaviour
 
             if (slot < skillIconImages.Length && skillIconImages[slot] != null)
                 skillIconImages[slot].sprite = row?.icon;
-
-            // Note: cleaned comment.
             if (slot < skillIconImages.Length && skillIconImages[slot] != null)
             {
                 Color c = skillIconImages[slot].color;
@@ -303,8 +244,6 @@ public class MyInfoPanel : MonoBehaviour
             }
         }
     }
-
-    // Note: cleaned comment.
 
     private void BindSkillButtons()
     {
@@ -322,7 +261,6 @@ public class MyInfoPanel : MonoBehaviour
     {
         if (_tooltipOpenSlot == slot)
         {
-            // Note: cleaned comment.
             HideTooltip();
             return;
         }
@@ -353,6 +291,11 @@ public class MyInfoPanel : MonoBehaviour
         tooltipRoot?.SetActive(false);
     }
 }
+
+
+
+
+
 
 
 

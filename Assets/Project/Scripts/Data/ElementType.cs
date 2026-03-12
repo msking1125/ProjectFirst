@@ -55,3 +55,4 @@ public static class ElementRules
         return ElementTypeHelper.GetMultiplier(attacker, defender);
     }
 }
+

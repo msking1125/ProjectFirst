@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [Serializable]
     public class WaveRow
     {
@@ -38,4 +35,5 @@ namespace ProjectFirst.Data
         }
     }
 }
+
 

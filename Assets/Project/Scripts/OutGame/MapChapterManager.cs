@@ -10,74 +10,43 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using ProjectFirst.Data;
 /// <summary>
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
 ///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
 /// </summary>
 public class MapChapterManager : MonoBehaviour
 {
-    // Note: cleaned comment.
 
     [Header("Data (Tables)")]
     [SerializeField] private ChapterTable _chapterTable;
     [SerializeField] private StageTable _stageTable;
     [SerializeField] private PlayerData _playerData;
 
-    // Note: cleaned comment.
-
     [Header("Visual Assets")]
-    [Tooltip("Configured in inspector.")]
+    [Tooltip("인스펙터에서 설정합니다.")]
     [SerializeField] private ChapterData _chapterData;
-
-    // Note: cleaned comment.
 
     [Header("UI")]
     [SerializeField] private UIDocument _uiDocument;
 
-    // Note: cleaned comment.
-
     [Header("Events")]
     [SerializeField] private VoidEventChannelSO _onStageSelected;
-
-    // Note: cleaned comment.
 
     private enum MapViewState { WorldMap, ChapterMap }
 
     private MapViewState _currentView = MapViewState.WorldMap;
-
-    /// Documentation cleaned.
     public bool IsWorldMapView => _currentView == MapViewState.WorldMap;
 
     private int _selectedChapterId;
     private StageRow _selectedStage;
 
-    // Note: cleaned comment.
-
     private Vector2 _dragStart;
     private Vector2 _mapOffset;
     private bool _isDragging;
-
-    // Note: cleaned comment.
 
     private VisualElement _root;
     private VisualElement _worldMapView;
     private VisualElement _chapterMapView;
     private VisualElement _chapterNodesContainer;
     private VisualElement _mapBackground;
-
-    // Note: cleaned comment.
     private Label _chapterHeaderLabel;
     private Button _chapterBackBtn;
     private VisualElement _stageList;
@@ -89,15 +58,9 @@ public class MapChapterManager : MonoBehaviour
     private VisualElement _rewardPreview;
     private Button _battleReadyBtn;
     private Label _staminaCostLabel;
-
-    // Note: cleaned comment.
     private Button _worldBackBtn;
 
-    // Note: cleaned comment.
-
     private const float TransitionDuration = 0.3f;
-
-    // Note: cleaned comment.
 
     private void OnEnable()
     {
@@ -105,25 +68,19 @@ public class MapChapterManager : MonoBehaviour
         BuildWorldMap();
     }
 
-    // Note: cleaned comment.
-
     private void BindUI()
     {
         if (_uiDocument == null)
         {
-            Debug.LogError("[Log] Error message cleaned.");
+            Debug.LogError("[Log] 오류가 발생했습니다.");
             return;
         }
 
         _root = _uiDocument.rootVisualElement;
-
-        // Note: cleaned comment.
         _worldMapView = _root.Q<VisualElement>("world-map-view");
         _mapBackground = _root.Q<VisualElement>("map-background");
         _chapterNodesContainer = _root.Q<VisualElement>("chapter-nodes-container");
         _worldBackBtn = _root.Q<Button>("world-back-btn");
-
-        // Note: cleaned comment.
         _chapterMapView = _root.Q<VisualElement>("chapter-map-view");
         _chapterHeaderLabel = _root.Q<Label>("chapter-header-label");
         _chapterBackBtn = _root.Q<Button>("chapter-back-btn");
@@ -136,13 +93,9 @@ public class MapChapterManager : MonoBehaviour
         _rewardPreview = _root.Q<VisualElement>("reward-preview");
         _battleReadyBtn = _root.Q<Button>("battle-ready-btn");
         _staminaCostLabel = _root.Q<Label>("stamina-cost-label");
-
-        // Note: cleaned comment.
         _worldBackBtn?.RegisterCallback<ClickEvent>(_ => OnWorldBackClicked());
         _chapterBackBtn?.RegisterCallback<ClickEvent>(_ => OnChapterBackClicked());
         _battleReadyBtn?.RegisterCallback<ClickEvent>(_ => OnBattleReadyClicked());
-
-        // Note: cleaned comment.
         if (_mapBackground != null)
         {
             _mapBackground.RegisterCallback<PointerDownEvent>(OnMapPointerDown);
@@ -150,12 +103,6 @@ public class MapChapterManager : MonoBehaviour
             _mapBackground.RegisterCallback<PointerUpEvent>(OnMapPointerUp);
         }
     }
-
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private void BuildWorldMap()
     {
         _currentView = MapViewState.WorldMap;
@@ -180,8 +127,6 @@ public class MapChapterManager : MonoBehaviour
         node.style.position = Position.Absolute;
         node.style.left = chapter.WorldMapPosition.x;
         node.style.top = chapter.WorldMapPosition.y;
-
-        // Note: cleaned comment.
         var islandImg = new VisualElement();
         islandImg.name = "chapter-island-img";
         islandImg.AddToClassList("chapter-island-img");
@@ -192,8 +137,6 @@ public class MapChapterManager : MonoBehaviour
                 new StyleBackground(visualInfo.worldMapIcon);
         }
         node.Add(islandImg);
-
-        // Note: cleaned comment.
         if (!chapter.isUnlocked)
         {
             var cloud = new VisualElement();
@@ -201,8 +144,6 @@ public class MapChapterManager : MonoBehaviour
             cloud.AddToClassList("cloud-overlay");
             node.Add(cloud);
         }
-
-        // Note: cleaned comment.
         int clearStars = visualInfo?.clearStars ?? 0;
         var starRow = new VisualElement();
         starRow.name = "star-row";
@@ -214,8 +155,6 @@ public class MapChapterManager : MonoBehaviour
             starRow.Add(star);
         }
         node.Add(starRow);
-
-        // Note: cleaned comment.
         if (_playerData != null && _playerData.currentChapter == chapter.id)
         {
             var charSd = new VisualElement();
@@ -223,24 +162,14 @@ public class MapChapterManager : MonoBehaviour
             charSd.AddToClassList("current-char-sd");
             node.Add(charSd);
         }
-
-        // Note: cleaned comment.
         var nameLabel = new Label(chapter.name);
         nameLabel.AddToClassList("chapter-name-label");
         node.Add(nameLabel);
-
-        // Note: cleaned comment.
         int capturedId = chapter.id;
         node.RegisterCallback<ClickEvent>(_ => OnChapterNodeClicked(capturedId));
 
         return node;
     }
-
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private void OnChapterNodeClicked(int chapterId)
     {
         var chapter = _chapterTable.GetById(chapterId);
@@ -255,12 +184,6 @@ public class MapChapterManager : MonoBehaviour
         _selectedChapterId = chapterId;
         TransitionToChapterMap(chapterId);
     }
-
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private void TransitionToChapterMap(int chapterId)
     {
         _currentView = MapViewState.ChapterMap;
@@ -275,10 +198,6 @@ public class MapChapterManager : MonoBehaviour
         StartCoroutine(SlideTransitionCoroutine(
             _worldMapView, _chapterMapView, true));
     }
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private void TransitionToWorldMap()
     {
         _currentView = MapViewState.WorldMap;
@@ -320,12 +239,6 @@ public class MapChapterManager : MonoBehaviour
         showTarget.style.translate = new Translate(0f, 0f, 0f);
         showTarget.style.opacity = 1f;
     }
-
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private void BuildStageList(List<StageRow> stages)
     {
         if (_stageList == null) return;
@@ -339,13 +252,9 @@ public class MapChapterManager : MonoBehaviour
             var btn = new Button();
             btn.name = $"stage-btn-{stage.id}";
             btn.AddToClassList("stage-button");
-
-            // Note: cleaned comment.
             var numberLabel = new Label($"{_selectedChapterId}-{stage.stageNumber}");
             numberLabel.AddToClassList("stage-number");
             btn.Add(numberLabel);
-
-            // Note: cleaned comment.
             int clearStars = GetStageClearStars(stage.id);
             var starRow = new VisualElement();
             starRow.AddToClassList("star-row");
@@ -356,8 +265,6 @@ public class MapChapterManager : MonoBehaviour
                 starRow.Add(star);
             }
             btn.Add(starRow);
-
-            // Note: cleaned comment.
             if (!isUnlocked)
             {
                 var lockIcon = new VisualElement();
@@ -365,8 +272,6 @@ public class MapChapterManager : MonoBehaviour
                 btn.Add(lockIcon);
                 btn.SetEnabled(false);
             }
-
-            // Note: cleaned comment.
             var capturedStage = stage;
             bool capturedUnlocked = isUnlocked;
             btn.RegisterCallback<ClickEvent>(_ =>
@@ -376,42 +281,24 @@ public class MapChapterManager : MonoBehaviour
             });
 
             _stageList.Add(btn);
-
-            // Note: cleaned comment.
             previousCleared = clearStars > 0;
         }
-
-        // Note: cleaned comment.
         if (stages.Count > 0)
             OnStageSelected(stages[0]);
     }
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private int GetStageClearStars(int stageId)
     {
-        // Note: cleaned comment.
-        // Note: cleaned comment.
         if (_playerData != null && _playerData.currentChapter <= 1
             && _playerData.currentStage <= 1 && stageId <= 101)
             return 0;
         return 0;
     }
-
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private void OnStageSelected(StageRow stage)
     {
         _selectedStage = stage;
         UpdateInfoPanel(stage);
         _onStageSelected?.RaiseEvent();
     }
-
-    // Note: cleaned comment.
 
     private void UpdateInfoPanel(StageRow stage)
     {
@@ -423,8 +310,6 @@ public class MapChapterManager : MonoBehaviour
 
         if (_recommendPowerLabel != null)
             _recommendPowerLabel.text = $"沅뚯옣 ?꾪닾?? {stage.recommendedPower:N0}";
-
-        // Note: cleaned comment.
         if (_enemyElementIcons != null)
         {
             _enemyElementIcons.Clear();
@@ -434,8 +319,6 @@ public class MapChapterManager : MonoBehaviour
                 $"element-{stage.enemyElement.ToString().ToLower()}");
             _enemyElementIcons.Add(elementLabel);
         }
-
-        // Note: cleaned comment.
         if (_rewardPreview != null)
         {
             _rewardPreview.Clear();
@@ -468,40 +351,24 @@ public class MapChapterManager : MonoBehaviour
                 _rewardPreview.Add(expSlot);
             }
         }
-
-        // Note: cleaned comment.
         if (_staminaCostLabel != null)
             _staminaCostLabel.text = $"?ㅽ깭誘몃굹 {stage.staminaCost}";
-
-        // Note: cleaned comment.
         if (_battleReadyBtn != null)
             _battleReadyBtn.SetEnabled(true);
     }
-
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private void OnBattleReadyClicked()
     {
         if (_selectedStage == null) return;
-
-        // Note: cleaned comment.
         if (_playerData != null && _playerData.stamina < _selectedStage.staminaCost)
         {
             ShowStaminaLackPopup(_selectedStage.staminaCost);
             return;
         }
-
-        // Note: cleaned comment.
         if (_playerData != null)
         {
             _playerData.currentChapter = _selectedChapterId;
             _playerData.currentStage = _selectedStage.stageNumber;
         }
-
-        // Note: cleaned comment.
         if (AsyncSceneLoader.Instance != null)
         {
             AsyncSceneLoader.Instance.LoadSceneAsync(
@@ -512,8 +379,6 @@ public class MapChapterManager : MonoBehaviour
             SceneManager.LoadScene("BattleReadyScene");
         }
     }
-
-    // Note: cleaned comment.
 
     private void OnWorldBackClicked()
     {
@@ -528,11 +393,9 @@ public class MapChapterManager : MonoBehaviour
         TransitionToWorldMap();
     }
 
-    // Note: cleaned comment.
-
     private void ShowLockedPopup()
     {
-        Debug.Log("[Log] Message cleaned.");
+        Debug.Log("[Log] 상태가 갱신되었습니다.");
     }
 
     private void ShowStaminaLackPopup(int required)
@@ -541,8 +404,6 @@ public class MapChapterManager : MonoBehaviour
         Debug.Log(
             $"[MapChapterManager] Not enough stamina. Required: {required}, Current: {current}");
     }
-
-    // Note: cleaned comment.
 
     private void OnMapPointerDown(PointerDownEvent evt)
     {
@@ -570,8 +431,6 @@ public class MapChapterManager : MonoBehaviour
         _isDragging = false;
     }
 
-    // Note: cleaned comment.
-
     private void ShowWorldMap()
     {
         if (_worldMapView != null)
@@ -583,18 +442,12 @@ public class MapChapterManager : MonoBehaviour
         if (_chapterMapView != null)
             _chapterMapView.style.display = DisplayStyle.None;
     }
-
-    // Note: cleaned comment.
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private int CalcPartyPower()
     {
-        // Note: cleaned comment.
         return 0;
     }
 }
+
 
 
 

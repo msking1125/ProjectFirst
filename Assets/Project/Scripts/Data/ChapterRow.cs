@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [Serializable]
     public class ChapterRow
     {
@@ -22,10 +19,7 @@ namespace ProjectFirst.Data
         public float worldMapY;
 
         public bool isUnlocked;
-
-        /// <summary>
-        /// Documentation cleaned.
-        /// </summary>
         public Vector2 WorldMapPosition => new Vector2(worldMapX, worldMapY);
     }
 }
+

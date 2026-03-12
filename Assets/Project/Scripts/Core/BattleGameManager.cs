@@ -12,14 +12,9 @@ using ProjectFirst.Data;
 
 namespace Project
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     public class BattleGameManager : MonoBehaviour
     {
         public static BattleGameManager Instance { get; private set; }
-
-        // Note: cleaned comment.
 
         [Header("Base")]
         [SerializeField] private BaseHealth baseHealth;
@@ -64,8 +59,6 @@ namespace Project
         [Header("Scene")]
         [SerializeField] private string titleSceneName = "Title";
 
-    // Note: cleaned comment.
-
     private TMP_Text resultText;
     private bool gameEnded;
     private RunSession runSession;
@@ -74,8 +67,6 @@ namespace Project
     private bool isEnemyKilledSubscribed;
     private bool hasLoggedZeroRewardWarning;
     private Animator cachedPlayerAnimator;
-
-    // Note: cleaned comment.
     private bool isCinematicActive;
 
     private void Awake()
@@ -112,12 +103,7 @@ namespace Project
         }
         if (Instance == this) Instance = null;
     }
-
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public void HandleVictory() => EndGame("Victory");
-    /// Documentation cleaned.
     public void HandleDefeat()  => EndGame("Defeat");
 
     public static void EndVictoryFallback()
@@ -143,22 +129,16 @@ namespace Project
 
         Debug.LogError("[BattleGameManager] Base destruction was reported, but no BattleGameManager exists in the active scene.");
     }
-
-    /// Documentation cleaned.
     public void Restart()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
-
-    /// Documentation cleaned.
     public void BackToTitle()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(Application.CanStreamedLevelBeLoaded(titleSceneName) ? titleSceneName : "Battle_Test");
     }
-
-    // Note: cleaned comment.
 
     private void InitializeRunSession()
     {
@@ -192,8 +172,6 @@ namespace Project
         runSession.OnReachedSkillPickLevel += HandleReachedSkillPickLevel;
     }
 
-    // Note: cleaned comment.
-
     private void HandleEnemyKilled(Enemy enemy)
     {
         if (gameEnded || monsterTable == null || enemy == null) return;
@@ -205,7 +183,7 @@ namespace Project
 
         if (row.expReward == 0 && row.goldReward == 0 && !hasLoggedZeroRewardWarning)
         {
-            Debug.LogWarning("[Log] Warning message cleaned.");
+            Debug.LogWarning("[Log] 경고가 발생했습니다.");
             hasLoggedZeroRewardWarning = true;
         }
 
@@ -224,8 +202,6 @@ namespace Project
 
     private void HandleLevelChanged(int level)      => RefreshStatusUI();
     private void HandleReachedSkillPickLevel(int _) => OpenSkillSelectPanel();
-
-    // Note: cleaned comment.
 
     private void OpenSkillSelectPanel()
     {
@@ -269,28 +245,20 @@ namespace Project
 
     private string pendingResultMessage;
 
-    // Note: cleaned comment.
-
     private void EndGame(string message)
     {
         if (gameEnded) return;
         gameEnded = true;
-
-        // Note: cleaned comment.
         GrantBattleGold(message == "Victory");
 
         pendingResultMessage = message;
         Invoke("ShowResultDelayed", 0.3f);
     }
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     private void GrantBattleGold(bool isVictory)
     {
         if (playerData == null || runSession == null)
         {
-            Debug.LogWarning("[Log] Warning message cleaned.");
+            Debug.LogWarning("[Log] 경고가 발생했습니다.");
             return;
         }
 
@@ -304,7 +272,7 @@ namespace Project
         if (grantedGold <= 0) return;
 
         playerData.AddGold(grantedGold);
-        Debug.Log("[Log] Message cleaned.");
+        Debug.Log("[Log] 상태가 갱신되었습니다.");
     }
 
     private void ShowResultDelayed()
@@ -330,14 +298,10 @@ namespace Project
         pendingResultMessage = null;
     }
 
-    // Note: cleaned comment.
-
     private void Update()
     {
         CheckCinematicVisibility();
     }
-
-    // Note: cleaned comment.
 
     private void CheckCinematicVisibility()
     {
@@ -374,8 +338,6 @@ namespace Project
         return FindObjectOfType<BattleGameManager>();
 #endif
     }
-
-    /// Documentation cleaned.
     public void SetUIVisible(bool visible)
     {
         if (uiCanvasGroup == null && targetCanvas != null)
@@ -393,7 +355,6 @@ namespace Project
 
     private void EnsureHUD()
     {
-        // Note: cleaned comment.
         if (targetCanvas == null)
         {
 #if UNITY_2022_2_OR_NEWER
@@ -408,24 +369,16 @@ namespace Project
             targetCanvas = go.GetComponent<Canvas>();
             targetCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
         }
-
-        // Note: cleaned comment.
         if (statusHudView == null)
             statusHudView = targetCanvas.GetComponentInChildren<StatusHudView>(true);
-
-        // Note: cleaned comment.
         if (charUltimateController == null)
             charUltimateController = targetCanvas.GetComponentInChildren<CharUltimateController>(true);
-
-        // Note: cleaned comment.
         if (skillBarController == null)
             skillBarController = targetCanvas.GetComponentInChildren<SkillBarController>(true);
         if (skillBarController == null && skillBarPrefab != null)
             skillBarController = Instantiate(skillBarPrefab, targetCanvas.transform);
         if (skillBarController == null)
             skillBarController = CreateDefaultSkillBar();
-
-        // Note: cleaned comment.
         if (skillSelectPanelController == null)
             skillSelectPanelController = targetCanvas.GetComponentInChildren<SkillSelectPanelController>(true);
         if (skillSelectPanelController == null && skillSelectPanelPrefab != null)
@@ -444,8 +397,6 @@ namespace Project
         if (skillBarController != null)
             skillBarController.Setup(skillSystem);
     }
-
-    // Note: cleaned comment.
 
     private void SetupCharUltimate()
     {
@@ -472,24 +423,16 @@ namespace Project
         if (skill == null || playerAgent == null) return;
         EnemyManager em = EnemyManager.Instance;
         if (em == null) return;
-
-        // Note: cleaned comment.
         GameObject vfxOverride = playerAgent.AgentData?.characterSkillVfxPrefab;
-
-        // Note: cleaned comment.
         skillSystem.CastDirect(skill, vfxOverride);
 
         charUltimateController.StartCooldown();
-        Debug.Log("[Log] Message cleaned.");
+        Debug.Log("[Log] 상태가 갱신되었습니다.");
     }
-
-    // Note: cleaned comment.
 
     private void RefreshStatusUI()
     {
         if (runSession == null) return;
-
-        // Note: cleaned comment.
         if (statusHudView == null && targetCanvas != null)
             statusHudView = targetCanvas.GetComponentInChildren<StatusHudView>(true);
 
@@ -499,10 +442,8 @@ namespace Project
             return;
         }
 
-        Debug.LogWarning("[Log] Warning message cleaned.");
+        Debug.LogWarning("[Log] 경고가 발생했습니다.");
     }
-
-    // Note: cleaned comment.
 
     private void EnsureResultPanelManager()
     {
@@ -541,8 +482,6 @@ namespace Project
         if (resultText != null) resultText.text = message;
     }
 
-    // Note: cleaned comment.
-
     private void EnsureBaseHealth()
     {
         if (baseHealth != null) { baseHealth.BindGameManager(this); return; }
@@ -551,8 +490,6 @@ namespace Project
         baseHealth = obj.GetComponent<BaseHealth>() ?? obj.AddComponent<BaseHealth>();
         baseHealth.BindGameManager(this);
     }
-
-    // Note: cleaned comment.
 
     private SkillBarController CreateDefaultSkillBar()
     {
@@ -636,3 +573,4 @@ namespace Project
     }
 }
 } // namespace Project
+

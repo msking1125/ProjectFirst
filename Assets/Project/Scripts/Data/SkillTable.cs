@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [CreateAssetMenu(menuName = "Game/Skill Table")]
     public class SkillTable : ScriptableObject
     {
@@ -19,8 +16,6 @@ namespace ProjectFirst.Data
 
         private void OnEnable() => RebuildIndex();
         private void OnValidate() => RebuildIndex();
-
-        /// Documentation cleaned.
         public SkillRow GetById(int id)
         {
             if (id <= 0) return null;
@@ -43,3 +38,4 @@ namespace ProjectFirst.Data
         }
     }
 }
+

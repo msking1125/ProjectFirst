@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [CreateAssetMenu(menuName = "Game/Agent Table")]
     public class AgentTable : ScriptableObject
     {
@@ -22,33 +19,23 @@ namespace ProjectFirst.Data
 
         private void OnEnable() => RebuildIndex();
         private void OnValidate() => RebuildIndex();
-
-        /// Documentation cleaned.
         public AgentRow GetById(int id)
         {
             if (id <= 0) return null;
             if (_index.Count != rows.Count) RebuildIndex();
             return _index.TryGetValue(id, out AgentRow row) ? row : null;
         }
-
-        /// Documentation cleaned.
         public CombatStats GetStats(int id)
         {
             AgentRow row = GetById(id);
             return row != null ? row.ToCombatStats() : _defaultStats.Sanitized();
         }
-
-        /// Documentation cleaned.
         public ElementType GetElement(int id)
         {
             AgentRow row = GetById(id);
             return row != null ? row.element : _defaultElement;
         }
-
-        /// Documentation cleaned.
         public IReadOnlyList<AgentInfo> GetAll() => _agentInfos;
-
-        /// Documentation cleaned.
         public AgentInfo GetAgentInfo(int id)
         {
             for (int i = 0; i < _agentInfos.Count; i++)
@@ -73,3 +60,4 @@ namespace ProjectFirst.Data
         }
     }
 }
+

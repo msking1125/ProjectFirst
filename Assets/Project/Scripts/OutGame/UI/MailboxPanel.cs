@@ -5,23 +5,18 @@ using UnityEngine.UIElements;
 using ProjectFirst.Data;
 
 /// <summary>
-/// Documentation cleaned.
+/// UI Toolkit 기반 우편함 패널입니다.
 ///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-///
-/// Documentation cleaned.
+/// 기능:
+/// - 수령 가능 / 수령 완료 우편 탭 전환
+/// - 우편 목록 및 상세 내용 표시
+/// - 개별 수령 / 전체 수령 / 읽은 우편 삭제
+/// - 보상 획득 연출 및 확인 팝업 표시
 /// </summary>
 [DisallowMultipleComponent]
 public class MailboxPanel : MonoBehaviour
 {
-    // Note: cleaned comment.
     public static MailboxPanel Instance { get; private set; }
-
-    // Note: cleaned comment.
 
     [Header("UI")]
     [SerializeField] private UIDocument uiDocument;
@@ -30,12 +25,9 @@ public class MailboxPanel : MonoBehaviour
     [SerializeField] private PlayerData playerData;
     [SerializeField] private MailCatalogSO mailCatalog;
 
-    // Note: cleaned comment.
-
     private List<MailData> _allMails = new List<MailData>();
     private MailData _selectedMail;
-    private bool _showingUnclaimed = true; // true: show unclaimed mails, false: show claimed mails
-    // Note: cleaned comment.
+    private bool _showingUnclaimed = true; // true: 수령 가능 우편 표시, false: 수령 완료 우편 표시
 
     // Root
     private VisualElement _root;
@@ -79,11 +71,7 @@ public class MailboxPanel : MonoBehaviour
     private Label         _confirmMessage;
     private Button        _confirmYesBtn;
     private Button        _confirmNoBtn;
-
-    // Note: cleaned comment.
     private List<MailData> _filteredMails = new List<MailData>();
-
-    // Note: cleaned comment.
 
     private void Awake()
     {
@@ -99,12 +87,7 @@ public class MailboxPanel : MonoBehaviour
     {
         BindUI();
     }
-
-    // Note: cleaned comment.
     //  Public API
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     public void Show()
     {
         if (_mailboxPanel == null) BindUI();
@@ -116,8 +99,6 @@ public class MailboxPanel : MonoBehaviour
         HideDetailPanel();
         _mailboxPanel.style.display = DisplayStyle.Flex;
     }
-
-    /// Documentation cleaned.
     public void Hide()
     {
         if (_mailboxPanel != null)
@@ -128,26 +109,19 @@ public class MailboxPanel : MonoBehaviour
         HideDetailPanel();
     }
 
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-
     private void BindUI()
     {
         if (uiDocument == null)
         {
-            Debug.LogError("[Log] Error message cleaned.");
+            Debug.LogError("[MailboxPanel] UIDocument가 할당되지 않았습니다.");
             return;
         }
 
         _root = uiDocument.rootVisualElement;
         _mailboxPanel = _root.Q<VisualElement>("mailbox-panel");
-
-        // Note: cleaned comment.
         _titleLabel = _root.Q<Label>("title-label");
         _closeBtn   = _root.Q<Button>("close-btn");
         _closeBtn?.RegisterCallback<ClickEvent>(_ => Hide());
-
-        // Note: cleaned comment.
         _unclaimedTabBtn = _root.Q<Button>("unclaimed-tab-btn");
         _claimedTabBtn   = _root.Q<Button>("claimed-tab-btn");
         _unclaimedBadge  = _root.Q<Label>("unclaimed-badge");
@@ -167,15 +141,11 @@ public class MailboxPanel : MonoBehaviour
             RebuildList();
             HideDetailPanel();
         });
-
-        // Note: cleaned comment.
         _mailListView   = _root.Q<ListView>("mail-list");
         _emptyStateView = _root.Q<VisualElement>("empty-state-view");
         _emptyLabel     = _root.Q<Label>("empty-label");
 
         SetupListView();
-
-        // Note: cleaned comment.
         _detailPanel      = _root.Q<VisualElement>("detail-panel");
         _detailTitle      = _root.Q<Label>("detail-title");
         _detailSender     = _root.Q<Label>("detail-sender");
@@ -188,37 +158,25 @@ public class MailboxPanel : MonoBehaviour
         {
             if (_selectedMail != null) OnClaimClicked(_selectedMail);
         });
-
-        // Note: cleaned comment.
         _claimAllBtn   = _root.Q<Button>("claim-all-btn");
         _deleteReadBtn = _root.Q<Button>("delete-read-btn");
 
         _claimAllBtn?.RegisterCallback<ClickEvent>(_ => OnClaimAllClicked());
         _deleteReadBtn?.RegisterCallback<ClickEvent>(_ => OnDeleteReadClicked());
-
-        // Note: cleaned comment.
         _rewardOverlay        = _root.Q<VisualElement>("reward-overlay");
         _rewardCardsContainer = _root.Q<VisualElement>("reward-cards-container");
         _rewardTitleLabel     = _root.Q<Label>("reward-title-label");
         _rewardTouchLabel     = _root.Q<Label>("reward-touch-label");
 
         _rewardOverlay?.RegisterCallback<ClickEvent>(_ => HideRewardOverlay());
-
-        // Note: cleaned comment.
         _confirmOverlay = _root.Q<VisualElement>("confirm-overlay");
         _confirmMessage = _root.Q<Label>("confirm-message");
         _confirmYesBtn  = _root.Q<Button>("confirm-yes-btn");
         _confirmNoBtn   = _root.Q<Button>("confirm-no-btn");
 
         _confirmNoBtn?.RegisterCallback<ClickEvent>(_ => HideConfirmDialog());
-
-        // Note: cleaned comment.
         Hide();
     }
-
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-    // Note: cleaned comment.
 
     private void SetupListView()
     {
@@ -229,8 +187,6 @@ public class MailboxPanel : MonoBehaviour
         _mailListView.fixedItemHeight = 80;
         _mailListView.selectionType = SelectionType.None;
     }
-
-    /// Documentation cleaned.
     private VisualElement MakeMailCard()
     {
         var card = new VisualElement();
@@ -269,7 +225,7 @@ public class MailboxPanel : MonoBehaviour
         var claimBtn = new Button();
         claimBtn.name = "claim-btn";
         claimBtn.AddToClassList("claim-btn");
-        claimBtn.text = "Claim";
+        claimBtn.text = "수령";
         card.Add(claimBtn);
 
         return card;
@@ -297,7 +253,7 @@ public class MailboxPanel : MonoBehaviour
             int daysLeft = mail.DaysUntilExpiry;
             if (mail.IsExpired)
             {
-                expireLabel.text = "Expired";
+                expireLabel.text = "만료";
                 expireLabel.EnableInClassList("expire-danger", true);
             }
             else
@@ -343,7 +299,7 @@ public class MailboxPanel : MonoBehaviour
         if (claimBtn != null)
         {
             claimBtn.SetEnabled(mail.CanClaim);
-            claimBtn.text = mail.isClaimed ? "Claimed" : "Claim";
+            claimBtn.text = mail.isClaimed ? "수령 완료" : "수령";
 
             if (mail.isClaimed)
                 claimBtn.AddToClassList("claim-btn-done");
@@ -372,24 +328,24 @@ public class MailboxPanel : MonoBehaviour
             new MailData
             {
                 mailId = "m001",
-                title = "Welcome!",
-                senderName = "Operator",
-                body = "Welcome to MindArk.\nPlease claim your first login reward!",
+                title = "환영합니다!",
+                senderName = "오퍼레이터",
+                body = "마인드아크에 오신 것을 환영합니다.\n첫 로그인 보상을 수령해 주세요!",
                 sendDate = System.DateTime.Now.AddDays(-1),
                 expireDate = System.DateTime.Now.AddDays(6),
-                rewards = new List<RewardItem> { new RewardItem { itemId = 1001, itemName = "Gem", amount = 100 } },
+                rewards = new List<RewardItem> { new RewardItem { itemId = 1001, itemName = "젬", amount = 100 } },
                 isRead = false,
                 isClaimed = false
             },
             new MailData
             {
                 mailId = "m002",
-                title = "Weekly mission reward",
-                senderName = "System",
-                body = "This is your weekly mission reward.\nKeep clearing missions to earn more.",
+                title = "주간 미션 보상",
+                senderName = "시스템",
+                body = "주간 미션 보상이 도착했습니다.\n미션을 계속 완료하고 더 많은 보상을 받아 보세요.",
                 sendDate = System.DateTime.Now,
                 expireDate = System.DateTime.Now.AddDays(14),
-                rewards = new List<RewardItem> { new RewardItem { itemId = 2001, itemName = "Gold", amount = 5000 } },
+                rewards = new List<RewardItem> { new RewardItem { itemId = 2001, itemName = "골드", amount = 5000 } },
                 isRead = false,
                 isClaimed = false
             },
@@ -428,17 +384,11 @@ public class MailboxPanel : MonoBehaviour
         }
     }
 
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-
     private void SyncTabButtonStyles()
     {
         _unclaimedTabBtn?.EnableInClassList("tab-active", _showingUnclaimed);
         _claimedTabBtn?.EnableInClassList("tab-active", !_showingUnclaimed);
     }
-
-    // Note: cleaned comment.
-    // Note: cleaned comment.
 
     private void OnMailCardClicked(MailData mail)
     {
@@ -467,7 +417,7 @@ public class MailboxPanel : MonoBehaviour
         var claimable = _allMails.Where(m => m.CanClaim).ToList();
         if (claimable.Count == 0)
         {
-            Debug.Log("[Log] Message cleaned.");
+            Debug.Log("[MailboxPanel] 수령 가능한 우편이 없습니다.");
             return;
         }
 
@@ -487,11 +437,11 @@ public class MailboxPanel : MonoBehaviour
         int count = _allMails.Count(m => m.isClaimed);
         if (count == 0)
         {
-            Debug.Log("[Log] Message cleaned.");
+            Debug.Log("[MailboxPanel] 삭제할 수령 완료 우편이 없습니다.");
             return;
         }
 
-        ShowConfirmDialog("Confirm this action?",
+        ShowConfirmDialog("수령 완료한 우편을 삭제할까요?",
             () =>
             {
                 _allMails.RemoveAll(m => m.isClaimed);
@@ -501,10 +451,6 @@ public class MailboxPanel : MonoBehaviour
             });
     }
 
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-
     private void ShowDetailPanel(MailData mail)
     {
         if (_detailPanel == null) return;
@@ -512,8 +458,8 @@ public class MailboxPanel : MonoBehaviour
         _detailPanel.style.display = DisplayStyle.Flex;
 
         if (_detailTitle != null) _detailTitle.text = mail.title;
-        if (_detailSender != null) _detailSender.text = $"From: {mail.senderName}";
-        if (_detailDate != null) _detailDate.text = $"Sent: {mail.sendDate:yyyy.MM.dd}  Expire: {mail.expireDate:yyyy.MM.dd}";
+        if (_detailSender != null) _detailSender.text = $"보낸 이: {mail.senderName}";
+        if (_detailDate != null) _detailDate.text = $"수신일: {mail.sendDate:yyyy.MM.dd}  만료일: {mail.expireDate:yyyy.MM.dd}";
         if (_detailBody != null) _detailBody.text = mail.body;
 
         if (_detailRewardsRow != null)
@@ -529,7 +475,7 @@ public class MailboxPanel : MonoBehaviour
         if (_detailClaimBtn != null)
         {
             _detailClaimBtn.SetEnabled(mail.CanClaim);
-            _detailClaimBtn.text = mail.isClaimed ? "Claimed" : "Claim rewards";
+            _detailClaimBtn.text = mail.isClaimed ? "수령 완료" : "보상 수령";
         }
     }
     private void HideDetailPanel()
@@ -539,10 +485,6 @@ public class MailboxPanel : MonoBehaviour
         _selectedMail = null;
     }
 
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-
     private void ShowRewardOverlay(List<RewardItem> rewards)
     {
         if (_rewardOverlay == null) return;
@@ -550,7 +492,7 @@ public class MailboxPanel : MonoBehaviour
         _rewardOverlay.style.display = DisplayStyle.Flex;
 
         if (_rewardTitleLabel != null)
-            _rewardTitleLabel.text = "Rewards acquired!";
+            _rewardTitleLabel.text = "보상을 획득했습니다!";
 
         if (_rewardCardsContainer != null)
         {
@@ -563,7 +505,7 @@ public class MailboxPanel : MonoBehaviour
         }
 
         if (_rewardTouchLabel != null)
-            _rewardTouchLabel.text = "TOUCH TO CONTINUE";
+            _rewardTouchLabel.text = "터치하여 계속";
     }
 
     private void HideRewardOverlay()
@@ -571,10 +513,6 @@ public class MailboxPanel : MonoBehaviour
         if (_rewardOverlay != null)
             _rewardOverlay.style.display = DisplayStyle.None;
     }
-
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-    // Note: cleaned comment.
 
     private void ShowConfirmDialog(string message, System.Action onConfirm)
     {
@@ -597,13 +535,15 @@ public class MailboxPanel : MonoBehaviour
             _confirmOverlay.style.display = DisplayStyle.None;
     }
 
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-
     /// <summary>
-    /// Documentation cleaned.
-    /// Documentation cleaned.
-    /// </summary>
+/// UI Toolkit 기반 우편함 패널입니다.
+///
+/// 기능:
+/// - 수령 가능 / 수령 완료 우편 탭 전환
+/// - 우편 목록 및 상세 내용 표시
+/// - 개별 수령 / 전체 수령 / 읽은 우편 삭제
+/// - 보상 획득 연출 및 확인 팝업 표시
+/// </summary>
     private void ApplyRewards(List<RewardItem> rewards)
     {
         if (playerData == null) return;
@@ -612,15 +552,10 @@ public class MailboxPanel : MonoBehaviour
         {
             if (!playerData.TryGrantReward(reward))
             {
-                Debug.Log("[Log] Message cleaned.");
+                Debug.Log("[MailboxPanel] 수령 가능한 우편이 없습니다.");
             }
         }
     }
-
-    // Note: cleaned comment.
-    // Note: cleaned comment.
-
-    /// Documentation cleaned.
     private static MailData CloneMail(MailData source)
     {
         return new MailData
@@ -661,3 +596,9 @@ public class MailboxPanel : MonoBehaviour
         return card;
     }
 }
+
+
+
+
+
+

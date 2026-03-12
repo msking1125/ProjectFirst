@@ -25,3 +25,4 @@ namespace ProjectFirst.Data
         public int count { get => _count; set => _count = Mathf.Max(0, value); }
     }
 }
+

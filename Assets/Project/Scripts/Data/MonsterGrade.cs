@@ -4,3 +4,4 @@
     Elite = 1,
     Boss = 2
 }
+

@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [CreateAssetMenu(menuName = "Game/Badword Table", fileName = "BadwordTable")]
     public class BadwordTable : ScriptableObject
     {
@@ -16,7 +13,6 @@ namespace ProjectFirst.Data
 
         public void ImportFromCsv()
         {
-            // Note: cleaned comment.
         }
 
         public bool Contains(string input)
@@ -43,3 +39,4 @@ namespace ProjectFirst.Data
         }
     }
 }
+

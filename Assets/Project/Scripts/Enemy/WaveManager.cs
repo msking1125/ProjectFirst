@@ -96,7 +96,7 @@ public class WaveManager : MonoBehaviour
         {
             if (!loggedMissingWaveTable)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 loggedMissingWaveTable = true;
             }
 
@@ -109,7 +109,7 @@ public class WaveManager : MonoBehaviour
         {
             if (!loggedMissingSpawner)
             {
-                Debug.LogError("[Log] Error message cleaned.");
+                Debug.LogError("[Log] 오류가 발생했습니다.");
                 loggedMissingSpawner = true;
             }
 
@@ -223,4 +223,5 @@ public class WaveManager : MonoBehaviour
     }
 }
 } // namespace Project
+
 

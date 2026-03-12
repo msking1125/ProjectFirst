@@ -10,16 +10,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using ProjectFirst.Data;
 /// <summary>
-/// Documentation cleaned.
-/// Documentation cleaned.
 ///
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
-/// Documentation cleaned.
 /// </summary>
 public class ServerListItem : MonoBehaviour
 {
@@ -32,8 +23,6 @@ public class ServerListItem : MonoBehaviour
 
     private ServerData _data;
     private Action<string> _onSelected;
-
-    // Note: cleaned comment.
     private static readonly Color ColorSmooth  = new(0.2f, 0.85f, 0.4f);  // ?먰솢 ??珥덈줉
     private static readonly Color ColorNormal  = new(1f,   0.75f, 0.1f);  // Normal load color
     private static readonly Color ColorCrowded = new(0.9f, 0.25f, 0.25f); // ?쇱옟 ??鍮④컯
@@ -43,10 +32,6 @@ public class ServerListItem : MonoBehaviour
         selectButton?.onClick.AddListener(OnSelect);
         if (selectedIndicator) selectedIndicator.SetActive(false);
     }
-
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     public void Setup(ServerData data, Action<string> onSelected)
     {
         _data       = data;
@@ -90,6 +75,7 @@ public class ServerListItem : MonoBehaviour
         if (selectedIndicator) selectedIndicator.SetActive(selected);
     }
 }
+
 
 
 

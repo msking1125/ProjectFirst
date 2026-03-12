@@ -18,3 +18,4 @@ public class BillboardToCamera : MonoBehaviour
         transform.forward = cam.transform.forward;
     }
 }
+

@@ -5,6 +5,8 @@
          noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
          editor-extension-mode="False">
 
+    <ui:Style path="BattleReadyStyles.uss" />
+
     <ui:VisualElement name="battle-ready-root" class="battle-ready-root">
 
         <!-- ═══════════ LEFT PANEL (55%) ═══════════ -->

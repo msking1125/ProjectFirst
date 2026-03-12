@@ -3,9 +3,6 @@ using System;
 
 namespace ProjectFirst.Data
 {
-    /// <summary>
-    /// Documentation cleaned.
-    /// </summary>
     [Serializable]
     public class AgentRow
     {
@@ -21,4 +18,5 @@ namespace ProjectFirst.Data
         }
     }
 }
+
 
