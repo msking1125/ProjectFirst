@@ -242,6 +242,40 @@ namespace ProjectFirst.Data
 #endif
         public string lastWeeklyMissionResetUtc;
 
+        // ── 튜토리얼 ────────────────────────────────────────────────
+#if ODIN_INSPECTOR
+        [Title("튜토리얼", TitleAlignment = TitleAlignments.Left)]
+        [BoxGroup("튜토리얼")]
+        [LabelText("튜토리얼 플래그")]
+        [Tooltip("triggerKey → 완료 여부. TutorialManager에서 관리합니다.")]
+#endif
+        [Header("튜토리얼")]
+        [HideInInspector]
+        public List<TutorialFlagEntry> tutorialFlagEntries = new List<TutorialFlagEntry>();
+
+        /// <summary>런타임 전용 딕셔너리. Awake/Load 시 tutorialFlagEntries로부터 구성됩니다.</summary>
+        [NonSerialized]
+        public Dictionary<string, bool> TutorialFlags = new Dictionary<string, bool>();
+
+        /// <summary>tutorialFlagEntries → TutorialFlags 딕셔너리로 변환합니다.</summary>
+        public void RebuildTutorialFlags()
+        {
+            TutorialFlags.Clear();
+            foreach (TutorialFlagEntry entry in tutorialFlagEntries)
+            {
+                if (!string.IsNullOrEmpty(entry.key))
+                    TutorialFlags[entry.key] = entry.done;
+            }
+        }
+
+        /// <summary>TutorialFlags 딕셔너리 → tutorialFlagEntries 리스트로 동기화합니다.</summary>
+        public void SyncTutorialFlagEntries()
+        {
+            tutorialFlagEntries.Clear();
+            foreach (var kvp in TutorialFlags)
+                tutorialFlagEntries.Add(new TutorialFlagEntry { key = kvp.Key, done = kvp.Value });
+        }
+
         // ── 방치 보상 ─────────────────────────────────────────────
 #if ODIN_INSPECTOR
         [Title("방치 보상", TitleAlignment = TitleAlignments.Left)]
@@ -538,3 +572,11 @@ namespace ProjectFirst.Data
         OnCurrencyChanged?.Invoke(type);
     }
 }
+
+    /// <summary>튜토리얼 플래그의 직렬화용 엔트리. Dictionary 대신 List로 저장합니다.</summary>
+    [Serializable]
+    public class TutorialFlagEntry
+    {
+        public string key;
+        public bool done;
+    }

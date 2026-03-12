@@ -59,6 +59,8 @@ namespace ProjectFirst.InGame
             RefreshAllSlots();
             RefreshPartyPower();
             RefreshBattleStartBtn();
+
+            ProjectFirst.OutGame.TutorialManager.Instance?.TryTrigger("first_battle_ready");
         }
 
         // ─────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+using ProjectFirst.OutGame;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -129,6 +130,8 @@ public class LobbyManager : MonoBehaviour
         BindUI();
         RegisterEvents();
         RefreshAll();
+
+        TutorialManager.Instance?.TryTrigger("first_lobby");
     }
 
     private void OnDisable()
