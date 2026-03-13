@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wave:
   - wave: 1
-    spawnCount: 10
+    spawnCount: 5
     spawnInterval: 1.2
     enemyHpMul: 1
-    enemySpeedMul: 1
+    enemySpeedMul: 0.5
     enemyDamageMul: 1
     eliteEvery: 0
     boss: 0
@@ -25,35 +25,35 @@ MonoBehaviour:
     enemyId: 1
     monsterId: 0
   - wave: 1
-    spawnCount: 5
+    spawnCount: 2
     spawnInterval: 2
     enemyHpMul: 1
-    enemySpeedMul: 1.2
+    enemySpeedMul: 0.8
     enemyDamageMul: 1
     eliteEvery: 0
     boss: 0
-    rewardGold: 50
+    rewardGold: 65
     enemyId: 2
     monsterId: 0
   - wave: 2
-    spawnCount: 12
+    spawnCount: 7
     spawnInterval: 1.1
     enemyHpMul: 1.1
     enemySpeedMul: 1
     enemyDamageMul: 1
     eliteEvery: 0
     boss: 0
-    rewardGold: 60
+    rewardGold: 65
     enemyId: 2
     monsterId: 0
   - wave: 3
-    spawnCount: 15
+    spawnCount: 2
     spawnInterval: 1
     enemyHpMul: 1.2
     enemySpeedMul: 1.05
     enemyDamageMul: 1.05
     eliteEvery: 5
-    boss: 0
+    boss: 1
     rewardGold: 70
     enemyId: 3
     monsterId: 0

@@ -565,7 +565,7 @@ GameObject:
   - component: {fileID: 2041522458}
   - component: {fileID: 2041522457}
   m_Layer: 0
-  m_Name: UI
+  m_Name: BattleReadyUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

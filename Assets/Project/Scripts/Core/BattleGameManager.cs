@@ -31,6 +31,11 @@ namespace Project
         [Header("Player Data")]
         [SerializeField] private PlayerData playerData;
 
+        [Header("Player Spawn")]
+        [Tooltip("체크 시 전투 시작 시 플레이어 위치를 아래 값으로 고정 (캐릭터가 안 보일 때 사용)")]
+        [SerializeField] private bool overridePlayerSpawnPosition;
+        [SerializeField] private Vector3 playerSpawnPosition = new Vector3(0f, 0f, 0f);
+
         [Range(0f, 1f)]
         [SerializeField] private float defeatGoldRatio = 0f;
 
@@ -157,6 +162,9 @@ namespace Project
             playerAgent = FindObjectOfType<Agent>();
 #endif
         }
+
+        if (overridePlayerSpawnPosition && playerAgent != null)
+            playerAgent.transform.position = playerSpawnPosition;
 
         CachePlayerAnimator();
         skillSystem = new SkillSystem(skillTable, playerAgent);
@@ -316,7 +324,7 @@ namespace Project
         if (cachedPlayerAnimator != null)
         {
             AnimatorStateInfo si = cachedPlayerAnimator.GetCurrentAnimatorStateInfo(0);
-            inCinematic = si.IsName("Tabi_skill_action") || si.IsName("Tabi_skill");
+            inCinematic = si.IsTag("skill");
         }
 
         if (inCinematic == isCinematicActive) return;

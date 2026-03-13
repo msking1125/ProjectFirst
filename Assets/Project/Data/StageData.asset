@@ -12,4 +12,176 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7f699e2329ea1640988fd55f03fb010, type: 3}
   m_Name: StageData
   m_EditorClassIdentifier: 
-  stages: []
+  stages:
+  - stageId: 101
+    chapterId: 1
+    stageNumber: 1
+    stageName: "\uCCAB \uBC88\uC9F8 \uC2DC\uB828"
+    description: "\uAE30\uCD08 \uC804\uD22C\uB97C \uBC30\uC6B0\uB294 \uC2A4\uD14C\uC774\uC9C0"
+    recommendedPower: 100
+    enemyElement: 0
+    staminaCost: 5
+    clearStars: 0
+    isUnlocked: 0
+    previewRewards:
+    - itemId: 0
+      itemName: Gold
+      icon: {fileID: 0}
+      amount: 50
+    - itemId: 0
+      itemName: Exp
+      icon: {fileID: 0}
+      amount: 10
+  - stageId: 102
+    chapterId: 1
+    stageNumber: 2
+    stageName: "\uC232\uC758 \uC785\uAD6C"
+    description: "\uC232 \uAC00\uC7A5\uC790\uB9AC\uC758 \uC801\uC744 \uC0C1\uB300\uD558\uB77C"
+    recommendedPower: 120
+    enemyElement: 1
+    staminaCost: 5
+    clearStars: 0
+    isUnlocked: 0
+    previewRewards:
+    - itemId: 0
+      itemName: Gold
+      icon: {fileID: 0}
+      amount: 60
+    - itemId: 0
+      itemName: Exp
+      icon: {fileID: 0}
+      amount: 12
+  - stageId: 103
+    chapterId: 1
+    stageNumber: 3
+    stageName: "\uC5B4\uB460\uC758 \uC804\uC870"
+    description: "\uC5B4\uB460\uC774 \uC2A4\uBA70\uB4E0 \uAE38\uBAA9"
+    recommendedPower: 150
+    enemyElement: 2
+    staminaCost: 6
+    clearStars: 0
+    isUnlocked: 0
+    previewRewards:
+    - itemId: 0
+      itemName: Gold
+      icon: {fileID: 0}
+      amount: 80
+    - itemId: 0
+      itemName: Exp
+      icon: {fileID: 0}
+      amount: 15
+  - stageId: 201
+    chapterId: 2
+    stageNumber: 1
+    stageName: "\uC232\uC758 \uAE4A\uC740 \uACF3"
+    description: "\uC6B8\uCC3D\uD55C \uC232 \uC18D \uC801\uB4E4"
+    recommendedPower: 200
+    enemyElement: 1
+    staminaCost: 7
+    clearStars: 0
+    isUnlocked: 0
+    previewRewards:
+    - itemId: 0
+      itemName: Gold
+      icon: {fileID: 0}
+      amount: 100
+    - itemId: 0
+      itemName: Exp
+      icon: {fileID: 0}
+      amount: 20
+  - stageId: 202
+    chapterId: 2
+    stageNumber: 2
+    stageName: "\uACE0\uB300\uC758 \uB098\uBB34"
+    description: "\uACE0\uB300 \uB098\uBB34 \uC8FC\uBCC0\uC758 \uC218\uD638\uC790\uB4E4"
+    recommendedPower: 230
+    enemyElement: 1
+    staminaCost: 7
+    clearStars: 0
+    isUnlocked: 0
+    previewRewards:
+    - itemId: 0
+      itemName: Gold
+      icon: {fileID: 0}
+      amount: 110
+    - itemId: 0
+      itemName: Exp
+      icon: {fileID: 0}
+      amount: 22
+  - stageId: 203
+    chapterId: 2
+    stageNumber: 3
+    stageName: "\uC232\uC758 \uC218\uD638\uC790"
+    description: "\uC232\uC744 \uC9C0\uD0A4\uB294 \uAC15\uB825\uD55C \uBCF4\uC2A4"
+    recommendedPower: 280
+    enemyElement: 0
+    staminaCost: 8
+    clearStars: 0
+    isUnlocked: 0
+    previewRewards:
+    - itemId: 0
+      itemName: Gold
+      icon: {fileID: 0}
+      amount: 150
+    - itemId: 0
+      itemName: Exp
+      icon: {fileID: 0}
+      amount: 30
+  - stageId: 301
+    chapterId: 3
+    stageNumber: 1
+    stageName: "\uC218\uC815 \uC785\uAD6C"
+    description: "\uBC18\uC9DD\uC774\uB294 \uC218\uC815 \uB3D9\uAD74\uC758 \uC2DC\uC791"
+    recommendedPower: 320
+    enemyElement: 2
+    staminaCost: 8
+    clearStars: 0
+    isUnlocked: 0
+    previewRewards:
+    - itemId: 0
+      itemName: Gold
+      icon: {fileID: 0}
+      amount: 120
+    - itemId: 0
+      itemName: Exp
+      icon: {fileID: 0}
+      amount: 25
+  - stageId: 302
+    chapterId: 3
+    stageNumber: 2
+    stageName: "\uACF5\uBA85\uC758 \uBC29"
+    description: "\uC218\uC815\uC774 \uACF5\uBA85\uD558\uB294 \uC704\uD5D8\uD55C
+      \uBC29"
+    recommendedPower: 360
+    enemyElement: 1
+    staminaCost: 9
+    clearStars: 0
+    isUnlocked: 0
+    previewRewards:
+    - itemId: 0
+      itemName: Gold
+      icon: {fileID: 0}
+      amount: 140
+    - itemId: 0
+      itemName: Exp
+      icon: {fileID: 0}
+      amount: 28
+  - stageId: 303
+    chapterId: 3
+    stageNumber: 3
+    stageName: "\uC218\uC815 \uD575"
+    description: "\uB3D9\uAD74 \uAE4A\uC219\uD55C \uACF3\uC758 \uC218\uC815 \uD575"
+    recommendedPower: 420
+    enemyElement: 2
+    staminaCost: 10
+    clearStars: 0
+    isUnlocked: 0
+    previewRewards:
+    - itemId: 0
+      itemName: Gold
+      icon: {fileID: 0}
+      amount: 200
+    - itemId: 0
+      itemName: Exp
+      icon: {fileID: 0}
+      amount: 40

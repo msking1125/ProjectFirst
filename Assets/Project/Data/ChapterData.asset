@@ -12,4 +12,97 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d38d85f3c1a55843a8a0d31b6cb5e35, type: 3}
   m_Name: ChapterData
   m_EditorClassIdentifier: 
-  chapters: []
+  chapters:
+  - chapterId: 1
+    chapterName: "\uD504\uB864\uB85C\uADF8"
+    description: "\uC0C8\uB85C\uC6B4 \uC5EC\uC815\uC758 \uC2DC\uC791"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 100, y: 600}
+    clearStars: 0
+    isUnlocked: 1
+    stageIds: 
+  - chapterId: 2
+    chapterName: "\uC78A\uD600\uC9C4 \uC232"
+    description: "\uAE30\uC5B5\uC758 \uD30C\uD3B8\uC774 \uC228\uACA8\uC9C4 \uC232"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 300, y: 480}
+    clearStars: 0
+    isUnlocked: 0
+    stageIds: 
+  - chapterId: 3
+    chapterName: "\uC218\uC815 \uB3D9\uAD74"
+    description: "\uC9C1\uAD00\uC758 \uC5D0\uB108\uC9C0\uAC00 \uD750\uB974\uB294
+      \uB3D9\uAD74"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 520, y: 520}
+    clearStars: 0
+    isUnlocked: 0
+    stageIds: 
+  - chapterId: 4
+    chapterName: "\uC5F4\uC815\uC758 \uD654\uC0B0"
+    description: "\uBD88\uD0C0\uC624\uB974\uB294 \uC5F4\uC815\uC758 \uB545"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 200, y: 320}
+    clearStars: 0
+    isUnlocked: 0
+    stageIds: 
+  - chapterId: 5
+    chapterName: "\uC774\uC131\uC758 \uD0D1"
+    description: "\uCC28\uAC00\uC6B4 \uB17C\uB9AC\uAC00 \uC9C0\uBC30\uD558\uB294
+      \uD0D1"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 450, y: 280}
+    clearStars: 0
+    isUnlocked: 0
+    stageIds: 
+  - chapterId: 6
+    chapterName: "\uD63C\uB3C8\uC758 \uBC14\uB2E4"
+    description: "\uC138 \uC18D\uC131\uC774 \uB4A4\uC5C9\uD0A8 \uBC14\uB2E4"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 680, y: 400}
+    clearStars: 0
+    isUnlocked: 0
+    stageIds: 
+  - chapterId: 7
+    chapterName: "\uAE30\uC5B5\uC758 \uC131\uCC44"
+    description: "\uC783\uC5B4\uBC84\uB9B0 \uAE30\uC5B5\uC774 \uC7A0\uB4E0 \uACF3"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 350, y: 150}
+    clearStars: 0
+    isUnlocked: 0
+    stageIds: 
+  - chapterId: 8
+    chapterName: "\uC2EC\uC5F0\uC758 \uACC4\uACE1"
+    description: "\uB9C8\uC74C \uAE4A\uC740 \uACF3\uC758 \uC5B4\uB460"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 580, y: 180}
+    clearStars: 0
+    isUnlocked: 0
+    stageIds: 
+  - chapterId: 9
+    chapterName: "\uAC01\uC131\uC758 \uC815\uC6D0"
+    description: "\uBAA8\uB4E0 \uC18D\uC131\uC774 \uC870\uD654\uB85C\uC6B4 \uC815\uC6D0"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 150, y: 80}
+    clearStars: 0
+    isUnlocked: 0
+    stageIds: 
+  - chapterId: 10
+    chapterName: "\uCD5C\uD6C4\uC758 \uBB38"
+    description: "\uB9C8\uC778\uB4DC\uC544\uD06C\uC758 \uC9C4\uC2E4\uC774 \uAE30\uB2E4\uB9AC\uB294
+      \uACF3"
+    chapterIcon: {fileID: 0}
+    worldMapIcon: {fileID: 0}
+    worldMapPosition: {x: 420, y: 30}
+    clearStars: 0
+    isUnlocked: 0
+    stageIds: 

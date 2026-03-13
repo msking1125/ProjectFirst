@@ -62,6 +62,13 @@ namespace Project
 #endif
         [SerializeField] private Vector3 modelRotationOffset = Vector3.zero;
 
+#if ODIN_INSPECTOR
+        [BoxGroup("combat")]
+        [LabelText("model facing offset Y (deg)")]
+#endif
+        [Tooltip("캐릭터가 뒤를 보면 180 입력. 정면이 적 쪽이면 0")]
+        [SerializeField] private float modelFacingOffsetY;
+
         [SerializeField] private CombatStats stats;
         [SerializeField] private ElementType element = ElementType.Reason;
 
@@ -70,6 +77,8 @@ namespace Project
         private Transform cachedVisualRoot;
         private ProjectileShooter cachedProjectileShooter;
         private GameObject runtimeVisualInstance;
+        /// <summary>프리팹/씬에서 지정한 비주얼 루트의 초기 로컬 회전. RotateTowardTarget에서 modelRotationOffset이 (0,0,0)일 때 이 값 사용.</summary>
+        private Quaternion initialVisualRootLocalRotation = Quaternion.identity;
 
         private bool isCombatStarted;
         private float attackTimer;
@@ -90,6 +99,7 @@ namespace Project
                 return;
 
             NormalizeAgentId();
+            PrepareExistingVisualIfPresent();
             ApplyStatsFromTables();
             CacheComponents();
         }
@@ -166,6 +176,7 @@ namespace Project
         {
             runtimeVisualInstance = null;
             cachedVisualRoot = null;
+            initialVisualRootLocalRotation = Quaternion.identity;
             cachedAnimatorBridge = null;
             cachedAnimator = null;
             cachedProjectileShooter = null;
@@ -200,10 +211,7 @@ namespace Project
                 if (nestedAgent == null || nestedAgent == this)
                     continue;
 
-                if (Application.isPlaying)
-                    Destroy(nestedAgent);
-                else
-                    DestroyImmediate(nestedAgent);
+                nestedAgent.enabled = false;
             }
 
             foreach (AgentAnimationEvents animationEvents in visualInstance.GetComponentsInChildren<AgentAnimationEvents>(true))
@@ -252,21 +260,45 @@ namespace Project
             }
 
             Transform primaryVisualRoot = ResolvePrimaryVisualRoot(visualInstance.transform);
-            if (primaryVisualRoot != null && primaryVisualRoot != visualInstance.transform)
-            {
-                primaryVisualRoot.localPosition = Vector3.zero;
-                primaryVisualRoot.localRotation = Quaternion.identity;
-            }
-
             Animator playableAnimator = ResolvePlayableAnimatorFromRoot(visualInstance.transform);
-            if (playableAnimator != null)
-            {
-                AgentAnimationEvents animationEvents = playableAnimator.GetComponent<AgentAnimationEvents>();
-                if (animationEvents == null)
-                    animationEvents = playableAnimator.gameObject.AddComponent<AgentAnimationEvents>();
+            ProjectileShooter projectileShooter = visualInstance.GetComponentInChildren<ProjectileShooter>(true);
 
-                animationEvents.Bind(this);
+            if (primaryVisualRoot != null)
+                initialVisualRootLocalRotation = primaryVisualRoot.localRotation;
+
+            BindAnimationEventsReceiver(primaryVisualRoot);
+
+            if (projectileShooter != null)
+                BindAnimationEventsReceiver(projectileShooter.transform);
+
+            if (playableAnimator != null)
+                BindAnimationEventsReceiver(playableAnimator.transform);
+
+            // Animator가 붙은 모든 GameObject에 리시버 보장 (aria_rig 등)
+            foreach (Animator anim in visualInstance.GetComponentsInChildren<Animator>(true))
+            {
+                if (anim == null) continue;
+                BindAnimationEventsReceiver(anim.transform);
             }
+
+            // AgentData 기반으로 ProjectileShooter 프리팹 보강
+            foreach (ProjectileShooter shooter in visualInstance.GetComponentsInChildren<ProjectileShooter>(true))
+            {
+                if (shooter != null && agentData != null)
+                    shooter.SetPrefabsFromAgentData(agentData);
+            }
+        }
+
+        private void BindAnimationEventsReceiver(Transform target)
+        {
+            if (target == null)
+                return;
+
+            AgentAnimationEvents animationEvents = target.GetComponent<AgentAnimationEvents>();
+            if (animationEvents == null)
+                animationEvents = target.gameObject.AddComponent<AgentAnimationEvents>();
+
+            animationEvents.Bind(this);
         }
 
         private Transform ResolvePrimaryVisualRoot(Transform visualRoot)
@@ -434,9 +466,12 @@ namespace Project
                 return;
 
             Quaternion targetRotation = Quaternion.LookRotation(directionToTarget.normalized);
-            Quaternion modelOffset = Quaternion.Euler(modelRotationOffset);
+            Quaternion baseOffset = modelRotationOffset != Vector3.zero
+                ? Quaternion.Euler(modelRotationOffset)
+                : initialVisualRootLocalRotation;
+            Quaternion facingOffset = Quaternion.Euler(0f, modelFacingOffsetY, 0f);
             Transform rotationTarget = cachedVisualRoot != null ? cachedVisualRoot : transform;
-            rotationTarget.rotation = targetRotation * modelOffset;
+            rotationTarget.rotation = targetRotation * baseOffset * facingOffset;
         }
 
         private Enemy ResolveAttackTarget()
@@ -492,10 +527,19 @@ namespace Project
             SpawnNormalAttackVfxFallback();
         }
 
+        private static bool _hasLoggedMissingVfx;
+
         private void SpawnNormalAttackVfxFallback()
         {
             if (agentData == null || agentData.normalAttackVfxPrefab == null)
+            {
+                if (!_hasLoggedMissingVfx)
+                {
+                    _hasLoggedMissingVfx = true;
+                    Debug.LogWarning("[Agent] 기본 공격 이펙트 없음: AgentData 또는 normalAttackVfxPrefab을 할당하거나, ProjectileShooter에 normalAttackPrefab을 할당하세요.");
+                }
                 return;
+            }
 
             Transform vfxAnchor = cachedVisualRoot != null ? cachedVisualRoot : transform;
             Vector3 spawnPos = vfxAnchor.position + vfxAnchor.TransformDirection(agentData.normalAttackVfxOffset);
@@ -514,6 +558,16 @@ namespace Project
         {
             comboAttackActive = false;
             currentAttackTarget = null;
+        }
+
+        public void ApplyActiveSkillHit()
+        {
+            ApplySingleAttackHit();
+        }
+
+        public void ApplyUltimateHit()
+        {
+            ApplySingleAttackHit();
         }
 
         public void TriggerActiveSkillAnimation()
@@ -642,6 +696,9 @@ namespace Project
         }
     }
 }
+
+
+
 
 
 

@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6108586910129118738
 Transform:
   m_ObjectHideFlags: 0
@@ -2713,4 +2713,5 @@ MonoBehaviour:
   skillAttackSpeed: 30
   skillAttackRotationOffset: {x: 90, y: 0, z: 0}
   skillAttackDestroyTime: 3
+
 
