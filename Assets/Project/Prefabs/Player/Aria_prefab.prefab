@@ -2706,12 +2706,12 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   searchRange: 8
   forwardOffset: 0.5
-  normalAttackPrefab: {fileID: 3725932743749348420, guid: 21cd67ea8f2b7af439edd93a229e410f,
+  normalAttackPrefab: {fileID: 6712207605744586639, guid: c49dda8434aba7241ab9b142e96237e9,
     type: 3}
   normalAttackSpeed: 20
   normalAttackRotationOffset: {x: 0, y: 90, z: 0}
   normalAttackDestroyTime: 2
-  skillAttackPrefab: {fileID: 3725932743749348420, guid: 21cd67ea8f2b7af439edd93a229e410f,
+  skillAttackPrefab: {fileID: 8463330608847335277, guid: 6caa5ce61327935448c8cc5a9b1ac272,
     type: 3}
   skillAttackSpeed: 30
   skillAttackRotationOffset: {x: 90, y: 0, z: 0}
