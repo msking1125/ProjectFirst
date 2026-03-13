@@ -294,7 +294,7 @@ MonoBehaviour:
   onSettingsClicked: {fileID: 11400000, guid: 58279f22040f87043ad913c9f6e9ec1d, type: 2}
   onMissionClicked: {fileID: 0}
   onIdleRewardClaimed: {fileID: 0}
-  mapChapterSceneName: MapChapterScene
+  mapChapterSceneName: MapChapter
   characterSceneName: CharacterManageScene
   shopSceneName: ShopScene
   petSceneName: PetManageScene
@@ -490,6 +490,7 @@ MonoBehaviour:
   audioMixer: {fileID: 24100000, guid: c40bed98f23a748f89472abe9c1a6871, type: 2}
   playerData: {fileID: 11400000, guid: bad569521735f674cac1004ea6b159fe, type: 2}
   defaultLoginMethod: Guest
+  settingsData: {fileID: 0}
 --- !u!114 &1238490883
 MonoBehaviour:
   m_ObjectHideFlags: 0

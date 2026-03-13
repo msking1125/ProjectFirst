@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,11 +58,33 @@ namespace ProjectFirst.OutGame
 
         private void OnEnable()
         {
+            if (uiDocument == null)
+            {
+                uiDocument = GetComponent<UIDocument>();
+
+                if (uiDocument == null)
+                {
+                    foreach (var doc in FindObjectsOfType<UIDocument>())
+                    {
+                        var rootCandidate = doc.rootVisualElement;
+                        if (rootCandidate == null) continue;
+
+                        // LoginView 에는 LoginPanel 이 존재합니다.
+                        if (rootCandidate.Q<VisualElement>("LoginPanel") != null)
+                        {
+                            uiDocument = doc;
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (uiDocument == null) return;
 
-            // Ensure the UI Toolkit login view renders above the uGUI overlay canvas.
-            if (uiDocument.panelSettings != null)
-                uiDocument.panelSettings.sortingOrder = 200;
+            // 로그인 UI는 Title UI 보다 앞쪽 레이어에서 렌더링되도록 설정합니다.
+            // PanelSettings.sortingOrder 대신 UIDocument.sortingOrder 를 사용해
+            // TitleView 와의 충돌을 피합니다.
+            uiDocument.sortingOrder = 200;
 
             var root = uiDocument.rootVisualElement;
 
@@ -72,9 +94,21 @@ namespace ProjectFirst.OutGame
             btnApple = root.Q<Button>("BtnApple");
             btnGuest = root.Q<Button>("BtnGuest");
 
+            if (btnGuest == null)
+            {
+                Debug.LogError("[LoginManager] BtnGuest 버튼을 찾지 못했습니다. UXML 이름을 확인해주세요.");
+            }
+            else
+            {
+                Debug.Log("[LoginManager] BtnGuest 버튼 바인딩 완료.");
+                // 클릭 이벤트를 두 경로 모두에 등록해 안정성을 높입니다.
+                btnGuest.clicked -= OnGuestLogin;
+                btnGuest.clicked += OnGuestLogin;
+                btnGuest.RegisterCallback<ClickEvent>(_ => OnGuestLogin());
+            }
+
             if (btnGoogle != null) btnGoogle.clicked += OnGoogleLogin;
             if (btnApple != null) btnApple.clicked += OnAppleLogin;
-            if (btnGuest != null) btnGuest.clicked += OnGuestLogin;
 
             // 2. Nickname panel
             nicknamePanel = root.Q<VisualElement>("NicknamePanel");
@@ -214,14 +248,19 @@ namespace ProjectFirst.OutGame
 
         private void OnGoogleLogin() => ProcessLogin("google");
         private void OnAppleLogin() => ProcessLogin("apple");
-        private void OnGuestLogin() => ProcessLogin("guest");
+        private void OnGuestLogin()
+        {
+            Debug.Log("[LoginManager] Guest 버튼 클릭 감지.");
+            ProcessLogin("guest");
+        }
 
         private void ProcessLogin(string provider)
         {
             Debug.Log($"[LoginManager] Login requested with provider: {provider}");
 
             // Check whether a UID already exists for this account.
-            string currentUid = playerData != null ? playerData.GetUidOrCreate() : PlayerPrefs.GetString("uid", string.Empty);
+            // 새 유저 여부 판단 단계에서는 UID를 자동 생성하지 않습니다.
+            string currentUid = playerData != null ? playerData.uid : PlayerPrefs.GetString("uid", string.Empty);
             if (string.IsNullOrEmpty(currentUid))
             {
                 // New user flow.
@@ -241,8 +280,15 @@ namespace ProjectFirst.OutGame
         private void OnLoginComplete()
         {
             HideAllPanels();
-            // Title buttons are shown by TitleManager after login completes.
-            Debug.Log("[LoginManager] Login completed. Switching to the title screen.");
+            // 로그인 완료 후 서버 선택 단계로 이동합니다.
+            ShowServerSelectPanel();
+            Debug.Log("[LoginManager] Login completed. Showing server select panel.");
+
+            // 로그인이 끝났으므로 TitleManager 에게 타이틀 버튼을 노출하도록 요청
+            if (ProjectFirst.Bootstrap.TitleManager.Instance != null)
+            {
+                ProjectFirst.Bootstrap.TitleManager.Instance.ShowTitleButtons();
+            }
         }
 
         // --- Nickname ---

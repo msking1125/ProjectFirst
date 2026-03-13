@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -41,10 +41,6 @@ namespace ProjectFirst.Data
         public long gold;
 
         public long gem;
-        [Header("재화 (레거시)")]
-        public int ticket;
-
-        public int diamond;
         [Header("보유 목록")]
         public List<int> ownedCharacterIds = new List<int>();
 
@@ -98,7 +94,7 @@ namespace ProjectFirst.Data
     public void AddGem(long amount)
     {
         gem = Math.Max(0L, gem + amount);
-        RaiseCurrencyEvents(CurrencyType.Diamond);
+        RaiseCurrencyEvents(CurrencyType.Gem);
     }
     public bool SpendGold(long amount)
     {
@@ -112,13 +108,13 @@ namespace ProjectFirst.Data
         switch (type)
         {
             case CurrencyType.Gold:
-                gold    = Math.Max(0L, gold + amount);
+                gold = Math.Max(0L, gold + amount);
                 break;
-            case CurrencyType.Diamond:
-                diamond = Mathf.Max(0, diamond + amount);
+            case CurrencyType.Gem:
+                gem = Math.Max(0L, gem + amount);
                 break;
-            case CurrencyType.Ticket:
-                ticket  = Mathf.Max(0, ticket + amount);
+            case CurrencyType.Stamina:
+                stamina = Mathf.Clamp(stamina + amount, 0, staminaMax > 0 ? staminaMax : 999);
                 break;
         }
         RaiseCurrencyEvents(type);
@@ -126,13 +122,10 @@ namespace ProjectFirst.Data
     public int GetCurrency(CurrencyType type) => type switch
     {
         CurrencyType.Gold    => (int)Math.Min(gold, int.MaxValue),
-        CurrencyType.Diamond => diamond,
-        CurrencyType.Ticket  => ticket,
+        CurrencyType.Gem     => (int)Math.Min(gem, int.MaxValue),
+        CurrencyType.Stamina => stamina,
         _                    => 0,
     };
-
-    public void AddTicket(int amount)  => AddCurrency(CurrencyType.Ticket,  amount);
-    public void AddDiamond(int amount) => AddCurrency(CurrencyType.Diamond, amount);
     public bool SpendStamina(int amount)
     {
         if (stamina < amount) return false;
@@ -239,12 +232,8 @@ namespace ProjectFirst.Data
             AddGold(reward.amount);
             return true;
         }
-        if (name.Contains("ticket") || name.Contains("티켓"))
-        {
-            AddTicket(reward.amount);
-            return true;
-        }
-        if (name.Contains("stamina") || name.Contains("스태미나"))
+        if (name.Contains("ticket") || name.Contains("티켓") ||
+            name.Contains("stamina") || name.Contains("스태미나"))
         {
             stamina = Mathf.Min(stamina + reward.amount, staminaMax > 0 ? staminaMax : 999);
             return true;

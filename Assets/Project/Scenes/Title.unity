@@ -551,6 +551,7 @@ MonoBehaviour:
   audioMixer: {fileID: 24100000, guid: c40bed98f23a748f89472abe9c1a6871, type: 2}
   playerData: {fileID: 11400000, guid: bad569521735f674cac1004ea6b159fe, type: 2}
   defaultLoginMethod: Guest
+  settingsData: {fileID: 0}
 --- !u!1 &606702984
 GameObject:
   m_ObjectHideFlags: 0
@@ -701,6 +702,7 @@ MonoBehaviour:
   uiDocument: {fileID: 62485839}
   serverListSO: {fileID: 11400000, guid: 239c324da3e77c84fae6923295d46fd4, type: 2}
   badWordsCSV: {fileID: 11500000, guid: 7e942e9739297b140a80e50f798ddf60, type: 3}
+  playerData: {fileID: 11400000, guid: bad569521735f674cac1004ea6b159fe, type: 2}
 --- !u!4 &773648266
 Transform:
   m_ObjectHideFlags: 0
@@ -794,7 +796,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1242081211}
   - component: {fileID: 1242081213}
-  - component: {fileID: 1242081214}
   - component: {fileID: 1242081215}
   m_Layer: 0
   m_Name: TitleUIRoot
@@ -835,26 +836,6 @@ MonoBehaviour:
   sourceAsset: {fileID: 9197481963319205126, guid: d9dc6d3af8359444f8679421feed8c32,
     type: 3}
   m_SortingOrder: 0
---- !u!114 &1242081214
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1242081210}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14168dcc775051c429e9fa77674e6e15, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameSceneName: Lobby
-  uiManager: {fileID: 0}
-  settingsManager: {fileID: 0}
-  settingPanel: {fileID: 497553650}
-  startButtonEvent: {fileID: 11400000, guid: 0744463957a17f043bc39ef8df263e64, type: 2}
-  settingsButtonEvent: {fileID: 11400000, guid: 58279f22040f87043ad913c9f6e9ec1d,
-    type: 2}
-  quitButtonEvent: {fileID: 11400000, guid: 591f1c53189e8bf4f840e0d558035aa2, type: 2}
 --- !u!114 &1242081215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -867,7 +848,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef3f9dda64ab7ba48af5871c6e02aa43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetSceneName: Lobby
+  _targetSceneName: Lobby
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -67,23 +67,40 @@
 
 .dropdown {
     width: 100%;
-    height: 78px;
-    margin-bottom: 28px;
+    height: 96px;
+    margin-bottom: 32px;
 }
 
 .dropdown > .unity-popup-field__label {
     display: none;
 }
 
-.dropdown > .unity-popup-field__input {
+.dropdown > .unity-popup-field__input,
+.dropdown > .unity-base-popup-field__input {
     font-size: 32px;
-    height: 78px;
+    height: 96px;
     background-color: rgba(6, 8, 18, 0.95);
     color: white;
     border-color: rgba(60, 160, 255, 0.55);
     border-width: 2px;
     border-radius: 12px;
     padding-left: 16px;
+    /* 한글 지원 폰트 적용 (Server 목록 포함) */
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+}
+
+/* 서버 드롭다운 팝업 리스트 아이템 크기 및 폰트 확대 */
+#DropdownServer .unity-list-view__item,
+.unity-list-view__item {
+    height: 72px;
+    align-items: center;
+}
+
+#DropdownServer .unity-list-view__item > .unity-label,
+.unity-list-view__item > .unity-label {
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    font-size: 30px;
+    color: white;
 }
 
 .error-label {

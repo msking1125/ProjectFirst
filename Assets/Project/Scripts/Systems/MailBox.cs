@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 [CreateAssetMenu(menuName = "Game/Mail Box", fileName = "MailBox")]
@@ -7,15 +7,15 @@ public class MailBox : ScriptableObject
     public List<MailItem> items = new List<MailItem>();
     public event Action OnMailReceived;
     public void AddMail(string title, string body,
-        int gold = 0, int ticket = 0, int diamond = 0)
+        int gold = 0, int stamina = 0, int gem = 0)
     {
         items.Add(new MailItem
         {
             title     = title,
             body      = body,
             gold      = gold,
-            ticket    = ticket,
-            diamond   = diamond,
+            stamina   = stamina,
+            gem       = gem,
             sentTime  = DateTime.UtcNow.ToString("o"),
             isClaimed = false,
         });
@@ -43,10 +43,10 @@ public struct MailItem
     public int gold;
 
     [Tooltip("인스펙터에서 설정합니다.")]
-    public int ticket;
+    public int stamina;
 
-    [Tooltip("Claim diamond")]
-    public int diamond;
+    [Tooltip("Claim gem")]
+    public int gem;
 
     [Tooltip("인스펙터에서 설정합니다.")]
     public string sentTime;

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace ProjectFirst.Data
 {
@@ -10,10 +10,10 @@ namespace ProjectFirst.Data
         public int goldPerHour = 100;
 
         [Tooltip("인스펙터에서 설정합니다.")]
-        public int ticketPerHour = 0;
+        public int staminaPerHour = 0;
 
         [Tooltip("인스펙터에서 설정합니다.")]
-        public int diamondPerHour = 0;
+        public int gemPerHour = 0;
 
         [Header("Settings")]
         [Tooltip("인스펙터에서 설정합니다.")]

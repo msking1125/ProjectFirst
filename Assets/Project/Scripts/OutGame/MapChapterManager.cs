@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -372,20 +372,20 @@ public class MapChapterManager : MonoBehaviour
         if (AsyncSceneLoader.Instance != null)
         {
             AsyncSceneLoader.Instance.LoadSceneAsync(
-                "BattleReadyScene", LoadSceneMode.Single);
+                "BattleReady", LoadSceneMode.Single);
         }
         else
         {
-            SceneManager.LoadScene("BattleReadyScene");
+            SceneManager.LoadScene("BattleReady");
         }
     }
 
     private void OnWorldBackClicked()
     {
         if (AsyncSceneLoader.Instance != null)
-            AsyncSceneLoader.Instance.LoadSceneAsync("LobbyScene", LoadSceneMode.Single);
+            AsyncSceneLoader.Instance.LoadSceneAsync("Lobby", LoadSceneMode.Single);
         else
-            SceneManager.LoadScene("LobbyScene");
+            SceneManager.LoadScene("Lobby");
     }
 
     private void OnChapterBackClicked()

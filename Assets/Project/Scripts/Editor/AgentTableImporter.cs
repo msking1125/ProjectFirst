@@ -1,12 +1,10 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 using ProjectFirst.Data;
 
-/// <summary>
-/// 에이전트 CSV를 AgentTable과 관련 에셋에 반영합니다.
-/// </summary>
 public static class AgentTableImporter
 {
     private const string CsvPathLower = "Assets/Project/Data/agents.csv";
@@ -24,18 +22,25 @@ public static class AgentTableImporter
     {
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
-            Debug.LogError($"[AgentTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[AgentTableImporter] CSV not found: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[AgentTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
+            Debug.LogError($"[AgentTableImporter] CSV not found: {CsvPathLower} (or {CsvPathUpper})");
             return;
         }
 
         AgentTable table = CsvImportUtility.LoadOrCreateAsset<AgentTable>(AssetPath);
         table.rows.Clear();
+
+        SerializedObject tableSo = new SerializedObject(table);
+        SerializedProperty agentInfosProp = tableSo.FindProperty("_agentInfos");
+        if (agentInfosProp != null)
+            agentInfosProp.ClearArray();
+
+        HashSet<string> syncedPrefabNames = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
 
         string[] header = CsvImportUtility.ParseHeader(lines[0]);
         if (!CsvImportUtility.ValidateRequiredColumns(header, RequiredColumns, nameof(AgentTableImporter)))
@@ -62,7 +67,7 @@ public static class AgentTableImporter
             string rawId = CsvImportUtility.GetCell(cols, idIdx);
             if (!CsvImportUtility.TryParseFlexibleInt(rawId, out int id))
             {
-                Debug.LogWarning($"[AgentTableImporter] id 파싱 실패로 행을 건너뜁니다: '{rawId}'");
+                Debug.LogWarning($"[AgentTableImporter] Skipping row with invalid id: '{rawId}'");
                 continue;
             }
 
@@ -96,16 +101,20 @@ public static class AgentTableImporter
             }
 
             string prefabName = CsvImportUtility.GetCell(cols, prefabIdx);
-            SyncAgentPrefab(prefabName, id, agentData);
+            GameObject prefab = ResolvePrefab(prefabName, id);
+            if (!string.IsNullOrWhiteSpace(prefabName) && syncedPrefabNames.Add(prefabName))
+                SyncAgentPrefab(prefab, id, agentData);
 
+            AppendAgentInfo(agentInfosProp, row, prefab);
             imported++;
         }
 
+        tableSo.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(table);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[AgentTableImporter] {imported}개 에이전트 임포트 완료 → {AssetPath}");
+        Debug.Log($"[AgentTableImporter] Imported {imported} agents into {AssetPath}");
     }
 
     private static ElementType ParseElement(string raw, int id)
@@ -113,7 +122,7 @@ public static class AgentTableImporter
         if (CsvImportUtility.TryParseEnumInsensitive(raw, out ElementType element))
             return element;
 
-        Debug.LogWarning($"[AgentTableImporter] id='{id}' element='{raw}' 파싱 실패 → Reason으로 대체");
+        Debug.LogWarning($"[AgentTableImporter] Failed to parse element '{raw}' for id '{id}'. Falling back to Reason.");
         return ElementType.Reason;
     }
 
@@ -144,10 +153,10 @@ public static class AgentTableImporter
         return null;
     }
 
-    private static void SyncAgentPrefab(string prefabName, int agentId, AgentData agentData)
+    private static GameObject ResolvePrefab(string prefabName, int agentId)
     {
         if (string.IsNullOrWhiteSpace(prefabName))
-            return;
+            return null;
 
         string prefabPath = $"{AgentPrefabFolder}/{prefabName}.prefab";
         if (!File.Exists(prefabPath))
@@ -159,15 +168,20 @@ public static class AgentTableImporter
 
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
         if (prefab == null)
-        {
-            Debug.LogWarning($"[AgentTableImporter] prefab='{prefabName}' 을 찾지 못했습니다. agentId='{agentId}'");
+            Debug.LogWarning($"[AgentTableImporter] Could not find prefab '{prefabName}' for agentId '{agentId}'");
+
+        return prefab;
+    }
+
+    private static void SyncAgentPrefab(GameObject prefab, int agentId, AgentData agentData)
+    {
+        if (prefab == null)
             return;
-        }
 
         Component agentComp = prefab.GetComponentInChildren(typeof(Project.Agent), true);
         if (agentComp == null)
         {
-            Debug.LogWarning($"[AgentTableImporter] 프리팹에서 Agent 컴포넌트를 찾지 못했습니다: {prefabPath}");
+            Debug.LogWarning($"[AgentTableImporter] Could not find Agent component in prefab: {prefab.name}");
             return;
         }
 
@@ -175,12 +189,42 @@ public static class AgentTableImporter
         SerializedProperty idProp = so.FindProperty("agentId");
         if (idProp != null)
             idProp.intValue = agentId;
+
         SerializedProperty dataProp = so.FindProperty("agentData");
         if (dataProp != null)
             dataProp.objectReferenceValue = agentData;
 
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(prefab);
+        PrefabUtility.SavePrefabAsset(prefab);
+    }
+
+    private static void AppendAgentInfo(SerializedProperty agentInfosProp, AgentRow row, GameObject prefab)
+    {
+        if (agentInfosProp == null || row == null)
+            return;
+
+        int index = agentInfosProp.arraySize;
+        agentInfosProp.InsertArrayElementAtIndex(index);
+        SerializedProperty infoProp = agentInfosProp.GetArrayElementAtIndex(index);
+
+        infoProp.FindPropertyRelative("_id").intValue = row.id;
+        infoProp.FindPropertyRelative("_agentName").stringValue = row.name ?? string.Empty;
+        infoProp.FindPropertyRelative("_subName").stringValue = string.Empty;
+        infoProp.FindPropertyRelative("_element").enumValueIndex = (int)row.element;
+        infoProp.FindPropertyRelative("_attackType").enumValueIndex = 0;
+        infoProp.FindPropertyRelative("_grade").intValue = 1;
+        infoProp.FindPropertyRelative("_thumbnail").objectReferenceValue = row.portrait;
+        infoProp.FindPropertyRelative("_modelPrefab").objectReferenceValue = prefab;
+        infoProp.FindPropertyRelative("_skills").arraySize = 0;
+        infoProp.FindPropertyRelative("_baseHp").floatValue = row.stats.hp;
+        infoProp.FindPropertyRelative("_baseAtk").floatValue = row.stats.atk;
+        infoProp.FindPropertyRelative("_baseDef").floatValue = row.stats.def;
+        infoProp.FindPropertyRelative("_critRate").floatValue = row.stats.critChance;
+        infoProp.FindPropertyRelative("_critMult").floatValue = row.stats.critMultiplier;
+        infoProp.FindPropertyRelative("_hpGrowth").floatValue = 0.08f;
+        infoProp.FindPropertyRelative("_atkGrowth").floatValue = 0.06f;
+        infoProp.FindPropertyRelative("_defGrowth").floatValue = 0.04f;
     }
 }
 #endif

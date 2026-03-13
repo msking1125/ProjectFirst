@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Text;
 using Cysharp.Threading.Tasks;
@@ -36,8 +36,8 @@ public class IdleRewardManager : MonoBehaviour
     [SerializeField] private GameObject popupRoot;
     [SerializeField] private TMP_Text elapsedTimeText;
     [SerializeField] private TMP_Text rewardGoldText;
-    [SerializeField] private TMP_Text rewardTicketText;
-    [SerializeField] private TMP_Text rewardDiamondText;
+    [SerializeField] private TMP_Text rewardStaminaText;
+    [SerializeField] private TMP_Text rewardGemText;
     [SerializeField] private Button claimButton;
     [SerializeField] private Button closeButton;
 
@@ -48,10 +48,10 @@ public class IdleRewardManager : MonoBehaviour
     private struct RewardResult
     {
         public int gold;
-        public int ticket;
-        public int diamond;
+        public int stamina;
+        public int gem;
         public TimeSpan elapsed;
-        public bool IsEmpty => gold == 0 && ticket == 0 && diamond == 0;
+        public bool IsEmpty => gold == 0 && stamina == 0 && gem == 0;
     }
 
     private RewardResult pending;
@@ -124,14 +124,14 @@ public class IdleRewardManager : MonoBehaviour
         float hours = cappedSeconds / 3600f;
 
         int goldPerHour = config != null ? config.goldPerHour : 100;
-        int ticketPerHour = config != null ? config.ticketPerHour : 0;
-        int diamondPerHour = config != null ? config.diamondPerHour : 0;
+        int staminaPerHour = config != null ? config.staminaPerHour : 0;
+        int gemPerHour = config != null ? config.gemPerHour : 0;
 
         return new RewardResult
         {
             gold = Mathf.FloorToInt(goldPerHour * hours),
-            ticket = Mathf.FloorToInt(ticketPerHour * hours),
-            diamond = Mathf.FloorToInt(diamondPerHour * hours),
+            stamina = Mathf.FloorToInt(staminaPerHour * hours),
+            gem = Mathf.FloorToInt(gemPerHour * hours),
             elapsed = elapsed,
         };
     }
@@ -161,16 +161,16 @@ public class IdleRewardManager : MonoBehaviour
                 title: "방치 보상",
                 body: BuildMailBody(reward),
                 gold: reward.gold,
-                ticket: reward.ticket,
-                diamond: reward.diamond);
+                stamina: reward.stamina,
+                gem: reward.gem);
 
-            Debug.Log($"[IdleRewardManager] 우편 지급 완료 - 골드 {reward.gold:N0} / 티켓 {reward.ticket:N0} / 다이아 {reward.diamond:N0}");
+            Debug.Log($"[IdleRewardManager] 우편 지급 완료 - 골드 {reward.gold:N0} / 스태미나 {reward.stamina:N0} / 잼 {reward.gem:N0}");
             return;
         }
 
         playerData?.AddGold(reward.gold);
-        playerData?.AddTicket(reward.ticket);
-        playerData?.AddDiamond(reward.diamond);
+        playerData?.AddCurrency(CurrencyType.Stamina, reward.stamina);
+        playerData?.AddGem(reward.gem);
         Debug.LogWarning("[IdleRewardManager] MailBox가 연결되지 않아 PlayerData에 직접 지급했습니다.");
     }
 
@@ -195,10 +195,10 @@ public class IdleRewardManager : MonoBehaviour
             elapsedTimeText.text = FormatElapsed(pending.elapsed);
         if (rewardGoldText != null)
             rewardGoldText.text = $"+{pending.gold:N0}";
-        if (rewardTicketText != null)
-            rewardTicketText.text = $"+{pending.ticket:N0}";
-        if (rewardDiamondText != null)
-            rewardDiamondText.text = $"+{pending.diamond:N0}";
+        if (rewardStaminaText != null)
+            rewardStaminaText.text = $"+{pending.stamina:N0}";
+        if (rewardGemText != null)
+            rewardGemText.text = $"+{pending.gem:N0}";
 
         if (claimButton != null)
             claimButton.interactable = !pending.IsEmpty;
@@ -257,10 +257,10 @@ public class IdleRewardManager : MonoBehaviour
         var sb = new StringBuilder($"{FormatElapsed(reward.elapsed)} 동안의 방치 보상입니다.\n");
         if (reward.gold > 0)
             sb.AppendLine($"골드   +{reward.gold:N0}");
-        if (reward.ticket > 0)
-            sb.AppendLine($"티켓   +{reward.ticket:N0}");
-        if (reward.diamond > 0)
-            sb.AppendLine($"다이아 +{reward.diamond:N0}");
+        if (reward.stamina > 0)
+            sb.AppendLine($"스태미나 +{reward.stamina:N0}");
+        if (reward.gem > 0)
+            sb.AppendLine($"잼   +{reward.gem:N0}");
         return sb.ToString().TrimEnd();
     }
 }

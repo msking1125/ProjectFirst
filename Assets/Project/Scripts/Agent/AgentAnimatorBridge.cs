@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Project
 {
     /// <summary>
-    /// ¼Ò¹®ÀÚ animator parameter/tag ±ÔÄ¢¿ë °ø¿ë ºê¸®Áö.
+    /// ï¿½Ò¹ï¿½ animator parameter/tag ï¿½Ä¢ï¿½ ï¿½ ï¿½ê¸®ï¿½.
     /// </summary>
     public class AgentAnimatorBridge : MonoBehaviour
     {

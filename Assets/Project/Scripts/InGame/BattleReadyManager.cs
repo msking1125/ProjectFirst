@@ -520,9 +520,9 @@ namespace ProjectFirst.InGame
             yield return new WaitForSeconds(0.3f);
             
             if (AsyncSceneLoader.Instance != null)
-                AsyncSceneLoader.Instance.LoadSceneAsync("InGame", LoadSceneMode.Single);
+                AsyncSceneLoader.Instance.LoadSceneAsync("Battle_Test", LoadSceneMode.Single);
             else
-                SceneManager.LoadScene("InGame");
+                SceneManager.LoadScene("Battle_Test");
         }
         // Sweep
 
@@ -558,9 +558,9 @@ namespace ProjectFirst.InGame
         private void OnBackClicked()
         {
             if (AsyncSceneLoader.Instance != null)
-                AsyncSceneLoader.Instance.LoadSceneAsync("MapChapterScene", LoadSceneMode.Single);
+                AsyncSceneLoader.Instance.LoadSceneAsync("MapChapter", LoadSceneMode.Single);
             else
-                SceneManager.LoadScene("MapChapterScene");
+                SceneManager.LoadScene("MapChapter");
         }
         // Helpers
 

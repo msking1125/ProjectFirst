@@ -1,7 +1,7 @@
-﻿public enum CurrencyType
+public enum CurrencyType
 {
     Gold,
-    Diamond,
-    Ticket,
+    Gem,
+    Stamina,
 }
 

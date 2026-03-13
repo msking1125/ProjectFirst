@@ -14,23 +14,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uid: 
   nickname: 
-  accountLevel: 0
+  accountLevel: 1
   accountExp: 0
+  accountExpMax: 100
+  selectedServerId: 
   mainCharacterId: 1
-  stageProgress: 0
   currentChapter: 0
   currentStage: 0
+  stageProgress: 0
   currentStageIndex: 0
   currentAgentIndex: 0
-  stamina: 0
-  staminaMax: 0
-  gold: 1000
-  gem: 0
-  ticket: 10
-  diamond: 50
+  stamina: 100
+  staminaMax: 999
+  gold: 10000
+  gem: 100
   ownedCharacterIds: 
   ownedPetIds: 
   ownedEquipmentIds: 
+  characterProgressRecords: []
+  expItemInventoryRecords: []
+  missionProgressRecords: []
+  missionTierClaimRecords: []
+  lastDailyMissionResetUtc: 
+  lastWeeklyMissionResetUtc: 
+  tutorialFlagEntries: []
   lastIdleRewardTime: 
   onCurrencyChanged: {fileID: 0}
   onCharacterChanged: {fileID: 0}

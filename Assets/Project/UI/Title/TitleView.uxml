@@ -6,16 +6,16 @@
         <!-- 배경 -->
         <ui:VisualElement class="spacer" />
 
-        <!-- 로딩 영역 (항상 보이게 display:flex 강제) -->
-        <ui:VisualElement class="loading-container" style="display: flex;">
+        <!-- 로딩 영역 (스크립트에서 필요 시만 표시) -->
+        <ui:VisualElement name="loading-container" class="loading-container">
             <ui:Label name="loading-log" class="loading-log" text="자산 로딩 중..." />
             <ui:VisualElement class="progress-bar-container">
                 <ui:VisualElement name="progress-bar" class="progress-bar" />
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- 버튼 영역 -->
-        <ui:VisualElement class="button-container">
+        <!-- 버튼 영역 (초기에는 숨겨두고 로그인 이후 표시) -->
+        <ui:VisualElement name="ButtonContainer" class="button-container" style="display: none;">
             <ui:Button name="server-select-button" class="title-button" text="서버 선택" />
             <ui:Button name="start-button"         class="title-button" text="게임 시작" />
             <ui:Button name="settings-button"      class="title-button" text="설정" />

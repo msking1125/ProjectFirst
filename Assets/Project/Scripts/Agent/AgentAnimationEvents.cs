@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Project
 {
@@ -10,6 +10,11 @@ namespace Project
         {
             if (agent == null)
                 agent = GetComponentInParent<Agent>();
+        }
+
+        public void Bind(Agent boundAgent)
+        {
+            agent = boundAgent;
         }
 
         public void ApplyAttackHit_01()

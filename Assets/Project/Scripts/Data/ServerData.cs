@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace ProjectFirst.Data
@@ -12,7 +12,7 @@ namespace ProjectFirst.Data
         public int currentPlayers;
         public float LoadRatio => maxPlayers > 0 ? Mathf.Clamp01((float)currentPlayers / maxPlayers) : 0f;
         public string CongestionLabel =>
-            LoadRatio < 0.5f ? "?먰솢" :
+            LoadRatio < 0.5f ? "원활" :
             LoadRatio < 0.85f ? "보통" : "혼잡";
     }
 }

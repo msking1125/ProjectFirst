@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using ProjectFirst.OutGame;
 using ProjectFirst.OutGame.UI;
 using UnityEngine;
@@ -20,6 +20,8 @@ namespace ProjectFirst.Bootstrap
         [SerializeField] private VoidEventChannelSO _startButtonEvent;
         [SerializeField] private VoidEventChannelSO _settingsButtonEvent;
 
+        private VisualElement _buttonContainer;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -30,11 +32,7 @@ namespace ProjectFirst.Bootstrap
 
             Instance = this;
 
-            if (_uiDocument == null)
-            {
-                _uiDocument = GetComponent<UIDocument>();
-            }
-
+            EnsureDocument();
             SetupUxmlButtonEvents();
         }
 
@@ -46,12 +44,52 @@ namespace ProjectFirst.Bootstrap
             }
         }
 
+        private void EnsureDocument()
+        {
+            if (_uiDocument != null && _uiDocument.rootVisualElement != null)
+                return;
+
+            if (_uiDocument == null)
+            {
+                _uiDocument = GetComponent<UIDocument>();
+            }
+
+            if (_uiDocument == null)
+            {
+                foreach (UIDocument doc in FindObjectsOfType<UIDocument>())
+                {
+                    VisualElement root = doc.rootVisualElement;
+                    if (root == null) continue;
+
+                    // TitleView 에는 start-button 이 존재합니다.
+                    if (root.Q<Button>("start-button") != null)
+                    {
+                        _uiDocument = doc;
+                        break;
+                    }
+                }
+            }
+
+            // Title UI 는 기본 정렬 순서(0)를 사용해 LoginView 보다 뒤에 렌더링되도록 합니다.
+            if (_uiDocument != null)
+            {
+                _uiDocument.sortingOrder = 0;
+            }
+        }
+
         private void SetupUxmlButtonEvents()
         {
             if (_uiDocument == null) return;
 
             VisualElement root = _uiDocument.rootVisualElement;
             if (root == null) return;
+
+            _buttonContainer = root.Q<VisualElement>("ButtonContainer");
+            if (_buttonContainer != null)
+            {
+                // 로그인 완료 전까지는 버튼 숨김
+                _buttonContainer.style.display = DisplayStyle.None;
+            }
             Button startButton = root.Q<Button>("start-button");
             if (startButton != null)
             {
@@ -95,6 +133,17 @@ namespace ProjectFirst.Bootstrap
                 {
                     UnityEngine.SceneManagement.SceneManager.LoadScene(_gameSceneName);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 로그인 및 서버 인증 절차가 끝난 뒤 타이틀 버튼을 노출합니다.
+        /// </summary>
+        public void ShowTitleButtons()
+        {
+            if (_buttonContainer != null)
+            {
+                _buttonContainer.style.display = DisplayStyle.Flex;
             }
         }
 

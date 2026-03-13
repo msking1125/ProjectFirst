@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 namespace Project
 {
     /// <summary>
-    /// ÀÏ¹Ý °ø°Ý/½ºÅ³¿ë Åõ»çÃ¼¸¦ ¹ß»çÇÏ´Â °ø¿ë ÄÄÆ÷³ÍÆ®.
+    /// ï¿½Ï¹ï¿½ ï¿½/ï¿½Å³ï¿½ ï¿½Ã¼ï¿½ ï¿½ß»ï¿½Ï´ï¿½ ï¿½ ï¿½Æ®.
     /// </summary>
 #if ODIN_INSPECTOR
     [HideMonoScript]
@@ -14,10 +14,10 @@ namespace Project
     public class ProjectileShooter : MonoBehaviour
     {
 #if ODIN_INSPECTOR
-        [Title("°øÅë ¼³Á¤", TitleAlignment = TitleAlignments.Left)]
+        [Title("ï¿½ ï¿½", TitleAlignment = TitleAlignments.Left)]
         [HorizontalGroup("common", 0.5f)]
         [BoxGroup("common/spawn")]
-        [LabelText("¹ß»ç ÁöÁ¡")]
+        [LabelText("ï¿½ß»ï¿½ ï¿½")]
         [SceneObjectsOnly]
 #endif
         [Header("common")]
@@ -26,7 +26,7 @@ namespace Project
 #if ODIN_INSPECTOR
         [HorizontalGroup("common", 0.5f)]
         [BoxGroup("common/search")]
-        [LabelText("Å½»ö ¹üÀ§")]
+        [LabelText("Å½ï¿½ ï¿½")]
         [PropertyRange(1f, 50f)]
         [SuffixLabel("m", true)]
 #endif
@@ -34,15 +34,15 @@ namespace Project
 
 #if ODIN_INSPECTOR
         [BoxGroup("common/spawn")]
-        [LabelText("ÀüÁø ¿ÀÇÁ¼Â")]
+        [LabelText("ï¿½ ï¿½")]
         [PropertyRange(0f, 2f)]
 #endif
         [SerializeField] private float forwardOffset = 0.5f;
 
 #if ODIN_INSPECTOR
-        [Title("ÀÏ¹Ý °ø°Ý", TitleAlignment = TitleAlignments.Left)]
+        [Title("ï¿½Ï¹ï¿½ ï¿½", TitleAlignment = TitleAlignments.Left)]
         [BoxGroup("normal")]
-        [LabelText("ÀÏ¹Ý °ø°Ý ÇÁ¸®ÆÕ")]
+        [LabelText("ï¿½Ï¹ï¿½ ï¿½ ï¿½")]
         [AssetsOnly]
 #endif
         [Header("normal")]
@@ -51,7 +51,7 @@ namespace Project
 #if ODIN_INSPECTOR
         [HorizontalGroup("normalsettings", 0.5f)]
         [BoxGroup("normalsettings/speed")]
-        [LabelText("ÀÏ¹Ý °ø°Ý ¼Óµµ")]
+        [LabelText("ï¿½Ï¹ï¿½ ï¿½ ï¿½Óµï¿½")]
         [PropertyRange(1f, 100f)]
         [SuffixLabel("m/s", true)]
 #endif
@@ -60,22 +60,22 @@ namespace Project
 #if ODIN_INSPECTOR
         [HorizontalGroup("normalsettings", 0.5f)]
         [BoxGroup("normalsettings/rotation")]
-        [LabelText("ÀÏ¹Ý °ø°Ý È¸Àü ¿ÀÇÁ¼Â")]
+        [LabelText("ï¿½Ï¹ï¿½ ï¿½ È¸ï¿½ ï¿½")]
 #endif
         [SerializeField] private Vector3 normalAttackRotationOffset = new Vector3(0f, 90f, 0f);
 
 #if ODIN_INSPECTOR
         [BoxGroup("normal")]
-        [LabelText("ÀÏ¹Ý °ø°Ý Áö¼Ó ½Ã°£")]
+        [LabelText("ï¿½Ï¹ï¿½ ï¿½ ï¿½ ï¿½Ã°ï¿½")]
         [PropertyRange(0.1f, 10f)]
-        [SuffixLabel("ÃÊ", true)]
+        [SuffixLabel("ï¿½", true)]
 #endif
         [SerializeField] private float normalAttackDestroyTime = 2f;
 
 #if ODIN_INSPECTOR
-        [Title("½ºÅ³ °ø°Ý", TitleAlignment = TitleAlignments.Left)]
+        [Title("ï¿½Å³ ï¿½", TitleAlignment = TitleAlignments.Left)]
         [BoxGroup("skill")]
-        [LabelText("½ºÅ³ °ø°Ý ÇÁ¸®ÆÕ")]
+        [LabelText("ï¿½Å³ ï¿½ ï¿½")]
         [AssetsOnly]
 #endif
         [Header("skill")]
@@ -84,7 +84,7 @@ namespace Project
 #if ODIN_INSPECTOR
         [HorizontalGroup("skillsettings", 0.5f)]
         [BoxGroup("skillsettings/speed")]
-        [LabelText("½ºÅ³ °ø°Ý ¼Óµµ")]
+        [LabelText("ï¿½Å³ ï¿½ ï¿½Óµï¿½")]
         [PropertyRange(1f, 100f)]
         [SuffixLabel("m/s", true)]
 #endif
@@ -93,15 +93,15 @@ namespace Project
 #if ODIN_INSPECTOR
         [HorizontalGroup("skillsettings", 0.5f)]
         [BoxGroup("skillsettings/rotation")]
-        [LabelText("½ºÅ³ °ø°Ý È¸Àü ¿ÀÇÁ¼Â")]
+        [LabelText("ï¿½Å³ ï¿½ È¸ï¿½ ï¿½")]
 #endif
         [SerializeField] private Vector3 skillAttackRotationOffset = new Vector3(90f, 0f, 0f);
 
 #if ODIN_INSPECTOR
         [BoxGroup("skill")]
-        [LabelText("½ºÅ³ °ø°Ý Áö¼Ó ½Ã°£")]
+        [LabelText("ï¿½Å³ ï¿½ ï¿½ ï¿½Ã°ï¿½")]
         [PropertyRange(0.1f, 10f)]
-        [SuffixLabel("ÃÊ", true)]
+        [SuffixLabel("ï¿½", true)]
 #endif
         [SerializeField] private float skillAttackDestroyTime = 3f;
 

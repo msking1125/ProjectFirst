@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Playables;
 using ProjectFirst.Data;
 
 #if ODIN_INSPECTOR
@@ -9,7 +10,6 @@ using Sirenix.OdinInspector;
 
 namespace Project
 {
-
 #if ODIN_INSPECTOR
     [HideMonoScript]
     [BoxGroup("data")]
@@ -69,11 +69,11 @@ namespace Project
         private Animator cachedAnimator;
         private Transform cachedVisualRoot;
         private ProjectileShooter cachedProjectileShooter;
+        private GameObject runtimeVisualInstance;
 
         private bool isCombatStarted;
         private float attackTimer;
 
-        // 현재 진행 중인 평타 1세트(2타) 대상
         private Enemy currentAttackTarget;
         private bool comboAttackActive;
 
@@ -86,8 +86,203 @@ namespace Project
 
         private void Awake()
         {
+            if (TryDisableNestedAgent())
+                return;
+
+            NormalizeAgentId();
             ApplyStatsFromTables();
             CacheComponents();
+        }
+
+        private bool TryDisableNestedAgent()
+        {
+            Agent parentAgent = GetComponentInParent<Agent>();
+            if (parentAgent == null || parentAgent == this)
+                return false;
+
+            enabled = false;
+            return true;
+        }
+
+        private void NormalizeAgentId()
+        {
+            if (agentData != null && agentData.agentId > 0)
+                agentId = agentData.agentId;
+        }
+
+        private void PrepareExistingVisualIfPresent()
+        {
+            if (transform.childCount <= 0)
+                return;
+
+            runtimeVisualInstance = transform.GetChild(0).gameObject;
+            if (runtimeVisualInstance == null)
+                return;
+
+            PrepareInstantiatedVisual(runtimeVisualInstance);
+            runtimeVisualInstance.SetActive(true);
+        }
+
+        private void SpawnRuntimeVisualIfNeeded()
+        {
+            if (!TryGetAgentTable(out AgentTable table))
+                return;
+
+            AgentInfo agentInfo = table.GetAgentInfo(agentId);
+            if (agentInfo == null || agentInfo.modelPrefab == null)
+                return;
+
+            ClearVisualChildren();
+
+            GameObject visualContainer = new GameObject(agentInfo.modelPrefab.name + "_Container");
+            visualContainer.transform.SetParent(transform, false);
+            visualContainer.SetActive(false);
+
+            GameObject visualInstance = Instantiate(agentInfo.modelPrefab, visualContainer.transform, false);
+            visualInstance.name = agentInfo.modelPrefab.name + "_Runtime";
+            visualInstance.transform.localPosition = Vector3.zero;
+            visualInstance.transform.localRotation = Quaternion.identity;
+            visualInstance.transform.localScale = Vector3.one;
+
+            PrepareInstantiatedVisual(visualInstance);
+
+            visualInstance.transform.SetParent(transform, false);
+            if (Application.isPlaying)
+                Destroy(visualContainer);
+            else
+                DestroyImmediate(visualContainer);
+
+            runtimeVisualInstance = visualInstance;
+            runtimeVisualInstance.SetActive(true);
+        }
+
+        private bool TryGetAgentTable(out AgentTable table)
+        {
+            table = agentTable as AgentTable;
+            return table != null;
+        }
+
+        private void ClearVisualChildren()
+        {
+            runtimeVisualInstance = null;
+            cachedVisualRoot = null;
+            cachedAnimatorBridge = null;
+            cachedAnimator = null;
+            cachedProjectileShooter = null;
+
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = transform.GetChild(i);
+                if (Application.isPlaying)
+                    Destroy(child.gameObject);
+                else
+                    DestroyImmediate(child.gameObject);
+            }
+        }
+
+        private void PrepareInstantiatedVisual(GameObject visualInstance)
+        {
+            if (visualInstance == null)
+                return;
+
+            foreach (PlayableDirector director in visualInstance.GetComponentsInChildren<PlayableDirector>(true))
+            {
+                if (director == null)
+                    continue;
+
+                director.Stop();
+                director.enabled = false;
+            }
+
+            Agent[] nestedAgents = visualInstance.GetComponentsInChildren<Agent>(true);
+            foreach (Agent nestedAgent in nestedAgents)
+            {
+                if (nestedAgent == null || nestedAgent == this)
+                    continue;
+
+                if (Application.isPlaying)
+                    Destroy(nestedAgent);
+                else
+                    DestroyImmediate(nestedAgent);
+            }
+
+            foreach (AgentAnimationEvents animationEvents in visualInstance.GetComponentsInChildren<AgentAnimationEvents>(true))
+            {
+                if (animationEvents != null)
+                    animationEvents.Bind(this);
+            }
+
+            foreach (Camera cameraComponent in visualInstance.GetComponentsInChildren<Camera>(true))
+            {
+                if (cameraComponent != null)
+                    cameraComponent.gameObject.SetActive(false);
+            }
+
+            foreach (AudioListener audioListener in visualInstance.GetComponentsInChildren<AudioListener>(true))
+            {
+                if (audioListener != null)
+                    audioListener.enabled = false;
+            }
+
+            foreach (Behaviour behaviour in visualInstance.GetComponentsInChildren<Behaviour>(true))
+            {
+                if (behaviour == null)
+                    continue;
+
+                Type behaviourType = behaviour.GetType();
+                string fullName = behaviourType.FullName ?? string.Empty;
+                string typeName = behaviourType.Name ?? string.Empty;
+                string namespaceName = behaviourType.Namespace ?? string.Empty;
+
+                if (namespaceName.StartsWith("Cinemachine", StringComparison.Ordinal) ||
+                    fullName.Contains("Cinemachine", StringComparison.Ordinal) ||
+                    typeName.Contains("Cinemachine", StringComparison.Ordinal))
+                {
+                    behaviour.enabled = false;
+                }
+            }
+
+            foreach (Transform child in visualInstance.GetComponentsInChildren<Transform>(true))
+            {
+                if (child == null)
+                    continue;
+
+                if (string.Equals(child.name, "Virtual Camera", StringComparison.OrdinalIgnoreCase))
+                    child.gameObject.SetActive(false);
+            }
+
+            Transform primaryVisualRoot = ResolvePrimaryVisualRoot(visualInstance.transform);
+            if (primaryVisualRoot != null && primaryVisualRoot != visualInstance.transform)
+            {
+                primaryVisualRoot.localPosition = Vector3.zero;
+                primaryVisualRoot.localRotation = Quaternion.identity;
+            }
+
+            Animator playableAnimator = ResolvePlayableAnimatorFromRoot(visualInstance.transform);
+            if (playableAnimator != null)
+            {
+                AgentAnimationEvents animationEvents = playableAnimator.GetComponent<AgentAnimationEvents>();
+                if (animationEvents == null)
+                    animationEvents = playableAnimator.gameObject.AddComponent<AgentAnimationEvents>();
+
+                animationEvents.Bind(this);
+            }
+        }
+
+        private Transform ResolvePrimaryVisualRoot(Transform visualRoot)
+        {
+            if (visualRoot == null)
+                return null;
+
+            Animator playableAnimator = ResolvePlayableAnimatorFromRoot(visualRoot);
+            if (playableAnimator != null)
+                return playableAnimator.transform;
+
+            ProjectileShooter shooter = visualRoot.GetComponentInChildren<ProjectileShooter>(true);
+            if (shooter != null)
+                return shooter.transform;
+
+            return visualRoot;
         }
 
         private void CacheComponents()
@@ -120,8 +315,30 @@ namespace Project
             return animators.Length > 0 ? animators[0] : null;
         }
 
+        private Animator ResolvePlayableAnimatorFromRoot(Transform visualRoot)
+        {
+            if (visualRoot == null)
+                return null;
+
+            AgentAnimatorBridge bridge = visualRoot.GetComponentInChildren<AgentAnimatorBridge>(true);
+            if (bridge != null && bridge.CachedAnimator != null)
+                return bridge.CachedAnimator;
+
+            Animator[] animators = visualRoot.GetComponentsInChildren<Animator>(true);
+            foreach (Animator candidate in animators)
+            {
+                if (candidate != null && candidate.runtimeAnimatorController != null)
+                    return candidate;
+            }
+
+            return animators.Length > 0 ? animators[0] : null;
+        }
+
         private Transform ResolveVisualRoot()
         {
+            if (runtimeVisualInstance != null)
+                return ResolvePrimaryVisualRoot(runtimeVisualInstance.transform) ?? transform;
+
             Transform source = null;
 
             if (cachedAnimatorBridge != null && cachedAnimatorBridge.CachedAnimator != null)
@@ -167,11 +384,9 @@ namespace Project
 
             CacheComponents();
 
-            // 스킬/궁극기 중에는 자동 평타 정지
             if (cachedAnimatorBridge != null && cachedAnimatorBridge.IsInSkillState())
                 return;
 
-            // 현재 평타 2타 세트 진행 중이면 다음 평타 시작 금지
             if (comboAttackActive)
                 return;
 
@@ -209,7 +424,8 @@ namespace Project
 
         private void RotateTowardTarget(Enemy target)
         {
-            if (target == null) return;
+            if (target == null)
+                return;
 
             Vector3 directionToTarget = target.transform.position - transform.position;
             directionToTarget.y = 0f;
@@ -253,25 +469,16 @@ namespace Project
             target.TakeDamage(finalDmg, isCrit);
         }
 
-        /// <summary>
-        /// attack_01 animation event
-        /// </summary>
         public void ApplyAttackHit_01()
         {
             ApplySingleAttackHit();
         }
 
-        /// <summary>
-        /// attack_02 animation event
-        /// </summary>
         public void ApplyAttackHit_02()
         {
             ApplySingleAttackHit();
         }
 
-        /// <summary>
-        /// attack_01 / attack_02 둘 다에서 호출 가능
-        /// </summary>
         public void FireNormalAttack()
         {
             CacheComponents();
@@ -290,8 +497,9 @@ namespace Project
             if (agentData == null || agentData.normalAttackVfxPrefab == null)
                 return;
 
-            Vector3 spawnPos = transform.position + transform.TransformDirection(agentData.normalAttackVfxOffset);
-            GameObject vfx = Instantiate(agentData.normalAttackVfxPrefab, spawnPos, transform.rotation);
+            Transform vfxAnchor = cachedVisualRoot != null ? cachedVisualRoot : transform;
+            Vector3 spawnPos = vfxAnchor.position + vfxAnchor.TransformDirection(agentData.normalAttackVfxOffset);
+            GameObject vfx = Instantiate(agentData.normalAttackVfxPrefab, spawnPos, vfxAnchor.rotation);
             if (vfx == null)
                 return;
 
@@ -302,10 +510,6 @@ namespace Project
             StopAndDestroyVfx(vfx, lifetime);
         }
 
-        /// <summary>
-        /// attack_02 끝 프레임에 넣는 이벤트
-        /// 평타 1세트 종료 처리
-        /// </summary>
         public void EndAttackCombo()
         {
             comboAttackActive = false;
@@ -370,6 +574,7 @@ namespace Project
             {
                 element = fallbackElement;
             }
+
 
             if (!statsApplied && stats.atk <= 0f)
                 stats.atk = 1f;
@@ -437,10 +642,6 @@ namespace Project
         }
     }
 }
-
-
-
-
 
 
 

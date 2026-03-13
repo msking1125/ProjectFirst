@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using ProjectFirst.Data;
@@ -90,9 +90,10 @@ public static class LobbySceneBuilder
         if (data == null)
         {
             data = ScriptableObject.CreateInstance<PlayerData>();
-            data.ticket  = 10;
-            data.gold    = 1000;
-            data.diamond = 50;
+            data.stamina    = 100;
+            data.staminaMax = 999;
+            data.gold       = 1000;
+            data.gem        = 50;
             AssetDatabase.CreateAsset(data, PlayerDataPath);
             AssetDatabase.SaveAssets();
             Debug.Log($"[LobbySceneBuilder] PlayerData.asset 생성 → {PlayerDataPath}");
@@ -240,16 +241,16 @@ public static class LobbySceneBuilder
         groupRt.anchoredPosition = new Vector2(0f, 0f);
         groupRt.sizeDelta       = new Vector2(540f, 110f);
 
-        // 티켓 슬롯 (좌)
-        BuildCurrencySlot(groupGo.transform, "Ticket", "티켓", -185f,
+        // 스태미너 슬롯 (좌)
+        BuildCurrencySlot(groupGo.transform, "Stamina", "스태미나", -185f,
             out refs.ticketText, out refs.ticketPlusButton);
 
         // 골드 슬롯 (중)
         BuildCurrencySlot(groupGo.transform, "Gold", "골드", 0f,
             out refs.goldText, out refs.goldPlusButton);
 
-        // 다이아 슬롯 (우)
-        BuildCurrencySlot(groupGo.transform, "Diamond", "다이아", 185f,
+        // 잼 슬롯 (우)
+        BuildCurrencySlot(groupGo.transform, "Gem", "잼", 185f,
             out refs.diamondText, out refs.diamondPlusButton);
     }
 
@@ -450,10 +451,10 @@ public static class LobbySceneBuilder
         divRt.anchoredPosition = new Vector2(0f, 175f);
         divRt.sizeDelta = new Vector2(620f, 2f);
 
-        // 보상 행: 골드 / 티켓 / 다이아
-        refs.idleGoldText    = BuildRewardRow(panelTr, "GoldRow",    "골드",   colRowBg, 100f);
-        refs.idleTicketText  = BuildRewardRow(panelTr, "TicketRow",  "티켓",   colRowBg,   0f);
-        refs.idleDiamondText = BuildRewardRow(panelTr, "DiamondRow", "다이아", colRowBg, -100f);
+        // 보상 행: 골드 / 스태미나 / 잼
+        refs.idleGoldText    = BuildRewardRow(panelTr, "GoldRow",    "골드",     colRowBg, 100f);
+        refs.idleTicketText  = BuildRewardRow(panelTr, "StaminaRow", "스태미나", colRowBg,   0f);
+        refs.idleDiamondText = BuildRewardRow(panelTr, "GemRow",     "잼",       colRowBg, -100f);
 
         // 받기 버튼
         var claimGo = new GameObject("Btn_Claim",
