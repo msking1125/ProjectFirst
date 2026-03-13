@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RunSession
+[CreateAssetMenu(fileName = "RunSession", menuName = "ProjectFirst/RunSession")]
+public class RunSession : ScriptableObject
 {
     public int Level { get; private set; } = 1;
     public int Exp { get; private set; }

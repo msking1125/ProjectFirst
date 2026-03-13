@@ -93,9 +93,9 @@ namespace ProjectFirst.InGame
             if (_tooltipManager != null)
             {
                 var tooltipAgentTable = _tooltipManager.GetType().GetField("agentTable", 
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var tooltipPlayerData = _tooltipManager.GetType().GetField("playerData", 
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 
                 if (tooltipAgentTable != null) tooltipAgentTable.SetValue(_tooltipManager, _agentTable);
                 if (tooltipPlayerData != null) tooltipPlayerData.SetValue(_tooltipManager, _playerData);
@@ -104,11 +104,11 @@ namespace ProjectFirst.InGame
             if (_validationSystem != null)
             {
                 var validationAgentTable = _validationSystem.GetType().GetField("agentTable", 
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var validationStageData = _validationSystem.GetType().GetField("stageData", 
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var validationPlayerData = _validationSystem.GetType().GetField("playerData",
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 
                 if (validationAgentTable != null) validationAgentTable.SetValue(_validationSystem, _agentTable);
                 if (validationStageData != null) validationStageData.SetValue(_validationSystem, _stageData);
@@ -281,9 +281,14 @@ namespace ProjectFirst.InGame
                 var removeBtn = new Button { text = "??" };
                 removeBtn.AddToClassList("slot-remove-btn");
                 int idx = slotIndex;
-                removeBtn.RegisterCallback<ClickEvent>(evt =>
+                removeBtn.RegisterCallback<ClickEvent>(async evt =>
                 {
                     evt.StopPropagation();
+                    if (_uiAnimator != null)
+                    {
+                        _uiAnimator.PlayCharacterRemoveAnimation(slot);
+                        await System.Threading.Tasks.Task.Delay(200);
+                    }
                     _partySlots[idx] = -1;
                     RefreshSlot(idx);
                     RefreshPartyPower();
@@ -302,7 +307,8 @@ namespace ProjectFirst.InGame
         {
             if (_charSelectPopup == null || _charGrid == null) return;
             _charGrid.Clear();
-            _charSelectPopup.style.display = DisplayStyle.Flex;
+            if (_uiAnimator != null) _uiAnimator.ShowPopup(_charSelectPopup);
+            else _charSelectPopup.style.display = DisplayStyle.Flex;
 
             var assigned = new HashSet<int>(_partySlots.Where(id => id >= 0));
 
@@ -373,7 +379,11 @@ namespace ProjectFirst.InGame
 
         private void HideCharSelectPopup()
         {
-            if (_charSelectPopup != null) _charSelectPopup.style.display = DisplayStyle.None;
+            if (_charSelectPopup != null)
+            {
+                if (_uiAnimator != null) _uiAnimator.HidePopupWithAnimation(_charSelectPopup);
+                else _charSelectPopup.style.display = DisplayStyle.None;
+            }
             _pendingSlotIndex = -1;
         }
         // Auto party
@@ -386,7 +396,7 @@ namespace ProjectFirst.InGame
             if (_validationSystem != null && _targetStage != null)
             {
                 // 개선된 자동 파티 구성 시스템 사용
-                int[] autoParty = _validationSystem.GetAutoPartyComposition(_targetStage);
+                int[] autoParty = _validationSystem.GetAutoPartyComposition(_targetStage, MaxPartySize);
                 for (int i = 0; i < MaxPartySize; i++)
                     _partySlots[i] = i < autoParty.Length ? autoParty[i] : -1;
             }

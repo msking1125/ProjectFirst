@@ -26,7 +26,7 @@
 }
 
 /* Remove bottom margin from last section in a stack */
-/* Note: Unity UI Toolkit doesn't support :last-child pseudo-class.
+/* Note: Unity UI Toolkit does not support that pseudo-class.
    The .section-last class is applied programmatically instead. */
 .section-stack > .section.section-last {
     margin-bottom: 0px;

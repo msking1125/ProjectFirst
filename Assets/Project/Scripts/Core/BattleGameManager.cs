@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +61,7 @@ namespace Project
 
     private TMP_Text resultText;
     private bool gameEnded;
-    private RunSession runSession;
+    [SerializeField] private RunSession runSession;
     private SkillSystem skillSystem;
     private Agent[] allAgents;
     private bool isEnemyKilledSubscribed;
@@ -142,7 +142,11 @@ namespace Project
 
     private void InitializeRunSession()
     {
-        if (runSession == null) runSession = new RunSession();
+        if (runSession == null)
+        {
+            Debug.LogError("[BattleGameManager] runSession is null! Creating a temporary instance.");
+            runSession = ScriptableObject.CreateInstance<RunSession>();
+        }
         runSession.Reset();
 
         if (playerAgent == null)

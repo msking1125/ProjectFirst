@@ -392,17 +392,25 @@ namespace ProjectFirst.InGame
         /// <summary>
         /// 자동 파티 구성 (개선된 버전)
         /// </summary>
-        public int[] GetAutoPartyComposition(StageData.StageInfo targetStage)
+        public int[] GetAutoPartyComposition(StageData.StageInfo targetStage, int partySize = 4)
         {
             if (targetStage == null || agentTable == null || playerData == null)
-                return new int[] { -1, -1, -1 };
-            
-            var recommendations = GetRecommendedCharacters(new int[] { -1, -1, -1 }, targetStage);
-            var autoParty = new int[3];
-            
-            for (int i = 0; i < 3 && i < recommendations.Count; i++)
             {
-                autoParty[i] = recommendations[i].AgentId;
+                int[] emptyParty = new int[partySize];
+                for (int i = 0; i < partySize; i++) emptyParty[i] = -1;
+                return emptyParty;
+            }
+            
+            int[] currentParty = new int[partySize];
+            for (int i = 0; i < partySize; i++) currentParty[i] = -1;
+            
+            var recommendations = GetRecommendedCharacters(currentParty, targetStage);
+            var autoParty = new int[partySize];
+            
+            for (int i = 0; i < partySize; i++)
+            {
+                if (i < recommendations.Count) autoParty[i] = recommendations[i].AgentId;
+                else autoParty[i] = -1;
             }
             
             return autoParty;
