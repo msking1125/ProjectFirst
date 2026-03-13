@@ -1,4 +1,4 @@
-﻿/* MapChapter UI Styles */
+/* MapChapter UI Styles */
 
 .full-screen {
     position: absolute;
@@ -41,7 +41,7 @@
     position: absolute;
     width: 120px;
     height: 120px;
-    cursor: link;
+    /* cursor: link; */
 }
 
 .chapter-node:hover {
@@ -133,7 +133,7 @@
     color: #ffffff;
     border-width: 0;
     border-radius: 5px;
-    cursor: link;
+    /* cursor: link; */
     font-size: 14px;
 }
 
@@ -194,7 +194,7 @@
     align-items: center;
     padding-left: 15px;
     padding-right: 15px;
-    cursor: link;
+    /* cursor: link; */
 }
 
 .stage-button:hover {
@@ -205,7 +205,7 @@
 .stage-button:disabled {
     background-color: #1a1a1a;
     border-color: #333333;
-    cursor: arrow;
+    /* cursor: arrow; */
     opacity: 0.6;
 }
 
@@ -344,7 +344,7 @@
     border-radius: 8px;
     font-size: 16px;
     -unity-font-style: bold;
-    cursor: link;
+    /* cursor: link; */
 }
 
 .battle-ready-btn:hover {
@@ -353,7 +353,7 @@
 
 .battle-ready-btn:disabled {
     background-color: #555555;
-    cursor: arrow;
+    /* cursor: arrow; */
 }
 
 .char-select-popup {
@@ -394,7 +394,7 @@
     padding-left: 10px;
     flex-direction: column;
     align-items: center;
-    cursor: link;
+    /* cursor: link; */
 }
 
 .char-select-card:hover {
@@ -404,7 +404,7 @@
 
 .char-select-disabled {
     opacity: 0.5;
-    cursor: arrow;
+    /* cursor: arrow; */
 }
 
 .char-select-thumb {
@@ -438,6 +438,6 @@
     border-width: 0;
     border-radius: 50%;
     font-size: 18px;
-    cursor: link;
+    /* cursor: link; */
 }
 

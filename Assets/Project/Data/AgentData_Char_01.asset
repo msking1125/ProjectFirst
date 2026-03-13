@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agentId: 1
   displayName: ARIA
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 7581890e0fd841d40a3e5ae78fd5aa7c, type: 3}
   normalAttackVfxPrefab: {fileID: 364420392459023623, guid: 2c61a38ad876cae45898895726676429,
     type: 3}
   normalAttackVfxOffset: {x: 0, y: 1, z: 1}
   normalAttackVfxLifetime: 2
   hitTiming: 0.3
   characterSkillId: 102
-  characterSkillIcon: {fileID: 21300000, guid: 013b0bce6a1b3ad459228602aa2e1d7c, type: 3}
+  characterSkillIcon: {fileID: 21300000, guid: 7581890e0fd841d40a3e5ae78fd5aa7c, type: 3}
   characterSkillVfxPrefab: {fileID: 7820565583128978761, guid: d172483c9061ac447a13dff041737c71,
     type: 3}

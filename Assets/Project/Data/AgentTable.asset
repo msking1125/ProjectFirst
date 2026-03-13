@@ -29,7 +29,7 @@ MonoBehaviour:
       critChance: 0.3
       critMultiplier: 1.5
     element: 0
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 7581890e0fd841d40a3e5ae78fd5aa7c, type: 3}
   - id: 2
     name: agent02
     stats:
@@ -39,7 +39,7 @@ MonoBehaviour:
       critChance: 0.3
       critMultiplier: 1.5
     element: 1
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 7581890e0fd841d40a3e5ae78fd5aa7c, type: 3}
   - id: 3
     name: agent03
     stats:
@@ -49,5 +49,5 @@ MonoBehaviour:
       critChance: 0.3
       critMultiplier: 1.5
     element: 2
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 7581890e0fd841d40a3e5ae78fd5aa7c, type: 3}
   _agentInfos: []

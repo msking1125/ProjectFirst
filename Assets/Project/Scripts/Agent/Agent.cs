@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using System.Reflection;
 using UnityEngine;
 using ProjectFirst.Data;
@@ -18,48 +18,46 @@ namespace Project
     public class Agent : MonoBehaviour
     {
 #if ODIN_INSPECTOR
-        [Title("data", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("data/id")]
+        [BoxGroup("data")]
         [LabelText("agent id")]
 #endif
         [Header("data")]
         [SerializeField] private int agentId;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("data/agent data")]
+        [BoxGroup("data")]
         [LabelText("agent data")]
         [AssetsOnly]
 #endif
         [SerializeField] private AgentData agentData;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("data/table")]
+        [BoxGroup("data")]
         [LabelText("agent table")]
 #endif
         [SerializeField] private UnityEngine.Object agentTable;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("data/table")]
+        [BoxGroup("data")]
         [LabelText("agent stats table")]
 #endif
         [SerializeField] private UnityEngine.Object agentStatsTable;
 
 #if ODIN_INSPECTOR
-        [Title("combat", TitleAlignment = TitleAlignments.Left)]
-        [BoxGroup("combat/range")]
+        [BoxGroup("combat")]
         [LabelText("attack range")]
 #endif
         [Header("combat")]
         [SerializeField] private float range = 10f;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("combat/rate")]
+        [BoxGroup("combat")]
         [LabelText("attack interval")]
 #endif
         [SerializeField] private float attackRate = 1f;
 
 #if ODIN_INSPECTOR
-        [BoxGroup("combat/rotation")]
+        [BoxGroup("combat")]
         [LabelText("model rotation offset")]
 #endif
         [SerializeField] private Vector3 modelRotationOffset = Vector3.zero;
@@ -69,12 +67,13 @@ namespace Project
 
         private AgentAnimatorBridge cachedAnimatorBridge;
         private Animator cachedAnimator;
+        private Transform cachedVisualRoot;
         private ProjectileShooter cachedProjectileShooter;
 
         private bool isCombatStarted;
         private float attackTimer;
 
-        // í˜„ì¬ ì§„í–‰ ì¤‘ì¸ í‰íƒ€ 1ì„¸íŠ¸(2íƒ€) ëŒ€ìƒ
+        // ÇöÀç ÁøÇà ÁßÀÎ ÆòÅ¸ 1¼¼Æ®(2Å¸) ´ë»ó
         private Enemy currentAttackTarget;
         private bool comboAttackActive;
 
@@ -96,11 +95,49 @@ namespace Project
             if (cachedAnimatorBridge == null)
                 cachedAnimatorBridge = GetComponentInChildren<AgentAnimatorBridge>(true);
 
-            if (cachedAnimator == null)
-                cachedAnimator = GetComponentInChildren<Animator>(true);
+            cachedAnimator = ResolvePlayableAnimator();
+            cachedVisualRoot = ResolveVisualRoot();
 
             if (cachedProjectileShooter == null)
                 cachedProjectileShooter = GetComponentInChildren<ProjectileShooter>(true);
+        }
+
+        private Animator ResolvePlayableAnimator()
+        {
+            if (cachedAnimatorBridge != null && cachedAnimatorBridge.CachedAnimator != null)
+                return cachedAnimatorBridge.CachedAnimator;
+
+            if (cachedAnimator != null && cachedAnimator.runtimeAnimatorController != null)
+                return cachedAnimator;
+
+            Animator[] animators = GetComponentsInChildren<Animator>(true);
+            foreach (Animator candidate in animators)
+            {
+                if (candidate != null && candidate.runtimeAnimatorController != null)
+                    return candidate;
+            }
+
+            return animators.Length > 0 ? animators[0] : null;
+        }
+
+        private Transform ResolveVisualRoot()
+        {
+            Transform source = null;
+
+            if (cachedAnimatorBridge != null && cachedAnimatorBridge.CachedAnimator != null)
+                source = cachedAnimatorBridge.CachedAnimator.transform;
+            else if (cachedAnimator != null)
+                source = cachedAnimator.transform;
+            else if (cachedProjectileShooter != null)
+                source = cachedProjectileShooter.transform;
+
+            if (source == null)
+                return transform;
+
+            while (source.parent != null && source.parent != transform)
+                source = source.parent;
+
+            return source.parent == transform ? source : transform;
         }
 
         public void StartCombat()
@@ -130,11 +167,11 @@ namespace Project
 
             CacheComponents();
 
-            // ìŠ¤í‚¬/ê¶ê·¹ê¸° ì¤‘ì—ëŠ” ìë™ í‰íƒ€ ì •ì§€
+            // ½ºÅ³/±Ã±Ø±â Áß¿¡´Â ÀÚµ¿ ÆòÅ¸ Á¤Áö
             if (cachedAnimatorBridge != null && cachedAnimatorBridge.IsInSkillState())
                 return;
 
-            // í˜„ì¬ í‰íƒ€ 2íƒ€ ì„¸íŠ¸ ì§„í–‰ ì¤‘ì´ë©´ ë‹¤ìŒ í‰íƒ€ ì‹œì‘ ê¸ˆì§€
+            // ÇöÀç ÆòÅ¸ 2Å¸ ¼¼Æ® ÁøÇà ÁßÀÌ¸é ´ÙÀ½ ÆòÅ¸ ½ÃÀÛ ±İÁö
             if (comboAttackActive)
                 return;
 
@@ -182,7 +219,8 @@ namespace Project
 
             Quaternion targetRotation = Quaternion.LookRotation(directionToTarget.normalized);
             Quaternion modelOffset = Quaternion.Euler(modelRotationOffset);
-            transform.rotation = targetRotation * modelOffset;
+            Transform rotationTarget = cachedVisualRoot != null ? cachedVisualRoot : transform;
+            rotationTarget.rotation = targetRotation * modelOffset;
         }
 
         private Enemy ResolveAttackTarget()
@@ -232,13 +270,13 @@ namespace Project
         }
 
         /// <summary>
-        /// attack_01 / attack_02 ë‘˜ ë‹¤ì—ì„œ í˜¸ì¶œ ê°€ëŠ¥
+        /// attack_01 / attack_02 µÑ ´Ù¿¡¼­ È£Ãâ °¡´É
         /// </summary>
         public void FireNormalAttack()
         {
             CacheComponents();
 
-            if (cachedProjectileShooter != null)
+            if (cachedProjectileShooter != null && cachedProjectileShooter.CanFireNormalAttack())
             {
                 cachedProjectileShooter.FireNormalAttack();
                 return;
@@ -265,8 +303,8 @@ namespace Project
         }
 
         /// <summary>
-        /// attack_02 ë í”„ë ˆì„ì— ë„£ëŠ” ì´ë²¤íŠ¸
-        /// í‰íƒ€ 1ì„¸íŠ¸ ì¢…ë£Œ ì²˜ë¦¬
+        /// attack_02 ³¡ ÇÁ·¹ÀÓ¿¡ ³Ö´Â ÀÌº¥Æ®
+        /// ÆòÅ¸ 1¼¼Æ® Á¾·á Ã³¸®
         /// </summary>
         public void EndAttackCombo()
         {
@@ -399,4 +437,12 @@ namespace Project
         }
     }
 }
+
+
+
+
+
+
+
+
 
