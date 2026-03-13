@@ -3,6 +3,13 @@
    이 파일은 다른 화면 (SettingView.uss / LobbyView.uss 등)과 연관됨
    ===================================================================== */
 
+/* 한글 폰트 — 메일함 */
+.unity-label,
+.unity-button,
+.unity-toggle {
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+}
+
 /* 메일함 패널 영역 (배경 등) 관련 스타일 */
 
 .mailbox-panel {

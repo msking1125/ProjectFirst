@@ -2,25 +2,39 @@
   원인: HeirofLightBold SDF_2 에셋에 한글 글리프가 일부만 포함되어 있음.
   (뒤, 로, 보, 상, 미, 기 등은 포함, 시·나·리·오·진·행·편·투·자·동·성 등은 미포함)
 
-■ 해결 방법 (Unity 에디터에서 수행)
+■ 빌드 후 MissingReferenceException (Texture2D has been destroyed)
+  원인: USS에서 .ttf (Font)를 -unity-font-definition으로 참조하면, 런타임에 TextCore가
+  내부 아틀라스(Texture2D)를 생성했다가 씬 전환/언로드 시 파괴되는데, UI가 계속 참조하여 발생.
+  대응: USS에서 .ttf 참조를 제거해 두었음. 한글+커스텀 폰트를 쓰려면 아래 TextCore Font Asset 방식을 사용.
 
-1. 메뉴: Window > TextMesh Pro > Font Asset Creator
+■ UI Toolkit에서 한글 + 커스텀 폰트 안정 사용 (권장)
 
-2. 설정
-   - Source Font File: Assets/TextMesh Pro/Fonts/HeirofLightBold.ttf
-   - Character Set: Unicode Range (Hex)
-   - Character Sequence (Hex): 20-7E,AC00-D7A3
-     (ASCII 20-7E + 한글 음절 전체 AC00-D7A3)
-   - Atlas Resolution: 한글 전체 포함 시 2048×2048 또는 4096×4096 권장
-     (1024로 하면 글리프가 잘릴 수 있음)
-   - Render Mode: SDFAA 등 기존과 동일하게
+1. Unity 메뉴: Create > Text > Font Asset
+   (또는 Window > TextMesh Pro > Font Asset Creator 에서 생성 후
+    해당 에셋을 TextCore용으로 사용 가능한지 프로젝트 Unity 버전에 따라 확인)
 
-3. [Generate Font Atlas] 실행 후, 기존 에셋 덮어쓰기
-   - Save As: Assets/Project/Fonts/HeirofLightBold SDF_2.asset
-   (또는 새 에셋으로 저장 후, LobbyView.uss / MapView.uss / BattleReadyStyles.uss
-    안의 -unity-font-definition url을 새 에셋 경로로 변경)
+2. Font Asset 생성 시
+   - Source Font: Assets/TextMesh Pro/Fonts/HeirofLightBold.ttf
+   - Character Set: Unicode Range (Hex) → 20-7E,AC00-D7A3 (ASCII + 한글)
+   - Atlas Resolution: 2048×2048 이상 권장
 
-4. UI Toolkit에서 사용 중인 폰트가 TMP SDF 에셋이면, 일부 환경에서는
-   TextCore Font Asset을 별도 생성해 쓰는 것이 안정적일 수 있음.
-   (Create > Text > Font Asset - 같은 ttf로 한글 범위 포함해 생성 후
-    Panel Settings 또는 USS에서 해당 에셋 참조)
+3. 저장 위치: Assets/Project/Resources/Fonts/ (Resources 폴더에 두면 빌드에 포함·유지됨)
+   예: HeirofLightBoldUITK.asset
+
+4. USS에 적용
+   - 각 화면 USS 상단에 추가:
+     .unity-label, .unity-button, .unity-toggle {
+       -unity-font-definition: url("project://database/Assets/Project/Resources/Fonts/HeirofLightBoldUITK.asset");
+     }
+   - 또는 Panel Settings (TitlePanelSettings 등)의 Text Settings에서 기본 폰트로 지정
+
+5. TMP SDF 에셋(HeirofLightBold SDF.asset)은 UI Toolkit에서 "Unsupported type TMP_FontAsset" 경고가 나오므로
+   UI Toolkit용에는 반드시 TextCore Font Asset을 새로 만들어 사용.
+
+■ TMP(게임 내 3D/UGUI 텍스트)용 한글 폰트 재생성
+
+1. Window > TextMesh Pro > Font Asset Creator
+2. Source Font File: HeirofLightBold.ttf
+3. Character Set: Unicode Range (Hex) → 20-7E,AC00-D7A3
+4. Atlas Resolution: 2048×2048 또는 4096×4096
+5. Generate Font Atlas 후 기존 HeirofLightBold SDF / SDF_2 덮어쓰기

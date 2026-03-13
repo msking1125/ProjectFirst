@@ -1,5 +1,12 @@
 /* SettingView.uss — 설정 패널 스타일 */
 
+/* 한글 폰트 — 설정 */
+.unity-label,
+.unity-button,
+.unity-toggle {
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+}
+
 /* ── 배경 오버레이 ─────────────────────────────────────── */
 
 .setting-backdrop {

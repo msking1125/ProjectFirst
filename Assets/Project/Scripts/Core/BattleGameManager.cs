@@ -90,7 +90,11 @@ namespace Project
     }
 
     private void OnEnable()  => EnsureEnemyKilledSubscription();
-    private void Start()     => EnsureEnemyKilledSubscription();
+    private void Start()
+    {
+        EnsureEnemyKilledSubscription();
+        EnsurePlayerCombatStarted();
+    }
 
     private void OnDisable()
     {
@@ -178,6 +182,7 @@ namespace Project
         foreach (Agent a in allAgents)
             if (a != null) a.StartCombat();
 
+        EnsurePlayerCombatStarted();
         runSession.OnLevelChanged -= HandleLevelChanged;
         runSession.OnReachedSkillPickLevel -= HandleReachedSkillPickLevel;
         runSession.OnLevelChanged += HandleLevelChanged;
@@ -210,6 +215,23 @@ namespace Project
         Enemy.EnemyKilled -= HandleEnemyKilled;
         Enemy.EnemyKilled += HandleEnemyKilled;
         isEnemyKilledSubscribed = true;
+    }
+
+    /// <summary>
+    /// 플레이어 에이전트에 StartCombat 호출. 빌드에서 Awake 시점에 allAgents에 포함되지 않을 수 있어 Start에서도 호출.
+    /// </summary>
+    private void EnsurePlayerCombatStarted()
+    {
+        if (playerAgent == null)
+        {
+#if UNITY_2022_2_OR_NEWER
+            playerAgent = FindFirstObjectByType<Agent>();
+#else
+            playerAgent = FindObjectOfType<Agent>();
+#endif
+        }
+        if (playerAgent != null)
+            playerAgent.StartCombat();
     }
 
     private void HandleLevelChanged(int level)      => RefreshStatusUI();

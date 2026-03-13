@@ -3,11 +3,11 @@
    모바일 세로 기준 (1080×1920 참고), 모든 px는 논리 픽셀
    ===================================================================== */
 
-/* 한글 폰트 — 로비 전체 라벨/버튼/토글 */
+/* 한글 폰트 — 로비 (HeirofLightBold SDF: 한글 글리프 포함, 빌드 시 TMP 경고 가능) */
 .unity-label,
 .unity-button,
 .unity-toggle {
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
 }
 
 /* ── 루트 ──────────────────────────────────────────────────────────── */
@@ -36,24 +36,24 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 80px;
+    height: 100px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 0 12px;
+    padding: 0 18px;
     background-color: rgba(0, 0, 0, 0.55);
 }
 
 /* 내 정보 버튼 (좌상단) */
 .myinfo-btn {
-    width: 54px;
-    height: 54px;
-    border-radius: 27px;
+    width: 72px;
+    height: 72px;
+    border-radius: 36px;
     background-color: rgba(255, 255, 255, 0.15);
     border-width: 2px;
     border-color: rgba(255, 255, 255, 0.4);
     color: white;
-    font-size: 11px;
+    font-size: 15px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     flex-shrink: 0;
@@ -69,8 +69,8 @@
 }
 
 .currency-row > * {
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 6px;
+    margin-right: 6px;
 }
 
 /* 재화 그룹 (아이콘 + 숫자 + +버튼) */
@@ -78,20 +78,20 @@
     flex-direction: row;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.45);
-    border-radius: 20px;
-    padding: 4px 8px 4px 6px;
+    border-radius: 24px;
+    padding: 6px 12px 6px 10px;
 }
 
 .currency-group > * {
-    margin-left: 2px;
-    margin-right: 2px;
+    margin-left: 3px;
+    margin-right: 3px;
 }
 
 /* 재화 아이콘 공통 */
 .currency-icon {
-    width: 22px;
-    height: 22px;
-    border-radius: 11px;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
     flex-shrink: 0;
 }
 
@@ -101,22 +101,22 @@
 
 /* 재화 숫자 라벨 */
 .currency-label {
-    font-size: 15px;
+    font-size: 19px;
     color: white;
     -unity-font-style: bold;
-    min-width: 40px;
+    min-width: 52px;
     -unity-text-align: middle-center;
 }
 
 /* 재화 + 버튼 */
 .currency-plus {
-    width: 20px;
-    height: 20px;
-    border-radius: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
     background-color: rgba(255, 255, 255, 0.25);
     border-width: 0;
     color: white;
-    font-size: 14px;
+    font-size: 18px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     padding: 0;
@@ -131,19 +131,19 @@
 }
 
 .right-group > * {
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 6px;
+    margin-right: 6px;
 }
 
 /* 아이콘 버튼 (우편, 설정) */
 .icon-btn {
-    width: 46px;
-    height: 46px;
-    border-radius: 23px;
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
     background-color: rgba(255, 255, 255, 0.15);
     border-width: 0;
     color: white;
-    font-size: 20px;
+    font-size: 26px;
     -unity-text-align: middle-center;
 }
 
@@ -151,11 +151,11 @@
 
 .red-dot {
     position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
+    top: 3px;
+    right: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 7px;
     background-color: #ff3b30;
     display: none; /* 기본 숨김; 코드에서 필요 시 flex 로 변경 */
 }
@@ -164,26 +164,26 @@
 
 .right-quickmenu {
     position: absolute;
-    right: 12px;
-    top: 100px;
+    right: 18px;
+    top: 120px;
     flex-direction: column;
     align-items: flex-end;
 }
 
 .right-quickmenu > * {
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin-top: 6px;
+    margin-bottom: 6px;
 }
 
 .quick-btn {
-    width: 64px;
-    height: 64px;
-    border-radius: 12px;
+    width: 88px;
+    height: 88px;
+    border-radius: 16px;
     background-color: rgba(20, 20, 40, 0.80);
     border-width: 1px;
     border-color: rgba(255, 255, 255, 0.2);
     color: white;
-    font-size: 12px;
+    font-size: 16px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     white-space: normal;
@@ -193,22 +193,22 @@
 
 .left-side {
     position: absolute;
-    left: 12px;
-    bottom: 110px;
+    left: 18px;
+    bottom: 130px;
     flex-direction: column;
     align-items: flex-start;
 }
 
 /* 방치 보상 원형 버튼 */
 .idle-reward-btn {
-    width: 70px;
-    height: 70px;
-    border-radius: 35px;
+    width: 94px;
+    height: 94px;
+    border-radius: 47px;
     background-color: rgba(240, 160, 20, 0.90);
     border-width: 3px;
     border-color: #ffd700;
     color: white;
-    font-size: 13px;
+    font-size: 18px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
@@ -220,12 +220,12 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 90px;
+    height: 100px;
     flex-direction: row;
     align-items: stretch;
     justify-content: space-around;
     background-color: rgba(10, 10, 20, 0.90);
-    padding: 0 4px;
+    padding: 0 8px;
     border-top-width: 1px;
     border-top-color: rgba(255, 255, 255, 0.12);
 }
@@ -237,14 +237,14 @@
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     color: rgba(200, 200, 200, 0.80);
-    font-size: 13px;
+    font-size: 17px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    margin: 6px 2px;
+    margin: 8px 4px;
 }
 
 .nav-btn:hover {
     color: white;
     background-color: rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+    border-radius: 10px;
 }
