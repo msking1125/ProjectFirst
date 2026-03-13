@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Project/Scenes/Lobby.unity
     guid: ba062877cc832aa46877ca2365d1f73e
   - enabled: 1
+    path: Assets/Project/Scenes/MapChapter.unity
+    guid: 5883d94921f77ff4bb60877b05a2306c
+  - enabled: 1
     path: Assets/Project/Scenes/BattleReady.unity
     guid: 03e21d2f9d5895d41a78c62bafe979a0
   - enabled: 1

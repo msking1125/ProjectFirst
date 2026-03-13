@@ -31,6 +31,11 @@ namespace Project
         [Header("Player Data")]
         [SerializeField] private PlayerData playerData;
 
+        [Header("Player Spawn")]
+        [Tooltip("체크 시 전투 시작 시 플레이어 위치를 아래 값으로 고정 (캐릭터가 안 보일 때 사용)")]
+        [SerializeField] private bool overridePlayerSpawnPosition;
+        [SerializeField] private Vector3 playerSpawnPosition = new Vector3(0f, 0f, 0f);
+
         [Range(0f, 1f)]
         [SerializeField] private float defeatGoldRatio = 0f;
 
@@ -158,6 +163,9 @@ namespace Project
 #endif
         }
 
+        if (overridePlayerSpawnPosition && playerAgent != null)
+            playerAgent.transform.position = playerSpawnPosition;
+
         CachePlayerAnimator();
         skillSystem = new SkillSystem(skillTable, playerAgent);
         SetupCharUltimate();
@@ -187,7 +195,7 @@ namespace Project
 
         if (row.expReward == 0 && row.goldReward == 0 && !hasLoggedZeroRewardWarning)
         {
-            Debug.LogWarning("[Log] 경고가 발생했습니다.");
+            Debug.LogWarning("[Log] 寃쎄퀬媛 諛쒖깮?덉뒿?덈떎.");
             hasLoggedZeroRewardWarning = true;
         }
 
@@ -262,7 +270,7 @@ namespace Project
     {
         if (playerData == null || runSession == null)
         {
-            Debug.LogWarning("[Log] 경고가 발생했습니다.");
+            Debug.LogWarning("[Log] 寃쎄퀬媛 諛쒖깮?덉뒿?덈떎.");
             return;
         }
 
@@ -276,7 +284,7 @@ namespace Project
         if (grantedGold <= 0) return;
 
         playerData.AddGold(grantedGold);
-        Debug.Log("[Log] 상태가 갱신되었습니다.");
+        Debug.Log("[Log] ?곹깭媛 媛깆떊?섏뿀?듬땲??");
     }
 
     private void ShowResultDelayed()
@@ -316,7 +324,7 @@ namespace Project
         if (cachedPlayerAnimator != null)
         {
             AnimatorStateInfo si = cachedPlayerAnimator.GetCurrentAnimatorStateInfo(0);
-            inCinematic = si.IsName("Tabi_skill_action") || si.IsName("Tabi_skill");
+            inCinematic = si.IsTag("skill");
         }
 
         if (inCinematic == isCinematicActive) return;
@@ -326,9 +334,28 @@ namespace Project
 
     private void CachePlayerAnimator()
     {
-        cachedPlayerAnimator = playerAgent != null
-            ? playerAgent.GetComponentInChildren<Animator>(true)
-            : null;
+        cachedPlayerAnimator = null;
+        if (playerAgent == null)
+            return;
+
+        AgentAnimatorBridge bridge = playerAgent.GetComponentInChildren<AgentAnimatorBridge>(true);
+        if (bridge != null && bridge.CachedAnimator != null)
+        {
+            cachedPlayerAnimator = bridge.CachedAnimator;
+            return;
+        }
+
+        Animator[] animators = playerAgent.GetComponentsInChildren<Animator>(true);
+        foreach (Animator candidate in animators)
+        {
+            if (candidate != null && candidate.runtimeAnimatorController != null)
+            {
+                cachedPlayerAnimator = candidate;
+                return;
+            }
+        }
+
+        cachedPlayerAnimator = animators.Length > 0 ? animators[0] : null;
     }
 
     private static BattleGameManager ResolveInstanceFromScene()
@@ -419,6 +446,7 @@ namespace Project
         if (charUltimateController == null) return;
 
         charUltimateController.Setup(playerAgent?.AgentData, skillTable);
+        charUltimateController.OnUltimateRequested -= CastCharacterUltimate;
         charUltimateController.OnUltimateRequested += CastCharacterUltimate;
     }
 
@@ -431,7 +459,7 @@ namespace Project
         skillSystem.CastDirect(skill, vfxOverride);
 
         charUltimateController.StartCooldown();
-        Debug.Log("[Log] 상태가 갱신되었습니다.");
+        Debug.Log("[Log] ?곹깭媛 媛깆떊?섏뿀?듬땲??");
     }
 
     private void RefreshStatusUI()
@@ -446,7 +474,7 @@ namespace Project
             return;
         }
 
-        Debug.LogWarning("[Log] 경고가 발생했습니다.");
+        Debug.LogWarning("[Log] 寃쎄퀬媛 諛쒖깮?덉뒿?덈떎.");
     }
 
     private void EnsureResultPanelManager()
@@ -577,4 +605,6 @@ namespace Project
     }
 }
 } // namespace Project
+
+
 
