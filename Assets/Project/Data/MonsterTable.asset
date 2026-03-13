@@ -12,4 +12,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 837c5556a6104ec9870ff727a222eee2, type: 3}
   m_Name: MonsterTable
   m_EditorClassIdentifier: 
-  rows: []
+  rows:
+  - id: 1
+    name: Slime
+    grade: 0
+    stats:
+      hp: 20
+      atk: 8
+      def: 2
+      critChance: 0.1
+      critMultiplier: 1.5
+    element: 1
+    moveSpeed: 2
+    expReward: 5
+    goldReward: 10
+    prefab: {fileID: 1996877023500070189, guid: 554e914b023986b44be1e734ace93455,
+      type: 3}
+  - id: 2
+    name: Elite
+    grade: 1
+    stats:
+      hp: 20
+      atk: 8
+      def: 2
+      critChance: 0.1
+      critMultiplier: 1.4
+    element: 0
+    moveSpeed: 3
+    expReward: 12
+    goldReward: 25
+    prefab: {fileID: 6013794693491469871, guid: a048048d66842724d955499162031057,
+      type: 3}
+  - id: 3
+    name: Boss
+    grade: 2
+    stats:
+      hp: 20
+      atk: 10
+      def: 3
+      critChance: 0.2
+      critMultiplier: 1.6
+    element: 2
+    moveSpeed: 4
+    expReward: 30
+    goldReward: 100
+    prefab: {fileID: 654030787582168236, guid: e3c9d1cd262ba0d4791003605013ec69, type: 3}

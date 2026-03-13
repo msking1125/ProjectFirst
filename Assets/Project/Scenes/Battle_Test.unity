@@ -432,7 +432,7 @@ MonoBehaviour:
   resultPanel: {fileID: 1145678718}
   resultPanelManager: {fileID: 1145678719}
   titleSceneName: Title
-  runSession: {fileID: 0}
+  runSession: {fileID: 11400000, guid: 571afc60a9327854d89542128040667e, type: 2}
 --- !u!4 &110781536
 Transform:
   m_ObjectHideFlags: 0
@@ -1357,7 +1357,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 1000
-  field of view: 45
+  field of view: 60.000004
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -1383,8 +1383,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.24497323, y: -0.52019656, z: 0.15869418, w: 0.80262065}
-  m_LocalPosition: {x: 3.9029999, y: 2.7789998, z: -1.2679999}
+  m_LocalRotation: {x: 0.20537558, y: 0.67662466, z: -0.2053756, w: 0.67662466}
+  m_LocalPosition: {x: -0.88, y: 6.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7721,6 +7721,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -5.093597
+      objectReference: {fileID: 0}
+    - target: {fileID: 413174048551386807, guid: 76c4a43c42db13d4eb2bed8739c682dc,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 579097031803977193, guid: 76c4a43c42db13d4eb2bed8739c682dc,
         type: 3}

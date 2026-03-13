@@ -199,6 +199,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8385815404522066292}
   - component: {fileID: 62543675030475646}
+  - component: {fileID: 5449583997939656331}
   m_Layer: 0
   m_Name: Aria_prefab
   m_TagString: Untagged
@@ -258,6 +259,32 @@ PlayableDirector:
     m_References:
     - 90efbcdf6535b494c8f3e850228a2fd0: {fileID: 4874374232327322188}
     - 7e8e1abb76d5285429ad6e64adce5c3c: {fileID: 4874374232327322188}
+--- !u!114 &5449583997939656331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6515865335917201409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff32609351ebe848a91e53c556b5468, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentId: 3
+  agentData: {fileID: 11400000, guid: 2434e53110b927e4baf149bba5a322d5, type: 2}
+  agentTable: {fileID: 11400000, guid: b6f14f364efe9c94687f0e1480c0bd2f, type: 2}
+  agentStatsTable: {fileID: 11400000, guid: 64efefee72ed4c8b8b69955242052912, type: 2}
+  range: 10
+  attackRate: 1
+  modelRotationOffset: {x: 0, y: 0, z: 0}
+  stats:
+    hp: 0
+    atk: 0
+    def: 0
+    critChance: 0
+    critMultiplier: 0
+  element: 2
 --- !u!1001 &4993916443893600918
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2678,11 +2705,11 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   searchRange: 10
   forwardOffset: 0.5
-  railgunPrefab: {fileID: 0}
-  launchSpeed: 30
-  normalRotationOffset: {x: 0, y: 90, z: 0}
-  normalDestroyTime: 2
-  skillPrefab: {fileID: 0}
-  skillLaunchSpeed: 30
-  skillRotationOffset: {x: 90, y: 0, z: 0}
-  skillDestroyTime: 3
+  normalAttackPrefab: {fileID: 0}
+  normalAttackSpeed: 30
+  normalAttackRotationOffset: {x: 0, y: 90, z: 0}
+  normalAttackDestroyTime: 2
+  skillAttackPrefab: {fileID: 0}
+  skillAttackSpeed: 30
+  skillAttackRotationOffset: {x: 90, y: 0, z: 0}
+  skillAttackDestroyTime: 3

@@ -12,4 +12,117 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f62baeceae02e5a4086af06ca21f1fb5, type: 3}
   m_Name: SkillTable
   m_EditorClassIdentifier: 
-  _rows: []
+  _rows:
+  - id: 101
+    name: Fire Burst
+    element: -1
+    coefficient: 1.2
+    cooldown: 4
+    range: 9999
+    description: "\uD654\uC5FC \uD3ED\uBC1C\uB85C \uBAA8\uB4E0 \uC801\uC5D0\uAC8C
+      \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: fa379ff0a881c7249b506d661dbf432a, type: 3}
+    castVfxPrefab: {fileID: 6780458973925837575, guid: f16a4d0c0a4cc4648af0ff5ab7cb7a3c,
+      type: 3}
+    effectType: 0
+    singleTargetBonus: 2
+    buffStat: 0
+    buffMultiplier: 0.3
+    buffDuration: 10
+    debuffType: 0
+    debuffValue: 0.5
+    debuffDuration: 5
+  - id: 102
+    name: Mind Wave
+    element: 0
+    coefficient: 1.35
+    cooldown: 5
+    range: 9999
+    description: "\uC815\uC2E0 \uD30C\uB3D9\uC73C\uB85C \uC801\uC758 \uBC29\uC5B4\uB97C
+      \uC57D\uD654\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 951382f35fe793246912c2b586eefe7a, type: 3}
+    castVfxPrefab: {fileID: 6780458973925837575, guid: f16a4d0c0a4cc4648af0ff5ab7cb7a3c,
+      type: 3}
+    effectType: 3
+    singleTargetBonus: 2
+    buffStat: 0
+    buffMultiplier: 0.3
+    buffDuration: 10
+    debuffType: 2
+    debuffValue: 0.4
+    debuffDuration: 6
+  - id: 103
+    name: Reason Break
+    element: 1
+    coefficient: 1.5
+    cooldown: 6
+    range: 9999
+    description: "\uC774\uC131\uC758 \uD798\uC73C\uB85C \uB2E8\uC77C \uC801\uC744
+      \uAC15\uD0C0\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 0d7155183934e2640b81abb8e31684ef, type: 3}
+    castVfxPrefab: {fileID: 6780458973925837575, guid: f16a4d0c0a4cc4648af0ff5ab7cb7a3c,
+      type: 3}
+    effectType: 1
+    singleTargetBonus: 2.5
+    buffStat: 0
+    buffMultiplier: 0.3
+    buffDuration: 10
+    debuffType: 0
+    debuffValue: 0.5
+    debuffDuration: 5
+  - id: 104
+    name: Inferno
+    element: -1
+    coefficient: 1.8
+    cooldown: 8
+    range: 9999
+    description: "\uBD88\uAF43 \uD3ED\uD48D\uC73C\uB85C \uC804\uC7A5\uC744 \uD0DC\uC6C1\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 29dbf47fb8090b34388f5d367bb7eb2b, type: 3}
+    castVfxPrefab: {fileID: 6780458973925837575, guid: f16a4d0c0a4cc4648af0ff5ab7cb7a3c,
+      type: 3}
+    effectType: 0
+    singleTargetBonus: 2
+    buffStat: 0
+    buffMultiplier: 0.3
+    buffDuration: 10
+    debuffType: 0
+    debuffValue: 0.5
+    debuffDuration: 5
+  - id: 105
+    name: Flash Insight
+    element: 0
+    coefficient: 1.6
+    cooldown: 7
+    range: 9999
+    description: "\uBC88\uB729\uC774\uB294 \uD1B5\uCC30\uB85C \uC544\uAD70 \uACF5\uACA9\uB825\uC744
+      \uAC15\uD654\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 9e7b775134ed8204b9fb1f2b1f9a0995, type: 3}
+    castVfxPrefab: {fileID: 6780458973925837575, guid: f16a4d0c0a4cc4648af0ff5ab7cb7a3c,
+      type: 3}
+    effectType: 2
+    singleTargetBonus: 2
+    buffStat: 0
+    buffMultiplier: 0.5
+    buffDuration: 8
+    debuffType: 0
+    debuffValue: 0.5
+    debuffDuration: 5
+  - id: 106
+    name: Logic Storm
+    element: 1
+    coefficient: 1.7
+    cooldown: 7.5
+    range: 9999
+    description: "\uB17C\uB9AC\uC758 \uD3ED\uD48D\uC73C\uB85C \uC801 \uC804\uCCB4\uB97C
+      \uC555\uBC15\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 72cabfca16680bd4ab1b805ad65376ca, type: 3}
+    castVfxPrefab: {fileID: 6780458973925837575, guid: f16a4d0c0a4cc4648af0ff5ab7cb7a3c,
+      type: 3}
+    effectType: 3
+    singleTargetBonus: 2
+    buffStat: 0
+    buffMultiplier: 0.3
+    buffDuration: 10
+    debuffType: 0
+    debuffValue: 0.5
+    debuffDuration: 8

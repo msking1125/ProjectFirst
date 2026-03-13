@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1137305049, guid: a4865f1ab4504ed8a368670db22f409c, type: 3}
-  m_Name: InspectorConfig
+  m_Script: {fileID: 11500000, guid: 11d661fad9b91024eac5aecd944d3d3c, type: 3}
+  m_Name: RunSession
   m_EditorClassIdentifier: 
-  enableOdinInInspector: 1
-  defaultEditorBehaviour: 15
-  processMouseMoveInInspector: 1
-  drawingConfig:
-    configs: []
+  selectedAgentIds: 
+  currentStageId: 0
+  currentChapterId: 0
+  battleElapsedTime: 0
+  waveKillCount: 0

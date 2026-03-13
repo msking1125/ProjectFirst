@@ -456,12 +456,15 @@ namespace ProjectFirst.InGame
         private void RefreshBattleStartBtn()
         {
             if (_battleStartBtn == null) return;
-            _battleStartBtn.SetEnabled(_partySlots.Any(id => id >= 0));
+            // 임시 프로토타입: 파티 구성원이 없어도 항상 버튼 활성화
+            _battleStartBtn.SetEnabled(true);
         }
 
         /// <summary>Consumes stamina, stores the RunSession, and loads the in-game scene.</summary>
         private void OnBattleStartClicked()
         {
+            // [임시 프로토타입 처리를 위해 검증 로직 모두 생략]
+            /*
             if (_partySlots.All(id => id < 0)) return;
 
             // 파티 유효성 검증
@@ -489,6 +492,7 @@ namespace ProjectFirst.InGame
                 Debug.LogWarning($"[BattleReadyManager] Not enough stamina. Required: {cost}, current: {_playerData.stamina}");
                 return;
             }
+            */
 
             if (_runSession != null)
             {

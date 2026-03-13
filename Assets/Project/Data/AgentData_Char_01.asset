@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AgentData_Char_01
   m_EditorClassIdentifier: 
   agentId: 1
-  displayName: "\uCE90\uB9AD\uD130A"
+  displayName: ARIA
   portrait: {fileID: 0}
   normalAttackVfxPrefab: {fileID: 364420392459023623, guid: 2c61a38ad876cae45898895726676429,
     type: 3}
