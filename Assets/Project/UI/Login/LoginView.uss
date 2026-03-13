@@ -92,7 +92,7 @@
     border-radius: 12px;
     padding-left: 16px;
     /* 한글 지원 폰트 적용 (Server 목록 포함) */
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 /* 서버 드롭다운 팝업 리스트 아이템 크기 및 폰트 확대 */
@@ -104,7 +104,7 @@
 
 #DropdownServer .unity-list-view__item > .unity-label,
 .unity-list-view__item > .unity-label {
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
     font-size: 30px;
     color: white;
 }

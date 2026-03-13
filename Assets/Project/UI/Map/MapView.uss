@@ -1,5 +1,11 @@
 /* MapChapter UI Styles */
 
+/* 한글 폰트 — 맵 챕터 전체 라벨/버튼 */
+.unity-label,
+.unity-button {
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
+}
+
 .full-screen {
     position: absolute;
     top: 0;
