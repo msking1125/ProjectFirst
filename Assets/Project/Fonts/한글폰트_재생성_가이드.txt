@@ -1,40 +1,94 @@
-■ 한글 일부만 보이고 나머지가 □로 나오는 현상
-  원인: HeirofLightBold SDF_2 에셋에 한글 글리프가 일부만 포함되어 있음.
-  (뒤, 로, 보, 상, 미, 기 등은 포함, 시·나·리·오·진·행·편·투·자·동·성 등은 미포함)
+================================================================
+UI Toolkit 한글 폰트 완전 가이드 (최종 수정)
+================================================================
 
-■ 빌드 후 MissingReferenceException (Texture2D has been destroyed)
-  원인: USS에서 .ttf (Font)를 -unity-font-definition으로 참조하면, 런타임에 TextCore가
-  내부 아틀라스(Texture2D)를 생성했다가 씬 전환/언로드 시 파괴되는데, UI가 계속 참조하여 발생.
-  대응: USS에서 .ttf 참조를 제거해 두었음. 한글+커스텀 폰트를 쓰려면 아래 TextCore Font Asset 방식을 사용.
+■ 핵심 원칙
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+UI Toolkit USS의 -unity-font-definition 은 두 가지 타입만 지원합니다.
 
-■ UI Toolkit에서 한글 + 커스텀 폰트 안정 사용 (권장)
+  ✅ UnityEngine.Font               → 레거시 .ttf  (직접 사용 시 Texture2D 오류 발생 가능)
+  ✅ UnityEngine.TextCore.Text.FontAsset → TextCore 전용  ← 이것을 사용해야 합니다
+  ❌ TMPro.TMP_FontAsset            → 빌드에서 무시됨 ("Unsupported type" 경고)
 
-1. Unity 메뉴: Create > Text > Font Asset
-   (또는 Window > TextMesh Pro > Font Asset Creator 에서 생성 후
-    해당 에셋을 TextCore용으로 사용 가능한지 프로젝트 Unity 버전에 따라 확인)
+프로젝트 내 파일 상태:
+  - HeirofLightBold SDF.asset   → TMP_FontAsset (❌ 빌드에서 한글 표시 안 됨)
+  - HeirofLightBold SDF_2.asset → TextCore FontAsset (✅ 올바른 타입, 현재 USS에서 사용 중)
 
-2. Font Asset 생성 시
-   - Source Font: Assets/TextMesh Pro/Fonts/HeirofLightBold.ttf
-   - Character Set: Unicode Range (Hex) → 20-7E,AC00-D7A3 (ASCII + 한글)
-   - Atlas Resolution: 2048×2048 이상 권장
 
-3. 저장 위치: Assets/Project/Resources/Fonts/ (Resources 폴더에 두면 빌드에 포함·유지됨)
-   예: HeirofLightBoldUITK.asset
+■ 현재 구현 방식
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+모든 USS 파일: -unity-font-definition → HeirofLightBold SDF_2.asset (TextCore, 동적 아틀라스)
 
-4. USS에 적용
-   - 각 화면 USS 상단에 추가:
-     .unity-label, .unity-button, .unity-toggle {
-       -unity-font-definition: url("project://database/Assets/Project/Resources/Fonts/HeirofLightBoldUITK.asset");
-     }
-   - 또는 Panel Settings (TitlePanelSettings 등)의 Text Settings에서 기본 폰트로 지정
+UIFontManager.cs (Assets/Project/Scripts/UI/UIFontManager.cs):
+  - DontDestroyOnLoad 싱글톤으로 폰트 에셋을 계속 메모리에 유지
+  - 씬 로드 시 한글 음절(AC00-D7A3) 전체를 미리 아틀라스에 추가(PreWarm)
+  - 이로써 첫 프레임 글리프 누락 방지
 
-5. TMP SDF 에셋(HeirofLightBold SDF.asset)은 UI Toolkit에서 "Unsupported type TMP_FontAsset" 경고가 나오므로
-   UI Toolkit용에는 반드시 TextCore Font Asset을 새로 만들어 사용.
 
-■ TMP(게임 내 3D/UGUI 텍스트)용 한글 폰트 재생성
+■ 현재 SDF_2.asset 의 제한
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  - 아틀라스: 1024 x 1024 (작음)
+  - 모드: Dynamic (런타임에 새 글자 추가)
+  - 한글 11,172자를 이 크기에 모두 담을 수 없음
+  - TextCore가 Overflow 아틀라스를 자동 생성하지만 메모리/속도 비용 발생
 
-1. Window > TextMesh Pro > Font Asset Creator
-2. Source Font File: HeirofLightBold.ttf
-3. Character Set: Unicode Range (Hex) → 20-7E,AC00-D7A3
-4. Atlas Resolution: 2048×2048 또는 4096×4096
-5. Generate Font Atlas 후 기존 HeirofLightBold SDF / SDF_2 덮어쓰기
+  → 빌드 안정성을 위해 아래 "폰트 재생성 절차"를 꼭 수행하세요.
+
+
+■ 폰트 재생성 절차 (에디터에서 한 번만 수행)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+목표: SDF_2.asset을 한글 전체 포함 Static 아틀라스로 교체
+
+방법 A — 기존 SDF_2.asset을 직접 업데이트 (권장)
+---------------------------------------------------
+1. Project 뷰에서 Assets/Project/Fonts/HeirofLightBold SDF_2.asset 선택
+2. Inspector 하단 "Update Atlas Texture" 또는 이 에셋을 더블클릭
+3. 나타나는 Font Asset Creator에서:
+     Source Font File : HeirofLightBold.ttf (확인)
+     Atlas Resolution : Width 4096 / Height 4096
+     Character Set    : Unicode Range (Hex)
+     Character Sequence: 0020-00FF,AC00-D7A3,1100-11FF,3130-318F
+     Render Mode      : SDF32
+     Atlas Population Mode: Static
+4. "Generate Font Atlas" 클릭 → 완료 후 "Save" 클릭
+
+방법 B — 새 TextCore Font Asset 생성
+---------------------------------------
+1. Project 뷰에서 우클릭 → Create > Text > Font Asset
+2. Source Font File에 HeirofLightBold.ttf 연결
+3. Inspector에서 위와 동일 설정 후 Generate
+4. 저장 이름: HeirofLightBold SDF_2.asset (기존 파일 덮어쓰기 또는 교체)
+
+! 주의: "Window > TextMeshPro > Font Asset Creator" 는 TMP_FontAsset을 생성합니다.
+  UI Toolkit에서는 이 방법을 사용하지 마세요.
+  반드시 "Create > Text > Font Asset" 메뉴를 사용하세요.
+
+
+■ UIFontManager 사용법
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. 씬 Hierarchy에서 빈 GameObject 생성 → 이름: "UIFontManager"
+2. UIFontManager 컴포넌트 추가
+3. Korean Font Asset 필드에 HeirofLightBold SDF_2.asset 할당
+4. Pre Warm On Scene Load: ✅ 체크 (권장)
+
+  * 최소 1개 씬(예: Title 씬)에 있으면 됩니다.
+    DontDestroyOnLoad이므로 이후 모든 씬에서 자동으로 동작합니다.
+
+
+■ 과거 오류 요약
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MissingReferenceException: Texture2D has been destroyed
+  → 원인: USS에서 .ttf 직접 참조 시 TextCore가 임시 아틀라스를 생성하고
+           씬 전환 시 이를 파괴함
+  → 해결: .ttf 직접 참조 금지. FontAsset(.asset)만 참조할 것.
+
+Unknown property 'row-gap' / 'column-gap' / 'gap'
+  → 원인: USS는 이 CSS 속성을 지원하지 않음
+  → 해결: margin 으로 대체 (ResultView.uss, ResultPopup.uss에서 이미 수정됨)
+
+Unsupported type TMP_FontAsset
+  → 원인: TMP_FontAsset을 -unity-font-definition에 사용
+  → 해결: 모든 USS를 SDF_2.asset (TextCore) 으로 변경 완료
+
+
+================================================================

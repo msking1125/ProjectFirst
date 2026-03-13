@@ -1,8 +1,8 @@
-/* 한글 폰트 — 대화 */
+﻿/* ?쒓? ?고듃 ?????*/
 .unity-label,
 .unity-button,
 .unity-toggle {
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 .dialogue-root {
@@ -11,7 +11,7 @@
     position: relative;
 }
 
-/* 배경 이미지 */
+/* 諛곌꼍 ?대?吏 */
 .bg-image {
     position: absolute;
     left: 0;
@@ -22,7 +22,7 @@
     background-position: center;
 }
 
-/* 캐릭터 공통 */
+/* 罹먮┃??怨듯넻 */
 .character {
     position: absolute;
     bottom: 15%;
@@ -46,7 +46,7 @@
     translate: -50% 0;
 }
 
-/* 나레이션 박스 (중앙 수평 바) */
+/* ?섎젅?댁뀡 諛뺤뒪 (以묒븰 ?섑룊 諛? */
 .narration-box {
     position: absolute;
     top: 40%;
@@ -66,7 +66,7 @@
     -unity-text-align: middle-center;
 }
 
-/* 대사 박스 (하단) */
+/* ???諛뺤뒪 (?섎떒) */
 .dialogue-box {
     position: absolute;
     bottom: 0;
@@ -93,7 +93,7 @@
     flex-grow: 1;
 }
 
-/* 선택지 패널 */
+/* ?좏깮吏 ?⑤꼸 */
 .choice-panel {
     position: absolute;
     top: 35%;
@@ -121,7 +121,7 @@
     border-color: rgba(200, 200, 255, 0.8);
 }
 
-/* 컨트롤 버튼 (우상단) */
+/* 而⑦듃濡?踰꾪듉 (?곗긽?? */
 .control-row {
     position: absolute;
     top: 16px;
@@ -153,7 +153,7 @@
     border-color: rgba(100, 200, 100, 0.6);
 }
 
-/* 다음 화살표 (우하단) */
+/* ?ㅼ쓬 ?붿궡??(?고븯?? */
 .next-arrow {
     position: absolute;
     bottom: 4%;
@@ -169,7 +169,7 @@
     color: #ffffff;
 }
 
-/* 스킵 확인 팝업 */
+/* ?ㅽ궢 ?뺤씤 ?앹뾽 */
 .confirm-popup {
     position: absolute;
     left: 0;

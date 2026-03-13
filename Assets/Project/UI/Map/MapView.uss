@@ -1,10 +1,10 @@
-/* MapChapter UI Styles */
+﻿/* MapChapter UI Styles */
 
-/* 한글 폰트 — 맵 챕터 */
+/* ?쒓? ?고듃 ??留?梨뺥꽣 */
 .unity-label,
 .unity-button,
 .unity-toggle {
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 .full-screen {

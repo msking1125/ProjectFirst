@@ -1,16 +1,16 @@
-/* =====================================================================
-   MailboxView.uss - 메일함 화면 스타일시트
-   이 파일은 다른 화면 (SettingView.uss / LobbyView.uss 등)과 연관됨
+﻿/* =====================================================================
+   MailboxView.uss - 硫붿씪???붾㈃ ?ㅽ??쇱떆??
+   ???뚯씪? ?ㅻⅨ ?붾㈃ (SettingView.uss / LobbyView.uss ??怨??곌???
    ===================================================================== */
 
-/* 한글 폰트 — 메일함 */
+/* ?쒓? ?고듃 ??硫붿씪??*/
 .unity-label,
 .unity-button,
 .unity-toggle {
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
-/* 메일함 패널 영역 (배경 등) 관련 스타일 */
+/* 硫붿씪???⑤꼸 ?곸뿭 (諛곌꼍 ?? 愿???ㅽ???*/
 
 .mailbox-panel {
     position: absolute;
@@ -22,7 +22,7 @@
     flex-direction: column;
 }
 
-/* 상단 헤더 영역 스타일 */
+/* ?곷떒 ?ㅻ뜑 ?곸뿭 ?ㅽ???*/
 
 .panel-header {
     flex-direction: row;
@@ -55,7 +55,7 @@
     color: rgb(240, 240, 240);
 }
 
-/* 탭(받은편지함/공지 등) 영역 스타일 */
+/* ??諛쏆??몄???怨듭? ?? ?곸뿭 ?ㅽ???*/
 
 .tab-row {
     flex-direction: row;
@@ -87,7 +87,7 @@
     border-bottom-color: rgb(255, 218, 90);
 }
 
-/* 미수령 뱃지 */
+/* 誘몄닔??諭껋? */
 .unclaimed-badge {
     position: absolute;
     top: 4px;
@@ -103,14 +103,14 @@
     padding: 0 4px;
 }
 
-/* 편지 리스트 영역 (좌측 스크롤 영역) */
+/* ?몄? 由ъ뒪???곸뿭 (醫뚯륫 ?ㅽ겕濡??곸뿭) */
 
 .mail-list {
     flex: 1;
     padding: 4px 12px;
 }
 
-/* 편지 카드 아이템 스타일 */
+/* ?몄? 移대뱶 ?꾩씠???ㅽ???*/
 
 .mail-card {
     flex-direction: row;
@@ -129,7 +129,7 @@
     border-color: rgba(255, 218, 90, 0.20);
 }
 
-/* 아이템 아이콘 스타일 */
+/* ?꾩씠???꾩씠肄??ㅽ???*/
 .item-icon {
     width: 50px;
     height: 50px;
@@ -141,7 +141,7 @@
     background-position: center;
 }
 
-/* 편지 정보 영역 */
+/* ?몄? ?뺣낫 ?곸뿭 */
 .mail-info {
     flex: 1;
     flex-direction: column;
@@ -180,7 +180,7 @@
     -unity-font-style: bold;
 }
 
-/* 보상 미리보기 영역 */
+/* 蹂댁긽 誘몃━蹂닿린 ?곸뿭 */
 .reward-preview {
     flex-direction: row;
     align-items: center;
@@ -208,7 +208,7 @@
     margin-left: 2px;
 }
 
-/* 받기 버튼 */
+/* 諛쏄린 踰꾪듉 */
 .claim-btn {
     width: 56px;
     height: 32px;
@@ -238,7 +238,7 @@
     color: rgb(120, 120, 130);
 }
 
-/* 빈 편지함 뷰 스타일 */
+/* 鍮??몄???酉??ㅽ???*/
 
 .empty-state-view {
     flex: 1;
@@ -251,7 +251,7 @@
     color: rgb(120, 120, 140);
 }
 
-/* 상세 패널 (우측) */
+/* ?곸꽭 ?⑤꼸 (?곗륫) */
 
 .detail-panel {
     position: absolute;
@@ -341,7 +341,7 @@
     color: rgb(120, 120, 130);
 }
 
-/* 하단 액션 바 (전체받기, 읽은편지 삭제 등) */
+/* ?섎떒 ?≪뀡 諛?(?꾩껜諛쏄린, ?쎌??몄? ??젣 ?? */
 
 .bottom-action-bar {
     flex-direction: row;
@@ -383,7 +383,7 @@
     background-color: rgba(210, 55, 55, 0.40);
 }
 
-/* 보상 전체 보기 오버레이 및 카드 스타일 */
+/* 蹂댁긽 ?꾩껜 蹂닿린 ?ㅻ쾭?덉씠 諛?移대뱶 ?ㅽ???*/
 
 .reward-overlay {
     position: absolute;
@@ -422,7 +422,7 @@
     -unity-text-align: middle-center;
 }
 
-/* 보상 카드 (이미지 + 이름 + 수량) 스타일 */
+/* 蹂댁긽 移대뱶 (?대?吏 + ?대쫫 + ?섎웾) ?ㅽ???*/
 
 .reward-card {
     width: 90px;
@@ -458,7 +458,7 @@
     -unity-text-align: middle-center;
 }
 
-/* 확인 및 경고 대화상자 오버레이 스타일 */
+/* ?뺤씤 諛?寃쎄퀬 ??붿긽???ㅻ쾭?덉씠 ?ㅽ???*/
 
 .confirm-overlay {
     position: absolute;
