@@ -450,17 +450,24 @@ namespace Project
         charUltimateController.OnUltimateRequested += CastCharacterUltimate;
     }
 
-    private void CastCharacterUltimate(SkillRow skill)
-    {
-        if (skill == null || playerAgent == null) return;
-        EnemyManager em = EnemyManager.Instance;
-        if (em == null) return;
-        GameObject vfxOverride = playerAgent.AgentData?.characterSkillVfxPrefab;
-        skillSystem.CastDirect(skill, vfxOverride);
+        private void CastCharacterUltimate(SkillRow skill)
+        {
+            if (skill == null || playerAgent == null) return;
 
-        charUltimateController.StartCooldown();
-        Debug.Log("[Log] ?곹깭媛 媛깆떊?섏뿀?듬땲??");
-    }
+            EnemyManager em = EnemyManager.Instance;
+            if (em == null) return;
+
+            // 1) 궁극기 애니메이션/시네마틱 트리거
+            playerAgent.TriggerUltimateAnimation();
+
+            // 2) 실제 스킬 효과(데미지/VFX)는 기존 SkillSystem 로직 사용
+            GameObject vfxOverride = playerAgent.AgentData?.characterSkillVfxPrefab;
+            skillSystem.CastDirect(skill, vfxOverride);
+
+            // 3) 쿨타임 시작
+            charUltimateController.StartCooldown();
+            Debug.Log("[BattleGameManager] Character ultimate cast requested.");
+        }
 
     private void RefreshStatusUI()
     {
