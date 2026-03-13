@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using ProjectFirst.Data;
+using ProjectFirst.OutGame;
 namespace ProjectFirst.InGame
 {
     /// <summary>
@@ -17,13 +18,13 @@ namespace ProjectFirst.InGame
     public class BattleReadyManager : MonoBehaviour
     {
         // Constants
-        private const int MaxPartySize = 3;
+        private const int MaxPartySize = 4;
 
         // Inspector references
         [SerializeField] private UIDocument _uiDocument;
         [SerializeField] private PlayerData _playerData;
-        [SerializeField] private AgentTable _agentTable;
         [SerializeField] private StageData _stageData;
+        [SerializeField] private AgentTable _agentTable;
         [SerializeField] private RunSession _runSession;
         
         [Header("Enhanced Systems")]
@@ -92,9 +93,9 @@ namespace ProjectFirst.InGame
             if (_tooltipManager != null)
             {
                 var tooltipAgentTable = _tooltipManager.GetType().GetField("agentTable", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
                 var tooltipPlayerData = _tooltipManager.GetType().GetField("playerData", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
                 
                 if (tooltipAgentTable != null) tooltipAgentTable.SetValue(_tooltipManager, _agentTable);
                 if (tooltipPlayerData != null) tooltipPlayerData.SetValue(_tooltipManager, _playerData);
@@ -106,7 +107,7 @@ namespace ProjectFirst.InGame
                     System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
                 var validationStageData = _validationSystem.GetType().GetField("stageData", 
                     System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                var validationPlayerData = _validationSystem.GetType().GetField("playerData", 
+                var validationPlayerData = _validationSystem.GetType().GetField("playerData",
                     System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
                 
                 if (validationAgentTable != null) validationAgentTable.SetValue(_validationSystem, _agentTable);
@@ -123,7 +124,7 @@ namespace ProjectFirst.InGame
             int stageId = _runSession != null ? _runSession.currentStageId : 0;
             if (stageId > 0)
                 return _stageData.stages.FirstOrDefault(s => s.stageId == stageId);
-
+            
             if (_playerData == null) return null;
             return _stageData.GetByChapter(_playerData.currentChapter)
                              .FirstOrDefault(s => s.stageNumber == _playerData.currentStage);
@@ -308,7 +309,7 @@ namespace ProjectFirst.InGame
             foreach (int ownedId in _playerData.ownedCharacterIds)
             {
                 AgentInfo agentInfo = _agentTable.GetAgentInfo(ownedId);
-                AgentRow  agentRow  = _agentTable.GetById(ownedId);
+                AgentRow agentRow = _agentTable.GetById(ownedId);
                 if (agentInfo == null && agentRow == null) continue;
 
                 var card = new VisualElement();
@@ -549,8 +550,12 @@ namespace ProjectFirst.InGame
         }
         // Helpers
 
-        private static int GetAgentLevel(int agentId)
-            => PlayerPrefs.GetInt($"agent_lv_{agentId}", 1);
+        private int GetAgentLevel(int agentId)
+        {
+            if (_playerData != null)
+                return _playerData.GetCharacterLevel(agentId);
+            return PlayerPrefs.GetInt($"agent_lv_{agentId}", 1);
+        }
     }
 }
 

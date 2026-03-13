@@ -18,10 +18,8 @@ public static class SkillTableImporter
     private const string CsvPathUpper = "Assets/Project/Data/Skills.csv";
     private const string AssetPath = "Assets/Project/Data/SkillTable.asset";
 
-    // 아이콘 검색 우선 폴더 (없으면 프로젝트 전체 탐색)
     private const string IconFolder = "Assets/Project/UI/Icon";
-    // VFX 검색 우선 폴더 (없으면 프로젝트 전체 탐색)
-    private const string VfxFolder  = "Assets/Project/Prefabs/VFX";
+    private const string VfxFolder = "Assets/Project/Prefabs/VFX";
 
     private static readonly string[] RequiredColumns = { "id", "name", "element", "coefficient", "range" };
 
@@ -39,14 +37,13 @@ public static class SkillTableImporter
             return;
         }
 
-        SkillTable table = AssetDatabase.LoadAssetAtPath<SkillTable>(AssetPath)
-                           ?? CreateAsset();
+        SkillTable table = AssetDatabase.LoadAssetAtPath<SkillTable>(AssetPath) ?? CreateAsset();
 
         SerializedObject so = new SerializedObject(table);
-        SerializedProperty rowsProp = so.FindProperty("rows");
+        SerializedProperty rowsProp = so.FindProperty("_rows") ?? so.FindProperty("rows");
         if (rowsProp == null)
         {
-            Debug.LogError("[SkillTableImporter] SkillTable에 'rows' 필드가 없습니다.");
+            Debug.LogError("[SkillTableImporter] SkillTable에 '_rows' 또는 'rows' 필드가 없습니다.");
             return;
         }
         rowsProp.ClearArray();
@@ -85,15 +82,20 @@ public static class SkillTableImporter
         for (int i = 1; i < lines.Length; i++)
         {
             string line = lines[i];
-            if (string.IsNullOrWhiteSpace(line)) continue;
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
 
             string[] cols = CsvImportUtility.ParseRow(line, header.Length);
+            string rawId = GetCell(cols, idIdx);
+            if (!CsvImportUtility.TryParseFlexibleInt(rawId, out int id))
+            {
+                Debug.LogWarning($"[SkillTableImporter] id 파싱 실패로 행을 건너뜁니다: '{rawId}'");
+                continue;
+            }
 
             rowsProp.InsertArrayElementAtIndex(imported);
             SerializedProperty row = rowsProp.GetArrayElementAtIndex(imported);
 
-            if (!int.TryParse(GetCell(cols, idIdx), out int id))
-                continue;
             row.FindPropertyRelative("id").intValue = id;
             row.FindPropertyRelative("name").stringValue = GetCell(cols, nameIdx);
             row.FindPropertyRelative("coefficient").floatValue = Mathf.Max(0.1f, StrToFloat(GetCell(cols, coeffIdx), 1f));
@@ -161,10 +163,6 @@ public static class SkillTableImporter
         Debug.Log($"[SkillTableImporter] {imported}개 스킬 임포트 완료 → {AssetPath}");
     }
 
-    /// <summary>
-    /// 파일명(확장자 없음)으로 Sprite를 탐색합니다.
-    /// 우선 IconFolder 안에서 찾고, 없으면 프로젝트 전체에서 탐색합니다.
-    /// </summary>
     private static Sprite FindSprite(string assetName, string rowId)
     {
         if (string.IsNullOrWhiteSpace(assetName)) return null;
@@ -219,10 +217,6 @@ public static class SkillTableImporter
         return null;
     }
 
-    /// <summary>
-    /// 파일명(확장자 없음)으로 Prefab을 탐색합니다.
-    /// 우선 VfxFolder 안에서 찾고, 없으면 프로젝트 전체에서 탐색합니다.
-    /// </summary>
     private static GameObject FindPrefab(string assetName, string rowId)
     {
         if (string.IsNullOrWhiteSpace(assetName)) return null;

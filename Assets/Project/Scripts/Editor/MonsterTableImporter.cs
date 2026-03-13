@@ -6,12 +6,14 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using ProjectFirst.Data;
+
 public static class MonsterTableImporter
 {
     private const string CsvPathLower = "Assets/Project/Data/monsters.csv";
     private const string CsvPathUpper = "Assets/Project/Data/Monsters.csv";
     private const string AssetPath = "Assets/Project/Data/MonsterTable.asset";
     private const string PrefabDirectory = "Assets/Project/Prefabs/Enemy";
+
     private static readonly string[] RequiredColumns =
     {
         "id", "grade", "name", "hp", "atk", "def", "critChance", "critMultiplier", "moveSpeed", "element", "prefab"
@@ -19,7 +21,6 @@ public static class MonsterTableImporter
 
     public static void Import()
     {
-        // 파일명 대소문자 차이를 허용
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath, CsvPathLower, CsvPathUpper))
         {
             Debug.LogError($"[MonsterTableImporter] CSV를 찾을 수 없습니다: {CsvPathLower} (or {CsvPathUpper})");
@@ -75,21 +76,22 @@ public static class MonsterTableImporter
 
             string[] cols = CsvImportUtility.ParseRow(line, header.Length);
 
-            if (!int.TryParse(SafeGet(cols, idIdx), out int id))
+            string rawId = SafeGet(cols, idIdx);
+            if (!CsvImportUtility.TryParseFlexibleInt(rawId, out int id))
+            {
+                Debug.LogWarning($"[MonsterTableImporter] id 파싱 실패로 행을 건너뜁니다: '{rawId}'");
                 continue;
+            }
 
             string name = SafeGet(cols, nameIdx);
 
-            // critMultiplier는 숫자, 소수점, 음수 기호만 남기고 파싱
             float critMultiplierValue = 1f;
             string critMultiplierStr = SafeGet(cols, critMultiplierIdx);
             if (!string.IsNullOrEmpty(critMultiplierStr))
             {
                 string numericPart = new string(critMultiplierStr.Where(c => char.IsDigit(c) || c == '.' || c == '-').ToArray());
                 if (!float.TryParse(numericPart, NumberStyles.Float, CultureInfo.InvariantCulture, out critMultiplierValue) || critMultiplierValue < 1f)
-                {
                     critMultiplierValue = 1f;
-                }
             }
 
             MonsterRow row = new MonsterRow
@@ -136,7 +138,7 @@ public static class MonsterTableImporter
             }
             else
             {
-                Debug.LogWarning($"[MonsterTableImporter] id='{id}' grade='{gradeRaw}' 파싱 실패 → Normal로 대체");
+                Debug.LogWarning($"[MonsterTableImporter] id='{id}' element='{elementRaw}' 파싱 실패 → Reason으로 대체");
                 row.element = ElementType.Reason;
             }
 
@@ -150,9 +152,6 @@ public static class MonsterTableImporter
         Debug.Log($"[MonsterTableImporter] {table.rows.Count}개 몬스터 임포트 완료 → {AssetPath}");
     }
 
-    /// <summary>
-    /// 안전한 컬럼 접근 유틸입니다. 인덱스 오류 시 빈 문자열을 반환합니다.
-    /// </summary>
     private static string SafeGet(string[] cols, int index)
     {
         if (cols == null || index < 0 || index >= cols.Length)
@@ -170,20 +169,14 @@ public static class MonsterTableImporter
     private static int ParseOptionalReward(string[] cols, int index, string columnName, int monsterId)
     {
         if (index < 0)
-        {
             return 0;
-        }
 
         string raw = SafeGet(cols, index);
         if (string.IsNullOrWhiteSpace(raw))
-        {
             return 0;
-        }
 
         if (TryParseFloat(raw, out float value))
-        {
             return Mathf.Max(0, Mathf.RoundToInt(value));
-        }
 
         Debug.LogWarning($"[MonsterTableImporter] id='{monsterId}' {columnName}='{raw}' 파싱 실패 → 0으로 대체");
         return 0;
@@ -215,16 +208,9 @@ public static class MonsterTableImporter
         string prefabPath = $"{PrefabDirectory}/{prefabName}.prefab";
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
         if (prefab == null)
-        {
             Debug.LogWarning($"[MonsterTableImporter] id='{id}' 프리팹을 찾지 못했습니다: {prefabPath}");
-        }
 
         return prefab;
     }
 }
 #endif
-
-
-
-
-

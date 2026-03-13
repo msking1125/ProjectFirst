@@ -1,6 +1,6 @@
-/* 諛고? 以鍮??붾㈃ ?ㅽ???*/
+﻿/* 獄쏄퀬? 餓Β???遺얇늺 ?????*/
 
-/* 猷⑦듃 而⑦뀒?대꼫 */
+/* ?룐뫂???뚢뫂???瑗?*/
 .battle-ready-root {
     width: 100%;
     height: 100%;
@@ -8,7 +8,7 @@
     flex-direction: row;
 }
 
-/* ?쇱そ ?⑤꼸 (55%) */
+/* ??긱걹 ??ㅺ섯 (55%) */
 .br-left-panel {
     width: 55%;
     height: 100%;
@@ -19,7 +19,7 @@
     flex-direction: column;
 }
 
-/* ?ㅻⅨ履??⑤꼸 (45%) */
+/* ??삘뀲筌???ㅺ섯 (45%) */
 .br-right-panel {
     width: 45%;
     height: 100%;
@@ -30,7 +30,7 @@
     justify-content: space-between;
 }
 
-/* ?ㅻ줈媛湲?踰꾪듉 */
+/* ??살쨮揶쎛疫?甕곌쑵??*/
 .back-btn {
     width: 100px;
     height: 40px;
@@ -48,10 +48,9 @@
 
 .back-btn:hover {
     background-color: #ff6b6b;
-    scale: 1.05;
 }
 
-/* ?ㅽ뀒?댁? ?뺣낫 移대뱶 */
+/* ??쎈??? ?類ｋ궖 燁삳?諭?*/
 .stage-info-card {
     width: 100%;
     padding: 20px;
@@ -75,7 +74,7 @@
     margin-bottom: 15px;
 }
 
-/* 異붿쿇 ?꾪닾??*/
+/* ?곕뗄荑??袁る떮??*/
 .recommend-power-row {
     flex-direction: row;
     align-items: center;
@@ -102,7 +101,7 @@
     color: #ffd700;
 }
 
-/* ???띿꽦 */
+/* ????욧쉐 */
 .enemy-element-row {
     flex-direction: row;
     align-items: center;
@@ -126,7 +125,7 @@
 .element-intuition { background-color: #0f3460; }
 .element-reason { background-color: #533483; }
 
-/* ?뚰떚 ?꾪닾??*/
+/* ??곕뼒 ?袁る떮??*/
 .party-power-row {
     width: 100%;
     padding: 15px;
@@ -171,7 +170,7 @@
     color: #e94560;
 }
 
-/* ?뚰떚 ?щ’ */
+/* ??곕뼒 ????*/
 .party-slots {
     width: 100%;
     height: 150px;
@@ -190,12 +189,10 @@
     align-items: center;
     justify-content: center;
     cursor: link;
-    transition: all 0.2s ease;
 }
 
 .party-slot:hover {
     border-color: #4fbdba;
-    scale: 1.05;
 }
 
 .party-slot.slot-empty {
@@ -255,7 +252,7 @@
     background-color: #ff6b6b;
 }
 
-/* ?먮룞 ?몄꽦 踰꾪듉 */
+/* ?癒?짗 ?紐꾧쉐 甕곌쑵??*/
 .auto-party-btn {
     width: 100%;
     height: 50px;
@@ -269,15 +266,13 @@
     border-bottom-width: 0;
     border-left-width: 0;
     cursor: link;
-    transition: all 0.2s ease;
 }
 
 .auto-party-btn:hover {
     background-color: #6b4a9b;
-    scale: 1.02;
 }
 
-/* 蹂댁긽 ?뱀뀡 */
+/* 癰귣똻湲??諭??*/
 .reward-section {
     width: 100%;
     flex-direction: column;
@@ -327,7 +322,7 @@
     -unity-text-align: middle-center;
 }
 
-/* ?꾪닾 ?쒖옉 踰꾪듉 */
+/* ?袁る떮 ??뽰삂 甕곌쑵??*/
 .battle-start-btn {
     width: 200px;
     height: 80px;
@@ -341,12 +336,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
 }
 
 .battle-start-btn:hover {
     background-color: #6bd4e7;
-    scale: 1.05;
 }
 
 .battle-start-text {
@@ -361,7 +354,7 @@
     color: #b8b8b8;
 }
 
-/* ?뚰깢 踰꾪듉 */
+/* ??곌묄 甕곌쑵??*/
 .sweep-btn {
     width: 150px;
     height: 40px;
@@ -376,15 +369,13 @@
     border-left-width: 0;
     cursor: link;
     margin-top: 10px;
-    transition: all 0.2s ease;
 }
 
 .sweep-btn:hover {
     background-color: #ffed4e;
-    scale: 1.02;
 }
 
-/* 罹먮┃???좏깮 ?앹뾽 */
+/* 筌?Ŧ????醫뤾문 ??밸씜 */
 .char-select-popup {
     position: absolute;
     top: 0;
@@ -471,12 +462,10 @@
     justify-content: center;
     padding: 10px;
     cursor: link;
-    transition: all 0.2s ease;
 }
 
 .char-select-card:hover {
     border-color: #4fbdba;
-    scale: 1.05;
 }
 
 .char-select-card.char-select-disabled {
@@ -485,7 +474,6 @@
 }
 
 .char-select-card.char-select-disabled:hover {
-    scale: 1;
 }
 
 .char-select-thumb {
@@ -511,7 +499,7 @@
     -unity-text-align: middle-center;
 }
 
-/* 罹먮┃???댄똻 */
+/* 筌?Ŧ?????꾨샍 */
 .character-tooltip {
     width: 250px;
     padding: 15px;
@@ -615,5 +603,6 @@
     color: #b8b8b8;
     flex: 1;
 }
+
 
 

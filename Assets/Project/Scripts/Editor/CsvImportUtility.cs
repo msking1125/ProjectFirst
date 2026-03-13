@@ -3,6 +3,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -28,14 +29,14 @@ internal static class CsvImportUtility
     {
         return string.IsNullOrEmpty(headerLine)
             ? Array.Empty<string>()
-            : headerLine.Split(',').Select(h => h.Trim()).ToArray();
+            : ParseCsvRow(headerLine);
     }
 
     public static string[] ParseRow(string line, int minLength)
     {
         string[] cols = string.IsNullOrWhiteSpace(line)
             ? Array.Empty<string>()
-            : line.Split(',').Select(c => c.Trim()).ToArray();
+            : ParseCsvRow(line);
 
         if (minLength > 0 && cols.Length < minLength)
             Array.Resize(ref cols, minLength);
@@ -69,6 +70,21 @@ internal static class CsvImportUtility
         return cols[idx]?.Trim() ?? string.Empty;
     }
 
+    public static bool EnsureCsvExists(string csvPath, string sampleContent, string importerName)
+    {
+        if (string.IsNullOrWhiteSpace(csvPath) || File.Exists(csvPath))
+            return true;
+
+        string directory = Path.GetDirectoryName(csvPath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            Directory.CreateDirectory(directory);
+
+        File.WriteAllText(csvPath, sampleContent.Replace("\n", Environment.NewLine), new UTF8Encoding(true));
+        AssetDatabase.Refresh();
+        Debug.Log($"[{importerName}] CSV가 없어 샘플 파일을 생성했습니다: {csvPath}");
+        return true;
+    }
+
     public static float ParseFloat(string raw, float defaultValue = 0f)
     {
         if (string.IsNullOrWhiteSpace(raw))
@@ -95,6 +111,23 @@ internal static class CsvImportUtility
             return value;
 
         return defaultValue;
+    }
+
+    public static bool TryParseFlexibleInt(string raw, out int value)
+    {
+        raw = raw?.Trim() ?? string.Empty;
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+            return true;
+
+        string digits = new string(raw.Where(char.IsDigit).ToArray());
+        if (!string.IsNullOrEmpty(digits) &&
+            int.TryParse(digits, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        value = 0;
+        return false;
     }
 
     public static bool TryParseEnumInsensitive<TEnum>(string raw, out TEnum value) where TEnum : struct, Enum
@@ -129,6 +162,44 @@ internal static class CsvImportUtility
         asset = ScriptableObject.CreateInstance<T>();
         AssetDatabase.CreateAsset(asset, assetPath);
         return asset;
+    }
+
+    private static string[] ParseCsvRow(string line)
+    {
+        var cells = new System.Collections.Generic.List<string>();
+        var current = new StringBuilder();
+        bool inQuotes = false;
+
+        for (int i = 0; i < line.Length; i++)
+        {
+            char ch = line[i];
+            if (ch == '"')
+            {
+                if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
+                {
+                    current.Append('"');
+                    i++;
+                }
+                else
+                {
+                    inQuotes = !inQuotes;
+                }
+
+                continue;
+            }
+
+            if (ch == ',' && !inQuotes)
+            {
+                cells.Add(current.ToString().Trim());
+                current.Clear();
+                continue;
+            }
+
+            current.Append(ch);
+        }
+
+        cells.Add(current.ToString().Trim());
+        return cells.ToArray();
     }
 }
 #endif

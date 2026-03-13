@@ -3,6 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 using ProjectFirst.Data;
+
 /// <summary>
 /// 에이전트 CSV를 AgentTable과 관련 에셋에 반영합니다.
 /// </summary>
@@ -16,7 +17,7 @@ public static class AgentTableImporter
 
     private static readonly string[] RequiredColumns =
     {
-        "id", "name", "hp", "atk", "def", "critChance", "critMultiplier", "element", "portrait"
+        "id", "name", "hp", "atk", "def", "critChance", "critMultiplier", "element"
     };
 
     public static void Import()
@@ -58,8 +59,12 @@ public static class AgentTableImporter
                 continue;
 
             string[] cols = CsvImportUtility.ParseRow(lines[i], header.Length);
-            if (!int.TryParse(CsvImportUtility.GetCell(cols, idIdx), out int id))
+            string rawId = CsvImportUtility.GetCell(cols, idIdx);
+            if (!CsvImportUtility.TryParseFlexibleInt(rawId, out int id))
+            {
+                Debug.LogWarning($"[AgentTableImporter] id 파싱 실패로 행을 건너뜁니다: '{rawId}'");
                 continue;
+            }
 
             string portraitName = CsvImportUtility.GetCell(cols, portraitIdx);
             Sprite portraitSprite = ResolveSpriteByName(portraitName);
@@ -177,12 +182,5 @@ public static class AgentTableImporter
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(prefab);
     }
-
 }
 #endif
-
-
-
-
-
-

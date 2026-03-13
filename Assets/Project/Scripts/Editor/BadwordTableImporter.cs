@@ -4,18 +4,25 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 using ProjectFirst.Data;
+
 public static class BadwordTableImporter
 {
     private const string CsvPathProject = "Assets/Project/Data/badwords.csv";
     private const string CsvPathProjectUpper = "Assets/Project/Data/Badwords.csv";
     private const string LegacyCsvPathResources = "Assets/Resources/Data/badwords.csv";
     private const string LegacyCsvPathResourcesUpper = "Assets/Resources/Data/Badwords.csv";
-
     private const string AssetPath = "Assets/Project/Data/BadwordTable.asset";
+
+    private const string SampleCsv =
+        "word\n" +
+        "spam\n" +
+        "abuse\n" +
+        "testbadword\n";
 
     public static void Import()
     {
         TryMoveLegacyCsvToProjectData();
+        CsvImportUtility.EnsureCsvExists(CsvPathProject, SampleCsv, nameof(BadwordTableImporter));
 
         if (!CsvImportUtility.TryResolveCsvPath(out string csvPath,
                 CsvPathProject,
@@ -23,13 +30,13 @@ public static class BadwordTableImporter
                 LegacyCsvPathResources,
                 LegacyCsvPathResourcesUpper))
         {
-            Debug.LogError($"[BadwordTableImporter] CSV를 찾을 수 없거나 데이터 행이 없습니다.");
+            Debug.LogError("[BadwordTableImporter] CSV를 찾을 수 없거나 데이터 행이 없습니다.");
             return;
         }
 
         if (!CsvImportUtility.TryReadCsvLines(csvPath, out string[] lines))
         {
-            Debug.LogError($"[BadwordTableImporter] CSV를 찾을 수 없거나 데이터 행이 없습니다.");
+            Debug.LogError("[BadwordTableImporter] CSV를 찾을 수 없거나 데이터 행이 없습니다.");
             return;
         }
 
@@ -38,10 +45,7 @@ public static class BadwordTableImporter
         string[] header = CsvImportUtility.ParseHeader(lines[0]);
         int wordIdx = CsvImportUtility.FindColumn(header, "word");
         if (wordIdx < 0)
-        {
-            // 헤더가 없으면 첫 번째 컬럼을 금칙어 컬럼으로 간주
             wordIdx = 0;
-        }
 
         HashSet<string> uniqueWords = new(System.StringComparer.OrdinalIgnoreCase);
 
@@ -63,6 +67,7 @@ public static class BadwordTableImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
+        Debug.Log($"[BadwordTableImporter] {uniqueWords.Count}개 금칙어 임포트 완료 → {AssetPath}");
     }
 
     private static void TryMoveLegacyCsvToProjectData()
@@ -96,6 +101,3 @@ public static class BadwordTableImporter
     }
 }
 #endif
-
-
-

@@ -1,4 +1,4 @@
-﻿#if ODIN_INSPECTOR
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 #endif
@@ -161,6 +161,44 @@ namespace ProjectFirst.Editor
                 infos.Add(new BalanceInfo { Category = "에이전트", Type = "평균 DEF", Value = avgDef });
             }
             return infos;
+        }
+
+        #endregion
+
+        #region Import & Sync
+
+        [BoxGroup("임포트 & 동기화", centerLabel: true)]
+        [HorizontalGroup("임포트 & 동기화/Buttons")]
+        [Button("CSV → 테이블 임포트", ButtonSizes.Large)]
+        [GUIColor(0.4f, 0.8f, 1f)]
+        private void ImportAllTables()
+        {
+            foreach (var entry in GameTableImportRegistry.GetEntries())
+            {
+                entry.ImportAction?.Invoke();
+            }
+            AssetDatabase.Refresh();
+            LoadAllTables();
+        }
+
+        [HorizontalGroup("임포트 & 동기화/Buttons")]
+        [Button("테이블 → Data 동기화", ButtonSizes.Large)]
+        [GUIColor(0.4f, 1f, 0.6f)]
+        private void SyncAllDataAssets()
+        {
+            StageDataSyncUtility.SyncStageDataFromTable();
+            ChapterDataSyncUtility.SyncChapterDataFromTable();
+            AssetDatabase.Refresh();
+        }
+
+        [HorizontalGroup("임포트 & 동기화/Buttons")]
+        [Button("CSV → Data 풀 파이프라인", ButtonSizes.Large)]
+        [GUIColor(0.2f, 0.7f, 0.9f)]
+        private void RunFullPipeline()
+        {
+            ImportAllTables();
+            SyncAllDataAssets();
+            EditorUtility.DisplayDialog("알림", "CSV → 테이블 → Data 동기화가 완료되었습니다.", "확인");
         }
 
         #endregion

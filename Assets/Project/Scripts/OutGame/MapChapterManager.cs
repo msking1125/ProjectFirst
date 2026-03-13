@@ -309,7 +309,7 @@ public class MapChapterManager : MonoBehaviour
             _stageDescLabel.text = stage.description;
 
         if (_recommendPowerLabel != null)
-            _recommendPowerLabel.text = $"沅뚯옣 ?꾪닾?? {stage.recommendedPower:N0}";
+            _recommendPowerLabel.text = $"권장 전투력 {stage.recommendedPower:N0}";
         if (_enemyElementIcons != null)
         {
             _enemyElementIcons.Clear();
@@ -352,7 +352,7 @@ public class MapChapterManager : MonoBehaviour
             }
         }
         if (_staminaCostLabel != null)
-            _staminaCostLabel.text = $"?ㅽ깭誘몃굹 {stage.staminaCost}";
+            _staminaCostLabel.text = $"스태미나 {stage.staminaCost}";
         if (_battleReadyBtn != null)
             _battleReadyBtn.SetEnabled(true);
     }
