@@ -115,9 +115,18 @@ namespace ProjectFirst.OutGame
             serverConnectionAPI = new MockServerConnectionAPI();
 
             // Load the local bad-word table if available.
+            // 빌드 환경에서 TextAsset이 누락되었거나 손상되더라도 로그인 흐름이 막히지 않도록 예외를 방지합니다.
             if (badWordsCSV != null)
             {
-                badWordData = new BadWordData(badWordsCSV);
+                try
+                {
+                    badWordData = new BadWordData(badWordsCSV);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"[LoginManager] Failed to load BadWords CSV. Profanity filtering will be skipped. Exception: {e.Message}");
+                    badWordData = null;
+                }
             }
             else
             {

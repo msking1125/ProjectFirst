@@ -26,6 +26,8 @@
     color: rgb(200, 220, 255);
     margin-bottom: 36px;
     -unity-text-align: middle-center;
+    /* 한글 지원 폰트 */
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 /* 버튼: 패널 안 100% 너비 */
@@ -39,6 +41,8 @@
     border-radius: 14px;
     margin-bottom: 16px;
     border-width: 0px;
+    /* 한글 지원 폰트 */
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 .cyber-button:hover {
@@ -63,6 +67,8 @@
     color: rgb(160, 205, 255);
     margin-bottom: 28px;
     -unity-text-align: middle-center;
+    /* 한글 지원 폰트 */
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 .dropdown {
