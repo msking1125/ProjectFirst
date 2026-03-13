@@ -1,15 +1,15 @@
-/* =====================================================================
-   LoginView.uss — 로그인 화면 스타일시트
+﻿/* =====================================================================
+   LoginView.uss ??濡쒓렇???붾㈃ ?ㅽ??쇱떆??
    ===================================================================== */
 
-/* 전체 화면 중앙 정렬 — 배경 없음 (로그인 완료 후 투명 상태 유지) */
+/* ?꾩껜 ?붾㈃ 以묒븰 ?뺣젹 ??諛곌꼍 ?놁쓬 (濡쒓렇???꾨즺 ???щ챸 ?곹깭 ?좎?) */
 .container {
     flex-grow: 1;
     justify-content: center;
     align-items: center;
 }
 
-/* 카드형 패널: 화면 너비의 88% */
+/* 移대뱶???⑤꼸: ?붾㈃ ?덈퉬??88% */
 .panel {
     width: 88%;
     padding: 52px 40px 44px 40px;
@@ -26,10 +26,10 @@
     color: rgb(200, 220, 255);
     margin-bottom: 36px;
     -unity-text-align: middle-center;
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
-/* 버튼: 패널 안 100% 너비 */
+/* 踰꾪듉: ?⑤꼸 ??100% ?덈퉬 */
 .cyber-button {
     width: 100%;
     height: 88px;
@@ -40,7 +40,7 @@
     border-radius: 14px;
     margin-bottom: 16px;
     border-width: 0px;
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 .cyber-button:hover {
@@ -65,7 +65,7 @@
     color: rgb(160, 205, 255);
     margin-bottom: 28px;
     -unity-text-align: middle-center;
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 .dropdown {
@@ -88,10 +88,10 @@
     border-width: 2px;
     border-radius: 12px;
     padding-left: 16px;
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
-/* 서버 드롭다운 팝업 리스트 아이템 크기 및 폰트 확대 */
+/* ?쒕쾭 ?쒕∼?ㅼ슫 ?앹뾽 由ъ뒪???꾩씠???ш린 諛??고듃 ?뺣? */
 #DropdownServer .unity-list-view__item,
 .unity-list-view__item {
     height: 72px;
@@ -102,7 +102,7 @@
 .unity-list-view__item > .unity-label {
     font-size: 30px;
     color: white;
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 .error-label {

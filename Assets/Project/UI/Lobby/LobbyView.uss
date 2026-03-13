@@ -1,16 +1,16 @@
-/* =====================================================================
-   LobbyView.uss — UI Toolkit 스타일시트
-   모바일 세로 기준 (1080×1920 참고), 모든 px는 논리 픽셀
+﻿/* =====================================================================
+   LobbyView.uss ??UI Toolkit ?ㅽ??쇱떆??
+   紐⑤컮???몃줈 湲곗? (1080횞1920 李멸퀬), 紐⑤뱺 px???쇰━ ?쎌?
    ===================================================================== */
 
-/* 한글 폰트 — 로비 (HeirofLightBold SDF: 한글 글리프 포함, 빌드 시 TMP 경고 가능) */
+/* ?쒓? ?고듃 ??濡쒕퉬 (HeirofLightBold SDF: ?쒓? 湲由ы봽 ?ы븿, 鍮뚮뱶 ??TMP 寃쎄퀬 媛?? */
 .unity-label,
 .unity-button,
 .unity-toggle {
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
-/* ── 루트 ──────────────────────────────────────────────────────────── */
+/* ?? 猷⑦듃 ???????????????????????????????????????????????????????????? */
 
 .lobby-root {
     position: absolute;
@@ -19,7 +19,7 @@
     overflow: hidden;
 }
 
-/* ── 배경 이미지 ─────────────────────────────────────────────────── */
+/* ?? 諛곌꼍 ?대?吏 ??????????????????????????????????????????????????? */
 
 .background-img {
     position: absolute;
@@ -29,7 +29,7 @@
     background-position: center;
 }
 
-/* ── 상단 탑바 ───────────────────────────────────────────────────── */
+/* ?? ?곷떒 ?묐컮 ????????????????????????????????????????????????????? */
 
 .top-bar {
     position: absolute;
@@ -44,7 +44,7 @@
     background-color: rgba(0, 0, 0, 0.55);
 }
 
-/* 내 정보 버튼 (좌상단) */
+/* ???뺣낫 踰꾪듉 (醫뚯긽?? */
 .myinfo-btn {
     width: 72px;
     height: 72px;
@@ -59,7 +59,7 @@
     flex-shrink: 0;
 }
 
-/* 재화 행 (중앙) */
+/* ?ы솕 ??(以묒븰) */
 .currency-row {
     flex-direction: row;
     align-items: center;
@@ -73,7 +73,7 @@
     margin-right: 6px;
 }
 
-/* 재화 그룹 (아이콘 + 숫자 + +버튼) */
+/* ?ы솕 洹몃９ (?꾩씠肄?+ ?レ옄 + +踰꾪듉) */
 .currency-group {
     flex-direction: row;
     align-items: center;
@@ -87,7 +87,7 @@
     margin-right: 3px;
 }
 
-/* 재화 아이콘 공통 */
+/* ?ы솕 ?꾩씠肄?怨듯넻 */
 .currency-icon {
     width: 28px;
     height: 28px;
@@ -99,7 +99,7 @@
 .gold-icon    { background-color: #f5d000; }
 .gem-icon     { background-color: #40c0ff; }
 
-/* 재화 숫자 라벨 */
+/* ?ы솕 ?レ옄 ?쇰꺼 */
 .currency-label {
     font-size: 19px;
     color: white;
@@ -108,7 +108,7 @@
     -unity-text-align: middle-center;
 }
 
-/* 재화 + 버튼 */
+/* ?ы솕 + 踰꾪듉 */
 .currency-plus {
     width: 28px;
     height: 28px;
@@ -123,7 +123,7 @@
     flex-shrink: 0;
 }
 
-/* 우상단 그룹 */
+/* ?곗긽??洹몃９ */
 .right-group {
     flex-direction: row;
     align-items: center;
@@ -135,7 +135,7 @@
     margin-right: 6px;
 }
 
-/* 아이콘 버튼 (우편, 설정) */
+/* ?꾩씠肄?踰꾪듉 (?고렪, ?ㅼ젙) */
 .icon-btn {
     width: 60px;
     height: 60px;
@@ -147,7 +147,7 @@
     -unity-text-align: middle-center;
 }
 
-/* ── 빨간 점 (알림) ─────────────────────────────────────────────── */
+/* ?? 鍮④컙 ??(?뚮┝) ??????????????????????????????????????????????? */
 
 .red-dot {
     position: absolute;
@@ -157,10 +157,10 @@
     height: 14px;
     border-radius: 7px;
     background-color: #ff3b30;
-    display: none; /* 기본 숨김; 코드에서 필요 시 flex 로 변경 */
+    display: none; /* 湲곕낯 ?④?; 肄붾뱶?먯꽌 ?꾩슂 ??flex 濡?蹂寃?*/
 }
 
-/* ── 우측 퀵메뉴 ─────────────────────────────────────────────────── */
+/* ?? ?곗륫 ?듬찓????????????????????????????????????????????????????? */
 
 .right-quickmenu {
     position: absolute;
@@ -189,7 +189,7 @@
     white-space: normal;
 }
 
-/* ── 좌측 사이드 (방치 보상) ─────────────────────────────────────── */
+/* ?? 醫뚯륫 ?ъ씠??(諛⑹튂 蹂댁긽) ??????????????????????????????????????? */
 
 .left-side {
     position: absolute;
@@ -199,7 +199,7 @@
     align-items: flex-start;
 }
 
-/* 방치 보상 원형 버튼 */
+/* 諛⑹튂 蹂댁긽 ?먰삎 踰꾪듉 */
 .idle-reward-btn {
     width: 94px;
     height: 94px;
@@ -213,7 +213,7 @@
     -unity-text-align: middle-center;
 }
 
-/* ── 하단 네비게이션 ─────────────────────────────────────────────── */
+/* ?? ?섎떒 ?ㅻ퉬寃뚯씠????????????????????????????????????????????????? */
 
 .bottom-nav {
     position: absolute;
@@ -230,7 +230,7 @@
     border-top-color: rgba(255, 255, 255, 0.12);
 }
 
-/* 하단 네비 버튼 */
+/* ?섎떒 ?ㅻ퉬 踰꾪듉 */
 .nav-btn {
     flex-grow: 1;
     border-radius: 0;

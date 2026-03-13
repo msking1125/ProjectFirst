@@ -1,18 +1,18 @@
-/*
-    [1080x1920(세로/모바일 풀스크린) 환경에서도 시각적으로 어색하지 않게 개선]
-    - 팝업 panel의 최대/최소 가로/세로, 패딩, 내부 여백을 여유롭게 조정
-    - 버튼은 한 줄에 여유 있게, 최대폭 제한 & 적당한 마진 부여(터치 환경 대응)
-    - title/subtitle 텍스트 크기 확대 (모바일에서 작아보이지 않게)
-    - 버튼 및 텍스트 여백 강화
-    - min/max-width, max-height 등을 지정하여 양쪽(좁은/넓은) 해상도에서 자연스럽게
-    - flex-wrap으로 버튼 갯수 늘어나도 이상 없음 (row 유지)
+﻿/*
+    [1080x1920(?몃줈/紐⑤컮????ㅽ겕由? ?섍꼍?먯꽌???쒓컖?곸쑝濡??댁깋?섏? ?딄쾶 媛쒖꽑]
+    - ?앹뾽 panel??理쒕?/理쒖냼 媛濡??몃줈, ?⑤뵫, ?대? ?щ갚???ъ쑀濡?쾶 議곗젙
+    - 踰꾪듉? ??以꾩뿉 ?ъ쑀 ?덇쾶, 理쒕????쒗븳 & ?곷떦??留덉쭊 遺???곗튂 ?섍꼍 ???
+    - title/subtitle ?띿뒪???ш린 ?뺣? (紐⑤컮?쇱뿉???묒븘蹂댁씠吏 ?딄쾶)
+    - 踰꾪듉 諛??띿뒪???щ갚 媛뺥솕
+    - min/max-width, max-height ?깆쓣 吏?뺥븯???묒そ(醫곸?/?볦?) ?댁긽?꾩뿉???먯뿰?ㅻ읇寃?
+    - flex-wrap?쇰줈 踰꾪듉 媛?닔 ?섏뼱?섎룄 ?댁긽 ?놁쓬 (row ?좎?)
 */
 
-/* 한글 폰트 — 결과 패널 */
+/* ?쒓? ?고듃 ??寃곌낵 ?⑤꼸 */
 .unity-label,
 .unity-button,
 .unity-toggle {
-    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Project/Fonts/HeirofLightBold SDF_2.asset");
 }
 
 .result-root {
@@ -25,7 +25,7 @@
     justify-content: center;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.78);
-    /* 동적 제어용 display: none은 유지, 필요하면 js에서 대체 */
+    /* ?숈쟻 ?쒖뼱??display: none? ?좎?, ?꾩슂?섎㈃ js?먯꽌 ?泥?*/
     display: none;
 }
 
