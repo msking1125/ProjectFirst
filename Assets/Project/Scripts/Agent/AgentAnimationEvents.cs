@@ -60,10 +60,18 @@ namespace Project
         public void FireNormalAttackEvent()
         {
             if (projectileShooter != null && projectileShooter.CanFireNormalAttack())
+            {
                 projectileShooter.FireNormalAttack();
-            else
-                agent?.FireNormalAttack();
+                return;
+            }
+
+            if (_logFireEventOnce++ == 0)
+                Debug.Log("[AgentAnimationEvents] FireNormalAttackEvent 수신됨. 발사체가 나가지 않으면: aria_rig의 Projectile Shooter에 'Normal Attack' 프리팹을 넣거나, Agent의 AgentData에서 normalAttackVfxPrefab을 할당하세요.");
+
+            agent?.FireNormalAttack();
         }
+
+        private static int _logFireEventOnce;
 
         public void FireActiveSkillEvent()
         {

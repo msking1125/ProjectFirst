@@ -990,9 +990,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   runStateOverride: 
   moveSpeed: 2
-  maxHP: 10
-  attackDamage: 21
-  defaultMonsterId: Monster2
+  defaultMonsterId: 0
   eliteHpScale: 1.5
   eliteAtkScale: 1.3
   eliteDefScale: 1.2
@@ -1007,11 +1005,16 @@ MonoBehaviour:
   shakeDuration: 0.3
   shakeStrength: 0.3
   hitEffectTable: {fileID: 11400000, guid: a54e99bb344ef274990ee4cc9a2e5a45, type: 2}
-  normalHitVfxPrefab: {fileID: 0}
-  critHitVfxPrefab: {fileID: 0}
-  passionHitVfxPrefab: {fileID: 0}
-  intuitionHitVfxPrefab: {fileID: 0}
-  reasonHitVfxPrefab: {fileID: 0}
+  normalHitVfxPrefab: {fileID: 7368056990784780153, guid: e112d821291480b4d805564d1e5fa17e,
+    type: 3}
+  critHitVfxPrefab: {fileID: 1156694685449155206, guid: 8ac4c1c38adcecd4ebd9fcf1917ecf99,
+    type: 3}
+  passionHitVfxPrefab: {fileID: 1055588934498281110, guid: b0f4b14f03de06f4a92a06d7dc52a45c,
+    type: 3}
+  intuitionHitVfxPrefab: {fileID: 8770839806681096402, guid: bb408e9a722aef04cbd1043ba1d08d50,
+    type: 3}
+  reasonHitVfxPrefab: {fileID: 7638955463266758610, guid: ab179fcae93b76f48af510bab34736c7,
+    type: 3}
   postProcessVolume: {fileID: 0}
   critMotionBlurIntensity: 0.85
   critMotionBlurDuration: 0.12

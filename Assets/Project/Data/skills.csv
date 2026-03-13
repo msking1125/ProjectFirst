@@ -1,7 +1,7 @@
 ﻿id,name,element,coefficient,cooldown,range,icon,castVfxPrefab,description,effectType,singleTargetBonus,buffStat,buffMultiplier,buffDuration,debuffType,debuffValue,debuffDuration
-101,Fire Burst,Passion,1.2,4,9999,Icon_Skill_Btn_01,gunner_railgun,화염 폭발로 모든 적에게 피해를 줍니다.,AllEnemies,2,AttackPower,0.3,10,Slow,0.5,5
-102,Mind Wave,Intuition,1.35,5,9999,Icon_Skill_Btn_02,gunner_railgun,정신 파동으로 적의 방어를 약화합니다.,Debuff,2,AttackPower,0.3,10,WeakenDef,0.4,6
-103,Reason Break,Reason,1.5,6,9999,Icon_Skill_Btn_03,gunner_railgun,이성의 힘으로 단일 적을 강타합니다.,SingleTarget,2.5,AttackPower,0.3,10,Slow,0.5,5
-104,Inferno,Passion,1.8,8,9999,Icon_Skill_Btn_04,gunner_railgun,불꽃 폭풍으로 전장을 태웁니다.,AllEnemies,2,AttackPower,0.3,10,Slow,0.5,5
-105,Flash Insight,Intuition,1.6,7,9999,Icon_Skill_Btn_05,gunner_railgun,번뜩이는 통찰로 아군 공격력을 강화합니다.,Buff,2,AttackPower,0.5,8,Slow,0.5,5
-106,Logic Storm,Reason,1.7,7.5,9999,Icon_Skill_Btn_06,gunner_railgun,논리의 폭풍으로 적 전체를 압박합니다.,Debuff,2,AttackPower,0.3,10,Slow,0.5,8
+101,Fire Burst,Passion,1.2,4,9999,Icon_Skill_Btn_01,user_skill_flame,화염 폭발로 모든 적에게 피해를 줍니다.,AllEnemies,2,AttackPower,0.3,10,Slow,0.5,5
+102,Mind Wave,Intuition,1.35,5,9999,Icon_Skill_Btn_02,user_skill_flame,정신 파동으로 적의 방어를 약화합니다.,Debuff,2,AttackPower,0.3,10,WeakenDef,0.4,6
+103,Reason Break,Reason,1.5,6,9999,Icon_Skill_Btn_03,user_skill_flame,이성의 힘으로 단일 적을 강타합니다.,SingleTarget,2.5,AttackPower,0.3,10,Slow,0.5,5
+104,Inferno,Passion,1.8,8,9999,Icon_Skill_Btn_04,user_skill_flame,불꽃 폭풍으로 전장을 태웁니다.,AllEnemies,2,AttackPower,0.3,10,Slow,0.5,5
+105,Flash Insight,Intuition,1.6,7,9999,Icon_Skill_Btn_05,user_skill_flame,번뜩이는 통찰로 아군 공격력을 강화합니다.,Buff,2,AttackPower,0.5,8,Slow,0.5,5
+106,Logic Storm,Reason,1.7,7.5,9999,Icon_Skill_Btn_06,user_skill_flame,논리의 폭풍으로 적 전체를 압박합니다.,Debuff,2,AttackPower,0.3,10,Slow,0.5,8

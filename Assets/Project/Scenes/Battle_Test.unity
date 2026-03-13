@@ -1472,6 +1472,63 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
+--- !u!1 &348983195
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 348983197}
+  - component: {fileID: 348983196}
+  m_Layer: 0
+  m_Name: UltimateTimeline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!320 &348983196
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 348983195}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: 4f6885f7ee7459d4597cce5740e2acc0, type: 2}
+  m_InitialState: 1
+  m_WrapMode: 2
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: 8659836581873637744, guid: 4f6885f7ee7459d4597cce5740e2acc0, type: 2}
+    value: {fileID: 330585548}
+  - key: {fileID: 2066078082984721252, guid: 4f6885f7ee7459d4597cce5740e2acc0, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -8613023236215481696, guid: 4f6885f7ee7459d4597cce5740e2acc0, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: 5089156111048436743, guid: 4f6885f7ee7459d4597cce5740e2acc0, type: 2}
+    value: {fileID: 0}
+  m_ExposedReferences:
+    m_References: []
+--- !u!4 &348983197
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 348983195}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &350622833
 GameObject:
   m_ObjectHideFlags: 0
@@ -4223,6 +4280,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1028023579}
     m_Modifications:
+    - target: {fileID: 413174048551386807, guid: 76c4a43c42db13d4eb2bed8739c682dc,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6515865335917201409, guid: 76c4a43c42db13d4eb2bed8739c682dc,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8385815404522066292, guid: 76c4a43c42db13d4eb2bed8739c682dc,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -6150,3 +6217,4 @@ SceneRoots:
   - {fileID: 1548313236}
   - {fileID: 1931114286}
   - {fileID: 2026752306}
+  - {fileID: 348983197}
